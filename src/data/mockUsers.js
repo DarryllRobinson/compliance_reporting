@@ -1,7 +1,7 @@
 export const users = [
   {
     id: 1,
-    name: "John",
+    firstName: "John",
     surname: "Doe",
     email: "john@doe.com",
     jobTitle: "Financial Manager",
