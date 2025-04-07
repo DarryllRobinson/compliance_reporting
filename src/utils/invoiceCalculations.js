@@ -43,16 +43,16 @@ export const calculateInvoiceMetrics = () => {
       if (daysToPay <= 20) {
         metrics[0].number++;
         metrics[0].value += parseFloat(invoice.invoiceAmount);
-      } else if (daysToPay <= 30) {
+      } else if (daysToPay > 20 && daysToPay <= 30) {
         metrics[1].number++;
         metrics[1].value += parseFloat(invoice.invoiceAmount);
-      } else if (daysToPay <= 60) {
+      } else if (daysToPay > 30 && daysToPay <= 60) {
         metrics[2].number++;
         metrics[2].value += parseFloat(invoice.invoiceAmount);
-      } else if (daysToPay <= 90) {
+      } else if (daysToPay > 60 && daysToPay <= 90) {
         metrics[3].number++;
         metrics[3].value += parseFloat(invoice.invoiceAmount);
-      } else if (daysToPay <= 120) {
+      } else if (daysToPay > 90 && daysToPay <= 120) {
         metrics[4].number++;
         metrics[4].value += parseFloat(invoice.invoiceAmount);
       } else {

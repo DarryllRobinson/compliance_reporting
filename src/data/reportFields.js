@@ -84,4 +84,187 @@ export const fields = [
     label:
       "The proportion, determined by total number, of small business invoices paid by the reporting entity during the reporting period within 20 calendar days after the day of receipt day",
   },
+  {
+    name: "NumberInvoicesPaidBetween21And30Days",
+    label:
+      "The proportion, determined by total number, of small business invoices paid by the reporting entity during the reporting period between 21 and 30 calendar days after the day of receipt",
+  },
+  {
+    name: "NumberInvoicesPaidBetween31And60Days",
+    label:
+      "The proportion, determined by total number, of small business invoices paid by the reporting entity during the reporting period between 31 and 60 calendar days after the day of receipt",
+  },
+  {
+    name: "NumberInvoicesPaidBetween61And90Days",
+    label:
+      "The proportion, determined by total number, of small business invoices paid by the reporting entity during the reporting period between 61 and 90 calendar days after the  day of receipt",
+  },
+  {
+    name: "NumberInvoicesPaidBetween91And120Days",
+    label:
+      "The proportion, determined by total number, of small business invoices paid by the reporting entity during the reporting period between 91 and 120 calendar days after the day of receipt",
+  },
+  {
+    name: "NumberInvoicesPaidInMoreThan120Days",
+    label:
+      "The proportion, determined by total number, of small business invoices paid by the reporting entity during the reporting period more than 120 calendar days after the day of receipt.",
+  },
+  {
+    name: "ValueInvoicesPaidWithin20Days",
+    label:
+      "The proportion, determined by total value, of small business invoices paid by the reporting entity during the reporting period within 20 calendar days after the day of receipt",
+  },
+  {
+    name: "ValueInvoicesPaidBetween21And30Days",
+    label:
+      "The proportion, determined by total value, of small business invoices paid by the reporting entity during the reporting period between 21 and 30 calendar days after the day of receipt",
+  },
+  {
+    name: "ValueInvoicesPaidBetween31And60Days",
+    label:
+      "The proportion, determined by total value, of small business invoices paid by the reporting entity during the reporting period between 31 and 60 calendar days after the day of receipt",
+  },
+  {
+    name: "ValueInvoicesPaidBetween61And90Days",
+    label:
+      "The proportion, determined by total value, of small business invoices paid by the reporting entity during the reporting period between 61 and 90 calendar days after the  day of receipt",
+  },
+  {
+    name: "ValueInvoicesPaidBetween91And120Days",
+    label:
+      "The proportion, determined by total value, of small business invoices paid by the reporting entity during the reporting period between 91 and 120 calendar days after the day of receipt",
+  },
+  {
+    name: "ValueInvoicesPaidInMoreThan120Days",
+    label:
+      "The proportion, determined by total value, of small business invoices paid by the reporting entity during the reporting period more than 120 calendar days after the day of receipt.",
+  },
+  {
+    name: "InvoicePracticesAndArrangements",
+    label:
+      "Details of any practices or arrangements used by the reporting entity during the reporting period for the receiving or paying of small business invoices",
+  },
+  {
+    name: "PracticesAndArrangementsForLodgingTender",
+    label:
+      "Details of any practices or arrangements used by entity during the reporting period requiring small business suppliers to pay an amount, including a subscription or membership fee to participate in the entity's procurement processes for lodging a tender",
+  },
+  {
+    name: "PracticesAndArrangementsToAcceptInvoice",
+    label:
+      "Details of any practices or arrangements used by entity during the reporting period requiring small business suppliers to pay an amount, including a subscription or membership fee for the entity to accept an invoice issued by the small business supplier",
+  },
+  {
+    name: "TotalValueOfSmallBusinessProcurement",
+    label:
+      "The proportion, determined by total value, of all procurement by the reporting entity during the reporting period that was from small business suppliers",
+  },
+  {
+    name: "SupplyChainFinanceArrangements",
+    label:
+      "A description of any supply chain finance arrangements that are provided or used for small business suppliers",
+  },
+  {
+    name: "TotalNumberSupplyChainFinanceArrangement",
+    label:
+      "The proportion, determined by total number, of small business invoices where supply chain finance arrangements were used",
+  },
+  {
+    name: "TotalValueSupplyChainFinanceArrangements",
+    label:
+      "The proportion, determined by total value, of small business invoices where supply chain finance arrangements were used",
+  },
+  {
+    name: "BenefitsOfSupplyChainFinanceArrangements",
+    label:
+      "Details of any benefits, including commissions or other payments, received by the reporting entity from the provider of any supply chain finance arrangements",
+  },
+  {
+    name: "RequirementToUseSupplyChainFinance",
+    label:
+      "Statement on whether small business suppliers were required to agree to use supply chain finance arrangements to participate in the reporting entity's procurement process or to receive payments for invoices during the reporting period",
+  },
+  {
+    name: "DetailOfChangeInAccountingPeriod",
+    label:
+      "Information about any changes to accounting periods that occurred during the reporting period",
+  },
+  {
+    name: "DetailOfChangeInBusinessName",
+    label:
+      "Information about any changes to business name that occurred during the reporting period",
+  },
+  {
+    name: "DetailEntitesBelowReportingThreshold",
+    label:
+      "Information about any changes to any member entities whose income was below $10 million in the two most recent income years",
+  },
+  {
+    name: "ReportComments",
+    label:
+      "Any written information to provide context or explanation in relation to the information provided in the report",
+  },
+  {
+    name: "SubmitterFirstName",
+    label: "First name of the person submitting the report",
+  },
+  {
+    name: "SubmitterLastName",
+    label: "Last name of the person submitting the report",
+  },
+  {
+    name: "SubmitterPosition",
+    label: "Position of the person submitting the report",
+  },
+  {
+    name: "SubmitterPhoneNumber",
+    label: "Phone number of the person submitting the report",
+  },
+  {
+    name: "SubmitterEmail",
+    label: "Email of the person submitting the report",
+  },
+  {
+    name: "ApproverFirstName",
+    label:
+      "First name of the responsible member of the Reporting Entity or if relevant, the controlling corporation, who approved the report",
+  },
+  {
+    name: "ApproverLastName",
+    label:
+      "Last name of the responsible member of the Reporting Entity or if relevant, the controlling corporation, who approved the report",
+  },
+  {
+    name: "ApproverPosition",
+    label:
+      "Position of the responsible member of the Reporting Entity or if relevant, the controlling corporation, who approved the report",
+  },
+  {
+    name: "ApproverPhoneNumber",
+    label:
+      "Phone number of the responsible member of the Reporting Entity or if relevant, the controlling corporation, who approved the report",
+  },
+  {
+    name: "ApproverEmail",
+    label:
+      "Email of the responsible member of the Reporting Entity or if relevant, the controlling corporation, who approved the report",
+  },
+  {
+    name: "ApprovalDate",
+    label:
+      "Date the report was approved by responsible member of the reporting entity or if relevant, the controlling corporation",
+  },
+  {
+    name: "PrincipalGoverningBodyName",
+    label: "Name of the principal governing body of the reporting entity.",
+  },
+  {
+    name: "PrincipalGoverningBodyDescription",
+    label:
+      "Description of the principal governing body of the reporting entity.",
+  },
+  {
+    name: "ResponsibleMemberDeclaration",
+    label: "Declaration of the responsible member.",
+  },
 ];

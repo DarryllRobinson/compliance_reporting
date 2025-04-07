@@ -1,6 +1,6 @@
 import React from "react";
-import { useParams } from "react-router";
-import { Box, Typography, Grid, Paper } from "@mui/material";
+import { useParams, useNavigate } from "react-router";
+import { Box, Typography, Grid, Paper, Button } from "@mui/material";
 import { calculateInvoiceMetrics } from "../utils/invoiceCalculations";
 import { mockInvoices } from "../data/mockInvoiceData";
 import { useTheme } from "@mui/material/styles";
@@ -8,6 +8,7 @@ import { useTheme } from "@mui/material/styles";
 const ReviewRecords = () => {
   const { index } = useParams();
   const theme = useTheme();
+  const navigate = useNavigate();
   const metrics = calculateInvoiceMetrics();
   const selectedMetric = metrics[index];
 
@@ -40,6 +41,14 @@ const ReviewRecords = () => {
 
   return (
     <Box sx={{ p: 3, backgroundColor: theme.palette.background.default }}>
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={() => navigate("/review")}
+        sx={{ mt: 3 }}
+      >
+        Back to Metrics
+      </Button>
       <Typography
         variant="h4"
         gutterBottom

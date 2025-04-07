@@ -366,8 +366,10 @@ export const mockInvoices = [
     invoiceDate: "2024-10-19",
     dueDate: "2024-11-18",
     invoiceAmount: "571.27",
-    paidStatus: false,
-    paidDate: null,
+    // paidStatus: false,
+    // paidDate: null,
+    paidStatus: true,
+    paidDate: "2025-04-07",
   },
   {
     invoiceNumber: "FCjNseeB",
