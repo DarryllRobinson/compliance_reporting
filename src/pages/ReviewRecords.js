@@ -9,27 +9,34 @@ const ReviewRecords = () => {
   const { index } = useParams();
   const theme = useTheme();
   const navigate = useNavigate();
-  const metrics = calculateInvoiceMetrics();
-  const selectedMetric = metrics[index];
+  const { paidMetrics, unpaidMetrics } = calculateInvoiceMetrics();
+  const metrics = [...paidMetrics, ...unpaidMetrics];
+  const selectedMetric = metrics[parseInt(index, 10)] || {
+    label: "Unknown Metric",
+    number: 0,
+    value: 0,
+  };
 
   // Filter invoices based on the selected metric
   const filteredInvoices = mockInvoices.filter((invoice) => {
     if (invoice.paidStatus && invoice.paidDate) {
-      const invoiceDate = new Date(invoice.invoiceDate);
+      const invoiceDueDate = new Date(invoice.dueDate);
       const paidDate = new Date(invoice.paidDate);
-      const daysToPay = (paidDate - invoiceDate) / (1000 * 60 * 60 * 24);
+      const daysToPay = Math.round(
+        (paidDate - invoiceDueDate) / (1000 * 60 * 60 * 24)
+      );
 
       switch (parseInt(index, 10)) {
         case 0:
-          return daysToPay <= 20;
+          return daysToPay >= 0 && daysToPay <= 20;
         case 1:
-          return daysToPay > 20 && daysToPay <= 30;
+          return daysToPay >= 21 && daysToPay <= 30;
         case 2:
-          return daysToPay > 30 && daysToPay <= 60;
+          return daysToPay >= 31 && daysToPay <= 60;
         case 3:
-          return daysToPay > 60 && daysToPay <= 90;
+          return daysToPay >= 61 && daysToPay <= 90;
         case 4:
-          return daysToPay > 90 && daysToPay <= 120;
+          return daysToPay >= 91 && daysToPay <= 120;
         case 5:
           return daysToPay > 120;
         default:

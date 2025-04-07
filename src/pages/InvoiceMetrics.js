@@ -4,9 +4,10 @@ import { calculateInvoiceMetrics } from "../utils/invoiceCalculations";
 import { useTheme } from "@mui/material/styles";
 import { Link } from "react-router";
 
-const InvoiceMetrics = () => {
+const InvoiceMetrics = (props) => {
   const theme = useTheme();
-  const metrics = calculateInvoiceMetrics();
+  const { paidMetrics = [], unpaidMetrics = [] } = calculateInvoiceMetrics();
+  const metrics = [...paidMetrics, ...unpaidMetrics];
 
   return (
     <Box sx={{ p: 3, backgroundColor: theme.palette.background.default }}>

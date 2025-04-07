@@ -136,7 +136,7 @@ export const fields = [
   {
     name: "NumberInvoicesPaidInMoreThan120Days",
     label:
-      "The proportion, determined by total number, of small business invoices paid by the reporting entity during the reporting period more than 120 calendar days after the day of receipt.",
+      "The proportion, determined by total number, of small business invoices paid by the reporting entity during the reporting period more than 120 calendar days after the day of receipt",
     confirmed: false,
   },
   {
