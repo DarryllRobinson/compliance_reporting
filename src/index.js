@@ -6,6 +6,7 @@ import Layout, { layoutLoader } from "./components/generic/Layout";
 import ErrorPage from "./components/navigation/ErrorPage";
 import LandingPage from "./components/generic/LandingPage";
 import ReportForm from "./pages/ReportForm";
+import InvoiceMetrics from "./pages/InvoiceMetrics";
 
 const router = createBrowserRouter([
   {
@@ -18,6 +19,7 @@ const router = createBrowserRouter([
         element: <LandingPage />, // Replace placeholder with LandingPage component
       },
       { path: "/report", element: <ReportForm /> }, // Add ReportForm route
+      { path: "/review", element: <InvoiceMetrics /> }, // Add InvoiceMetrics route
     ],
   },
 ]);

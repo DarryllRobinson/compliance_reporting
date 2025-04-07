@@ -8,12 +8,12 @@ import {
   Button,
   Menu,
   MenuItem,
-  useTheme,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
 import { Link } from "react-router";
+import { useTheme } from "@mui/material/styles";
 
 export default function Navbar({ isDarkTheme, onToggleTheme }) {
   const theme = useTheme();
@@ -28,17 +28,49 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
   };
 
   return (
-    <AppBar position="static">
+    <AppBar
+      position="sticky"
+      sx={{
+        backgroundColor: isDarkTheme
+          ? theme.palette.background.paper
+          : theme.palette.primary.main,
+        color: isDarkTheme
+          ? theme.palette.text.primary
+          : theme.palette.common.white,
+      }}
+    >
       <Toolbar>
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+        <Typography
+          variant="h6"
+          component="div"
+          sx={{ flexGrow: 1, color: theme.palette.text.primary }}
+        >
           Placeholder Logo
         </Typography>
         <Box sx={{ display: { xs: "none", md: "flex" } }}>
-          <Button color="inherit" component={Link} to="/">
+          <Button
+            color="inherit"
+            component={Link}
+            to="/"
+            sx={{ color: theme.palette.text.primary }}
+          >
             Home
           </Button>
-          <Button color="inherit" component={Link} to="/report">
+          <Button
+            color="inherit"
+            component={Link}
+            to="/report"
+            sx={{ color: theme.palette.text.primary }}
+          >
             Report Form
+          </Button>
+          <Button
+            color="inherit"
+            component={Link}
+            to="/review"
+            sx={{ color: theme.palette.text.primary }}
+          >
+            Report Review
           </Button>
         </Box>
         <Box sx={{ display: { xs: "flex", md: "none" } }}>
@@ -46,6 +78,7 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
             color="inherit"
             aria-label="menu"
             onClick={handleMenuOpen}
+            sx={{ color: theme.palette.text.primary }}
           >
             <MenuIcon />
           </IconButton>
@@ -53,17 +86,36 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
             anchorEl={anchorEl}
             open={Boolean(anchorEl)}
             onClose={handleMenuClose}
+            sx={{ backgroundColor: theme.palette.background.paper }}
           >
-            <MenuItem onClick={handleMenuClose} component={Link} to="/">
+            <MenuItem
+              onClick={handleMenuClose}
+              component={Link}
+              to="/"
+              sx={{ color: theme.palette.text.primary }}
+            >
               Home
             </MenuItem>
-            <MenuItem onClick={handleMenuClose} component={Link} to="/report">
+            <MenuItem
+              onClick={handleMenuClose}
+              component={Link}
+              to="/report"
+              sx={{ color: theme.palette.text.primary }}
+            >
               Report Form
+            </MenuItem>
+            <MenuItem
+              onClick={handleMenuClose}
+              component={Link}
+              to="/review"
+              sx={{ color: theme.palette.text.primary }}
+            >
+              Report Review
             </MenuItem>
           </Menu>
         </Box>
         <IconButton
-          sx={{ ml: 1 }}
+          sx={{ ml: 1, color: theme.palette.text.primary }}
           onClick={onToggleTheme}
           color="inherit"
           aria-label="toggle theme"
