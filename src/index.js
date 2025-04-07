@@ -5,6 +5,7 @@ import { createBrowserRouter, RouterProvider } from "react-router";
 import Layout, { layoutLoader } from "./components/generic/Layout";
 import ErrorPage from "./components/navigation/ErrorPage";
 import LandingPage from "./components/generic/LandingPage";
+import ReportForm from "./pages/ReportForm";
 
 const router = createBrowserRouter([
   {
@@ -16,6 +17,7 @@ const router = createBrowserRouter([
         index: true,
         element: <LandingPage />, // Replace placeholder with LandingPage component
       },
+      { path: "/report", element: <ReportForm /> }, // Add ReportForm route
     ],
   },
 ]);
