@@ -1,20 +1,38 @@
 import { mockInvoices } from "../data/mockInvoiceData";
 
 export const calculateInvoiceMetrics = () => {
-  const metrics = {
-    NumberInvoicesPaidWithin20DaysOfReceipt: 0,
-    NumberInvoicesPaidBetween21And30Days: 0,
-    NumberInvoicesPaidBetween31And60Days: 0,
-    NumberInvoicesPaidBetween61And90Days: 0,
-    NumberInvoicesPaidBetween91And120Days: 0,
-    NumberInvoicesPaidInMoreThan120Days: 0,
-    ValueInvoicesPaidWithin20Days: 0,
-    ValueInvoicesPaidBetween21And30Days: 0,
-    ValueInvoicesPaidBetween31And60Days: 0,
-    ValueInvoicesPaidBetween61And90Days: 0,
-    ValueInvoicesPaidBetween91And120Days: 0,
-    ValueInvoicesPaidInMoreThan120Days: 0,
-  };
+  const metrics = [
+    {
+      label: "Invoices paid within 20 days of receipt",
+      number: 0,
+      value: 0,
+    },
+    {
+      label: "Invoices paid between 21 and 30 days",
+      number: 0,
+      value: 0,
+    },
+    {
+      label: "Invoices paid between 31 and 60 days",
+      number: 0,
+      value: 0,
+    },
+    {
+      label: "Invoices paid between 61 and 90 days",
+      number: 0,
+      value: 0,
+    },
+    {
+      label: "Invoices paid between 91 and 120 days",
+      number: 0,
+      value: 0,
+    },
+    {
+      label: "Invoices paid in more than 120 days",
+      number: 0,
+      value: 0,
+    },
+  ];
 
   mockInvoices.forEach((invoice) => {
     if (invoice.paidStatus && invoice.paidDate) {
@@ -23,35 +41,23 @@ export const calculateInvoiceMetrics = () => {
       const daysToPay = (paidDate - invoiceDate) / (1000 * 60 * 60 * 24);
 
       if (daysToPay <= 20) {
-        metrics.NumberInvoicesPaidWithin20DaysOfReceipt++;
-        metrics.ValueInvoicesPaidWithin20Days += parseFloat(
-          invoice.invoiceAmount
-        );
+        metrics[0].number++;
+        metrics[0].value += parseFloat(invoice.invoiceAmount);
       } else if (daysToPay <= 30) {
-        metrics.NumberInvoicesPaidBetween21And30Days++;
-        metrics.ValueInvoicesPaidBetween21And30Days += parseFloat(
-          invoice.invoiceAmount
-        );
+        metrics[1].number++;
+        metrics[1].value += parseFloat(invoice.invoiceAmount);
       } else if (daysToPay <= 60) {
-        metrics.NumberInvoicesPaidBetween31And60Days++;
-        metrics.ValueInvoicesPaidBetween31And60Days += parseFloat(
-          invoice.invoiceAmount
-        );
+        metrics[2].number++;
+        metrics[2].value += parseFloat(invoice.invoiceAmount);
       } else if (daysToPay <= 90) {
-        metrics.NumberInvoicesPaidBetween61And90Days++;
-        metrics.ValueInvoicesPaidBetween61And90Days += parseFloat(
-          invoice.invoiceAmount
-        );
+        metrics[3].number++;
+        metrics[3].value += parseFloat(invoice.invoiceAmount);
       } else if (daysToPay <= 120) {
-        metrics.NumberInvoicesPaidBetween91And120Days++;
-        metrics.ValueInvoicesPaidBetween91And120Days += parseFloat(
-          invoice.invoiceAmount
-        );
+        metrics[4].number++;
+        metrics[4].value += parseFloat(invoice.invoiceAmount);
       } else {
-        metrics.NumberInvoicesPaidInMoreThan120Days++;
-        metrics.ValueInvoicesPaidInMoreThan120Days += parseFloat(
-          invoice.invoiceAmount
-        );
+        metrics[5].number++;
+        metrics[5].value += parseFloat(invoice.invoiceAmount);
       }
     }
   });

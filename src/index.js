@@ -7,6 +7,7 @@ import ErrorPage from "./components/navigation/ErrorPage";
 import LandingPage from "./components/generic/LandingPage";
 import ReportForm from "./pages/ReportForm";
 import InvoiceMetrics from "./pages/InvoiceMetrics";
+import ReviewRecords from "./pages/ReviewRecords";
 
 const router = createBrowserRouter([
   {
@@ -20,6 +21,7 @@ const router = createBrowserRouter([
       },
       { path: "/report", element: <ReportForm /> }, // Add ReportForm route
       { path: "/review", element: <InvoiceMetrics /> }, // Add InvoiceMetrics route
+      { path: "/review/:index", element: <ReviewRecords /> }, // Add ReviewRecords route with index parameter
     ],
   },
 ]);
