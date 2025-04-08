@@ -1,12 +1,14 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { Outlet } from "react-router";
+import { Outlet, useLocation } from "react-router";
 import { Box, CssBaseline } from "@mui/material";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import Navbar from "../navigation/Navbar";
 import Footer from "../navigation/Footer";
+import ProcessFlow from "../ProcessFlow";
 
 export default function Layout() {
   const [isDarkTheme, setIsDarkTheme] = useState(false);
+  const location = useLocation();
 
   const theme = useMemo(
     () =>
@@ -30,6 +32,13 @@ export default function Layout() {
 
   const toggleTheme = () => setIsDarkTheme((prev) => !prev);
 
+  const showProcessFlow = [
+    "/xero-credentials",
+    "/invoice-metrics",
+    "/review-report",
+    "/final-review",
+  ].includes(location.pathname);
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -42,6 +51,8 @@ export default function Layout() {
         }}
       >
         <Navbar isDarkTheme={isDarkTheme} onToggleTheme={toggleTheme} />
+
+        {showProcessFlow && <ProcessFlow />}
         <Box sx={{ flex: 1 }}>
           <Outlet />
         </Box>

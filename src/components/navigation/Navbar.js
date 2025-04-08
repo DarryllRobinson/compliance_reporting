@@ -59,10 +59,10 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
           <Button
             color="inherit"
             component={Link}
-            to="/report"
+            to="/select-report"
             sx={{ color: theme.palette.text.primary }}
           >
-            Report Form
+            Report Selection
           </Button>
           <Button
             color="inherit"

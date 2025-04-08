@@ -8,6 +8,10 @@ import LandingPage from "./components/generic/LandingPage";
 import ReportForm from "./pages/ReportForm";
 import InvoiceMetrics from "./pages/InvoiceMetrics";
 import ReviewRecords from "./pages/ReviewRecords";
+import SelectReport from "./pages/SelectReport";
+import XeroCredentials from "./pages/XeroCredentials";
+import ReviewReport from "./pages/ReviewReport";
+import FinalReview from "./pages/FinalReview";
 
 const router = createBrowserRouter([
   {
@@ -22,6 +26,11 @@ const router = createBrowserRouter([
       { path: "/report", element: <ReportForm /> }, // Add ReportForm route
       { path: "/review", element: <InvoiceMetrics /> }, // Add InvoiceMetrics route
       { path: "/review/:index", element: <ReviewRecords /> }, // Add ReviewRecords route with index parameter
+      { path: "select-report", element: <SelectReport /> },
+      { path: "xero-credentials", element: <XeroCredentials /> },
+      { path: "invoice-metrics", element: <InvoiceMetrics /> },
+      { path: "review-report", element: <ReviewReport /> },
+      { path: "final-review", element: <FinalReview /> },
     ],
   },
 ]);
