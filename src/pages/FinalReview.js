@@ -1,5 +1,6 @@
 import React from "react";
 import { Box, Typography, Button } from "@mui/material";
+import ReportForm from "./ReportForm";
 
 const FinalReview = () => {
   const handleSubmit = () => {
@@ -14,6 +15,7 @@ const FinalReview = () => {
       <Typography variant="body1" gutterBottom>
         Please review all the details carefully before submitting.
       </Typography>
+      <ReportForm />
       <Button
         variant="contained"
         color="primary"

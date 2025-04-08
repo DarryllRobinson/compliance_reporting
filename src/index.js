@@ -12,6 +12,7 @@ import SelectReport from "./pages/SelectReport";
 import XeroCredentials from "./pages/XeroCredentials";
 import ReviewReport from "./pages/ReviewReport";
 import FinalReview from "./pages/FinalReview";
+import EntityForm from "./pages/EntityForm";
 
 const router = createBrowserRouter([
   {
@@ -29,7 +30,7 @@ const router = createBrowserRouter([
       { path: "select-report", element: <SelectReport /> },
       { path: "xero-credentials", element: <XeroCredentials /> },
       { path: "invoice-metrics", element: <InvoiceMetrics /> },
-      { path: "review-report", element: <ReviewReport /> },
+      { path: "review-entity", element: <EntityForm /> },
       { path: "final-review", element: <FinalReview /> },
     ],
   },

@@ -1,13 +1,18 @@
-import React from "react";
-import { Box, Typography, Grid, Paper } from "@mui/material";
+import React, { useState } from "react";
+import { Box, Typography, Grid, Paper, Button } from "@mui/material";
 import { calculateInvoiceMetrics } from "../utils/invoiceCalculations";
 import { useTheme } from "@mui/material/styles";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 
 const InvoiceMetrics = (props) => {
   const theme = useTheme();
+  const navigate = useNavigate();
   const { paidMetrics = [], unpaidMetrics = [] } = calculateInvoiceMetrics();
   const metrics = [...paidMetrics, ...unpaidMetrics];
+
+  const handleConfirm = () => {
+    navigate("/review-entity");
+  };
 
   return (
     <Box sx={{ p: 3, backgroundColor: theme.palette.background.default }}>
@@ -50,6 +55,11 @@ const InvoiceMetrics = (props) => {
           </Grid>
         ))}
       </Grid>
+      <Box sx={{ mt: 3, textAlign: "center" }}>
+        <Button variant="contained" color="primary" onClick={handleConfirm}>
+          Confirm and Proceed
+        </Button>
+      </Box>
     </Box>
   );
 };

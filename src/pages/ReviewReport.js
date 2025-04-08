@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Box, Button, Typography } from "@mui/material";
-import InvoiceMetrics from "./InvoiceMetrics";
+import EntityForm from "./EntityForm";
 
 const ReviewReport = () => {
   const [confirmed, setConfirmed] = useState(false);
@@ -14,7 +14,7 @@ const ReviewReport = () => {
       <Typography variant="h4" gutterBottom>
         Review Report
       </Typography>
-      <InvoiceMetrics />
+      <EntityForm />
       <Button
         variant="contained"
         color="primary"
@@ -22,7 +22,7 @@ const ReviewReport = () => {
         disabled={confirmed}
         sx={{ mt: 3 }}
       >
-        {confirmed ? "Confirmed" : "Confirm Report"}
+        {confirmed ? "Confirmed" : "Confirm and Proceed to Final Review"}
       </Button>
     </Box>
   );

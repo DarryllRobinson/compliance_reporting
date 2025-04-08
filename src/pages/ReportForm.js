@@ -26,13 +26,6 @@ const ReportForm = () => {
 
   return (
     <Box sx={{ p: 3, backgroundColor: theme.palette.background.default }}>
-      <Typography
-        variant="h3"
-        gutterBottom
-        sx={{ color: theme.palette.text.primary }}
-      >
-        Report Form
-      </Typography>
       <form>
         <Grid container spacing={2}>
           {fields.map((field) => (
@@ -329,7 +322,7 @@ const ReportForm = () => {
             type="submit"
             sx={{ color: theme.palette.text.primary }}
           >
-            Submit
+            Save Changes
           </Button>
         </Box>
       </form>

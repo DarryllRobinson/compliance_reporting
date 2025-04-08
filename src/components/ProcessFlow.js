@@ -6,7 +6,7 @@ const steps = [
   "Select Report",
   "Provide Xero Credentials",
   "Review Invoice Metrics",
-  "Review Report",
+  "Review Entity Details",
   "Final Review and Submission",
 ];
 
@@ -19,7 +19,7 @@ const ProcessFlow = () => {
         return 1;
       case "/invoice-metrics":
         return 2;
-      case "/review-report":
+      case "/review-entity":
         return 3;
       case "/final-review":
         return 4;
