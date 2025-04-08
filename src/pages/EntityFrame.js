@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useNavigate } from "react-router";
+import EntityForm from "./EntityForm";
 
 const EntityFrame = () => {
   const theme = useTheme();
@@ -47,16 +48,21 @@ const EntityFrame = () => {
                   color="primary"
                   onClick={() => toggleSection(section)}
                 >
-                  {section.charAt(0).toUpperCase() + section.slice(1)}{" "}
+                  {expandedSections[section]
+                    ? `Collapse ${section.charAt(0).toUpperCase() + section.slice(1)}`
+                    : `Expand ${section.charAt(0).toUpperCase() + section.slice(1)}`}
                 </Button>
-                {expandedSections[section] && (
-                  <Box sx={{ mt: 1, pl: 2 }}>
-                    {/* Placeholder for importing different groups of the full report */}
-                    <Typography variant="body2">
-                      Content for {section}
-                    </Typography>
-                  </Box>
-                )}
+                <Collapse in={expandedSections[section]}>
+                  {expandedSections[section] && (
+                    <Box sx={{ mt: 1, pl: 2 }}>
+                      {/* Placeholder for importing different groups of the full report */}
+                      <Typography variant="body2">
+                        Content for {section}
+                        <EntityForm />
+                      </Typography>
+                    </Box>
+                  )}
+                </Collapse>
               </Box>
             ))}
           </Grid>
