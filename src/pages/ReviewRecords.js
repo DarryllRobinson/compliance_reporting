@@ -42,6 +42,29 @@ const ReviewRecords = () => {
         default:
           return false;
       }
+    } else if (!invoice.paidStatus) {
+      const invoiceDueDate = new Date(invoice.dueDate);
+      const today = new Date();
+      const overdueDays = Math.round(
+        (today - invoiceDueDate) / (1000 * 60 * 60 * 24)
+      );
+
+      switch (parseInt(index, 10)) {
+        case 6:
+          return overdueDays >= 0 && overdueDays <= 20;
+        case 7:
+          return overdueDays >= 21 && overdueDays <= 30;
+        case 8:
+          return overdueDays >= 31 && overdueDays <= 60;
+        case 9:
+          return overdueDays >= 61 && overdueDays <= 90;
+        case 10:
+          return overdueDays >= 91 && overdueDays <= 120;
+        case 11:
+          return overdueDays > 120;
+        default:
+          return false;
+      }
     }
     return false;
   });
@@ -109,12 +132,14 @@ const ReviewRecords = () => {
               >
                 Invoice Date: {invoice.invoiceDate}
               </Typography>
-              <Typography
-                variant="body2"
-                sx={{ color: theme.palette.text.secondary }}
-              >
-                Paid Date: {invoice.paidDate}
-              </Typography>
+              {invoice.paidDate && (
+                <Typography
+                  variant="body2"
+                  sx={{ color: theme.palette.text.secondary }}
+                >
+                  Paid Date: {invoice.paidDate}
+                </Typography>
+              )}
             </Paper>
           </Grid>
         ))}

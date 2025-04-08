@@ -95,7 +95,7 @@ export const calculateInvoiceMetrics = () => {
         metrics[5].value += parseFloat(invoice.invoiceAmount);
       }
     } else if (!invoice.paidStatus) {
-      const invoiceDueDate = new Date(invoice.invoiceDueDate);
+      const invoiceDueDate = new Date(invoice.dueDate);
       const today = new Date();
       const overdueDays = Math.round(
         (today - invoiceDueDate) / (1000 * 60 * 60 * 24)
