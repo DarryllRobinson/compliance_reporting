@@ -42,13 +42,13 @@ const EntityFrame = () => {
           <Grid item xs={12}>
             {Object.keys(expandedSections).map((section) => (
               <Box key={section} sx={{ mb: 2 }}>
-                <Typography
-                  variant="h6"
+                <Button
+                  variant="contained"
+                  color="primary"
                   onClick={() => toggleSection(section)}
-                  sx={{ cursor: "pointer", textDecoration: "underline" }}
                 >
-                  {section.charAt(0).toUpperCase() + section.slice(1)}
-                </Typography>
+                  {section.charAt(0).toUpperCase() + section.slice(1)}{" "}
+                </Button>
                 {expandedSections[section] && (
                   <Box sx={{ mt: 1, pl: 2 }}>
                     {/* Placeholder for importing different groups of the full report */}
