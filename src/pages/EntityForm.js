@@ -70,9 +70,9 @@ const EntityForm = () => {
             <Grid item xs={12} key={field.name}>
               <Box
                 sx={{
-                  p: 2,
                   border: !fieldStatus[field.name] ? "2px solid red" : "none",
                   borderRadius: "4px",
+                  marginBottom: "1em",
                 }}
               >
                 <Box
@@ -82,7 +82,7 @@ const EntityForm = () => {
                     alignItems: "center",
                   }}
                 >
-                  {/* <Typography variant="h6">{field.name}</Typography> */}
+                  <Typography variant="h6">{field.label}</Typography>
                   <Button onClick={() => toggleSection(field.name)}>
                     {expandedSections[field.name] ? "Collapse" : "Expand"}
                   </Button>
