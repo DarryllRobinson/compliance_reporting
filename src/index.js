@@ -29,8 +29,8 @@ const router = createBrowserRouter([
       { path: "/review/:index", element: <ReviewRecords /> }, // Add ReviewRecords route with index parameter
       { path: "select-report", element: <SelectReport /> },
       { path: "xero-credentials", element: <XeroCredentials /> },
-      { path: "invoice-metrics", element: <InvoiceMetrics /> },
       { path: "review-entity", element: <EntityForm /> },
+      { path: "invoice-metrics", element: <InvoiceMetrics /> },
       { path: "final-review", element: <FinalReview /> },
     ],
   },

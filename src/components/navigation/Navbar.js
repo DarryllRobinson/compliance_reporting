@@ -99,10 +99,10 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
             <MenuItem
               onClick={handleMenuClose}
               component={Link}
-              to="/report"
+              to="/select-report"
               sx={{ color: theme.palette.text.primary }}
             >
-              Report Form
+              Report Selection
             </MenuItem>
             <MenuItem
               onClick={handleMenuClose}

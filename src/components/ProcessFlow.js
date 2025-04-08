@@ -5,8 +5,8 @@ import { useLocation } from "react-router";
 const steps = [
   "Select Report",
   "Provide Xero Credentials",
-  "Review Invoice Metrics",
   "Review Entity Details",
+  "Review Invoice Metrics",
   "Final Review and Submission",
 ];
 
@@ -17,9 +17,9 @@ const ProcessFlow = () => {
     switch (location.pathname) {
       case "/xero-credentials":
         return 1;
-      case "/invoice-metrics":
-        return 2;
       case "/review-entity":
+        return 2;
+      case "/invoice-metrics":
         return 3;
       case "/final-review":
         return 4;

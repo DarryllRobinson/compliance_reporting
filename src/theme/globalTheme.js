@@ -23,6 +23,28 @@ const globalTheme = createTheme({
       paper: "#ffffff",
     },
   },
+  components: {
+    MuiGrid: {
+      styleOverrides: {
+        item: {
+          "&.unconfirmed": {
+            border: "2px solid red",
+            borderRadius: "4px",
+          },
+        },
+      },
+    },
+    MuiBox: {
+      styleOverrides: {
+        root: {
+          "&.unconfirmed": {
+            border: "2px solid red",
+            borderRadius: "4px",
+          },
+        },
+      },
+    },
+  },
 });
 
 export default globalTheme;

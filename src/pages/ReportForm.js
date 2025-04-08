@@ -15,7 +15,7 @@ const ReportForm = () => {
       return acc;
     }, {})
   );
-  console.log("metrics", metrics);
+  //   console.log("metrics", metrics);
 
   const handleCheckboxChange = (fieldName) => {
     setFieldStatus((prevStatus) => ({

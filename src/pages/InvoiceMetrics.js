@@ -11,7 +11,7 @@ const InvoiceMetrics = (props) => {
   const metrics = [...paidMetrics, ...unpaidMetrics];
 
   const handleConfirm = () => {
-    navigate("/review-entity");
+    navigate("/final-review");
   };
 
   return (
