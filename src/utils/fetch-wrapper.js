@@ -45,12 +45,12 @@ function getDocument(url, location) {
 }
 
 async function post(url, body) {
-  console.log(
-    "userService.userValue, url, body",
-    userService.userValue,
-    url,
-    body
-  );
+  // console.log(
+  //   "userService.userValue, url, body",
+  //   userService.userValue,
+  //   url,
+  //   body
+  // );
   let headers = authHeader(url);
   headers = {
     "Content-Type": "application/json",
@@ -63,9 +63,9 @@ async function post(url, body) {
     credentials: "include",
     body: JSON.stringify(body),
   };
-  console.log("post requestOptions", requestOptions);
+  // console.log("post requestOptions", requestOptions);
   const response = await fetch(url, requestOptions);
-  console.log("post response", response);
+  // console.log("post response", response);
   return handleResponse(response);
 }
 

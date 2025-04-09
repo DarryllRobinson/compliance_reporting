@@ -18,7 +18,7 @@ import { userService } from "../../features/users/user.service";
 
 export default function Navbar({ isDarkTheme, onToggleTheme }) {
   const user = userService.userValue;
-  console.log("User in Navbar:", user);
+  // console.log("User in Navbar:", user);
   const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState(null);
 
