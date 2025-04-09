@@ -40,16 +40,6 @@ export const fields = [
     confirmed: false,
   },
   {
-    name: "ReportingPeriodStartDate",
-    label: "The starting date of the period covered in this report",
-    confirmed: false,
-  },
-  {
-    name: "ReportingPeriodEndDate",
-    label: "The end date of the period covered in this report",
-    confirmed: false,
-  },
-  {
     name: "StandardPaymentPeriodInCalendarDays",
     label:
       "The reporting entity's standard payment supply period at the start of the 6 month reporting period, outlining the time in which payments are required to be paid to small business suppliers, disregarding any supply chain finance arrangements",
@@ -245,6 +235,16 @@ export const fields = [
     name: "DetailEntitesBelowReportingThreshold",
     label:
       "Information about any changes to any member entities whose income was below $10 million in the two most recent income years",
+    confirmed: false,
+  },
+  {
+    name: "ReportingPeriodStartDate",
+    label: "The starting date of the period covered in this report",
+    confirmed: false,
+  },
+  {
+    name: "ReportingPeriodEndDate",
+    label: "The end date of the period covered in this report",
     confirmed: false,
   },
   {

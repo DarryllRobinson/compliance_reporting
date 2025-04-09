@@ -1,29 +1,27 @@
 import React, { useState } from "react";
-import {
-  Box,
-  TextField,
-  Typography,
-  Grid,
-  Button,
-  Checkbox,
-  Collapse,
-} from "@mui/material";
+import { Box, Grid, Button, Collapse } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useNavigate } from "react-router";
-import EntityForm from "./EntityForm";
+import SectionForm from "./SectionForm";
+import { entities } from "../data/entityFields";
+import { clients } from "../data/mockClients";
+import { payments } from "../data/paymentFields";
 
-const EntityFrame = () => {
+const sectionsConfig = {
+  entity: { fields: entities, xeroData: clients },
+  payments: { fields: payments, xeroData: clients },
+  // Add more sections here as needed
+};
+
+const ReportFrame = () => {
   const theme = useTheme();
   const navigate = useNavigate();
-  const [expandedSections, setExpandedSections] = useState({
-    entity: false,
-    payments: false,
-    invoices: false,
-    arrangements: false,
-    details: false,
-    submitter: false,
-    approver: false,
-  });
+  const [expandedSections, setExpandedSections] = useState(
+    Object.keys(sectionsConfig).reduce((acc, section) => {
+      acc[section] = false;
+      return acc;
+    }, {})
+  );
 
   const handleConfirm = () => {
     navigate("/final-review");
@@ -40,7 +38,7 @@ const EntityFrame = () => {
     <Box sx={{ p: 3, backgroundColor: theme.palette.background.default }}>
       <Grid container spacing={2}>
         <Grid item xs={12}>
-          {Object.keys(expandedSections).map((section) => (
+          {Object.entries(sectionsConfig).map(([section, config]) => (
             <Box key={section} sx={{ mb: 2 }}>
               <Button
                 variant="contained"
@@ -54,19 +52,12 @@ const EntityFrame = () => {
               <Collapse in={expandedSections[section]}>
                 {expandedSections[section] && (
                   <Box sx={{ mt: 1, pl: 2 }}>
-                    {/* Placeholder for importing different groups of the full report */}
-                    <EntityForm />
+                    <SectionForm
+                      fields={config.fields}
+                      xeroData={config.xeroData}
+                    />
                   </Box>
                 )}
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={() => toggleSection(section)}
-                >
-                  {expandedSections[section]
-                    ? `Collapse ${section.charAt(0).toUpperCase() + section.slice(1)}`
-                    : `Expand ${section.charAt(0).toUpperCase() + section.slice(1)}`}
-                </Button>
               </Collapse>
             </Box>
           ))}
@@ -81,4 +72,4 @@ const EntityFrame = () => {
   );
 };
 
-export default EntityFrame;
+export default ReportFrame;

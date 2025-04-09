@@ -11,15 +11,15 @@ import {
 import InfoOutlined from "@mui/icons-material/InfoOutlined";
 import { useTheme } from "@mui/material/styles";
 
-const EntityForm = ({ fields = [], clients = [{}] }) => {
+const SectionForm = ({ fields = [], xeroData = [{}] }) => {
   const theme = useTheme();
   const [fieldStatus, setFieldStatus] = useState(
     fields.reduce((acc, field) => {
-      const isFieldPresent = clients[0]?.hasOwnProperty(
+      const isFieldPresent = xeroData[0]?.hasOwnProperty(
         field.name.toLowerCase()
       );
       acc[field.name] = {
-        value: isFieldPresent ? clients[0][field.name.toLowerCase()] : null,
+        value: isFieldPresent ? xeroData[0][field.name.toLowerCase()] : null,
         checked: false,
       };
       return acc;
@@ -68,9 +68,11 @@ const EntityForm = ({ fields = [], clients = [{}] }) => {
   };
 
   const renderField = (field) => {
-    const isFieldPresent = clients[0]?.hasOwnProperty(field.name.toLowerCase());
+    const isFieldPresent = xeroData[0]?.hasOwnProperty(
+      field.name.toLowerCase()
+    );
     const placeholder = isFieldPresent
-      ? clients[0][field.name.toLowerCase()]
+      ? xeroData[0][field.name.toLowerCase()]
       : "Enter info";
 
     return (
@@ -154,4 +156,4 @@ const EntityForm = ({ fields = [], clients = [{}] }) => {
   );
 };
 
-export default EntityForm;
+export default SectionForm;

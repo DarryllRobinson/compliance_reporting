@@ -14,7 +14,7 @@ const XeroCredentials = () => {
     e.preventDefault();
     if (credentials.username && credentials.password) {
       setMessage("Xero credentials verified successfully.");
-      setTimeout(() => navigate("/review-entity"), 1000); // Navigate to the next step
+      setTimeout(() => navigate("/review-report"), 1000); // Navigate to the next step
     } else {
       setMessage("Please provide valid credentials");
     }

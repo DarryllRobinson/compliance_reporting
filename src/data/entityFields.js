@@ -1,4 +1,4 @@
-export const fields = [
+export const entities = [
   { name: "BusinessName", label: "Reporting entity's name", confirmed: false },
   { name: "ABN", label: "Reporting entity's ABN", confirmed: false },
   { name: "ACN", label: "Reporting entity's ACN", confirmed: false },
