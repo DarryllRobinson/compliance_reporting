@@ -3,12 +3,12 @@ import { Box, Grid, Button, Collapse } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useNavigate } from "react-router";
 import SectionForm from "./SectionForm";
-import { entities } from "../data/entityFields";
-import { clients } from "../data/mockClients";
-import { payments } from "../data/paymentFields";
-import { finance } from "../data/financeFields";
-import { report } from "../data/reportFields";
-import { users } from "../data/mockUsers";
+import { entities } from "../../data/entityFields";
+import { clients } from "../../data/mockClients";
+import { payments } from "../../data/paymentFields";
+import { finance } from "../../data/financeFields";
+import { report } from "../../data/reportFields";
+import { users } from "../../data/mockUsers";
 
 const sectionsConfig = {
   entity: { fields: entities, xeroData: clients },

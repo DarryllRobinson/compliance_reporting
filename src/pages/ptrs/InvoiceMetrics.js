@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Box, Typography, Grid, Paper, Button } from "@mui/material";
-import { calculateInvoiceMetrics } from "../utils/invoiceCalculations";
+import { calculateInvoiceMetrics } from "../../utils/invoiceCalculations";
 import { useTheme } from "@mui/material/styles";
 import { Link, useNavigate } from "react-router";
 

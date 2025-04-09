@@ -5,13 +5,13 @@ import { createBrowserRouter, RouterProvider } from "react-router";
 import Layout, { layoutLoader } from "./components/generic/Layout";
 import ErrorPage from "./components/navigation/ErrorPage";
 import LandingPage from "./components/generic/LandingPage";
-import ReportForm from "./pages/ReportForm";
-import InvoiceMetrics from "./pages/InvoiceMetrics";
-import ReviewRecords from "./pages/ReviewRecords";
-import SelectReport from "./pages/SelectReport";
-import XeroCredentials from "./pages/XeroCredentials";
-import ReportFrame from "./pages/ReportFrame";
-import FinalReview from "./pages/FinalReview";
+import ReportForm from "./pages/ptrs/ReportForm";
+import InvoiceMetrics from "./pages/ptrs/InvoiceMetrics";
+import ReviewRecords from "./pages/ptrs/ReviewRecords";
+import SelectReport from "./pages/ptrs/SelectReport";
+import XeroCredentials from "./pages/ptrs/XeroCredentials";
+import ReportFrame from "./pages/ptrs/ReportFrame";
+import FinalReview from "./pages/ptrs/FinalReview";
 
 const router = createBrowserRouter([
   {

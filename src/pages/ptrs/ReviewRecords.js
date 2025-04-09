@@ -1,8 +1,8 @@
 import React from "react";
 import { useParams, useNavigate } from "react-router";
 import { Box, Typography, Grid, Paper, Button } from "@mui/material";
-import { calculateInvoiceMetrics } from "../utils/invoiceCalculations";
-import { mockInvoices } from "../data/mockInvoiceData";
+import { calculateInvoiceMetrics } from "../../utils/invoiceCalculations";
+import { mockInvoices } from "../../data/mockInvoiceData";
 import { useTheme } from "@mui/material/styles";
 
 const ReviewRecords = () => {
