@@ -1,3 +1,8 @@
+// 12 invoice fields
+// 10 entity fields
+// 9 payment fields
+// 12 finance fields
+// 17 report fields
 export const fields = [
   { name: "BusinessName", label: "Reporting entity's name", confirmed: false },
   { name: "ABN", label: "Reporting entity's ABN", confirmed: false },

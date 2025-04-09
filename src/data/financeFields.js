@@ -1,3 +1,4 @@
+// 12 fields
 export const finance = [
   {
     name: "InvoicePracticesAndArrangements",

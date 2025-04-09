@@ -1,3 +1,4 @@
+// 10 fields
 export const entities = [
   { name: "BusinessName", label: "Reporting entity's name", confirmed: false },
   { name: "ABN", label: "Reporting entity's ABN", confirmed: false },
