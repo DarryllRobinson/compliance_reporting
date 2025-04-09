@@ -10,6 +10,7 @@ import { finance } from "../../data/financeFields";
 import { report } from "../../data/reportFields";
 import { users } from "../../data/mockUsers";
 import { entityService } from "../../utils/entity.service";
+import { userService } from "../../features/users/user.service";
 
 const sectionsConfig = {
   entity: { fields: entities, xeroData: clients },
@@ -21,6 +22,7 @@ const sectionsConfig = {
 
 export async function reportFrameLoader() {
   try {
+    userService.refreshToken();
     const response = await entityService.getAll();
     console.log("Response from API:", response);
   } catch (error) {
