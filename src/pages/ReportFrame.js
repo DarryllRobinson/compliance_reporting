@@ -7,11 +7,14 @@ import { entities } from "../data/entityFields";
 import { clients } from "../data/mockClients";
 import { payments } from "../data/paymentFields";
 import { finance } from "../data/financeFields";
+import { report } from "../data/reportFields";
+import { users } from "../data/mockUsers";
 
 const sectionsConfig = {
   entity: { fields: entities, xeroData: clients },
   payments: { fields: payments, xeroData: clients },
   finance: { fields: finance, xeroData: clients },
+  report: { fields: report, xeroData: users },
   // Add more sections here as needed
 };
 

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Box, TextField, Typography, Grid, Button } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { fields } from "../data/reportFields";
+import { fields } from "../data/allFields";
 import { users } from "../data/mockUsers";
 import { clients } from "../data/mockClients";
 import { calculateInvoiceMetrics } from "../utils/invoiceCalculations";

@@ -44,7 +44,7 @@ const SectionForm = ({ fields = [], xeroData = [{}] }) => {
         value,
       },
     }));
-    console.log(fieldName, value);
+    // console.log(fieldName, value);
   };
 
   const handleSelectAll = () => {
