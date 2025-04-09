@@ -9,6 +9,7 @@ import { payments } from "../../data/paymentFields";
 import { finance } from "../../data/financeFields";
 import { report } from "../../data/reportFields";
 import { users } from "../../data/mockUsers";
+import { entityService } from "../../utils/entity.service";
 
 const sectionsConfig = {
   entity: { fields: entities, xeroData: clients },
@@ -17,6 +18,15 @@ const sectionsConfig = {
   report: { fields: report, xeroData: users },
   // Add more sections here as needed
 };
+
+export async function reportFrameLoader() {
+  try {
+    const response = await entityService.getAll();
+    console.log("Response from API:", response);
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
+}
 
 const ReportFrame = () => {
   const theme = useTheme();
