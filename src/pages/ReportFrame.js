@@ -29,7 +29,7 @@ const ReportFrame = () => {
   );
 
   const handleConfirm = () => {
-    navigate("/final-review");
+    navigate("/invoice-metrics");
   };
 
   const toggleSection = (section) => {

@@ -34,7 +34,7 @@ export default function Layout() {
 
   const showProcessFlow = [
     "/xero-credentials",
-    "/review-entity",
+    "/review-report",
     "/invoice-metrics",
     "/final-review",
   ].includes(location.pathname);
