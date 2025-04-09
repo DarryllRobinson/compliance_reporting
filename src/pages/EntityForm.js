@@ -17,7 +17,7 @@ const EntityForm = () => {
   const theme = useTheme();
   const [fieldStatus, setFieldStatus] = useState(
     fields.reduce((acc, field) => {
-      acc[field.name] = false;
+      acc[field.name] = { value: "", checked: false };
       return acc;
     }, {})
   );
@@ -25,17 +25,104 @@ const EntityForm = () => {
   const handleCheckboxChange = (fieldName) => {
     setFieldStatus((prevStatus) => ({
       ...prevStatus,
-      [fieldName]: !prevStatus[fieldName],
+      [fieldName]: {
+        ...prevStatus[fieldName],
+        checked: !prevStatus[fieldName].checked,
+      },
     }));
   };
 
+  const handleInputChange = (fieldName, value) => {
+    setFieldStatus((prevStatus) => ({
+      ...prevStatus,
+      [fieldName]: {
+        ...prevStatus[fieldName],
+        value,
+      },
+    }));
+    console.log(fieldName, value);
+  };
+
   const handleSelectAll = () => {
-    const allConfirmed = Object.values(fieldStatus).every((status) => status);
+    const allChecked = Object.values(fieldStatus).every(
+      (status) => status.checked
+    );
     setFieldStatus(
       fields.reduce((acc, field) => {
-        acc[field.name] = !allConfirmed;
+        acc[field.name] = {
+          ...fieldStatus[field.name],
+          checked: !allChecked,
+        };
         return acc;
       }, {})
+    );
+  };
+
+  // Template function to log the state to the console
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log(fieldStatus);
+  };
+
+  const renderField = (field) => {
+    const isFieldPresent = clients[0]?.hasOwnProperty(field.name.toLowerCase());
+    const placeholder = isFieldPresent
+      ? clients[0][field.name.toLowerCase()]
+      : "Enter info";
+
+    return (
+      <Grid item xs={12} sm={6} md={4} key={field.name}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <Typography variant="subtitle1" sx={{ fontSize: "0.875rem" }}>
+            {field.name}
+            <Tooltip title={field.label}>
+              <InfoOutlined fontSize="small" />
+            </Tooltip>
+          </Typography>
+        </Box>
+        <Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
+          <TextField
+            fullWidth
+            size="small"
+            name={field.name}
+            placeholder={placeholder}
+            value={
+              fieldStatus[field.name]?.value ||
+              (isFieldPresent ? placeholder : "")
+            }
+            onChange={(e) => handleInputChange(field.name, e.target.value)}
+            variant="outlined"
+            sx={{
+              ...theme.typography.body2,
+              backgroundColor:
+                !fieldStatus[field.name]?.value &&
+                !clients[0]?.[field.name.toLowerCase()]
+                  ? theme.palette.error.light
+                  : theme.palette.background.paper,
+              color: theme.palette.text.primary,
+            }}
+          />
+          <Checkbox
+            checked={fieldStatus[field.name]?.checked || false}
+            disabled={!fieldStatus[field.name]?.value}
+            onChange={() => handleCheckboxChange(field.name)}
+            sx={{
+              ml: 1,
+              color: !fieldStatus[field.name]?.value
+                ? theme.palette.error.light
+                : fieldStatus[field.name]?.checked
+                  ? theme.palette.success.main
+                  : theme.palette.warning.light,
+            }}
+          />
+        </Box>
+      </Grid>
     );
   };
 
@@ -44,149 +131,24 @@ const EntityForm = () => {
       <Box sx={{ mb: 2 }}>
         <Checkbox onChange={handleSelectAll} />
         <Typography component="span">Confirm All</Typography>
+        <Button
+          variant="outlined"
+          color="primary"
+          onClick={handleSubmit}
+          sx={{ ml: 2 }}
+        >
+          State Check
+        </Button>
       </Box>
       <form>
-        <Grid container spacing={2}>
-          {fields.map((field) => (
-            <Grid item xs={12} key={field.name}>
-              <Box
-                sx={{
-                  border: !fieldStatus[field.name] ? "2px solid red" : "none",
-                  borderRadius: "4px",
-                  marginBottom: "1em",
-                }}
-              >
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                  }}
-                >
-                  <Typography variant="h6">
-                    {field.name}
-                    <Tooltip title={field.label}>
-                      <InfoOutlined />
-                    </Tooltip>
-                  </Typography>
-                </Box>
-                {field.name === "BusinessName" ? (
-                  <Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
-                    <TextField
-                      fullWidth
-                      name={field.name}
-                      value={clients[0]?.name ?? ""}
-                      placeholder="Business Name"
-                      variant="outlined"
-                      sx={{
-                        ...theme.typography.body1,
-                        backgroundColor: theme.palette.background.paper,
-                        color: theme.palette.text.primary,
-                      }}
-                    />
-                    <Box sx={{ ml: 2 }}>
-                      <input
-                        type="checkbox"
-                        checked={fieldStatus[field.name]}
-                        onChange={() => handleCheckboxChange(field.name)}
-                      />
-                      <Typography
-                        sx={{ ml: 1, color: theme.palette.text.secondary }}
-                      >
-                        Confirmed
-                      </Typography>
-                    </Box>
-                  </Box>
-                ) : field.name === "ABN" ? (
-                  <Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
-                    <TextField
-                      fullWidth
-                      name={field.name}
-                      value={clients[0]?.abn ?? ""}
-                      placeholder="ABN"
-                      variant="outlined"
-                      sx={{
-                        ...theme.typography.body1,
-                        backgroundColor: theme.palette.background.paper,
-                        color: theme.palette.text.primary,
-                      }}
-                    />
-                    <Box sx={{ ml: 2 }}>
-                      <input
-                        type="checkbox"
-                        checked={fieldStatus[field.name]}
-                        onChange={() => handleCheckboxChange(field.name)}
-                      />
-                      <Typography
-                        sx={{ ml: 1, color: theme.palette.text.secondary }}
-                      >
-                        Confirmed
-                      </Typography>
-                    </Box>
-                  </Box>
-                ) : field.name === "ACN" ? (
-                  <Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
-                    <TextField
-                      fullWidth
-                      name={field.name}
-                      value={clients[0]?.acn ?? ""}
-                      placeholder="ACN"
-                      variant="outlined"
-                      sx={{
-                        ...theme.typography.body1,
-                        backgroundColor: theme.palette.background.paper,
-                        color: theme.palette.text.primary,
-                      }}
-                    />
-                    <Box sx={{ ml: 2 }}>
-                      <input
-                        type="checkbox"
-                        checked={fieldStatus[field.name]}
-                        onChange={() => handleCheckboxChange(field.name)}
-                      />
-                      <Typography
-                        sx={{ ml: 1, color: theme.palette.text.secondary }}
-                      >
-                        Confirmed
-                      </Typography>
-                    </Box>
-                  </Box>
-                ) : (
-                  <Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
-                    <TextField
-                      fullWidth
-                      name={field.name}
-                      placeholder="Enter value"
-                      variant="outlined"
-                      sx={{
-                        ...theme.typography.body1,
-                        backgroundColor: theme.palette.background.paper,
-                        color: theme.palette.text.primary,
-                      }}
-                    />
-                    <Box sx={{ ml: 2 }}>
-                      <input
-                        type="checkbox"
-                        checked={fieldStatus[field.name]}
-                        onChange={() => handleCheckboxChange(field.name)}
-                      />
-                      <Typography
-                        sx={{ ml: 1, color: theme.palette.text.secondary }}
-                      >
-                        Confirmed
-                      </Typography>
-                    </Box>
-                  </Box>
-                )}
-              </Box>
-            </Grid>
-          ))}
+        <Grid container spacing={1}>
+          {fields.map((field) => renderField(field))}
         </Grid>
-        <Box sx={{ mt: 3 }}>
+        <Box sx={{ mt: 2 }}>
           <Button
             variant="contained"
             color="primary"
-            type="submit"
+            onClick={handleSubmit}
             sx={{ color: theme.palette.text.primary }}
           >
             Save Changes
