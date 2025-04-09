@@ -6,10 +6,12 @@ import SectionForm from "./SectionForm";
 import { entities } from "../data/entityFields";
 import { clients } from "../data/mockClients";
 import { payments } from "../data/paymentFields";
+import { finance } from "../data/financeFields";
 
 const sectionsConfig = {
   entity: { fields: entities, xeroData: clients },
   payments: { fields: payments, xeroData: clients },
+  finance: { fields: finance, xeroData: clients },
   // Add more sections here as needed
 };
 
@@ -58,6 +60,15 @@ const ReportFrame = () => {
                     />
                   </Box>
                 )}
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => toggleSection(section)}
+                >
+                  {expandedSections[section]
+                    ? `Collapse ${section.charAt(0).toUpperCase() + section.slice(1)}`
+                    : `Expand ${section.charAt(0).toUpperCase() + section.slice(1)}`}
+                </Button>
               </Collapse>
             </Box>
           ))}
