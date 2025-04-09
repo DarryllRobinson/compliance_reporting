@@ -14,8 +14,11 @@ import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
 import { Link } from "react-router";
 import { useTheme } from "@mui/material/styles";
+import { userService } from "../../features/users/user.service";
 
 export default function Navbar({ isDarkTheme, onToggleTheme }) {
+  const user = userService.userValue;
+  console.log("User in Navbar:", user);
   const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState(null);
 
@@ -47,32 +50,54 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
         >
           Placeholder Logo
         </Typography>
-        <Box sx={{ display: { xs: "none", md: "flex" } }}>
-          <Button
-            color="inherit"
-            component={Link}
-            to="/"
-            sx={{ color: theme.palette.text.primary }}
-          >
-            Home
-          </Button>
-          <Button
-            color="inherit"
-            component={Link}
-            to="/select-report"
-            sx={{ color: theme.palette.text.primary }}
-          >
-            Report Selection
-          </Button>
-          <Button
-            color="inherit"
-            component={Link}
-            to="/review"
-            sx={{ color: theme.palette.text.primary }}
-          >
-            Report Review
-          </Button>
-        </Box>
+        {user && (
+          <Box sx={{ display: { xs: "none", md: "flex" } }}>
+            <Button
+              color="inherit"
+              component={Link}
+              to="/"
+              sx={{ color: theme.palette.text.primary }}
+            >
+              Home
+            </Button>
+            <Button
+              color="inherit"
+              component={Link}
+              to="/select-report"
+              sx={{ color: theme.palette.text.primary }}
+            >
+              Report Selection
+            </Button>
+            <Button
+              color="inherit"
+              component={Link}
+              to="/review"
+              sx={{ color: theme.palette.text.primary }}
+            >
+              Report Review
+            </Button>
+          </Box>
+        )}
+        {!user && (
+          <Box sx={{ display: { xs: "none", md: "flex" } }}>
+            <Button
+              color="inherit"
+              component={Link}
+              to="/signin"
+              sx={{ color: theme.palette.text.primary }}
+            >
+              Sign In
+            </Button>
+            <Button
+              color="inherit"
+              component={Link}
+              to="/signup"
+              sx={{ color: theme.palette.text.primary }}
+            >
+              Sign Up
+            </Button>
+          </Box>
+        )}
         <Box sx={{ display: { xs: "flex", md: "none" } }}>
           <IconButton
             color="inherit"

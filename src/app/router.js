@@ -12,6 +12,7 @@ import XeroCredentials from "../pages/ptrs/XeroCredentials";
 import ReportFrame from "../pages/ptrs/ReportFrame";
 import FinalReview from "../pages/ptrs/FinalReview";
 import SignIn, { loginAction } from "../features/users/SignIn";
+import SignUp, { signupAction } from "../features/users/SignUp";
 import LoginErrorPage from "../features/users/LoginErrorPage";
 const router = createBrowserRouter([
   {
@@ -35,6 +36,12 @@ const router = createBrowserRouter([
       {
         path: "/signin",
         element: <SignIn />,
+        errorElement: <LoginErrorPage />,
+        action: loginAction,
+      },
+      {
+        path: "/signup",
+        element: <SignUp />,
         errorElement: <LoginErrorPage />,
         action: loginAction,
       },

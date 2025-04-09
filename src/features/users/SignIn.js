@@ -1,13 +1,13 @@
-import React from 'react';
-import { Form, redirect } from 'react-router';
-import { Box, Typography, Button, TextField, useTheme } from '@mui/material';
-import { userService } from './user.service';
+import React from "react";
+import { Form, redirect } from "react-router";
+import { Box, Typography, Button, TextField, useTheme } from "@mui/material";
+import { userService } from "./user.service";
 
 export async function loginAction({ request }) {
   const formData = await request.formData();
   const userDetails = Object.fromEntries(formData);
   await userService.login(userDetails);
-  return redirect('/dashboard');
+  return redirect("/select-report");
 }
 
 export default function SignIn() {
@@ -16,11 +16,11 @@ export default function SignIn() {
   return (
     <Box
       sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: '100vh',
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        height: "100vh",
         padding: 2,
         backgroundColor: theme.palette.background.default,
       }}
@@ -28,8 +28,12 @@ export default function SignIn() {
       <Typography variant="h4" gutterBottom>
         Sign In
       </Typography>
-      <Form method="post" id="signin-form" style={{ width: '100%', maxWidth: 400 }}>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <Form
+        method="post"
+        id="signin-form"
+        style={{ width: "100%", maxWidth: 400 }}
+      >
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           <TextField
             label="Email address"
             name="email"
