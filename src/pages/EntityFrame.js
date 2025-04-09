@@ -38,11 +38,26 @@ const EntityFrame = () => {
 
   return (
     <Box sx={{ p: 3, backgroundColor: theme.palette.background.default }}>
-      <form>
-        <Grid container spacing={2}>
-          <Grid item xs={12}>
-            {Object.keys(expandedSections).map((section) => (
-              <Box key={section} sx={{ mb: 2 }}>
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+          {Object.keys(expandedSections).map((section) => (
+            <Box key={section} sx={{ mb: 2 }}>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => toggleSection(section)}
+              >
+                {expandedSections[section]
+                  ? `Collapse ${section.charAt(0).toUpperCase() + section.slice(1)}`
+                  : `Expand ${section.charAt(0).toUpperCase() + section.slice(1)}`}
+              </Button>
+              <Collapse in={expandedSections[section]}>
+                {expandedSections[section] && (
+                  <Box sx={{ mt: 1, pl: 2 }}>
+                    {/* Placeholder for importing different groups of the full report */}
+                    <EntityForm />
+                  </Box>
+                )}
                 <Button
                   variant="contained"
                   color="primary"
@@ -52,22 +67,11 @@ const EntityFrame = () => {
                     ? `Collapse ${section.charAt(0).toUpperCase() + section.slice(1)}`
                     : `Expand ${section.charAt(0).toUpperCase() + section.slice(1)}`}
                 </Button>
-                <Collapse in={expandedSections[section]}>
-                  {expandedSections[section] && (
-                    <Box sx={{ mt: 1, pl: 2 }}>
-                      {/* Placeholder for importing different groups of the full report */}
-                      <Typography variant="body2">
-                        Content for {section}
-                        <EntityForm />
-                      </Typography>
-                    </Box>
-                  )}
-                </Collapse>
-              </Box>
-            ))}
-          </Grid>
+              </Collapse>
+            </Box>
+          ))}
         </Grid>
-      </form>
+      </Grid>
       <Box sx={{ mt: 3, textAlign: "center" }}>
         <Button variant="contained" color="primary" onClick={handleConfirm}>
           Confirm and Proceed
