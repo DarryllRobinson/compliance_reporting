@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Stepper, Step, StepLabel, Box } from "@mui/material";
-import { useLocation } from "react-router";
+import { Stepper, Step, StepLabel, Box, StepButton } from "@mui/material";
+import { Link, useLocation, useNavigate } from "react-router";
 
 const steps = [
   "Select Report",
@@ -12,6 +12,7 @@ const steps = [
 
 const ProcessFlow = () => {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const getActiveStep = () => {
     switch (location.pathname) {
@@ -28,12 +29,25 @@ const ProcessFlow = () => {
     }
   };
 
+  const getStepUrl = (index) => {
+    const urls = [
+      "/select-report",
+      "/xero-credentials",
+      "/review-report",
+      "/invoice-metrics",
+      "/final-review",
+    ];
+    return urls[index] || "/";
+  };
+
   return (
     <Box>
       <Stepper activeStep={getActiveStep()} alternativeLabel>
-        {steps.map((label) => (
+        {steps.map((label, index) => (
           <Step key={label}>
-            <StepLabel>{label}</StepLabel>
+            <StepButton onClick={() => navigate(getStepUrl(index))}>
+              {label}
+            </StepButton>
           </Step>
         ))}
       </Stepper>
