@@ -52,6 +52,7 @@ function logout() {
 
 // Refresh the user's JWT token
 function refreshToken() {
+  console.log("Refreshing token", `${baseUrl}/refresh-token`);
   return fetchWrapper.post(`${baseUrl}/refresh-token`, {}).then((user) => {
     userSubject.next(user);
     startRefreshTokenTimer();
