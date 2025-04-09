@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   TextField,
@@ -10,16 +10,29 @@ import {
 } from "@mui/material";
 import InfoOutlined from "@mui/icons-material/InfoOutlined";
 import { useTheme } from "@mui/material/styles";
+import { entityService } from "../../utils/entity.service";
 
 const SectionForm = ({ fields = [], xeroData = [{}] }) => {
   const theme = useTheme();
+
+  useEffect(() => {
+    async function checkDB() {
+      // check if entity record exists
+      const id = await entityService.getById();
+      console.log("Entity ID:", id);
+      // if exists, set id from database response
+      // if not, create a new entity record}
+    }
+    checkDB();
+  }, []);
+
   const [fieldStatus, setFieldStatus] = useState(
     fields.reduce((acc, field) => {
       const isFieldPresent = xeroData[0]?.hasOwnProperty(
         field.name.toLowerCase()
       );
       acc[field.name] = {
-        value: isFieldPresent ? xeroData[0][field.name.toLowerCase()] : null,
+        value: isFieldPresent ? xeroData[0][field.name.toLowerCase()] : "",
         checked: false,
       };
       return acc;
@@ -44,7 +57,7 @@ const SectionForm = ({ fields = [], xeroData = [{}] }) => {
         value,
       },
     }));
-    // console.log(fieldName, value);
+    console.log(fieldName, value);
   };
 
   const handleSelectAll = () => {
@@ -64,7 +77,22 @@ const SectionForm = ({ fields = [], xeroData = [{}] }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(fieldStatus);
+    const dataToSubmit = Object.entries(fieldStatus).reduce(
+      (acc, [fieldName, status]) => {
+        acc[fieldName] = status.value;
+        return acc;
+      },
+      {}
+    );
+    console.log("Data to submit:", dataToSubmit);
+    entityService
+      .update(dataToSubmit)
+      .then((response) => {
+        console.log("Data submitted successfully:", response);
+      })
+      .catch((error) => {
+        console.error("Error submitting data:", error);
+      });
   };
 
   const renderField = (field) => {
