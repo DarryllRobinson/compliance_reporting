@@ -44,20 +44,32 @@ function login(params) {
 }
 
 function logout() {
-  // revoke token, stop refresh timer, publish null to user subscribers and redirect to login page
-  fetchWrapper.post(`${baseUrl}/revoke-token`, {});
+  // revoke token, stop refresh timer, publish null to user subscribers
+  fetchWrapper.post(`${baseUrl}/revoke-token`, {}).catch((error) => {
+    console.error(
+      "Failed to revoke token during logout:",
+      error.message || error
+    );
+  });
   stopRefreshTokenTimer();
   userSubject.next(null);
 }
 
 // Refresh the user's JWT token
 function refreshToken() {
-  // console.log("Refreshing token", `${baseUrl}/refresh-token`);
-  return fetchWrapper.post(`${baseUrl}/refresh-token`, {}).then((user) => {
-    userSubject.next(user);
-    startRefreshTokenTimer();
-    return user;
-  });
+  return fetchWrapper
+    .post(`${baseUrl}/refresh-token`, {})
+    .then((user) => {
+      userSubject.next(user);
+      startRefreshTokenTimer();
+      return user;
+    })
+    .catch((error) => {
+      console.error("Failed to refresh token:", error.message || error);
+      stopRefreshTokenTimer();
+      userSubject.next(null); // Clear user data on failure
+      throw error; // Re-throw the error for further handling
+    });
 }
 
 // Register a new user

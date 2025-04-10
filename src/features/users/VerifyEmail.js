@@ -1,46 +1,38 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Link,
-  useLocation,
-  useNavigate,
-  useSearchParams,
-} from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router";
+import { userService } from "./user.service";
 
-import { alertService } from '../../_services';
-import { userService } from './user.service';
-
-function VerifyEmail() {
-  const location = useLocation();
+export default function VerifyEmail() {
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  let [searchParams] = useSearchParams();
 
   const EmailStatus = {
-    Verifying: 'Verifying',
-    Failed: 'Failed',
+    Verifying: "Verifying",
+    Failed: "Failed",
   };
 
   const [emailStatus, setEmailStatus] = useState(EmailStatus.Verifying);
 
   useEffect(() => {
-    // remove token from url to prevent http referer leakage
-    navigate(location.pathname);
+    const token = searchParams.get("token");
+
+    if (!token) {
+      console.error("Token not found in URL");
+      setEmailStatus(EmailStatus.Failed);
+      return;
+    }
 
     userService
-      .verifyEmail(searchParams.get('token'))
+      .verifyEmail(token)
       .then(() => {
-        alertService.caller(
-          'Verification successful, you can now login',
-          null,
-          'Verified!',
-          'success'
-        );
-        console.log('verified!');
-        navigate('/user/signin');
+        console.log("Verification successful!");
+        navigate("/user/signin", { replace: true });
       })
-      .catch(() => {
+      .catch((error) => {
+        console.error("Verification failed:", error);
         setEmailStatus(EmailStatus.Failed);
       });
-  }, []);
+  }, [EmailStatus.Failed, navigate, searchParams]);
 
   function getBody() {
     switch (emailStatus) {
@@ -49,12 +41,12 @@ function VerifyEmail() {
       case EmailStatus.Failed:
         return (
           <div>
-            Verification failed, you can also verify your account using the{' '}
-            <Link to="forgot-password">forgot password</Link> page.
+            Verification failed. You can also verify your account using the{" "}
+            <Link to="/user/forgot-password">forgot password</Link> page.
           </div>
         );
       default:
-        return <div>Default emailStatus - something has gone wrong</div>;
+        return <div>Something went wrong. Please try again later.</div>;
     }
   }
 
@@ -65,5 +57,3 @@ function VerifyEmail() {
     </div>
   );
 }
-
-export { VerifyEmail };

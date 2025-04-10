@@ -1,7 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router"; // Import useNavigate
-import { userService } from "../users/user.service";
-import { clientService } from "./client.service";
+import { userService } from "./user.service";
 import { useLoaderData } from "react-router";
 import {
   useTheme,
@@ -14,31 +13,24 @@ import {
   Button,
 } from "@mui/material";
 
-export async function clientsLoader() {
+export async function usersLoader() {
   const user = await userService.refreshToken();
   if (!user) {
-    throw new Response("clientsLoader user problem", { status: 500 });
+    throw new Response("usersLoader refreshToken problem", { status: 500 });
   }
-  //   const user = userService.userValue; // Get the current user
-  const clients = await clientService.getAll();
-  if (!clients) {
-    throw new Response("clientsLoader clients problem", { status: 500 });
+  const users = await userService.getAll();
+  if (!users) {
+    throw new Response("usersLoader getAll problem", { status: 500 });
   }
-  return { clients };
+  return { users };
 }
 
-export default function Clients() {
-  const [user, setUser] = React.useState({});
-
-  React.useEffect(() => {
-    const subscription = userService.user.subscribe((x) => setUser(x));
-    return () => subscription.unsubscribe();
-  }, []);
-  const { clients } = useLoaderData();
+export default function Users() {
+  const { users } = useLoaderData();
   const theme = useTheme();
-  const navigate = useNavigate(); // Initialize navigate
+  const navigate = useNavigate(); // Initialise navigate
 
-  if (!clients || clients.length === 0) {
+  if (!users || users.length === 0) {
     return (
       <Box
         sx={{
@@ -57,15 +49,15 @@ export default function Clients() {
           }}
         >
           <Typography variant="h4" gutterBottom>
-            No Clients Found
+            No Users Found
           </Typography>
           <Button
             variant="contained"
             color="primary" // Reverted to US English
-            onClick={() => navigate("/clients/register")} // Navigate to register page
+            onClick={() => navigate("/users/register")} // Navigate to register page
             sx={{ mt: 2 }}
           >
-            Register a New Client
+            Create a New User
           </Button>
         </Paper>
       </Box>
@@ -90,28 +82,28 @@ export default function Clients() {
         }}
       >
         <Typography variant="h4" gutterBottom>
-          Clients
+          Users
         </Typography>
         <Typography variant="body1" gutterBottom>
-          This is the Clients page. Below is the list of registered clients.
+          This is the Users page. Below is the list of registered users.
         </Typography>
         <Button
           variant="contained"
-          color="primary" // Reverted to US English
-          onClick={() => navigate("/clients/register")} // Navigate to register page
+          color="primary"
+          onClick={() => navigate("/users/create")} // Navigate to create page
           sx={{ mb: 2 }}
         >
-          Register a New Client
+          Create a New User
         </Button>
         <List>
-          {clients.map((client) => (
+          {users.map((user) => (
             <ListItem
-              key={client.id}
+              key={user.id}
               sx={{ borderBottom: `1px solid ${theme.palette.divider}` }}
             >
               <ListItemText
-                primary={client.clientName}
-                secondary={`Email: ${client.contactEmail} | Phone: ${client.contactPhone}`}
+                primary={user.firstName + " " + user.lastName}
+                secondary={`Role: ${user.role} | Position: ${user.position} | Email: ${user.email} | Phone: ${user.phone}`}
               />
             </ListItem>
           ))}

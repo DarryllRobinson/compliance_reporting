@@ -12,13 +12,13 @@ import {
 import MenuIcon from "@mui/icons-material/Menu";
 import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useTheme } from "@mui/material/styles";
 import { userService } from "../../features/users/user.service";
 
 export default function Navbar({ isDarkTheme, onToggleTheme }) {
-  const user = userService.userValue;
-  // console.log("User in Navbar:", user);
+  const navigate = useNavigate();
+  const user = userService.userValue; // Get the current user
   const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState(null);
 
@@ -28,6 +28,17 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
 
   const handleMenuClose = () => {
     setAnchorEl(null);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await userService.logout();
+      handleMenuClose();
+      navigate("/");
+    } catch (error) {
+      console.error("Logout failed:", error); // Log the error
+      alert("Failed to log out. Please try again."); // Display a user-friendly message
+    }
   };
 
   return (
@@ -50,7 +61,7 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
         >
           Placeholder Logo
         </Typography>
-        {user && (
+        {user ? ( // Check if user exists
           <Box sx={{ display: { xs: "none", md: "flex" } }}>
             <Button
               color="inherit"
@@ -78,9 +89,25 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
                 Clients
               </Button>
             )}
+            {user.role === "Admin" && (
+              <Button
+                color="inherit"
+                component={Link}
+                to="/users"
+                sx={{ color: theme.palette.text.primary }}
+              >
+                Users
+              </Button>
+            )}
+            <Button
+              color="inherit"
+              onClick={handleLogout}
+              sx={{ color: theme.palette.text.primary }}
+            >
+              Logout
+            </Button>
           </Box>
-        )}
-        {!user && (
+        ) : (
           <Box sx={{ display: { xs: "none", md: "flex" } }}>
             <Button
               color="inherit"
@@ -123,22 +150,66 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
             >
               Home
             </MenuItem>
-            <MenuItem
-              onClick={handleMenuClose}
-              component={Link}
-              to="/select-report"
-              sx={{ color: theme.palette.text.primary }}
-            >
-              Report Selection
-            </MenuItem>
-            <MenuItem
-              onClick={handleMenuClose}
-              component={Link}
-              to="/review"
-              sx={{ color: theme.palette.text.primary }}
-            >
-              Report Review
-            </MenuItem>
+            {user && (
+              <MenuItem
+                onClick={handleMenuClose}
+                component={Link}
+                to="/select-report"
+                sx={{ color: theme.palette.text.primary }}
+              >
+                Report Selection
+              </MenuItem>
+            )}
+            {user?.role === "Admin" && (
+              <MenuItem
+                onClick={handleMenuClose}
+                component={Link}
+                to="/clients"
+                sx={{ color: theme.palette.text.primary }}
+              >
+                Clients
+              </MenuItem>
+            )}
+            {user?.role === "Admin" && (
+              <MenuItem
+                onClick={handleMenuClose}
+                component={Link}
+                to="/users"
+                sx={{ color: theme.palette.text.primary }}
+              >
+                Users
+              </MenuItem>
+            )}
+            {user
+              ? [
+                  <MenuItem
+                    key="logout"
+                    onClick={handleLogout}
+                    sx={{ color: theme.palette.text.primary }}
+                  >
+                    Logout
+                  </MenuItem>,
+                ]
+              : [
+                  <MenuItem
+                    key="signin"
+                    onClick={handleMenuClose}
+                    component={Link}
+                    to="/signin"
+                    sx={{ color: theme.palette.text.primary }}
+                  >
+                    Sign In
+                  </MenuItem>,
+                  <MenuItem
+                    key="signup"
+                    onClick={handleMenuClose}
+                    component={Link}
+                    to="/signup"
+                    sx={{ color: theme.palette.text.primary }}
+                  >
+                    Sign Up
+                  </MenuItem>,
+                ]}
           </Menu>
         </Box>
         <IconButton

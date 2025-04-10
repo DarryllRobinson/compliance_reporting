@@ -4,15 +4,15 @@ import { RouterProvider } from "react-router";
 import router from "./app/router";
 import { userService } from "./features/users/user.service";
 
-// Attempt silent token refresh before startup
+// attempt silent token refresh before startup
 userService
   .refreshToken()
+  .then(() => {
+    console.log("Silent token refresh successful");
+  })
   .catch((error) => {
-    if (error.response && error.response.status === 404) {
-      console.warn("Token refresh endpoint not found (404).");
-    } else {
-      console.warn("Token refresh failed:", error.message || error);
-    }
+    console.warn("Silent token refresh failed:", error.message || error);
+    userService.logout(); // Ensure user is logged out on failure
   })
   .finally(startApp);
 

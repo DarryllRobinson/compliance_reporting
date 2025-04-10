@@ -18,12 +18,18 @@ import Clients, { clientsLoader } from "../features/clients/Clients";
 import ClientRegister, {
   clientRegisterAction,
 } from "../features/clients/Register";
+import Users, { usersLoader } from "../features/users/Users";
+import UserCreate, {
+  userCreateAction,
+  userCreateLoader,
+} from "../features/users/Create";
+import VerifyEmail from "../features/users/VerifyEmail";
 const router = createBrowserRouter([
   {
     path: "",
     element: <Layout />, // Replace placeholder with Layout component
     errorElement: <ErrorPage />, // Add ErrorPage for error handling
-    loader: layoutLoader, // Add layoutLoader for user authentication
+    // loader: layoutLoader, // Add layoutLoader for user authentication
     children: [
       {
         index: true,
@@ -42,11 +48,18 @@ const router = createBrowserRouter([
       { path: "invoice-metrics", element: <InvoiceMetrics /> },
       { path: "final-review", element: <FinalReview /> },
       {
-        path: "/signin",
-        element: <SignIn />,
-        errorElement: <LoginErrorPage />,
-        action: loginAction,
+        path: "/users",
+        element: <Users />,
+        loader: usersLoader,
       },
+      {
+        path: "/users/create",
+        element: <UserCreate />,
+        loader: userCreateLoader,
+        action: userCreateAction,
+      },
+      { path: "/user/verify-email", element: <VerifyEmail /> },
+      { path: "/signin", element: <SignIn />, action: loginAction },
       {
         path: "/signup",
         element: <SignUp />,
