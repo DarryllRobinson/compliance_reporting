@@ -14,6 +14,10 @@ import FinalReview from "../pages/ptrs/FinalReview";
 import SignIn, { loginAction } from "../features/users/SignIn";
 import SignUp, { signupAction } from "../features/users/SignUp";
 import LoginErrorPage from "../features/users/LoginErrorPage";
+import Clients, { clientsLoader } from "../features/clients/Clients";
+import ClientRegister, {
+  clientRegisterAction,
+} from "../features/clients/Register";
 const router = createBrowserRouter([
   {
     path: "",
@@ -49,6 +53,18 @@ const router = createBrowserRouter([
         errorElement: <LoginErrorPage />,
         action: loginAction,
       },
+      {
+        path: "/clients",
+        element: <Clients />,
+        loader: clientsLoader,
+        children: [
+          {
+            path: "register",
+            element: <ClientRegister />,
+            action: clientRegisterAction,
+          },
+        ],
+      }, // Add Clients route
     ],
   },
 ]);

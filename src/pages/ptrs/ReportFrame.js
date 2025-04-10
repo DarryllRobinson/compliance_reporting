@@ -9,7 +9,7 @@ import { payments } from "../../data/paymentFields";
 import { finance } from "../../data/financeFields";
 import { report } from "../../data/reportFields";
 import { users } from "../../data/mockUsers";
-import { clientService } from "../../utils/client.service";
+import { clientService } from "../../features/clients/client.service";
 import { userService } from "../../features/users/user.service";
 
 const sectionsConfig = {

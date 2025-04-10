@@ -68,14 +68,16 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
             >
               Report Selection
             </Button>
-            <Button
-              color="inherit"
-              component={Link}
-              to="/review"
-              sx={{ color: theme.palette.text.primary }}
-            >
-              Report Review
-            </Button>
+            {user.role === "Admin" && (
+              <Button
+                color="inherit"
+                component={Link}
+                to="/clients"
+                sx={{ color: theme.palette.text.primary }}
+              >
+                Clients
+              </Button>
+            )}
           </Box>
         )}
         {!user && (

@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import InfoOutlined from "@mui/icons-material/InfoOutlined";
 import { useTheme } from "@mui/material/styles";
-import { clientService } from "../../utils/client.service";
+import { clientService } from "../../features/clients/client.service";
 
 const SectionForm = ({ fields = [], xeroData = [{}] }) => {
   const theme = useTheme();

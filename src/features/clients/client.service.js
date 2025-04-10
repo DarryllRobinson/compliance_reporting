@@ -1,5 +1,5 @@
-import config from "./config";
-import { fetchWrapper } from "./fetch-wrapper";
+import config from "../../utils/config";
+import { fetchWrapper } from "../../utils/fetch-wrapper";
 
 const baseUrl = `${config.apiUrl}/clients`;
 
