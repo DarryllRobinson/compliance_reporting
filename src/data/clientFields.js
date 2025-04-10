@@ -1,5 +1,5 @@
 // 10 fields
-export const entities = [
+export const clients = [
   { name: "BusinessName", label: "Reporting entity's name", confirmed: false },
   { name: "ABN", label: "Reporting entity's ABN", confirmed: false },
   { name: "ACN", label: "Reporting entity's ACN", confirmed: false },

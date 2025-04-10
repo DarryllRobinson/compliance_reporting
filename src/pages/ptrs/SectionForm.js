@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import InfoOutlined from "@mui/icons-material/InfoOutlined";
 import { useTheme } from "@mui/material/styles";
-import { entityService } from "../../utils/entity.service";
+import { clientService } from "../../utils/client.service";
 
 const SectionForm = ({ fields = [], xeroData = [{}] }) => {
   const theme = useTheme();
@@ -18,8 +18,8 @@ const SectionForm = ({ fields = [], xeroData = [{}] }) => {
   useEffect(() => {
     async function checkDB() {
       // check if entity record exists
-      const id = await entityService.getById();
-      console.log("Entity ID:", id);
+      const id = await clientService.getById();
+      console.log("Client ID:", id);
       // if exists, set id from database response
       // if not, create a new entity record}
     }
@@ -85,7 +85,7 @@ const SectionForm = ({ fields = [], xeroData = [{}] }) => {
       {}
     );
     console.log("Data to submit:", dataToSubmit);
-    entityService
+    clientService
       .update(dataToSubmit)
       .then((response) => {
         console.log("Data submitted successfully:", response);

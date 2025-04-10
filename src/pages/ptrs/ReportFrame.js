@@ -3,17 +3,17 @@ import { Box, Grid, Button, Collapse } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useNavigate } from "react-router";
 import SectionForm from "./SectionForm";
-import { entities } from "../../data/entityFields";
-import { clients } from "../../data/mockClients";
+import { clients } from "../../data/clientFields";
+// import { clients } from "../../data/mockClients";
 import { payments } from "../../data/paymentFields";
 import { finance } from "../../data/financeFields";
 import { report } from "../../data/reportFields";
 import { users } from "../../data/mockUsers";
-import { entityService } from "../../utils/entity.service";
+import { clientService } from "../../utils/client.service";
 import { userService } from "../../features/users/user.service";
 
 const sectionsConfig = {
-  entity: { fields: entities, xeroData: clients },
+  client: { fields: clients, xeroData: clients },
   payments: { fields: payments, xeroData: clients },
   finance: { fields: finance, xeroData: clients },
   report: { fields: report, xeroData: users },
@@ -23,7 +23,7 @@ const sectionsConfig = {
 export async function reportFrameLoader() {
   try {
     userService.refreshToken();
-    const response = await entityService.getAll();
+    const response = await clientService.getAll();
     console.log("Response from API:", response);
   } catch (error) {
     console.error("Error fetching data:", error);

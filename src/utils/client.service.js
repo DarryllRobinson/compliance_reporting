@@ -1,9 +1,9 @@
 import config from "./config";
 import { fetchWrapper } from "./fetch-wrapper";
 
-const baseUrl = `${config.apiUrl}/entities`;
+const baseUrl = `${config.apiUrl}/clients`;
 
-export const entityService = {
+export const clientService = {
   getAll,
   getById,
   create,

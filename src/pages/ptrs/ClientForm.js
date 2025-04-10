@@ -11,7 +11,7 @@ import {
 import InfoOutlined from "@mui/icons-material/InfoOutlined";
 import { useTheme } from "@mui/material/styles";
 
-const EntityForm = ({ fields = [], clients = [{}] }) => {
+const ClientForm = ({ fields = [], clients = [{}] }) => {
   const theme = useTheme();
   const [fieldStatus, setFieldStatus] = useState(
     fields.reduce((acc, field) => {
@@ -154,4 +154,4 @@ const EntityForm = ({ fields = [], clients = [{}] }) => {
   );
 };
 
-export default EntityForm;
+export default ClientForm;
