@@ -1,46 +1,69 @@
 import { createTheme } from "@mui/material/styles";
 
 const globalTheme = createTheme({
-  typography: {
-    fontFamily: "Roboto, Arial, sans-serif",
-    fontSize: 14,
-    h3: {
-      fontWeight: 500,
-    },
-    body1: {
-      lineHeight: 1.6,
-    },
-  },
   palette: {
     primary: {
-      main: "#1976d2",
+      main: "#1976d2", // Primary color
     },
     secondary: {
-      main: "#dc004e",
+      main: "#dc004e", // Secondary color
     },
     background: {
-      default: "#f5f5f5",
-      paper: "#ffffff",
+      default: "#f5f5f5", // Default background color
+      paper: "#ffffff", // Paper background color
+    },
+    text: {
+      primary: "#000000", // Primary text color
+      secondary: "#555555", // Secondary text color
+    },
+  },
+  typography: {
+    fontFamily: "'Roboto', 'Arial', sans-serif",
+    h4: {
+      fontWeight: 600,
+      fontSize: "1.8rem",
+    },
+    body1: {
+      fontSize: "1rem",
+      color: "#555555",
     },
   },
   components: {
-    MuiGrid: {
+    MuiPaper: {
       styleOverrides: {
-        item: {
-          "&.unconfirmed": {
-            border: "2px solid red",
-            borderRadius: "4px",
+        root: {
+          padding: "16px",
+          borderRadius: "8px",
+          boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+        },
+      },
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          textTransform: "none", // Disable uppercase text
+          borderRadius: "8px",
+          padding: "10px 16px",
+        },
+        containedPrimary: {
+          backgroundColor: "#1976d2",
+          "&:hover": {
+            backgroundColor: "#1565c0",
           },
         },
       },
     },
-    MuiBox: {
+    MuiTextField: {
       styleOverrides: {
         root: {
-          "&.unconfirmed": {
-            border: "2px solid red",
-            borderRadius: "4px",
-          },
+          marginBottom: "16px", // Consistent spacing between fields
+        },
+      },
+    },
+    MuiFormControl: {
+      styleOverrides: {
+        root: {
+          marginBottom: "16px", // Consistent spacing for form controls
         },
       },
     },

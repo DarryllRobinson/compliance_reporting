@@ -57,14 +57,12 @@ const router = createBrowserRouter([
         path: "/clients",
         element: <Clients />,
         loader: clientsLoader,
-        children: [
-          {
-            path: "register",
-            element: <ClientRegister />,
-            action: clientRegisterAction,
-          },
-        ],
-      }, // Add Clients route
+      },
+      {
+        path: "/clients/register",
+        element: <ClientRegister />,
+        action: clientRegisterAction,
+      },
     ],
   },
 ]);
