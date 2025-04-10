@@ -18,6 +18,11 @@ import Clients, { clientsLoader } from "../features/clients/Clients";
 import ClientRegister, {
   clientRegisterAction,
 } from "../features/clients/Register";
+import Users, { usersLoader } from "../features/users/Users";
+import UserCreate, {
+  userCreateAction,
+  userCreateLoader,
+} from "../features/users/Create";
 const router = createBrowserRouter([
   {
     path: "",
@@ -42,10 +47,15 @@ const router = createBrowserRouter([
       { path: "invoice-metrics", element: <InvoiceMetrics /> },
       { path: "final-review", element: <FinalReview /> },
       {
-        path: "/signin",
-        element: <SignIn />,
-        errorElement: <LoginErrorPage />,
-        action: loginAction,
+        path: "/users",
+        element: <Users />,
+        loader: usersLoader,
+      },
+      {
+        path: "/users/create",
+        element: <UserCreate />,
+        loader: userCreateLoader,
+        action: userCreateAction,
       },
       {
         path: "/signup",

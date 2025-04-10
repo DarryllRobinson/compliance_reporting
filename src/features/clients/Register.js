@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Form, redirect } from "react-router";
 import {
   Box,
@@ -11,57 +11,32 @@ import {
   Select,
   MenuItem,
   Paper,
-  Alert,
   Grid,
 } from "@mui/material";
 import { userService } from "../../features/users/user.service";
 import { clientService } from "./client.service";
+// Testing the form
+import { clients } from "../../data/mockClients"; // Mock data for testing
 
 export async function clientRegisterAction({ request }) {
   await userService.refreshToken();
-  const formData = await request.formData();
-  let clientDetails = Object.fromEntries(formData);
+  // const formData = await request.formData();
+  // let clientDetails = Object.fromEntries(formData);
+  // don't forget to include active: true
+  // const clientDetails = { ...clientDetails, active: true };
+  // For testing purposes, using mock data instead of form data
+  const clientDetails = clients;
   console.log("Client Details:", clientDetails);
-  await clientService.create(clientDetails);
-  return redirect("/clients");
+  try {
+    await clientService.create(clientDetails);
+    return redirect("/users/create");
+  } catch (error) {
+    console.error("Error creating client:", error);
+  }
 }
 
 export default function ClientRegister() {
   const theme = useTheme();
-  const [errors, setErrors] = useState({});
-
-  const validateForm = (formData) => {
-    const newErrors = {};
-    if (!formData.clientName) newErrors.clientName = "Client Name is required.";
-    if (!formData.abn) newErrors.abn = "ABN is required.";
-    if (!formData.acn) newErrors.acn = "ACN is required.";
-    if (!formData.contactFirst)
-      newErrors.contactFirst = "Contact First Name is required.";
-    if (!formData.contactLast)
-      newErrors.contactLast = "Contact Last Name is required.";
-    if (!formData.contactEmail)
-      newErrors.contactEmail = "Contact Email is required.";
-    if (!formData.contactPhone)
-      newErrors.contactPhone = "Contact Phone is required.";
-    if (!formData.industryCode)
-      newErrors.industryCode = "Industry Code is required.";
-    if (!formData.country) newErrors.country = "Country is required.";
-    return newErrors;
-  };
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const formData = new FormData(event.target);
-    const clientDetails = Object.fromEntries(formData);
-    const validationErrors = validateForm(clientDetails);
-
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-    } else {
-      setErrors({});
-      event.target.submit();
-    }
-  };
 
   return (
     <Box
@@ -89,7 +64,7 @@ export default function ClientRegister() {
         <Form
           method="post"
           id="register-client-form"
-          onSubmit={handleSubmit}
+          // onSubmit={handleSubmit}
           style={{ display: "flex", flexDirection: "column", gap: 2 }}
         >
           <Grid container spacing={2}>
@@ -99,9 +74,7 @@ export default function ClientRegister() {
                 name="clientName"
                 type="string"
                 fullWidth
-                required
-                error={!!errors.clientName}
-                helperText={errors.clientName}
+                // required
               />
             </Grid>
             <Grid item xs={6}>
@@ -110,9 +83,7 @@ export default function ClientRegister() {
                 name="abn"
                 type="string"
                 fullWidth
-                required
-                error={!!errors.abn}
-                helperText={errors.abn}
+                // required
               />
             </Grid>
             <Grid item xs={6}>
@@ -121,9 +92,7 @@ export default function ClientRegister() {
                 name="acn"
                 type="string"
                 fullWidth
-                required
-                error={!!errors.acn}
-                helperText={errors.acn}
+                // required
               />
             </Grid>
             <Grid item xs={12}>
@@ -132,9 +101,7 @@ export default function ClientRegister() {
                 name="addressline1"
                 type="string"
                 fullWidth
-                required
-                error={!!errors.addressline1}
-                helperText={errors.addressline1}
+                // required
               />
             </Grid>
             <Grid item xs={6}>
@@ -159,9 +126,7 @@ export default function ClientRegister() {
                 name="city"
                 type="string"
                 fullWidth
-                required
-                error={!!errors.city}
-                helperText={errors.city}
+                // required
               />
             </Grid>
             <Grid item xs={3}>
@@ -170,9 +135,7 @@ export default function ClientRegister() {
                 name="state"
                 type="string"
                 fullWidth
-                required
-                error={!!errors.state}
-                helperText={errors.state}
+                // required
               />
             </Grid>
             <Grid item xs={3}>
@@ -181,9 +144,7 @@ export default function ClientRegister() {
                 name="postcode"
                 type="string"
                 fullWidth
-                required
-                error={!!errors.postcode}
-                helperText={errors.postcode}
+                // required
               />
             </Grid>
             <Grid item xs={6}>
@@ -192,9 +153,7 @@ export default function ClientRegister() {
                 name="country"
                 type="string"
                 fullWidth
-                required
-                error={!!errors.country}
-                helperText={errors.country}
+                // required
               />
             </Grid>
             <Grid item xs={12}>
@@ -203,9 +162,7 @@ export default function ClientRegister() {
                 name="postaladdressline1"
                 type="string"
                 fullWidth
-                required
-                error={!!errors.postaladdressline1}
-                helperText={errors.postaladdressline1}
+                // required
               />
             </Grid>
             <Grid item xs={6}>
@@ -230,9 +187,7 @@ export default function ClientRegister() {
                 name="postalcity"
                 type="string"
                 fullWidth
-                required
-                error={!!errors.postalcity}
-                helperText={errors.postalcity}
+                // required
               />
             </Grid>
             <Grid item xs={3}>
@@ -241,9 +196,7 @@ export default function ClientRegister() {
                 name="postalstate"
                 type="string"
                 fullWidth
-                required
-                error={!!errors.postalstate}
-                helperText={errors.postalstate}
+                // required
               />
             </Grid>
             <Grid item xs={3}>
@@ -252,9 +205,7 @@ export default function ClientRegister() {
                 name="postalpostcode"
                 type="string"
                 fullWidth
-                required
-                error={!!errors.postalpostcode}
-                helperText={errors.postalpostcode}
+                // required
               />
             </Grid>
             <Grid item xs={6}>
@@ -263,13 +214,11 @@ export default function ClientRegister() {
                 name="postalcountry"
                 type="string"
                 fullWidth
-                required
-                error={!!errors.postalcountry}
-                helperText={errors.postalcountry}
+                // required
               />
             </Grid>
             <Grid item xs={6}>
-              <FormControl fullWidth error={!!errors.industryCode}>
+              <FormControl fullWidth>
                 <InputLabel id="industry-code-select-label">
                   Industry Code
                 </InputLabel>
@@ -279,17 +228,12 @@ export default function ClientRegister() {
                   id="industry-code-select"
                   label="Industry Code"
                   defaultValue=""
-                  required
+                  // required
                 >
                   <MenuItem value="111">111</MenuItem>
                   <MenuItem value="222">222</MenuItem>
                   <MenuItem value="333">333</MenuItem>
                 </Select>
-                {errors.industryCode && (
-                  <Alert severity="error" sx={{ mt: 1 }}>
-                    {errors.industryCode}
-                  </Alert>
-                )}
               </FormControl>
             </Grid>
             <Grid item xs={6}>
@@ -298,9 +242,7 @@ export default function ClientRegister() {
                 name="contactFirst"
                 type="string"
                 fullWidth
-                required
-                error={!!errors.contactFirst}
-                helperText={errors.contactFirst}
+                // required
               />
             </Grid>
             <Grid item xs={6}>
@@ -309,9 +251,7 @@ export default function ClientRegister() {
                 name="contactLast"
                 type="string"
                 fullWidth
-                required
-                error={!!errors.contactLast}
-                helperText={errors.contactLast}
+                // required
               />
             </Grid>
             <Grid item xs={6}>
@@ -320,9 +260,7 @@ export default function ClientRegister() {
                 name="contactPosition"
                 type="string"
                 fullWidth
-                required
-                error={!!errors.contactPosition}
-                helperText={errors.contactPosition}
+                // required
               />
             </Grid>
             <Grid item xs={6}>
@@ -331,9 +269,7 @@ export default function ClientRegister() {
                 name="contactEmail"
                 type="email"
                 fullWidth
-                required
-                error={!!errors.contactEmail}
-                helperText={errors.contactEmail}
+                // required
               />
             </Grid>
             <Grid item xs={6}>
@@ -342,9 +278,7 @@ export default function ClientRegister() {
                 name="contactPhone"
                 type="string"
                 fullWidth
-                required
-                error={!!errors.contactPhone}
-                helperText={errors.contactPhone}
+                // required
               />
             </Grid>
             <Grid item xs={12}>

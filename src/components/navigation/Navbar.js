@@ -78,6 +78,16 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
                 Clients
               </Button>
             )}
+            {user.role === "Admin" && (
+              <Button
+                color="inherit"
+                component={Link}
+                to="/users"
+                sx={{ color: theme.palette.text.primary }}
+              >
+                Users
+              </Button>
+            )}
           </Box>
         )}
         {!user && (
@@ -131,14 +141,26 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
             >
               Report Selection
             </MenuItem>
-            <MenuItem
-              onClick={handleMenuClose}
-              component={Link}
-              to="/review"
-              sx={{ color: theme.palette.text.primary }}
-            >
-              Report Review
-            </MenuItem>
+            {user.role === "Admin" && (
+              <MenuItem
+                onClick={handleMenuClose}
+                component={Link}
+                to="/clients"
+                sx={{ color: theme.palette.text.primary }}
+              >
+                Clients
+              </MenuItem>
+            )}
+            {user.role === "Admin" && (
+              <MenuItem
+                onClick={handleMenuClose}
+                component={Link}
+                to="/users"
+                sx={{ color: theme.palette.text.primary }}
+              >
+                Users
+              </MenuItem>
+            )}
           </Menu>
         </Box>
         <IconButton
