@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Grid, Button, Collapse } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useNavigate } from "react-router";
@@ -23,6 +23,7 @@ const sectionsConfig = {
 export async function reportFrameLoader() {
   try {
     userService.refreshToken();
+    console.log("reportFrameLoader");
     const response = await clientService.getAll();
     console.log("Response from API:", response);
   } catch (error) {
@@ -33,12 +34,19 @@ export async function reportFrameLoader() {
 const ReportFrame = () => {
   const theme = useTheme();
   const navigate = useNavigate();
+  const [user, setUser] = useState({});
+
   const [expandedSections, setExpandedSections] = useState(
     Object.keys(sectionsConfig).reduce((acc, section) => {
       acc[section] = false;
       return acc;
     }, {})
   );
+
+  useEffect(() => {
+    const subscription = userService.user.subscribe((x) => setUser(x));
+    return () => subscription.unsubscribe();
+  }, []);
 
   const handleConfirm = () => {
     navigate("/invoice-metrics");
@@ -72,6 +80,7 @@ const ReportFrame = () => {
                     <SectionForm
                       fields={config.fields}
                       xeroData={config.xeroData}
+                      user={user}
                     />
                   </Box>
                 )}

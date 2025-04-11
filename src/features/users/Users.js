@@ -90,7 +90,7 @@ export default function Users() {
         <Button
           variant="contained"
           color="primary"
-          onClick={() => navigate("/users/create")} // Navigate to create page
+          onClick={() => navigate("/user/create")} // Navigate to create page
           sx={{ mb: 2 }}
         >
           Create a New User

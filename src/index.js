@@ -8,7 +8,7 @@ import { userService } from "./features/users/user.service";
 userService
   .refreshToken()
   .then(() => {
-    console.log("Silent token refresh successful");
+    // console.log("Silent token refresh successful");
   })
   .catch((error) => {
     console.warn("Silent token refresh failed:", error.message || error);

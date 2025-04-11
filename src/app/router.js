@@ -4,6 +4,10 @@ import { createBrowserRouter } from "react-router";
 import Layout, { layoutLoader } from "../components/generic/Layout";
 import ErrorPage from "../components/navigation/ErrorPage";
 import LandingPage from "../components/generic/LandingPage";
+import CreateReport, {
+  reportCreateAction,
+  reportCreateLoader,
+} from "../features/reports/CreateReport";
 import ReportForm from "../pages/ptrs/ReportForm";
 import InvoiceMetrics from "../pages/ptrs/InvoiceMetrics";
 import ReviewRecords from "../pages/ptrs/ReviewRecords";
@@ -24,6 +28,7 @@ import UserCreate, {
   userCreateLoader,
 } from "../features/users/Create";
 import VerifyEmail from "../features/users/VerifyEmail";
+import Dashboard from "../features/users/Dashboard";
 const router = createBrowserRouter([
   {
     path: "",
@@ -41,6 +46,12 @@ const router = createBrowserRouter([
       { path: "select-report", element: <SelectReport /> },
       { path: "xero-credentials", element: <XeroCredentials /> },
       {
+        path: "report-create",
+        element: <CreateReport />,
+        loader: reportCreateLoader,
+        action: reportCreateAction,
+      },
+      {
         path: "review-report",
         element: <ReportFrame />,
         loader: reportFrameLoader,
@@ -53,11 +64,12 @@ const router = createBrowserRouter([
         loader: usersLoader,
       },
       {
-        path: "/users/create",
+        path: "/user/create",
         element: <UserCreate />,
         loader: userCreateLoader,
         action: userCreateAction,
       },
+      { path: "/user/dashboard", element: <Dashboard /> },
       { path: "/user/verify-email", element: <VerifyEmail /> },
       { path: "/signin", element: <SignIn />, action: loginAction },
       {

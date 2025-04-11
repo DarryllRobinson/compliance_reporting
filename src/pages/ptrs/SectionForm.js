@@ -12,19 +12,19 @@ import InfoOutlined from "@mui/icons-material/InfoOutlined";
 import { useTheme } from "@mui/material/styles";
 import { clientService } from "../../features/clients/client.service";
 
-const SectionForm = ({ fields = [], xeroData = [{}] }) => {
+const SectionForm = ({ fields = [], xeroData = [{}], user = { user } }) => {
   const theme = useTheme();
 
   useEffect(() => {
     async function checkDB() {
       // check if entity record exists
-      const id = await clientService.getById();
+      const id = await clientService.getById(user.clientId);
       console.log("Client ID:", id);
       // if exists, set id from database response
       // if not, create a new entity record}
     }
     checkDB();
-  }, []);
+  }, [user.clientId]);
 
   const [fieldStatus, setFieldStatus] = useState(
     fields.reduce((acc, field) => {

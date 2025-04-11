@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router"; // Import useNavigate
 import { userService } from "../users/user.service";
 import { clientService } from "./client.service";
@@ -30,7 +30,7 @@ export async function clientsLoader() {
 export default function Clients() {
   const [user, setUser] = React.useState({});
 
-  React.useEffect(() => {
+  useEffect(() => {
     const subscription = userService.user.subscribe((x) => setUser(x));
     return () => subscription.unsubscribe();
   }, []);

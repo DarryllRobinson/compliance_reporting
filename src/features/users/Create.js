@@ -165,8 +165,8 @@ export default function UserCreate() {
                 </InputLabel>
                 <Select
                   labelId="client-select-label"
-                  name="f_clientId"
-                  id="f_clientId"
+                  name="clientId"
+                  id="clientId"
                   label="List of Clients"
                   defaultValue=""
                   required

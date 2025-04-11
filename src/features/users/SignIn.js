@@ -7,7 +7,8 @@ export async function loginAction({ request }) {
   const formData = await request.formData();
   const userDetails = Object.fromEntries(formData);
   await userService.login(userDetails);
-  return redirect("/select-report");
+  console.log("logged in userDetails:", userDetails);
+  return redirect("/user/dashboard");
 }
 
 export default function SignIn() {
@@ -38,7 +39,8 @@ export default function SignIn() {
             label="Email address"
             name="email"
             type="email"
-            defaultValue="darryllrobinson@icloud.com"
+            defaultValue="darryll@stillproud.com"
+            // defaultValue="darryllrobinson@icloud.com"
             fullWidth
             required
           />
@@ -46,7 +48,8 @@ export default function SignIn() {
             label="Password"
             name="password"
             type="password"
-            defaultValue="newpassss"
+            defaultValue="nnnhhh"
+            // defaultValue="newpassss"
             fullWidth
             required
           />
