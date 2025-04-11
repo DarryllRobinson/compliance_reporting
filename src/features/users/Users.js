@@ -103,11 +103,7 @@ export default function Users() {
             >
               <ListItemText
                 primary={user.firstName + " " + user.lastName}
-<<<<<<< HEAD
                 secondary={`Role: ${user.role} | Position: ${user.position} | Email: ${user.email} | Phone: ${user.phone}`}
-=======
-                secondary={`Email: ${user.email} | Phone: ${user.phone}`}
->>>>>>> 41ba2c2af8190206a4b4162f195d7c3e025c03dd
               />
             </ListItem>
           ))}
