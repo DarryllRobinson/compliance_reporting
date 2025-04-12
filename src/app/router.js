@@ -31,21 +31,21 @@ import UserCreate, {
   userCreateLoader,
 } from "../features/users/Create";
 import VerifyEmail from "../features/users/VerifyEmail";
-import Dashboard from "../features/users/Dashboard";
+import Dashboard, { dashboardLoader } from "../features/users/Dashboard";
+
 const router = createBrowserRouter([
   {
     path: "",
-    element: <Layout />, // Replace placeholder with Layout component
-    errorElement: <ErrorPage />, // Add ErrorPage for error handling
-    // loader: layoutLoader, // Add layoutLoader for user authentication
+    element: <Layout />, // Ensure Layout is optimized
+    errorElement: <ErrorPage />,
     children: [
       {
         index: true,
-        element: <LandingPage />, // Replace placeholder with LandingPage component
+        element: <LandingPage />,
       },
-      { path: "/report", element: <ReportForm /> }, // Add ReportForm route
-      { path: "/review", element: <InvoiceMetrics /> }, // Add InvoiceMetrics route
-      { path: "/review/:index", element: <ReviewRecords /> }, // Add ReviewRecords route with index parameter
+      { path: "/report", element: <ReportForm /> },
+      { path: "/review", element: <InvoiceMetrics /> },
+      { path: "/review/:index", element: <ReviewRecords /> },
       { path: "select-report", element: <SelectReport /> },
       {
         path: "xero-credentials",
@@ -54,7 +54,7 @@ const router = createBrowserRouter([
         loader: xeroLoader,
       },
       {
-        path: "report-create",
+        path: "create-report",
         element: <CreateReport />,
         loader: reportCreateLoader,
         action: reportCreateAction,
@@ -77,7 +77,11 @@ const router = createBrowserRouter([
         loader: userCreateLoader,
         action: userCreateAction,
       },
-      { path: "/user/dashboard", element: <Dashboard /> },
+      {
+        path: "/user/dashboard",
+        element: <Dashboard />,
+        loader: dashboardLoader,
+      },
       { path: "/user/verify-email", element: <VerifyEmail /> },
       { path: "/signin", element: <SignIn />, action: loginAction },
       {

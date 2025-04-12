@@ -38,8 +38,9 @@ export async function xeroAction({ request }) {
 }
 
 export default function XeroCredentials() {
-  // const location = useLocation();
-  // const { reportName } = location.state || {};
+  const location = useLocation();
+  const { reportName } = location.state || {};
+  console.log("Report Name:", reportName);
   const theme = useTheme();
 
   return (
@@ -74,7 +75,7 @@ export default function XeroCredentials() {
                 name="username"
                 type="string"
                 fullWidth
-                required
+                // required
               />
             </Grid>
             <Grid item xs={12}>
@@ -83,7 +84,7 @@ export default function XeroCredentials() {
                 name="password"
                 type="password"
                 fullWidth
-                required
+                // required
               />
             </Grid>
           </Grid>

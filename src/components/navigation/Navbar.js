@@ -74,10 +74,10 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
             <Button
               color="inherit"
               component={Link}
-              to="/select-report"
+              to="/user/dashboard"
               sx={{ color: theme.palette.text.primary }}
             >
-              Report Selection
+              Dashboard
             </Button>
             {user.role === "Admin" && (
               <Button
@@ -150,16 +150,14 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
             >
               Home
             </MenuItem>
-            {user && (
-              <MenuItem
-                onClick={handleMenuClose}
-                component={Link}
-                to="/select-report"
-                sx={{ color: theme.palette.text.primary }}
-              >
-                Report Selection
-              </MenuItem>
-            )}
+            <MenuItem
+              onClick={handleMenuClose}
+              component={Link}
+              to="/user/dashboard"
+              sx={{ color: theme.palette.text.primary }}
+            >
+              Dashboard
+            </MenuItem>
             {user?.role === "Admin" && (
               <MenuItem
                 onClick={handleMenuClose}

@@ -96,6 +96,9 @@ const SectionForm = ({ fields = [], xeroData = [{}], user = { user } }) => {
   };
 
   const renderField = (field) => {
+    console.log("field", field);
+    console.log("field.name.toLowerCase()", field.name.toLowerCase());
+    console.log("xeroData[0]", xeroData[0]);
     const isFieldPresent = xeroData[0]?.hasOwnProperty(
       field.name.toLowerCase()
     );
