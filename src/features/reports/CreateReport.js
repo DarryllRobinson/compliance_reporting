@@ -32,9 +32,6 @@ export async function reportCreateAction({ request }) {
     clientId: userService.userValue.clientId,
   };
 
-  console.log("Report Details:", reportDetails);
-  //   return null;
-
   try {
     const report = await reportService.create(reportDetails);
     return redirect("/xero-credentials", { state: { report } });

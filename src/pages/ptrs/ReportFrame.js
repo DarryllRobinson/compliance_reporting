@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Box, Grid, Button, Collapse } from "@mui/material";
+import { Box, Grid, Button, Collapse, Paper } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useNavigate } from "react-router";
 import SectionForm from "./SectionForm";
@@ -60,49 +60,70 @@ const ReportFrame = () => {
   };
 
   return (
-    <Box sx={{ p: 3, backgroundColor: theme.palette.background.default }}>
-      <Grid container spacing={2}>
-        <Grid item xs={12}>
-          {Object.entries(sectionsConfig).map(([section, config]) => (
-            <Box key={section} sx={{ mb: 2 }}>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={() => toggleSection(section)}
-              >
-                {expandedSections[section]
-                  ? `Collapse ${section.charAt(0).toUpperCase() + section.slice(1)}`
-                  : `Expand ${section.charAt(0).toUpperCase() + section.slice(1)}`}
-              </Button>
-              <Collapse in={expandedSections[section]}>
-                {expandedSections[section] && (
-                  <Box sx={{ mt: 1, pl: 2 }}>
-                    <SectionForm
-                      fields={config.fields}
-                      xeroData={config.xeroData}
-                      user={user}
-                    />
-                  </Box>
-                )}
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "flex-start",
+        minHeight: "100vh",
+        backgroundColor: theme.palette.background.default,
+        padding: 2,
+      }}
+    >
+      <Paper
+        elevation={3}
+        sx={{
+          padding: 4,
+          // maxWidth: 1000,
+          width: "100%",
+          backgroundColor: theme.palette.background.paper,
+        }}
+      >
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
+            {Object.entries(sectionsConfig).map(([section, config]) => (
+              <Box key={section} sx={{ mb: 2 }}>
                 <Button
                   variant="contained"
                   color="primary"
                   onClick={() => toggleSection(section)}
+                  fullWidth
                 >
                   {expandedSections[section]
                     ? `Collapse ${section.charAt(0).toUpperCase() + section.slice(1)}`
                     : `Expand ${section.charAt(0).toUpperCase() + section.slice(1)}`}
                 </Button>
-              </Collapse>
-            </Box>
-          ))}
+                <Collapse in={expandedSections[section]}>
+                  {expandedSections[section] && (
+                    <Box sx={{ mt: 1, pl: 2 }}>
+                      <SectionForm
+                        fields={config.fields}
+                        xeroData={config.xeroData}
+                        user={user}
+                      />
+                    </Box>
+                  )}
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => toggleSection(section)}
+                    fullWidth
+                  >
+                    {expandedSections[section]
+                      ? `Collapse ${section.charAt(0).toUpperCase() + section.slice(1)}`
+                      : `Expand ${section.charAt(0).toUpperCase() + section.slice(1)}`}
+                  </Button>
+                </Collapse>
+              </Box>
+            ))}
+          </Grid>
         </Grid>
-      </Grid>
-      <Box sx={{ mt: 3, textAlign: "center" }}>
-        <Button variant="contained" color="primary" onClick={handleConfirm}>
-          Confirm and Proceed
-        </Button>
-      </Box>
+        <Box sx={{ mt: 3, textAlign: "center" }}>
+          <Button variant="contained" color="primary" onClick={handleConfirm}>
+            Confirm and Proceed
+          </Button>
+        </Box>
+      </Paper>
     </Box>
   );
 };

@@ -12,8 +12,11 @@ import ReportForm from "../pages/ptrs/ReportForm";
 import InvoiceMetrics from "../pages/ptrs/InvoiceMetrics";
 import ReviewRecords from "../pages/ptrs/ReviewRecords";
 import SelectReport from "../pages/ptrs/SelectReport";
-import XeroCredentials from "../pages/ptrs/XeroCredentials";
-import ReportFrame, { reportFrameLoader } from "../pages/ptrs/ReportFrame";
+import XeroCredentials, {
+  xeroAction,
+  xeroLoader,
+} from "../pages/ptrs/XeroCredentials";
+import ReportFrame, { reportFrameLoader } from "./../pages/ptrs/ReportFrame";
 import FinalReview from "../pages/ptrs/FinalReview";
 import SignIn, { loginAction } from "../features/users/SignIn";
 import SignUp, { signupAction } from "../features/users/SignUp";
@@ -44,7 +47,12 @@ const router = createBrowserRouter([
       { path: "/review", element: <InvoiceMetrics /> }, // Add InvoiceMetrics route
       { path: "/review/:index", element: <ReviewRecords /> }, // Add ReviewRecords route with index parameter
       { path: "select-report", element: <SelectReport /> },
-      { path: "xero-credentials", element: <XeroCredentials /> },
+      {
+        path: "xero-credentials",
+        element: <XeroCredentials />,
+        action: xeroAction,
+        loader: xeroLoader,
+      },
       {
         path: "report-create",
         element: <CreateReport />,
