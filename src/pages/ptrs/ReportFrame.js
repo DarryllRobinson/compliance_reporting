@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Box, Grid, Button, Collapse, Paper } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { useLocation, useNavigate } from "react-router";
+import { useLoaderData, useNavigate } from "react-router";
 import SectionForm from "./SectionForm";
 import { clients } from "../../data/clientFields";
 // import { clients } from "../../data/mockClients";
@@ -13,21 +13,15 @@ import { clientService } from "../../features/clients/client.service";
 import { userService } from "../../features/users/user.service";
 import { useReportContext } from "../../context/ReportContext";
 
-const sectionsConfig = {
-  client: { fields: clients, xeroData: clients },
-  payments: { fields: payments, xeroData: clients },
-  finance: { fields: finance, xeroData: clients },
-  report: { fields: report, xeroData: users },
-  // Add more sections here as needed
-};
-
 export async function reportFrameLoader() {
   // Needs to be updated to extract all relevant data from the database
   try {
-    userService.refreshToken();
-    console.log("reportFrameLoader");
-    const response = await clientService.getAll();
-    console.log("Response from API:", response);
+    const user = await userService.refreshToken();
+    const client = await clientService.getById(user.clientId);
+    if (!client) {
+      throw new Response("reportFrameLoader client problem", { status: 500 });
+    }
+    return { client };
   } catch (error) {
     console.error("Error fetching data:", error);
   }
@@ -36,10 +30,20 @@ export async function reportFrameLoader() {
 const ReportFrame = () => {
   const { reportDetails } = useReportContext(); // Access context
   console.log("Report Details:", reportDetails);
+  const { client } = useLoaderData();
+  console.log("Client Data:", client);
 
   const theme = useTheme();
   const navigate = useNavigate();
   const [user, setUser] = useState({});
+
+  const sectionsConfig = {
+    client: { fields: clients, xeroData: client },
+    payments: { fields: payments, xeroData: clients },
+    finance: { fields: finance, xeroData: clients },
+    report: { fields: report, xeroData: users },
+    // Add more sections here as needed
+  };
 
   const [expandedSections, setExpandedSections] = useState(
     Object.keys(sectionsConfig).reduce((acc, section) => {

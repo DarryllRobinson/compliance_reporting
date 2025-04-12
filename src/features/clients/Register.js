@@ -70,8 +70,8 @@ export default function ClientRegister() {
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <TextField
-                label="Client Name"
-                name="clientName"
+                label="Business Name"
+                name="businessName"
                 type="string"
                 fullWidth
                 // required

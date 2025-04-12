@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Box,
   TextField,
@@ -12,27 +12,25 @@ import InfoOutlined from "@mui/icons-material/InfoOutlined";
 import { useTheme } from "@mui/material/styles";
 import { clientService } from "../../features/clients/client.service";
 
-const SectionForm = ({ fields = [], xeroData = [{}], user = { user } }) => {
+const SectionForm = ({ fields = [], xeroData = {}, user = { user } }) => {
+  console.log("xeroData", xeroData);
   const theme = useTheme();
 
-  useEffect(() => {
-    async function checkDB() {
-      // check if entity record exists
-      const id = await clientService.getById(user.clientId);
-      console.log("Client ID:", id);
-      // if exists, set id from database response
-      // if not, create a new entity record}
-    }
-    checkDB();
-  }, [user.clientId]);
+  // Normalize xeroData keys to lowercase
+  const normalisedXeroData = Object.keys(xeroData).reduce((acc, key) => {
+    acc[key.toLowerCase()] = xeroData[key];
+    return acc;
+  }, {});
 
   const [fieldStatus, setFieldStatus] = useState(
     fields.reduce((acc, field) => {
-      const isFieldPresent = xeroData[0]?.hasOwnProperty(
+      const isFieldPresent = normalisedXeroData.hasOwnProperty(
         field.name.toLowerCase()
       );
       acc[field.name] = {
-        value: isFieldPresent ? xeroData[0][field.name.toLowerCase()] : "",
+        value: isFieldPresent
+          ? normalisedXeroData[field.name.toLowerCase()]
+          : "",
         checked: false,
       };
       return acc;
@@ -85,25 +83,26 @@ const SectionForm = ({ fields = [], xeroData = [{}], user = { user } }) => {
       {}
     );
     console.log("Data to submit:", dataToSubmit);
-    clientService
-      .update(dataToSubmit)
-      .then((response) => {
-        console.log("Data submitted successfully:", response);
-      })
-      .catch((error) => {
-        console.error("Error submitting data:", error);
-      });
+    // clientService
+    //   .update(dataToSubmit)
+    //   .then((response) => {
+    //     console.log("Data submitted successfully:", response);
+    //   })
+    //   .catch((error) => {
+    //     console.error("Error submitting data:", error);
+    //   });
   };
 
   const renderField = (field) => {
-    console.log("field", field);
-    console.log("field.name.toLowerCase()", field.name.toLowerCase());
-    console.log("xeroData[0]", xeroData[0]);
-    const isFieldPresent = xeroData[0]?.hasOwnProperty(
-      field.name.toLowerCase()
-    );
+    const fieldKey = field.name.toLowerCase();
+    const isFieldPresent =
+      normalisedXeroData.hasOwnProperty(fieldKey) &&
+      normalisedXeroData[fieldKey] !== undefined &&
+      normalisedXeroData[fieldKey] !== null &&
+      normalisedXeroData[fieldKey] !== "";
+
     const placeholder = isFieldPresent
-      ? xeroData[0][field.name.toLowerCase()]
+      ? normalisedXeroData[fieldKey]
       : "Enter info";
 
     return (
@@ -131,6 +130,7 @@ const SectionForm = ({ fields = [], xeroData = [{}], user = { user } }) => {
             value={fieldStatus[field.name]?.value || ""}
             onChange={(e) => handleInputChange(field.name, e.target.value)}
             variant="outlined"
+            disabled={isFieldPresent} // Disable the TextField if isFieldPresent is true
             sx={{
               ...theme.typography.body2,
               backgroundColor: theme.palette.background.paper,

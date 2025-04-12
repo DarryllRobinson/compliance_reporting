@@ -62,7 +62,7 @@ const router = createBrowserRouter([
       {
         path: "review-report",
         element: <ReportFrame />,
-        // loader: reportFrameLoader,
+        loader: reportFrameLoader,
       },
       { path: "invoice-metrics", element: <InvoiceMetrics /> },
       { path: "final-review", element: <FinalReview /> },
