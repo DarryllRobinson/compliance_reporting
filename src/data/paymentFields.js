@@ -8,51 +8,50 @@ export const payments = [
   },
   {
     name: "ChangesToStandardPaymentPeriod",
-    label:
-      "Changes to the standard payment period for the reporting entity at the start of the 6 month reporting period in calendar days",
+    label: "Changes To Standard Payment Period",
     tip: "Changes to the standard payment period for the reporting entity at the start of the 6 month reporting period in calendar days",
     confirmed: false,
   },
   {
     name: "DetailsOfChangesToStandardPaymentPeriod",
-    label:
-      "Explanation of any changes to the standard payment periods for the reporting entity over the 6 month reporting period",
+    label: "Details Of Changes To Standard Payment Period",
+    tip: "Explanation of any changes to the standard payment periods for the reporting entity over the 6 month reporting period",
     confirmed: false,
   },
   {
     name: "ShortestActualStandardPaymentPeriod",
-    label:
-      "The shortest standard payment periods for the reporting entity at the start of the 6 month reporting period in calendar days",
+    label: "Shortest Actual Standard Payment Period",
+    tip: "The shortest standard payment periods for the reporting entity at the start of the 6 month reporting period in calendar days",
     confirmed: false,
   },
   {
     name: "ChangeShortestActualPaymentPeriod",
-    label:
-      "Changes to the shortest standard payment periods for the entity over the 6 month reporting period in calendar days.",
+    label: "Change Shortest Actual Payment Period",
+    tip: "Changes to the shortest standard payment periods for the entity over the 6 month reporting period in calendar days.",
     confirmed: false,
   },
   {
     name: "DetailChangeShortestActualPaymentPeriod",
-    label:
-      "Explanation of any changes to the shortest standard payment periods for the entity during the 6 month reporting period",
+    label: "Detail Change Shortest Actual Payment Period",
+    tip: "Explanation of any changes to the shortest standard payment periods for the entity during the 6 month reporting period",
     confirmed: false,
   },
   {
     name: "LongestActualStandardPaymentPeriod",
-    label:
-      "The longest standard payment periods for the entity at the start of the 6 month reporting period in calendar days",
+    label: "Longest Actual Standard Payment Period",
+    tip: "The longest standard payment periods for the entity at the start of the 6 month reporting period in calendar days",
     confirmed: false,
   },
   {
     name: "ChangeLongestActualPaymentPeriod",
-    label:
-      "Changes to the longest standard payment periods for the entity over the 6 month reporting period in calendar days.",
+    label: "Change Longest Actual Payment Period",
+    tip: "Changes to the longest standard payment periods for the entity over the 6 month reporting period in calendar days.",
     confirmed: false,
   },
   {
     name: "DetailChangeLongestActualPaymentPeriod",
-    label:
-      "Explanation of any changes to the longest standard payment periods for the entity during the 6 month reporting period",
+    label: "Detail Change Longest Actual Payment Period",
+    tip: "Explanation of any changes to the longest standard payment periods for the entity during the 6 month reporting period",
     confirmed: false,
   },
 ];

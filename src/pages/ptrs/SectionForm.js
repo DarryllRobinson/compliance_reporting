@@ -11,8 +11,15 @@ import {
 import InfoOutlined from "@mui/icons-material/InfoOutlined";
 import { useTheme } from "@mui/material/styles";
 import { clientService } from "../../features/clients/client.service";
+import { paymentService } from "../../services/payment.service";
+import { financeService } from "../../services/finance.service";
 
-const SectionForm = ({ fields = [], xeroData = {}, user = { user } }) => {
+const SectionForm = ({
+  section = "",
+  fields = [],
+  xeroData = {},
+  user = { user },
+}) => {
   const theme = useTheme();
 
   // Normalize xeroData keys to lowercase
@@ -85,14 +92,42 @@ const SectionForm = ({ fields = [], xeroData = {}, user = { user } }) => {
 
     console.log("Data to submit:", dataToSubmit, user.clientId);
 
-    clientService
-      .update(user.clientId, dataToSubmit)
-      .then((response) => {
-        console.log("Data submitted successfully:", response);
-      })
-      .catch((error) => {
-        console.error("Error submitting data:", error);
-      });
+    // Use a switch block for section-specific logic
+    switch (section) {
+      case "client":
+        // Handle client-specific submission logic here
+        console.log("Submitting client section data...");
+        clientService
+          .update(user.clientId, dataToSubmit)
+          .then((response) => {
+            console.log("Client data submitted successfully:", response);
+          })
+          .catch((error) => {
+            console.error("Error submitting data:", error);
+          });
+        break;
+      case "payments":
+        // Handle payments-specific submission logic here
+        console.log("Submitting payments section data...");
+        paymentService.update(user.clientId, dataToSubmit).then((response) => {
+          console.log("Payments data submitted successfully:", response);
+        });
+        break;
+      case "finance":
+        // Handle finance-specific submission logic here
+        console.log("Submitting finance section data...");
+        financeService.update(user.clientId, dataToSubmit).then((response) => {
+          console.log("Finance data submitted successfully:", response);
+        });
+        break;
+      case "report":
+        // Handle report-specific submission logic here
+        console.log("Submitting report section data...");
+        break;
+      default:
+        console.error("Unknown section:", section);
+        return; // Stop submission if section is unknown
+    }
   };
 
   const renderField = (field) => {

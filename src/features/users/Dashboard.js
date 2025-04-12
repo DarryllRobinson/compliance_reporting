@@ -17,7 +17,7 @@ import {
 import { useTheme } from "@mui/material/styles";
 import { useLoaderData, useNavigate } from "react-router";
 import { userService } from "./user.service";
-import { reportService } from "../reports/report.service";
+import { recordService } from "../../services/record.service";
 
 export async function dashboardLoader() {
   const user = await userService.refreshToken();
@@ -25,16 +25,16 @@ export async function dashboardLoader() {
     throw new Response("dashboardLoader user problem", { status: 500 });
   }
   //   const user = userService.userValue; // Get the current user
-  const reports = await reportService.getAllById({ clientId: user.clientId });
-  if (!reports) {
-    throw new Response("dashboardLoader reports problem", { status: 500 });
+  const records = await recordService.getAllById({ clientId: user.clientId });
+  if (!records) {
+    throw new Response("dashboardLoader records problem", { status: 500 });
   }
-  return { reports };
+  return { records };
 }
 
 export default function Dashboard() {
-  const { reports } = useLoaderData();
-  // console.log("reports", reports);
+  const { records } = useLoaderData();
+  // console.log("records", records);
   const navigate = useNavigate();
   const theme = useTheme();
 
@@ -140,7 +140,7 @@ export default function Dashboard() {
                 <Typography variant="body2" color="textSecondary" gutterBottom>
                   {report.description}
                 </Typography>
-                {reports[index] ? (
+                {records[index] ? (
                   <TableContainer component={Paper}>
                     <Table size="small" aria-label="a dense table">
                       <TableHead>
@@ -151,7 +151,7 @@ export default function Dashboard() {
                           <TableCell>Action</TableCell>
                         </TableRow>
                       </TableHead>
-                      <TableBody>{renderTable(reports[index])}</TableBody>
+                      <TableBody>{renderTable(records[index])}</TableBody>
                     </Table>
                   </TableContainer>
                 ) : (

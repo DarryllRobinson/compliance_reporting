@@ -112,6 +112,7 @@ const ReportFrame = () => {
                   {expandedSections[section] && (
                     <Box sx={{ mt: 1, pl: 2 }}>
                       <SectionForm
+                        section={section}
                         fields={config.fields}
                         xeroData={config.xeroData}
                         user={user}
