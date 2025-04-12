@@ -13,7 +13,6 @@ import { useTheme } from "@mui/material/styles";
 import { clientService } from "../../features/clients/client.service";
 
 const SectionForm = ({ fields = [], xeroData = {}, user = { user } }) => {
-  console.log("xeroData", xeroData);
   const theme = useTheme();
 
   // Normalize xeroData keys to lowercase
@@ -55,7 +54,6 @@ const SectionForm = ({ fields = [], xeroData = {}, user = { user } }) => {
         value,
       },
     }));
-    console.log(fieldName, value);
   };
 
   const handleSelectAll = () => {
@@ -75,22 +73,26 @@ const SectionForm = ({ fields = [], xeroData = {}, user = { user } }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // Convert all field values to strings
     const dataToSubmit = Object.entries(fieldStatus).reduce(
       (acc, [fieldName, status]) => {
-        acc[fieldName] = status.value;
+        acc[fieldName] = String(status.value || ""); // Ensure value is a string
         return acc;
       },
       {}
     );
-    console.log("Data to submit:", dataToSubmit);
-    // clientService
-    //   .update(dataToSubmit)
-    //   .then((response) => {
-    //     console.log("Data submitted successfully:", response);
-    //   })
-    //   .catch((error) => {
-    //     console.error("Error submitting data:", error);
-    //   });
+
+    console.log("Data to submit:", dataToSubmit, user.clientId);
+
+    clientService
+      .update(user.clientId, dataToSubmit)
+      .then((response) => {
+        console.log("Data submitted successfully:", response);
+      })
+      .catch((error) => {
+        console.error("Error submitting data:", error);
+      });
   };
 
   const renderField = (field) => {
@@ -115,8 +117,8 @@ const SectionForm = ({ fields = [], xeroData = {}, user = { user } }) => {
           }}
         >
           <Typography variant="subtitle1" sx={{ fontSize: "0.875rem" }}>
-            {field.name}
-            <Tooltip title={field.label}>
+            {field.label}
+            <Tooltip title={field.tip}>
               <InfoOutlined fontSize="small" />
             </Tooltip>
           </Typography>
@@ -126,6 +128,7 @@ const SectionForm = ({ fields = [], xeroData = {}, user = { user } }) => {
             fullWidth
             size="small"
             name={field.name}
+            // label={field.label}
             placeholder={placeholder}
             value={fieldStatus[field.name]?.value || ""}
             onChange={(e) => handleInputChange(field.name, e.target.value)}

@@ -2,14 +2,15 @@
 export const payments = [
   {
     name: "StandardPaymentPeriodInCalendarDays",
-    label:
-      "The reporting entity's standard payment supply period at the start of the 6 month reporting period, outlining the time in which payments are required to be paid to small business suppliers, disregarding any supply chain finance arrangements",
+    label: "Standard Payment Period",
+    tip: "The reporting entity's standard payment supply period at the start of the 6 month reporting period, outlining the time in which payments are required to be paid to small business suppliers, disregarding any supply chain finance arrangements",
     confirmed: false,
   },
   {
     name: "ChangesToStandardPaymentPeriod",
     label:
-      "Changes to the standard payment period for the reporting entity over the 6 months of the reporting period in calendar days.",
+      "Changes to the standard payment period for the reporting entity at the start of the 6 month reporting period in calendar days",
+    tip: "Changes to the standard payment period for the reporting entity at the start of the 6 month reporting period in calendar days",
     confirmed: false,
   },
   {
