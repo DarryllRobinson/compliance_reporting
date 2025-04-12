@@ -88,7 +88,11 @@ export default function Dashboard() {
             <Button
               variant="contained"
               color="primary"
-              onClick={() => navigate("/report-details", { state: { row } })}
+              onClick={() =>
+                navigate("/xero-credentials", {
+                  state: { reportDetails: row }, // Pass row as reportDetails
+                })
+              }
             >
               Continue
             </Button>
@@ -96,7 +100,11 @@ export default function Dashboard() {
             <Button
               variant="contained"
               color="primary"
-              onClick={() => navigate("/report-details", { state: { row } })}
+              onClick={() =>
+                navigate("/report-details", {
+                  state: { reportDetails: row }, // Pass row as reportDetails
+                })
+              }
             >
               View Details
             </Button>

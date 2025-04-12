@@ -1,32 +1,36 @@
-import React, { useState } from "react";
-import { Form, redirect, useLoaderData, useLocation } from "react-router";
+import React, { useEffect } from "react";
+import { Form, redirect, useNavigate, useLocation } from "react-router";
 import {
   Box,
   Button,
   TextField,
   useTheme,
   Paper,
-  Alert,
   Grid,
+  Typography,
 } from "@mui/material";
+import { useReportContext } from "../../context/ReportContext"; // Import ReportContext
 import { userService } from "../../features/users/user.service";
-import { reportService } from "../../features/reports/report.service";
 
-export async function xeroLoader() {
-  const user = await userService.refreshToken();
-  if (!user) {
-    throw new Response("xeroLoader refreshToken problem", {
-      status: 500,
-    });
-  }
-}
+// export async function xeroLoader() {
+//   const user = await userService.refreshToken();
+//   if (!user) {
+//     throw new Response("xeroLoader refreshToken problem", {
+//       status: 500,
+//     });
+//   }
+// }
 
 export async function xeroAction({ request }) {
   await userService.refreshToken();
   const formData = await request.formData();
   let xeroDetails = Object.fromEntries(formData);
-  console.log("Xero Details:", xeroDetails);
 
+  // Parse reportDetails into JSON
+  const reportDetails = JSON.parse(xeroDetails.reportDetails || "{}");
+  console.log("Parsed reportDetails:", reportDetails);
+
+  const { username, password } = xeroDetails;
   try {
     // Xero login
     // const xeroLogin = await reportService.xeroLogin();
@@ -38,10 +42,24 @@ export async function xeroAction({ request }) {
 }
 
 export default function XeroCredentials() {
+  const { reportDetails, setReportDetails } = useReportContext(); // Access context
   const location = useLocation();
-  const { reportName } = location.state || {};
-  console.log("Report Name:", reportName);
+  const navigate = useNavigate();
   const theme = useTheme();
+
+  // Set reportDetails in context if available in location.state
+  useEffect(() => {
+    if (location.state?.reportDetails) {
+      setReportDetails(location.state.reportDetails);
+    }
+  }, [location.state, setReportDetails]);
+
+  // Redirect to dashboard if reportDetails is missing
+  useEffect(() => {
+    if (!reportDetails) {
+      navigate("/user/dashboard");
+    }
+  }, [reportDetails, navigate]);
 
   return (
     <Box
@@ -63,11 +81,44 @@ export default function XeroCredentials() {
           backgroundColor: theme.palette.background.paper,
         }}
       >
+        <Typography variant="h6" gutterBottom>
+          Report Details
+        </Typography>
+        {reportDetails ? (
+          <Box>
+            <Typography variant="body1">
+              Report Name: {reportDetails.reportName}
+            </Typography>
+            <Typography variant="body1">
+              Reporting Period Start Date:{" "}
+              {
+                new Date(reportDetails.ReportingPeriodStartDate)
+                  .toISOString()
+                  .split("T")[0]
+              }
+            </Typography>
+            <Typography variant="body1">
+              Reporting Period End Date:{" "}
+              {
+                new Date(reportDetails.ReportingPeriodEndDate)
+                  .toISOString()
+                  .split("T")[0]
+              }
+            </Typography>
+          </Box>
+        ) : (
+          <Typography variant="body1">No report details available.</Typography>
+        )}
         <Form
           method="post"
           id="xero-login-form"
           style={{ display: "flex", flexDirection: "column", gap: 2 }}
         >
+          <input
+            type="hidden"
+            name="reportDetails"
+            value={JSON.stringify(reportDetails || {})}
+          />
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <TextField
@@ -75,7 +126,6 @@ export default function XeroCredentials() {
                 name="username"
                 type="string"
                 fullWidth
-                // required
               />
             </Grid>
             <Grid item xs={12}>
@@ -84,7 +134,6 @@ export default function XeroCredentials() {
                 name="password"
                 type="password"
                 fullWidth
-                // required
               />
             </Grid>
           </Grid>

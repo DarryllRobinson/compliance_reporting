@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Box, Grid, Button, Collapse, Paper } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import SectionForm from "./SectionForm";
 import { clients } from "../../data/clientFields";
 // import { clients } from "../../data/mockClients";
@@ -11,6 +11,7 @@ import { report } from "../../data/reportFields";
 import { users } from "../../data/mockUsers";
 import { clientService } from "../../features/clients/client.service";
 import { userService } from "../../features/users/user.service";
+import { useReportContext } from "../../context/ReportContext";
 
 const sectionsConfig = {
   client: { fields: clients, xeroData: clients },
@@ -21,6 +22,7 @@ const sectionsConfig = {
 };
 
 export async function reportFrameLoader() {
+  // Needs to be updated to extract all relevant data from the database
   try {
     userService.refreshToken();
     console.log("reportFrameLoader");
@@ -32,6 +34,9 @@ export async function reportFrameLoader() {
 }
 
 const ReportFrame = () => {
+  const { reportDetails } = useReportContext(); // Access context
+  console.log("Report Details:", reportDetails);
+
   const theme = useTheme();
   const navigate = useNavigate();
   const [user, setUser] = useState({});
@@ -47,6 +52,12 @@ const ReportFrame = () => {
     const subscription = userService.user.subscribe((x) => setUser(x));
     return () => subscription.unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (!reportDetails) {
+      navigate("/user/dashboard"); // Redirect if reportDetails is missing
+    }
+  }, [reportDetails, navigate]);
 
   const handleConfirm = () => {
     navigate("/invoice-metrics");

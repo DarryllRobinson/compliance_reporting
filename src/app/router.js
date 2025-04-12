@@ -51,7 +51,7 @@ const router = createBrowserRouter([
         path: "xero-credentials",
         element: <XeroCredentials />,
         action: xeroAction,
-        loader: xeroLoader,
+        // loader: xeroLoader,
       },
       {
         path: "create-report",
@@ -62,7 +62,7 @@ const router = createBrowserRouter([
       {
         path: "review-report",
         element: <ReportFrame />,
-        loader: reportFrameLoader,
+        // loader: reportFrameLoader,
       },
       { path: "invoice-metrics", element: <InvoiceMetrics /> },
       { path: "final-review", element: <FinalReview /> },
