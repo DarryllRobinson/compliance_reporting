@@ -17,7 +17,7 @@ import {
 import { useTheme } from "@mui/material/styles";
 import { useLoaderData, useNavigate } from "react-router";
 import { userService } from "./user.service";
-import { recordService } from "../../services/record.service";
+import { adminService } from "../../services/admin.service";
 
 export async function dashboardLoader() {
   const user = await userService.refreshToken();
@@ -25,7 +25,7 @@ export async function dashboardLoader() {
     throw new Response("dashboardLoader user problem", { status: 500 });
   }
   //   const user = userService.userValue; // Get the current user
-  const records = await recordService.getAllById({ clientId: user.clientId });
+  const records = await adminService.getAllById({ clientId: user.clientId });
   if (!records) {
     throw new Response("dashboardLoader records problem", { status: 500 });
   }

@@ -1,9 +1,9 @@
 import config from "../utils/config";
 import { fetchWrapper } from "../utils/fetch-wrapper";
 
-const baseUrl = `${config.apiUrl}/records`;
+const baseUrl = `${config.apiUrl}/admin`;
 
-export const recordService = {
+export const adminService = {
   getAll,
   getAllById,
   getById,
@@ -18,7 +18,7 @@ async function getAll() {
 
 async function getAllById(params) {
   const { clientId } = params;
-  return await fetchWrapper.get(`${baseUrl}/records/${clientId}`);
+  return await fetchWrapper.get(`${baseUrl}/record/${clientId}`);
 }
 
 async function getById(id) {

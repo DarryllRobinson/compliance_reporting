@@ -112,6 +112,10 @@ function handleResponse(response) {
         userService.logout();
       }
 
+      if (response.status === 404) {
+        return data;
+      }
+
       const error = (data && data.message) || response.statusText;
       return Promise.reject(error);
     }

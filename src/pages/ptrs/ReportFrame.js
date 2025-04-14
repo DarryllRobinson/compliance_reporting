@@ -7,7 +7,7 @@ import { clients } from "../../data/clientFields";
 // import { clients } from "../../data/mockClients";
 import { payments } from "../../data/paymentFields";
 import { finance } from "../../data/financeFields";
-import { report } from "../../data/reportFields";
+import { admin } from "../../data/adminFields";
 import { users } from "../../data/mockUsers";
 import { clientService } from "../../features/clients/client.service";
 import { userService } from "../../features/users/user.service";
@@ -41,7 +41,7 @@ const ReportFrame = () => {
     client: { fields: clients, xeroData: client },
     payments: { fields: payments, xeroData: clients },
     finance: { fields: finance, xeroData: clients },
-    report: { fields: report, xeroData: users },
+    admin: { fields: admin, xeroData: users },
     // Add more sections here as needed
   };
 

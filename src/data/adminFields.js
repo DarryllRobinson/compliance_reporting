@@ -1,5 +1,5 @@
 // 17 fields
-export const report = [
+export const admin = [
   {
     name: "ReportingPeriodStartDate",
     label: "Reporting Period Start Date",

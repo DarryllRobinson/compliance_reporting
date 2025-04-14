@@ -1,7 +1,10 @@
-import React, { Suspense } from "react";
+import React from "react";
 import ReactDOM from "react-dom/client";
 import { RouterProvider } from "react-router";
 import router from "./app/router";
+import { ThemeProvider } from "@mui/material/styles";
+import globalTheme from "./theme/globalTheme";
+import { AuthProvider } from "./context/AuthContext";
 import { ReportProvider } from "./context/ReportContext"; // Import ReportProvider
 import { userService } from "./features/users/user.service";
 
@@ -19,8 +22,16 @@ userService
 
 function startApp() {
   ReactDOM.createRoot(document.getElementById("root")).render(
-    <ReportProvider>
-      <RouterProvider router={router} />
-    </ReportProvider>
+    <React.StrictMode>
+      <AuthProvider>
+        <ReportProvider>
+          {" "}
+          {/* Wrap the application with ReportProvider */}
+          <ThemeProvider theme={globalTheme}>
+            <RouterProvider router={router} />
+          </ThemeProvider>
+        </ReportProvider>
+      </AuthProvider>
+    </React.StrictMode>
   );
 }
