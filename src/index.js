@@ -25,7 +25,6 @@ function startApp() {
     <React.StrictMode>
       <AuthProvider>
         <ReportProvider>
-          {" "}
           {/* Wrap the application with ReportProvider */}
           <ThemeProvider theme={globalTheme}>
             <RouterProvider router={router} />

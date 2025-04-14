@@ -6,7 +6,7 @@ import ErrorPage from "../components/navigation/ErrorPage";
 import LandingPage from "../components/generic/LandingPage";
 import CreateReport, {
   reportCreateAction,
-  reportCreateLoader,
+  // reportCreateLoader,
 } from "../features/reports/CreateReport";
 import ReportForm from "../pages/ptrs/ReportForm";
 import InvoiceMetrics from "../pages/ptrs/InvoiceMetrics";
@@ -16,10 +16,9 @@ import XeroCredentials, {
   xeroAction,
   xeroLoader,
 } from "../pages/ptrs/XeroCredentials";
-import ReportFrame, { reportFrameLoader } from "./../pages/ptrs/ReportFrame";
+import ReportFrame, { reportFrameLoader } from "../pages/ptrs/ReportFrame";
 import FinalReview from "../pages/ptrs/FinalReview";
-import SignIn, { loginAction } from "../features/users/SignIn";
-import SignUp, { signupAction } from "../features/users/SignUp";
+import Login, { loginAction } from "../features/users/Login";
 import LoginErrorPage from "../features/users/LoginErrorPage";
 import Clients, { clientsLoader } from "../features/clients/Clients";
 import ClientRegister, {
@@ -56,7 +55,7 @@ const router = createBrowserRouter([
       {
         path: "create-report",
         element: <CreateReport />,
-        loader: reportCreateLoader,
+        // loader: reportCreateLoader,
         action: reportCreateAction,
       },
       {
@@ -83,13 +82,7 @@ const router = createBrowserRouter([
         loader: dashboardLoader,
       },
       { path: "/user/verify-email", element: <VerifyEmail /> },
-      { path: "/signin", element: <SignIn />, action: loginAction },
-      {
-        path: "/signup",
-        element: <SignUp />,
-        errorElement: <LoginErrorPage />,
-        action: loginAction,
-      },
+      { path: "/login", element: <Login />, action: loginAction },
       {
         path: "/clients",
         element: <Clients />,

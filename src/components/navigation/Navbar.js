@@ -112,18 +112,10 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
             <Button
               color="inherit"
               component={Link}
-              to="/signin"
+              to="/login"
               sx={{ color: theme.palette.text.primary }}
             >
-              Sign In
-            </Button>
-            <Button
-              color="inherit"
-              component={Link}
-              to="/signup"
-              sx={{ color: theme.palette.text.primary }}
-            >
-              Sign Up
+              Login
             </Button>
           </Box>
         )}
@@ -190,22 +182,13 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
                 ]
               : [
                   <MenuItem
-                    key="signin"
+                    key="login"
                     onClick={handleMenuClose}
                     component={Link}
-                    to="/signin"
+                    to="/login"
                     sx={{ color: theme.palette.text.primary }}
                   >
-                    Sign In
-                  </MenuItem>,
-                  <MenuItem
-                    key="signup"
-                    onClick={handleMenuClose}
-                    component={Link}
-                    to="/signup"
-                    sx={{ color: theme.palette.text.primary }}
-                  >
-                    Sign Up
+                    Login
                   </MenuItem>,
                 ]}
           </Menu>

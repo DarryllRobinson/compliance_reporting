@@ -7,11 +7,10 @@ export async function loginAction({ request }) {
   const formData = await request.formData();
   const userDetails = Object.fromEntries(formData);
   await userService.login(userDetails);
-  console.log("logged in userDetails:", userDetails);
   return redirect("/user/dashboard");
 }
 
-export default function SignIn() {
+export default function Login() {
   const theme = useTheme(); // Access the theme
 
   return (
@@ -27,7 +26,7 @@ export default function SignIn() {
       }}
     >
       <Typography variant="h4" gutterBottom>
-        Sign In
+        Login
       </Typography>
       <Form
         method="post"
@@ -54,7 +53,7 @@ export default function SignIn() {
             required
           />
           <Button variant="contained" color="primary" type="submit" fullWidth>
-            Sign In
+            Login
           </Button>
         </Box>
       </Form>

@@ -16,17 +16,17 @@ import {
 import { userService } from "../../features/users/user.service";
 import { clientService } from "./client.service";
 // Testing the form
-import { clients } from "../../data/mockClients"; // Mock data for testing
+// import { clients } from "../../data/mockClients"; // Mock data for testing
 
 export async function clientRegisterAction({ request }) {
   await userService.refreshToken();
-  // const formData = await request.formData();
-  // let clientDetails = Object.fromEntries(formData);
+  const formData = await request.formData();
+  let clientDetails = Object.fromEntries(formData);
   // don't forget to include active: true
-  // const clientDetails = { ...clientDetails, active: true };
+  clientDetails = { ...clientDetails, active: true };
   // For testing purposes, using mock data instead of form data
-  const clientDetails = clients;
-  console.log("Client Details:", clientDetails);
+  // const clientDetails = clients;
+  // console.log("Client Details:", clientDetails);
   try {
     await clientService.create(clientDetails);
     return redirect("/users/create");
