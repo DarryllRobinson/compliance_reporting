@@ -63,9 +63,9 @@ export default function AppRouter() {
           action: reportCreateAction(reportContext),
         },
         {
-          path: "review-report",
+          path: "review-report/:reportId",
           element: <ReportFrame />,
-          loader: reportFrameLoader,
+          loader: reportFrameLoader(),
         },
         { path: "invoice-metrics", element: <InvoiceMetrics /> },
         { path: "final-review", element: <FinalReview /> },

@@ -15,6 +15,8 @@ import {
 } from "@mui/material";
 import { userService } from "../users/user.service";
 import { reportService } from "./report.service";
+import { paymentService } from "../../services/payment.service";
+import { financeService } from "../../services/finance.service";
 
 export async function reportCreateLoader() {
   const user = await userService.refreshToken();
@@ -41,8 +43,43 @@ export const reportCreateAction =
     try {
       const report = await reportService.create(reportDetails);
       console.log("Report created:", report);
+
+      // Create a record for each section in the database
+      // Payment section
+      try {
+        const payment = await paymentService.create({
+          reportId: report.id,
+          createdBy: userService.userValue.id,
+        });
+        console.log("Payment record created", payment);
+        reportDetails = {
+          ...reportDetails,
+          paymentId: payment.id,
+        };
+      } catch (error) {
+        console.error("Error creating payment record:", error);
+      }
+
+      // Finance section
+      try {
+        const finance = await financeService.create({
+          reportId: report.id,
+          createdBy: userService.userValue.id,
+        });
+        console.log("Finance record created", finance);
+        reportDetails = {
+          ...reportDetails,
+          financeId: finance.id,
+        };
+      } catch (error) {
+        console.error("Error creating finance record:", error);
+      }
+
+      // Store the report details in the context
+      console.log("Report details:", reportDetails);
       const { setReportDetails } = reportContext;
       setReportDetails(report);
+
       // Redirect to the next step in the process
       return redirect("/xero-credentials");
     } catch (error) {
@@ -123,6 +160,7 @@ export default function ReportCreate() {
                 fullWidth
                 required
                 InputLabelProps={{ shrink: true }}
+                defaultValue={defaultDate || ""}
               />
             </Grid>
           </Grid>

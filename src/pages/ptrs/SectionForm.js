@@ -13,6 +13,7 @@ import { useTheme } from "@mui/material/styles";
 import { clientService } from "../../features/clients/client.service";
 import { paymentService } from "../../services/payment.service";
 import { financeService } from "../../services/finance.service";
+import { useReportContext } from "../../context/ReportContext";
 
 const SectionForm = ({
   section = "",
@@ -20,6 +21,7 @@ const SectionForm = ({
   xeroData = {},
   user = { user },
 }) => {
+  const { reportDetails } = useReportContext();
   const theme = useTheme();
 
   // Normalize xeroData keys to lowercase
@@ -82,7 +84,7 @@ const SectionForm = ({
     e.preventDefault();
 
     // Convert all field values to strings
-    const dataToSubmit = Object.entries(fieldStatus).reduce(
+    let dataToSubmit = Object.entries(fieldStatus).reduce(
       (acc, [fieldName, status]) => {
         acc[fieldName] = String(status.value || ""); // Ensure value is a string
         return acc;
@@ -90,6 +92,13 @@ const SectionForm = ({
       {}
     );
 
+    dataToSubmit = {
+      ...dataToSubmit,
+      reportId: reportDetails.id,
+      createdBy: user.id,
+      updatedBy: user.id,
+      reportStatus: "Updated",
+    };
     console.log("Data to submit:", dataToSubmit, user.clientId);
 
     // Use a switch block for section-specific logic
@@ -108,7 +117,7 @@ const SectionForm = ({
         break;
       case "payments":
         // Handle payments-specific submission logic here
-        console.log("Submitting payments section data...");
+        console.log("Submitting payments section data...", dataToSubmit);
         paymentService.update(user.clientId, dataToSubmit).then((response) => {
           console.log("Payments data submitted successfully:", response);
         });
@@ -131,6 +140,7 @@ const SectionForm = ({
   };
 
   const renderField = (field) => {
+    // console.log("Field:", field);
     const fieldKey = field.name.toLowerCase();
     const isFieldPresent =
       normalisedXeroData.hasOwnProperty(fieldKey) &&

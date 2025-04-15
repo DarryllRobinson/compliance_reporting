@@ -26,10 +26,6 @@ export async function xeroAction({ request }) {
   const formData = await request.formData();
   let xeroDetails = Object.fromEntries(formData);
 
-  // Parse reportDetails into JSON
-  const reportDetails = JSON.parse(xeroDetails.reportDetails || "{}");
-  console.log("Parsed reportDetails:", reportDetails);
-
   const { username, password } = xeroDetails;
   try {
     // Xero login
@@ -42,24 +38,8 @@ export async function xeroAction({ request }) {
 }
 
 export default function XeroCredentials() {
-  const { reportDetails, setReportDetails } = useReportContext(); // Access context
-  const location = useLocation();
-  const navigate = useNavigate();
+  const { reportDetails } = useReportContext(); // Access context
   const theme = useTheme();
-
-  // Set reportDetails in context if available in location.state
-  useEffect(() => {
-    if (location.state?.reportDetails) {
-      setReportDetails(location.state.reportDetails);
-    }
-  }, [location.state, setReportDetails]);
-
-  // Redirect to dashboard if reportDetails is missing
-  useEffect(() => {
-    if (!reportDetails) {
-      navigate("/user/dashboard");
-    }
-  }, [reportDetails, navigate]);
 
   return (
     <Box

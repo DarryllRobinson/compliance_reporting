@@ -1,7 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import AppRouter from "./app/AppRouter";
-import router from "./app/AppRouter";
 import { ThemeProvider } from "@mui/material/styles";
 import globalTheme from "./theme/globalTheme";
 import { AuthProvider } from "./context/AuthContext";
@@ -22,15 +21,13 @@ userService
 
 function startApp() {
   ReactDOM.createRoot(document.getElementById("root")).render(
-    <React.StrictMode>
-      <AuthProvider>
-        <ReportProvider>
-          {/* Wrap the application with ReportProvider */}
-          <ThemeProvider theme={globalTheme}>
-            <AppRouter />
-          </ThemeProvider>
-        </ReportProvider>
-      </AuthProvider>
-    </React.StrictMode>
+    <AuthProvider>
+      <ReportProvider>
+        {/* Wrap the application with ReportProvider */}
+        <ThemeProvider theme={globalTheme}>
+          <AppRouter />
+        </ThemeProvider>
+      </ReportProvider>
+    </AuthProvider>
   );
 }

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -25,16 +25,22 @@ export async function dashboardLoader() {
     throw new Response("dashboardLoader user problem", { status: 500 });
   }
   //   const user = userService.userValue; // Get the current user
-  const records = await reportService.getAllById({ clientId: user.clientId });
-  if (!records) {
-    throw new Response("dashboardLoader records problem", { status: 500 });
+  const reports = await reportService.getAllById({ clientId: user.clientId });
+  if (!reports) {
+    throw new Response("dashboardLoader reports problem", { status: 500 });
   }
-  return { records };
+  return { reports };
 }
 
 export default function Dashboard() {
-  const { records } = useLoaderData();
-  // console.log("records", records);
+  const { reports } = useLoaderData();
+  const [user, setUser] = useState({});
+  useEffect(() => {
+    const subscription = userService.user.subscribe((x) => setUser(x));
+    return () => subscription.unsubscribe();
+  }, []);
+  console.log("Dashboard reports", reports);
+  console.log("Dashboard user", user);
   const navigate = useNavigate();
   const theme = useTheme();
 
@@ -101,7 +107,7 @@ export default function Dashboard() {
               variant="contained"
               color="primary"
               onClick={() =>
-                navigate("/report-details", {
+                navigate(`/report-details/${row.id}`, {
                   state: { reportDetails: row }, // Pass row as reportDetails
                 })
               }
@@ -123,7 +129,7 @@ export default function Dashboard() {
       }}
     >
       <Typography variant="h4" gutterBottom>
-        Welcome to Your Dashboard
+        Welcome to Your Dashboard, {user?.firstName} {user?.lastName}
       </Typography>
       <Typography variant="body1" gutterBottom>
         Here you can manage your reports and track their details.
@@ -140,7 +146,7 @@ export default function Dashboard() {
                 <Typography variant="body2" color="textSecondary" gutterBottom>
                   {report.description}
                 </Typography>
-                {records[index] ? (
+                {reports[index] ? (
                   <TableContainer component={Paper}>
                     <Table size="small" aria-label="a dense table">
                       <TableHead>
@@ -151,7 +157,7 @@ export default function Dashboard() {
                           <TableCell>Action</TableCell>
                         </TableRow>
                       </TableHead>
-                      <TableBody>{renderTable(records[index])}</TableBody>
+                      <TableBody>{renderTable(reports[index])}</TableBody>
                     </Table>
                   </TableContainer>
                 ) : (
@@ -160,7 +166,7 @@ export default function Dashboard() {
                     color="textSecondary"
                     gutterBottom
                   >
-                    No records found for this report
+                    No reports found for this report
                   </Typography>
                 )}
                 <Button

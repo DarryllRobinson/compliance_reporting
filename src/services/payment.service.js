@@ -5,7 +5,7 @@ const baseUrl = `${config.apiUrl}/payments`;
 
 export const paymentService = {
   getAll,
-  getById,
+  getByReportId,
   create,
   update,
   delete: _delete,
@@ -15,7 +15,7 @@ async function getAll() {
   return await fetchWrapper.get(baseUrl);
 }
 
-async function getById(id) {
+async function getByReportId(id) {
   return await fetchWrapper.get(`${baseUrl}/${id}`);
 }
 
