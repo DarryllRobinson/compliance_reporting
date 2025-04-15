@@ -46,7 +46,7 @@ export default function ErrorPage() {
           <Button
             variant="contained"
             color="success"
-            onClick={() => navigate("/dashboard")} // Navigate to the dashboard
+            onClick={() => navigate("/user/dashboard")} // Navigate to the dashboard
           >
             Dashboard
           </Button>

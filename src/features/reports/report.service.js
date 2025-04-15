@@ -18,7 +18,7 @@ async function getAll() {
 
 async function getAllById(params) {
   const { clientId } = params;
-  return await fetchWrapper.get(`${baseUrl}/reports/${clientId}`);
+  return await fetchWrapper.get(`${baseUrl}/${clientId}`);
 }
 
 async function getById(id) {

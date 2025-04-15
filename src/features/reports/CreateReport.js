@@ -8,6 +8,10 @@ import {
   Paper,
   Alert,
   Grid,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import { userService } from "../users/user.service";
 import { reportService } from "./report.service";
@@ -21,28 +25,34 @@ export async function reportCreateLoader() {
   }
 }
 
-export async function reportCreateAction({ request }) {
-  await userService.refreshToken();
-  const formData = await request.formData();
-  let reportDetails = Object.fromEntries(formData);
-  reportDetails = {
-    ...reportDetails,
-    reportStatus: "Created",
-    createdBy: userService.userValue.id,
-    clientId: userService.userValue.clientId,
-  };
+export const reportCreateAction =
+  (reportContext) =>
+  async ({ request }) => {
+    await userService.refreshToken();
+    const formData = await request.formData();
+    let reportDetails = Object.fromEntries(formData);
+    reportDetails = {
+      ...reportDetails,
+      reportStatus: "Created",
+      createdBy: userService.userValue.id,
+      clientId: userService.userValue.clientId,
+    };
 
-  try {
-    const report = await reportService.create(reportDetails);
-    return redirect("/xero-credentials", { state: { report } });
-  } catch (error) {
-    console.error("Error creating report:", error);
-  }
-}
+    try {
+      const report = await reportService.create(reportDetails);
+      console.log("Report created:", report);
+      const { setReportDetails } = reportContext;
+      setReportDetails(report);
+      // Redirect to the next step in the process
+      return redirect("/xero-credentials");
+    } catch (error) {
+      console.error("Error creating report:", error);
+    }
+  };
 
 export default function ReportCreate() {
   const location = useLocation();
-  const { reportName } = location.state || {};
+  const { reportName, reportList } = location.state || {};
   const theme = useTheme();
 
   const sixMonthsAgo = new Date();
@@ -76,14 +86,23 @@ export default function ReportCreate() {
         >
           <Grid container spacing={2}>
             <Grid item xs={12}>
-              <TextField
-                name="reportName"
-                type="string"
-                fullWidth
-                disabled
-                value={reportName || ""}
-              />
-              <input type="hidden" name="reportName" value={reportName || ""} />
+              <FormControl fullWidth>
+                <InputLabel id="report-select-label">Report Name</InputLabel>
+                <Select
+                  labelId="report-select-label"
+                  name="reportName"
+                  id="report"
+                  label="List of Reports"
+                  defaultValue={reportName || ""}
+                  required
+                >
+                  {reportList.map((report) => (
+                    <MenuItem key={report.id} value={report.name}>
+                      {report.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </Grid>
             <Grid item xs={6}>
               <TextField

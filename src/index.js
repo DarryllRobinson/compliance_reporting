@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { RouterProvider } from "react-router";
-import router from "./app/router";
+import AppRouter from "./app/AppRouter";
+import router from "./app/AppRouter";
 import { ThemeProvider } from "@mui/material/styles";
 import globalTheme from "./theme/globalTheme";
 import { AuthProvider } from "./context/AuthContext";
@@ -27,7 +27,7 @@ function startApp() {
         <ReportProvider>
           {/* Wrap the application with ReportProvider */}
           <ThemeProvider theme={globalTheme}>
-            <RouterProvider router={router} />
+            <AppRouter />
           </ThemeProvider>
         </ReportProvider>
       </AuthProvider>
