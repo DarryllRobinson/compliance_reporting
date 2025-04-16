@@ -32,7 +32,7 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
 
   const handleLogout = async () => {
     try {
-      await userService.logout();
+      userService.logout();
       handleMenuClose();
       navigate("/");
     } catch (error) {

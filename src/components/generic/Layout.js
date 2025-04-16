@@ -5,18 +5,6 @@ import { ThemeProvider, createTheme } from "@mui/material/styles";
 import Navbar from "../navigation/Navbar";
 import Footer from "../navigation/Footer";
 import ProcessFlow from "../ProcessFlow";
-import { userService } from "../../features/users/user.service";
-
-// Need to check if the user is logged in with a silent check to the db
-// export async function layoutLoader() {
-//   try {
-//     const user = await userService.refreshToken();
-//     return { user };
-//   } catch (error) {
-//     console.warn("Silent login failed:", error.message || error);
-//     return { user: null }; // Return null user if refresh fails
-//   }
-// }
 
 export default function Layout() {
   const [isDarkTheme, setIsDarkTheme] = useState(false);
