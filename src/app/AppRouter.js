@@ -1,19 +1,35 @@
 import React from "react";
-import { createBrowserRouter, RouterProvider } from "react-router";
+import { createBrowserRouter, Outlet, RouterProvider } from "react-router";
 import Layout from "../components/generic/Layout";
 import LandingPage from "../components/generic/LandingPage";
-import ErrorPage from "../components/navigation/ErrorPage";
+import RootErrorBoundary from "../components/navigation/RootErrorBoundary";
+import { Box } from "@mui/material";
 
 export default function AppRouter() {
   const router = createBrowserRouter([
     {
       path: "",
       element: <Layout />,
-      errorElement: <ErrorPage />,
+      ErrorBoundary: RootErrorBoundary,
       children: [
         {
           index: true,
           element: <LandingPage />,
+        },
+        // User
+        { path: "/users", element: <div>Users</div> },
+        {
+          path: "/dashboard",
+          element: (
+            <Box>
+              Dashboard
+              <Outlet />
+            </Box>
+          ),
+          children: [
+            { index: true, element: <Box>Home</Box> },
+            { path: "settings", element: <Box>Settings</Box> },
+          ],
         },
       ],
     },

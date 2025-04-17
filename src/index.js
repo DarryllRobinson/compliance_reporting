@@ -11,7 +11,7 @@ import { userService } from "./features/users/user.service";
 userService
   .refreshToken()
   .then(() => {
-    // console.log("Silent token refresh successful");
+    console.log("Silent token refresh successful");
   })
   .catch((error) => {
     console.warn("Silent token refresh failed:", error.message || error);
@@ -21,13 +21,12 @@ userService
 
 function startApp() {
   ReactDOM.createRoot(document.getElementById("root")).render(
-    <AuthProvider>
-      <ReportProvider>
-        {/* Wrap the application with ReportProvider */}
-        <ThemeProvider theme={globalTheme}>
-          <AppRouter />
-        </ThemeProvider>
-      </ReportProvider>
-    </AuthProvider>
+    // <AuthProvider>
+    //   <ReportProvider>
+    <ThemeProvider theme={globalTheme}>
+      <AppRouter />
+    </ThemeProvider>
+    //   </ReportProvider>
+    // </AuthProvider>
   );
 }

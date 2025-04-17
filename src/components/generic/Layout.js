@@ -5,6 +5,18 @@ import { ThemeProvider, createTheme } from "@mui/material/styles";
 import Navbar from "../navigation/Navbar";
 import Footer from "../navigation/Footer";
 import ProcessFlow from "../ProcessFlow";
+import { userService } from "../../features/users/user.service";
+
+export async function layoutLoader({ request }) {
+  const user = userService.userValue;
+  if (!user) {
+    console.log("layoutLoader user problem");
+    throw new Response("layoutLoader user problem", { status: 401 });
+  }
+
+  // If page not found
+  // throw new Response("Page not found", { status: 404 });
+}
 
 export default function Layout() {
   const [isDarkTheme, setIsDarkTheme] = useState(false);
