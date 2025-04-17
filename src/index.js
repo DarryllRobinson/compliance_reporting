@@ -34,12 +34,12 @@ userService
 
 function startApp() {
   ReactDOM.createRoot(document.getElementById("root")).render(
-    // <AuthProvider>
-    //   <ReportProvider>
-    <ThemeProvider theme={globalTheme}>
-      <AppRouter />
-    </ThemeProvider>
-    //   </ReportProvider>
-    // </AuthProvider>
+    <AuthProvider>
+      {/* <ReportProvider> */}
+      <ThemeProvider theme={globalTheme}>
+        <AppRouter />
+      </ThemeProvider>
+      {/* </ReportProvider> */}
+    </AuthProvider>
   );
 }

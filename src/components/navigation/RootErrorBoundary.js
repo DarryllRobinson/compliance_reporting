@@ -1,24 +1,20 @@
 import React, { useEffect } from "react";
 import * as Sentry from "@sentry/react";
 import { Box, Button, Typography } from "@mui/material";
-import {
-  useNavigate,
-  useRouteError,
-  isRouteErrorResponse,
-} from "react-router-dom";
+import { useNavigate, useRouteError, isRouteErrorResponse } from "react-router";
 import { useTheme } from "@mui/material/styles";
 import { useAuthContext } from "../../context/AuthContext";
 
 export default function RootErrorBoundary() {
   const theme = useTheme();
-  const navigate = useNavigate();
-  const { isSignedIn } = useAuthContext();
-  const error = useRouteError();
+  const navigate = useNavigate?.() || (() => {}); // Fallback to a no-op function
+  const { isSignedIn } = useAuthContext?.() || { isSignedIn: false }; // Fallback to default values
+  const error = useRouteError?.() || null; // Fallback to null if useRouteError is unavailable
 
   let title = "Something went wrong";
   let message = "An unexpected error has occurred.";
 
-  if (isRouteErrorResponse(error)) {
+  if (isRouteErrorResponse?.(error)) {
     switch (error.status) {
       case 404:
         title = "Page Not Found";
@@ -42,14 +38,16 @@ export default function RootErrorBoundary() {
   }
 
   useEffect(() => {
-    console.error("Route error:", error);
-    Sentry.captureException(error, {
-      tags: { location: "RootErrorBoundary" },
-      extra: {
-        pathname: window.location.pathname,
-        isSignedIn,
-      },
-    });
+    if (error) {
+      console.error("Route error:", error);
+      Sentry.captureException(error, {
+        tags: { location: "RootErrorBoundary" },
+        extra: {
+          pathname: window.location.pathname,
+          isSignedIn,
+        },
+      });
+    }
   }, [error, isSignedIn]);
 
   return (
@@ -89,7 +87,7 @@ export default function RootErrorBoundary() {
           <Button
             variant="contained"
             color="success"
-            onClick={() => navigate("/user/dashboard")}
+            onClick={() => navigate("/users/dashboard")}
           >
             Dashboard
           </Button>

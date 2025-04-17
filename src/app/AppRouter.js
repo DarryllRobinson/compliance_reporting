@@ -9,30 +9,41 @@ export default function AppRouter() {
   const router = createBrowserRouter([
     {
       path: "",
-      element: <Layout />,
+      Component: Layout,
       ErrorBoundary: RootErrorBoundary,
       children: [
         {
           index: true,
-          element: <LandingPage />,
+          Component: LandingPage,
         },
         // User
-        { path: "/users", element: <div>Users</div> },
         {
-          path: "/dashboard",
-          element: (
-            <Box>
-              Dashboard
-              <Outlet />
-            </Box>
-          ),
+          path: "/user",
           children: [
-            { index: true, element: <Box>Home</Box> },
-            { path: "settings", element: <Box>Settings</Box> },
+            { index: true, Component: Users },
+            { path: "dashboard", Component: Dashboard },
           ],
         },
       ],
     },
   ]);
   return <RouterProvider router={router} />;
+}
+
+function Users() {
+  return (
+    <Box>
+      <h2>Users</h2>
+      <p>List of users will go here.</p>
+    </Box>
+  );
+}
+
+function Dashboard() {
+  return (
+    <Box>
+      <h2>Dashboard</h2>
+      <p>Dashboard content will go here.</p>
+    </Box>
+  );
 }
