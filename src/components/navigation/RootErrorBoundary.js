@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect } from "react";
+import * as Sentry from "@sentry/react";
 import { Box, Button, Typography } from "@mui/material";
 import {
   useNavigate,
@@ -40,6 +41,17 @@ export default function RootErrorBoundary() {
     message = error.message;
   }
 
+  useEffect(() => {
+    console.error("Route error:", error);
+    Sentry.captureException(error, {
+      tags: { location: "RootErrorBoundary" },
+      extra: {
+        pathname: window.location.pathname,
+        isSignedIn,
+      },
+    });
+  }, [error, isSignedIn]);
+
   return (
     <Box
       sx={{
@@ -77,7 +89,7 @@ export default function RootErrorBoundary() {
           <Button
             variant="contained"
             color="success"
-            onClick={() => navigate("/dashboard")}
+            onClick={() => navigate("/user/dashboard")}
           >
             Dashboard
           </Button>

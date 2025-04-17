@@ -6,6 +6,8 @@ import Navbar from "../navigation/Navbar";
 import Footer from "../navigation/Footer";
 import ProcessFlow from "../ProcessFlow";
 import { userService } from "../../features/users/user.service";
+import { useAuthContext } from "../../context/AuthContext";
+// import * as Sentry from "@sentry/react"; // Consider using Sentry for error tracking with user context
 
 export async function layoutLoader({ request }) {
   const user = userService.userValue;
