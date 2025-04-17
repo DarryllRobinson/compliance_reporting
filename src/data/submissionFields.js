@@ -1,5 +1,5 @@
 // 17 fields
-export const admin = [
+export const submission = [
   {
     name: "ReportingPeriodStartDate",
     label: "Reporting Period Start Date",

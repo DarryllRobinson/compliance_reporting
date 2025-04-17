@@ -17,20 +17,21 @@ import { userService } from "../users/user.service";
 import { reportService } from "./report.service";
 import { paymentService } from "../../services/payment.service";
 import { financeService } from "../../services/finance.service";
+import { submissionService } from "../../services/submission.service";
 
-export async function reportCreateLoader() {
-  const user = await userService.refreshToken();
-  if (!user) {
-    throw new Response("userCreateLoader refreshToken problem", {
-      status: 500,
-    });
-  }
-}
+// export async function reportCreateLoader() {
+//   const user = await userService.refreshToken();
+//   if (!user) {
+//     throw new Response("userCreateLoader refreshToken problem", {
+//       status: 500,
+//     });
+//   }
+// }
 
 export const reportCreateAction =
   (reportContext) =>
   async ({ request }) => {
-    await userService.refreshToken();
+    // await userService.refreshToken();
     const formData = await request.formData();
     let reportDetails = Object.fromEntries(formData);
     reportDetails = {
@@ -73,6 +74,21 @@ export const reportCreateAction =
         };
       } catch (error) {
         console.error("Error creating finance record:", error);
+      }
+
+      // Submission section
+      try {
+        const submission = await submissionService.create({
+          reportId: report.id,
+          createdBy: userService.userValue.id,
+        });
+        console.log("Submission record created", submission);
+        reportDetails = {
+          ...reportDetails,
+          submissionId: submission.id,
+        };
+      } catch (error) {
+        console.error("Error creating submission record:", error);
       }
 
       // Store the report details in the context

@@ -167,9 +167,12 @@ export default function Dashboard() {
                     color="textSecondary"
                     gutterBottom
                   >
-                    No reports found for this report
+                    No records found for this report
                   </Typography>
                 )}
+                {/* Button to create a new report */}
+                {/* TODO: Update button to continue instead of create if open report exists */}
+
                 <Button
                   variant="contained"
                   color="primary"
