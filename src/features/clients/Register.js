@@ -19,7 +19,8 @@ import { clientService } from "./client.service";
 // import { clients } from "../../data/mockClients"; // Mock data for testing
 
 export async function clientRegisterAction({ request }) {
-  await userService.refreshToken();
+  // const user = userService.userValue; // Get the current user
+  // const user = await userService.refreshToken();
   const formData = await request.formData();
   let clientDetails = Object.fromEntries(formData);
   // don't forget to include active: true
@@ -29,6 +30,7 @@ export async function clientRegisterAction({ request }) {
   // console.log("Client Details:", clientDetails);
   try {
     await clientService.create(clientDetails);
+    // TODO: Open user creation form after client creation below
     return redirect("/users/create");
   } catch (error) {
     console.error("Error creating client:", error);

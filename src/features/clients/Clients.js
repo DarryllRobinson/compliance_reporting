@@ -15,7 +15,8 @@ import {
 } from "@mui/material";
 
 export async function clientsLoader() {
-  const user = await userService.refreshToken();
+  const user = userService.userValue; // Get the current user
+  // const user = await userService.refreshToken();
   if (!user) {
     throw new Response("clientsLoader user problem", { status: 500 });
   }
@@ -28,12 +29,12 @@ export async function clientsLoader() {
 }
 
 export default function Clients() {
-  const [user, setUser] = React.useState({});
+  // const [user, setUser] = React.useState({});
 
-  useEffect(() => {
-    const subscription = userService.user.subscribe((x) => setUser(x));
-    return () => subscription.unsubscribe();
-  }, []);
+  // useEffect(() => {
+  //   const subscription = userService.user.subscribe((x) => setUser(x));
+  //   return () => subscription.unsubscribe();
+  // }, []);
   const { clients } = useLoaderData();
   const theme = useTheme();
   const navigate = useNavigate(); // Initialize navigate

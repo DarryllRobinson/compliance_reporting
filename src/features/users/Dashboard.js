@@ -20,7 +20,8 @@ import { userService } from "./user.service";
 import { reportService } from "../reports/report.service";
 
 export async function dashboardLoader() {
-  const user = await userService.refreshToken();
+  // const user = await userService.refreshToken();
+  const user = userService.userValue; // Get the current user
   if (!user) {
     throw new Response("dashboardLoader user problem", { status: 500 });
   }

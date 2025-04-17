@@ -12,6 +12,8 @@ import Login, { loginAction } from "../features/users/Login";
 import { Box } from "@mui/material";
 import { userService } from "../features/users/user.service";
 import Users, { usersLoader } from "../features/users/Users";
+import Clients, { clientsLoader } from "../features/clients/Clients";
+import Dashboard, { dashboardLoader } from "../features/users/Dashboard";
 
 // TODO: Implement user and role auth check
 
@@ -48,6 +50,12 @@ export default function AppRouter() {
             },
           ],
         },
+        // Clients
+        {
+          path: "/clients",
+          Component: Clients,
+          loader: clientsLoader,
+        },
       ],
     },
   ]);
@@ -63,22 +71,22 @@ export default function AppRouter() {
 //   );
 // }
 
-async function dashboardLoader({ params }) {
-  const user = userService.userValue; // Get the current user
-  if (!user) {
-    return redirect("/user/login");
-  }
-  console.log("Dashboard loader params", params);
-  return { message: "Hello World!" };
-}
+// async function dashboardLoader({ params }) {
+//   const user = userService.userValue; // Get the current user
+//   if (!user) {
+//     return redirect("/user/login");
+//   }
+//   console.log("Dashboard loader params", params);
+//   return { message: "Hello World!" };
+// }
 
-function Dashboard() {
-  let data = useLoaderData();
-  return (
-    <Box>
-      <h2>Dashboard</h2>
-      <p>Dashboard content will go here.</p>
-      <p>Dashboard message: {data.message}</p>
-    </Box>
-  );
-}
+// function Dashboard() {
+//   let data = useLoaderData();
+//   return (
+//     <Box>
+//       <h2>Dashboard</h2>
+//       <p>Dashboard content will go here.</p>
+//       <p>Dashboard message: {data.message}</p>
+//     </Box>
+//   );
+// }
