@@ -3,7 +3,7 @@ import ReactDOM from "react-dom/client";
 import AppRouter from "./app/AppRouter";
 import { ThemeProvider } from "@mui/material/styles";
 import globalTheme from "./theme/globalTheme";
-import { AuthProvider } from "./context/AuthContext";
+// import { AuthProvider } from "./context/AuthContext";
 import { ReportProvider } from "./context/ReportContext"; // Import ReportProvider
 import { userService } from "./features/users/user.service";
 
@@ -32,14 +32,12 @@ userService
   })
   .finally(startApp);
 
+// startApp();
+
 function startApp() {
   ReactDOM.createRoot(document.getElementById("root")).render(
-    <AuthProvider>
-      {/* <ReportProvider> */}
-      <ThemeProvider theme={globalTheme}>
-        <AppRouter />
-      </ThemeProvider>
-      {/* </ReportProvider> */}
-    </AuthProvider>
+    <ThemeProvider theme={globalTheme}>
+      <AppRouter />
+    </ThemeProvider>
   );
 }

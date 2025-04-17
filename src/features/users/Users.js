@@ -14,7 +14,8 @@ import {
 } from "@mui/material";
 
 export async function usersLoader() {
-  const user = await userService.refreshToken();
+  const user = userService.userValue; // Get the current user
+  // const user = await userService.refreshToken();
   if (!user) {
     throw new Response("usersLoader refreshToken problem", { status: 500 });
   }

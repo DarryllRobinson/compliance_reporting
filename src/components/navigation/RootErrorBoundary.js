@@ -3,12 +3,15 @@ import * as Sentry from "@sentry/react";
 import { Box, Button, Typography } from "@mui/material";
 import { useNavigate, useRouteError, isRouteErrorResponse } from "react-router";
 import { useTheme } from "@mui/material/styles";
-import { useAuthContext } from "../../context/AuthContext";
+import { userService } from "../../features/users/user.service";
+// import { useAuthContext } from "../../context/AuthContext";
 
 export default function RootErrorBoundary() {
   const theme = useTheme();
   const navigate = useNavigate?.() || (() => {}); // Fallback to a no-op function
-  const { isSignedIn } = useAuthContext?.() || { isSignedIn: false }; // Fallback to default values
+  const user = userService.userValue; // Get the current user
+  const { isSignedIn } = user || { isSignedIn: false }; // Fallback to default values
+  // const { isSignedIn } = useAuthContext?.() || { isSignedIn: false }; // Fallback to default values
   const error = useRouteError?.() || null; // Fallback to null if useRouteError is unavailable
 
   let title = "Something went wrong";
@@ -87,7 +90,7 @@ export default function RootErrorBoundary() {
           <Button
             variant="contained"
             color="success"
-            onClick={() => navigate("/users/dashboard")}
+            onClick={() => navigate("/user/dashboard")}
           >
             Dashboard
           </Button>
