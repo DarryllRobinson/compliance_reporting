@@ -5,55 +5,72 @@ import { useLoaderData, useNavigate } from "react-router";
 // import SectionForm from "./SectionForm";
 import { clients } from "../../data/clientFields";
 // import { clients } from "../../data/mockClients";
-import { payments } from "../../data/paymentFields";
-import { finance } from "../../data/financeFields";
-import { admin } from "../../data/adminFields";
+// import { payments } from "../../data/paymentFields";
+// import { finance } from "../../data/financeFields";
+// import { admin } from "../../data/adminFields";
 import { users } from "../../data/mockUsers";
 import { clientService } from "../../features/clients/client.service";
 import { userService } from "../../features/users/user.service";
 import { useReportContext } from "../../context/ReportContext";
-import { paymentService } from "../../services/payment.service";
+import {
+  financeService,
+  paymentService,
+  submissionService,
+} from "../../services";
 
-export async function reportFrameLoader({ params }) {
+export async function _reportFrameLoader({ params }) {
   console.log("reportFrameLoader params", params);
 }
 
-export async function _reportFrameLoader(reportContext) {
-  console.log("reportFrameLoader", reportContext);
-  const { reportDetails } = reportContext;
+export async function reportFrameLoader(reportContext) {
+  const { reportDetails } = reportContext.context.reportContext;
   // Needs to be updated to extract all relevant data from the database
-  if (reportDetails) {
-    try {
-      const user = await userService.refreshToken();
-      const client = await clientService.getById(user.clientId);
-      console.log("reportFrameLoader client", client);
-      if (!client) {
-        throw new Response("reportFrameLoader client problem", { status: 500 });
-      }
-      // const payments = await paymentService.getByReportId(reportDetails.id);
-      // if (!payments) {
-      //   throw new Response("reportFrameLoader payments problem", {
-      //     status: 500,
-      //   });
-      // }
-      // return { client, payments };
-      return { client };
-    } catch (error) {
-      console.error("Error fetching data:", error);
+  // if (reportDetails) {
+  try {
+    // const user = await userService.refreshToken();
+    const user = userService.userValue;
+    const client = await clientService.getById(user.clientId);
+    console.log("reportFrameLoader client", client);
+    if (!client) {
+      throw new Response("reportFrameLoader client problem", { status: 500 });
     }
+    const finance = await financeService.getByReportId(reportDetails.id);
+    if (!finance) {
+      throw new Response("reportFrameLoader finance problem", {
+        status: 500,
+      });
+    }
+    const payments = await paymentService.getByReportId(reportDetails.id);
+    if (!payments) {
+      throw new Response("reportFrameLoader payments problem", {
+        status: 500,
+      });
+    }
+    const submission = await submissionService.getByReportId(reportDetails.id);
+    if (!submission) {
+      throw new Response("reportFrameLoader submission problem", {
+        status: 500,
+      });
+    }
+    return { client, finance, payments, submission };
+  } catch (error) {
+    console.error("Error fetching data:", error);
   }
+  // }
 }
 
 export default function ReportFrame() {
-  return <Box>ReportFrame</Box>;
-}
-
-function _ReportFrame() {
   const { reportDetails } = useReportContext(); // Access context
   console.log("ReportFrame Details:", reportDetails);
-  const { client } = useLoaderData();
-  // const { client, payments } = useLoaderData();
-  console.log("ReportFrame Client Data:", client);
+  // const { client } = useLoaderData();
+  const { client, finance, payments, submission } = useLoaderData();
+  console.log(
+    "ReportFrame Client Data:",
+    client,
+    finance,
+    payments,
+    submission
+  );
 
   const theme = useTheme();
   const navigate = useNavigate();
@@ -63,7 +80,7 @@ function _ReportFrame() {
     client: { fields: clients, xeroData: client },
     payments: { fields: payments, xeroData: clients },
     finance: { fields: finance, xeroData: clients },
-    admin: { fields: admin, xeroData: users },
+    submission: { fields: submission, xeroData: users },
     // Add more sections here as needed
   };
 

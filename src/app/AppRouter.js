@@ -19,8 +19,9 @@ import CreateReport, {
   createReportAction,
   createReportLoader,
 } from "../features/reports/CreateReport";
-import XeroCredentials from "../pages/ptrs/XeroCredentials";
+import XeroCredentials, { xeroAction } from "../pages/ptrs/XeroCredentials";
 import { useReportContext } from "../context/ReportContext";
+import ReportFrame, { reportFrameLoader } from "../pages/ptrs/ReportFrame";
 
 // TODO: Implement user and role auth check
 
@@ -82,7 +83,24 @@ export default function AppRouter() {
                       context: { reportContext },
                     }),
                 },
-                { path: ":code/xero-credentials", Component: XeroCredentials },
+                {
+                  path: ":code/xero-credentials",
+                  Component: XeroCredentials,
+                  action: (args) =>
+                    xeroAction({
+                      ...args,
+                      context: { reportContext },
+                    }),
+                },
+                {
+                  path: ":code/review",
+                  Component: ReportFrame,
+                  loader: (args) =>
+                    reportFrameLoader({
+                      ...args,
+                      context: { reportContext },
+                    }),
+                },
               ],
             },
           ],

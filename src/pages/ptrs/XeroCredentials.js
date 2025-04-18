@@ -10,7 +10,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useReportContext } from "../../context/ReportContext"; // Import ReportContext
-import { userService } from "../../features/users/user.service";
+// import { userService } from "../../features/users/user.service";
 
 // export async function xeroLoader() {
 //   const user = await userService.refreshToken();
@@ -21,8 +21,11 @@ import { userService } from "../../features/users/user.service";
 //   }
 // }
 
-export async function xeroAction({ request }) {
-  await userService.refreshToken();
+export async function xeroAction({ request, context }) {
+  // Extract reportContext from the context parameter
+  const { reportContext } = context;
+
+  // await userService.refreshToken();
   const formData = await request.formData();
   let xeroDetails = Object.fromEntries(formData);
 
@@ -31,7 +34,7 @@ export async function xeroAction({ request }) {
     // Xero login
     // const xeroLogin = await reportService.xeroLogin();
     // console.log("Xero login response:", xeroLogin);
-    return redirect("/review-report");
+    return redirect(`/reports/${reportContext.reportDetails.code}/review`);
   } catch (error) {
     console.error("Error logging to Xero:", error);
   }
