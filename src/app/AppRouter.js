@@ -1,6 +1,7 @@
 import React from "react";
 import {
   createBrowserRouter,
+  Outlet,
   redirect,
   RouterProvider,
   useLoaderData,
@@ -14,10 +15,17 @@ import { userService } from "../features/users/user.service";
 import Users, { usersLoader } from "../features/users/Users";
 import Clients, { clientsLoader } from "../features/clients/Clients";
 import Dashboard, { dashboardLoader } from "../features/users/Dashboard";
+import CreateReport, {
+  createReportAction,
+  createReportLoader,
+} from "../features/reports/CreateReport";
+import XeroCredentials from "../pages/ptrs/XeroCredentials";
+import { useReportContext } from "../context/ReportContext";
 
 // TODO: Implement user and role auth check
 
 export default function AppRouter() {
+  const reportContext = useReportContext();
   const router = createBrowserRouter([
     {
       path: "",
@@ -56,37 +64,52 @@ export default function AppRouter() {
           Component: Clients,
           loader: clientsLoader,
         },
+        // Reports
+        {
+          path: "reports",
+          children: [
+            { index: true, Component: ReportsMain },
+            {
+              Component: ReportsLayout,
+              children: [
+                {
+                  path: ":code/create",
+                  Component: CreateReport,
+                  loader: createReportLoader,
+                  action: (args) =>
+                    createReportAction({
+                      ...args,
+                      context: { reportContext },
+                    }),
+                },
+                { path: ":code/xero-credentials", Component: XeroCredentials },
+              ],
+            },
+          ],
+        },
       ],
     },
   ]);
   return <RouterProvider router={router} />;
 }
 
-// function Users() {
-//   return (
-//     <Box>
-//       <h2>Users</h2>
-//       <p>List of users will go here.</p>
-//     </Box>
-//   );
-// }
+// Temporary Reports main and layout components
+function ReportsMain() {
+  // const { reports } = useLoaderData();
+  // console.log("ReportsMain reports", reports);
+  return (
+    <Box>
+      <h1>Reports</h1>
+      <p>List of reports will be here.</p>
+    </Box>
+  );
+}
 
-// async function dashboardLoader({ params }) {
-//   const user = userService.userValue; // Get the current user
-//   if (!user) {
-//     return redirect("/user/login");
-//   }
-//   console.log("Dashboard loader params", params);
-//   return { message: "Hello World!" };
-// }
-
-// function Dashboard() {
-//   let data = useLoaderData();
-//   return (
-//     <Box>
-//       <h2>Dashboard</h2>
-//       <p>Dashboard content will go here.</p>
-//       <p>Dashboard message: {data.message}</p>
-//     </Box>
-//   );
-// }
+function ReportsLayout() {
+  return (
+    <Box>
+      <h1>Reports</h1>
+      <Outlet />
+    </Box>
+  );
+}

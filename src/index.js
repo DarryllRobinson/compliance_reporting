@@ -37,7 +37,9 @@ userService
 function startApp() {
   ReactDOM.createRoot(document.getElementById("root")).render(
     <ThemeProvider theme={globalTheme}>
-      <AppRouter />
+      <ReportProvider>
+        <AppRouter />
+      </ReportProvider>
     </ThemeProvider>
   );
 }

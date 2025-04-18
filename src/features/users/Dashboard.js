@@ -48,18 +48,21 @@ export default function Dashboard() {
   const reportList = [
     {
       name: "Payment Times Reporting Scheme",
+      code: "ptrs",
       description: "History of submitted reports",
       items: 10,
       link: "/xero-credentials",
     },
     {
       name: "Report B",
+      code: "reportB",
       description: "Description of Report B",
       items: 25,
       link: "/xero-credentials",
     },
     {
       name: "Report C",
+      code: "reportC",
       description: "Description of Report C",
       items: 15,
       link: "/xero-credentials",
@@ -67,8 +70,9 @@ export default function Dashboard() {
   ];
 
   function createReport(report) {
+    console.log("Creating report", report);
     // Logic to create a new report
-    navigate("/create-report", {
+    navigate(`/reports/${report.code}/create`, {
       state: { reportName: report.name, reportList },
     });
   }

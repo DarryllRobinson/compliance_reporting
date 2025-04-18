@@ -1,12 +1,11 @@
 import config from "../utils/config";
 import { fetchWrapper } from "../utils/fetch-wrapper";
 
-const baseUrl = `${config.apiUrl}/submission`;
+const baseUrl = `${config.apiUrl}/submissions`;
 
 export const submissionService = {
   getAll,
-  getAllById,
-  getById,
+  getByReportId,
   create,
   update,
   delete: _delete,
@@ -16,16 +15,12 @@ async function getAll() {
   return await fetchWrapper.get(baseUrl);
 }
 
-async function getAllById(params) {
-  const { clientId } = params;
-  return await fetchWrapper.get(`${baseUrl}/${clientId}`);
-}
-
-async function getById(id) {
+async function getByReportId(id) {
   return await fetchWrapper.get(`${baseUrl}/${id}`);
 }
 
 async function create(params) {
+  console.log("create report params", params);
   return await fetchWrapper.post(baseUrl, params);
 }
 

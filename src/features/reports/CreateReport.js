@@ -19,18 +19,94 @@ import { paymentService } from "../../services/payment.service";
 import { financeService } from "../../services/finance.service";
 import { submissionService } from "../../services/submission.service";
 
-// export async function reportCreateLoader() {
-//   const user = await userService.refreshToken();
-//   if (!user) {
-//     throw new Response("userCreateLoader refreshToken problem", {
-//       status: 500,
-//     });
-//   }
-// }
+export async function createReportLoader({ params }) {
+  console.log("createReportLoader params", params);
+  // const user = await userService.refreshToken();
+  // if (!user) {
+  //   throw new Response("userCreateLoader refreshToken problem", {
+  //     status: 500,
+  //   });
+  // }
+}
 
-export const reportCreateAction =
+export async function createReportAction({ request, params, context }) {
+  // Extract reportContext from the context parameter
+  console.log("createReportAction context", context);
+  const { reportContext } = context;
+
+  const formData = await request.formData();
+  let reportDetails = Object.fromEntries(formData);
+  reportDetails = {
+    ...reportDetails,
+    reportStatus: "Created",
+    createdBy: userService.userValue.id,
+    clientId: userService.userValue.clientId,
+  };
+
+  try {
+    const report = await reportService.create(reportDetails);
+
+    // Create a record for each section in the database
+    // Payment section
+    try {
+      const payment = await paymentService.create({
+        reportId: report.id,
+        createdBy: userService.userValue.id,
+      });
+      console.log("Payment record created", payment);
+      reportDetails = {
+        ...reportDetails,
+        paymentId: payment.id,
+      };
+    } catch (error) {
+      console.error("Error creating payment record:", error);
+    }
+
+    // Finance section
+    try {
+      const finance = await financeService.create({
+        reportId: report.id,
+        createdBy: userService.userValue.id,
+      });
+      console.log("Finance record created", finance);
+      reportDetails = {
+        ...reportDetails,
+        financeId: finance.id,
+      };
+    } catch (error) {
+      console.error("Error creating finance record:", error);
+    }
+
+    // Submission section
+    try {
+      const submission = await submissionService.create({
+        reportId: report.id,
+        createdBy: userService.userValue.id,
+      });
+      console.log("Submission record created", submission);
+      reportDetails = {
+        ...reportDetails,
+        submissionId: submission.id,
+      };
+    } catch (error) {
+      console.error("Error creating submission record:", error);
+    }
+
+    // Update the ReportContext with the new report details
+    if (reportContext && reportContext.setReportDetails) {
+      reportContext.setReportDetails(report);
+    }
+
+    // Redirect to the next step in the process
+    return redirect(`/reports/${params.code}/xero-credentials`);
+  } catch (error) {
+    console.error("Error creating report:", error);
+  }
+}
+
+export const _createReportAction =
   (reportContext) =>
-  async ({ request }) => {
+  async ({ request, params }) => {
     // await userService.refreshToken();
     const formData = await request.formData();
     let reportDetails = Object.fromEntries(formData);
@@ -40,6 +116,8 @@ export const reportCreateAction =
       createdBy: userService.userValue.id,
       clientId: userService.userValue.clientId,
     };
+
+    console.log("About to try create with reportDetails", reportDetails);
 
     try {
       const report = await reportService.create(reportDetails);
@@ -97,14 +175,16 @@ export const reportCreateAction =
       setReportDetails(report);
 
       // Redirect to the next step in the process
-      return redirect("/xero-credentials");
+      return redirect(`${reportContext.code}/xero-credentials`);
+      // return null;
     } catch (error) {
       console.error("Error creating report:", error);
     }
   };
 
-export default function ReportCreate() {
+export default function CreateReport() {
   const location = useLocation();
+  console.log("CreateReport location", location.state);
   const { reportName, reportList } = location.state || {};
   const theme = useTheme();
 
@@ -149,7 +229,7 @@ export default function ReportCreate() {
                   defaultValue={reportName || ""}
                   required
                 >
-                  {reportList.map((report) => (
+                  {reportList?.map((report) => (
                     <MenuItem key={report.id} value={report.name}>
                       {report.name}
                     </MenuItem>
