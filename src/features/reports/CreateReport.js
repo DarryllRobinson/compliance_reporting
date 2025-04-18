@@ -1,12 +1,11 @@
-import React, { useState } from "react";
-import { Form, redirect, useLoaderData, useLocation } from "react-router";
+import React from "react";
+import { Form, redirect, useLocation } from "react-router";
 import {
   Box,
   Button,
   TextField,
   useTheme,
   Paper,
-  Alert,
   Grid,
   FormControl,
   InputLabel,
@@ -19,25 +18,15 @@ import { paymentService } from "../../services/payment.service";
 import { financeService } from "../../services/finance.service";
 import { submissionService } from "../../services/submission.service";
 
-export async function createReportLoader({ params }) {
-  console.log("createReportLoader params", params);
-  // const user = await userService.refreshToken();
-  // if (!user) {
-  //   throw new Response("userCreateLoader refreshToken problem", {
-  //     status: 500,
-  //   });
-  // }
-}
-
 export async function createReportAction({ request, params, context }) {
   // Extract reportContext from the context parameter
-  console.log("createReportAction context", context);
   const { reportContext } = context;
 
   const formData = await request.formData();
   let reportDetails = Object.fromEntries(formData);
   reportDetails = {
     ...reportDetails,
+    code: params.code,
     reportStatus: "Created",
     createdBy: userService.userValue.id,
     clientId: userService.userValue.clientId,
@@ -53,7 +42,6 @@ export async function createReportAction({ request, params, context }) {
         reportId: report.id,
         createdBy: userService.userValue.id,
       });
-      console.log("Payment record created", payment);
       reportDetails = {
         ...reportDetails,
         paymentId: payment.id,
@@ -68,7 +56,6 @@ export async function createReportAction({ request, params, context }) {
         reportId: report.id,
         createdBy: userService.userValue.id,
       });
-      console.log("Finance record created", finance);
       reportDetails = {
         ...reportDetails,
         financeId: finance.id,
@@ -83,7 +70,6 @@ export async function createReportAction({ request, params, context }) {
         reportId: report.id,
         createdBy: userService.userValue.id,
       });
-      console.log("Submission record created", submission);
       reportDetails = {
         ...reportDetails,
         submissionId: submission.id,
@@ -94,7 +80,7 @@ export async function createReportAction({ request, params, context }) {
 
     // Update the ReportContext with the new report details
     if (reportContext && reportContext.setReportDetails) {
-      reportContext.setReportDetails(report);
+      reportContext.setReportDetails(reportDetails);
     }
 
     // Redirect to the next step in the process
@@ -104,87 +90,86 @@ export async function createReportAction({ request, params, context }) {
   }
 }
 
-export const _createReportAction =
-  (reportContext) =>
-  async ({ request, params }) => {
-    // await userService.refreshToken();
-    const formData = await request.formData();
-    let reportDetails = Object.fromEntries(formData);
-    reportDetails = {
-      ...reportDetails,
-      reportStatus: "Created",
-      createdBy: userService.userValue.id,
-      clientId: userService.userValue.clientId,
-    };
+// export const _createReportAction =
+//   (reportContext) =>
+//   async ({ request, params }) => {
+//     // await userService.refreshToken();
+//     const formData = await request.formData();
+//     let reportDetails = Object.fromEntries(formData);
+//     reportDetails = {
+//       ...reportDetails,
+//       reportStatus: "Created",
+//       createdBy: userService.userValue.id,
+//       clientId: userService.userValue.clientId,
+//     };
 
-    console.log("About to try create with reportDetails", reportDetails);
+//     console.log("About to try create with reportDetails", reportDetails);
 
-    try {
-      const report = await reportService.create(reportDetails);
-      console.log("Report created:", report);
+//     try {
+//       const report = await reportService.create(reportDetails);
+//       console.log("Report created:", report);
 
-      // Create a record for each section in the database
-      // Payment section
-      try {
-        const payment = await paymentService.create({
-          reportId: report.id,
-          createdBy: userService.userValue.id,
-        });
-        console.log("Payment record created", payment);
-        reportDetails = {
-          ...reportDetails,
-          paymentId: payment.id,
-        };
-      } catch (error) {
-        console.error("Error creating payment record:", error);
-      }
+//       // Create a record for each section in the database
+//       // Payment section
+//       try {
+//         const payment = await paymentService.create({
+//           reportId: report.id,
+//           createdBy: userService.userValue.id,
+//         });
+//         console.log("Payment record created", payment);
+//         reportDetails = {
+//           ...reportDetails,
+//           paymentId: payment.id,
+//         };
+//       } catch (error) {
+//         console.error("Error creating payment record:", error);
+//       }
 
-      // Finance section
-      try {
-        const finance = await financeService.create({
-          reportId: report.id,
-          createdBy: userService.userValue.id,
-        });
-        console.log("Finance record created", finance);
-        reportDetails = {
-          ...reportDetails,
-          financeId: finance.id,
-        };
-      } catch (error) {
-        console.error("Error creating finance record:", error);
-      }
+//       // Finance section
+//       try {
+//         const finance = await financeService.create({
+//           reportId: report.id,
+//           createdBy: userService.userValue.id,
+//         });
+//         console.log("Finance record created", finance);
+//         reportDetails = {
+//           ...reportDetails,
+//           financeId: finance.id,
+//         };
+//       } catch (error) {
+//         console.error("Error creating finance record:", error);
+//       }
 
-      // Submission section
-      try {
-        const submission = await submissionService.create({
-          reportId: report.id,
-          createdBy: userService.userValue.id,
-        });
-        console.log("Submission record created", submission);
-        reportDetails = {
-          ...reportDetails,
-          submissionId: submission.id,
-        };
-      } catch (error) {
-        console.error("Error creating submission record:", error);
-      }
+//       // Submission section
+//       try {
+//         const submission = await submissionService.create({
+//           reportId: report.id,
+//           createdBy: userService.userValue.id,
+//         });
+//         console.log("Submission record created", submission);
+//         reportDetails = {
+//           ...reportDetails,
+//           submissionId: submission.id,
+//         };
+//       } catch (error) {
+//         console.error("Error creating submission record:", error);
+//       }
 
-      // Store the report details in the context
-      console.log("Report details:", reportDetails);
-      const { setReportDetails } = reportContext;
-      setReportDetails(report);
+//       // Store the report details in the context
+//       console.log("Report details:", reportDetails);
+//       const { setReportDetails } = reportContext;
+//       setReportDetails(report);
 
-      // Redirect to the next step in the process
-      return redirect(`${reportContext.code}/xero-credentials`);
-      // return null;
-    } catch (error) {
-      console.error("Error creating report:", error);
-    }
-  };
+//       // Redirect to the next step in the process
+//       return redirect(`${reportContext.code}/xero-credentials`);
+//       // return null;
+//     } catch (error) {
+//       console.error("Error creating report:", error);
+//     }
+//   };
 
 export default function CreateReport() {
   const location = useLocation();
-  console.log("CreateReport location", location.state);
   const { reportName, reportList } = location.state || {};
   const theme = useTheme();
 

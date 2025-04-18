@@ -20,7 +20,6 @@ async function getByReportId(id) {
 }
 
 async function create(params) {
-  console.log("create report params", params);
   return await fetchWrapper.post(baseUrl, params);
 }
 

@@ -75,7 +75,7 @@ export default function AppRouter() {
                 {
                   path: ":code/create",
                   Component: CreateReport,
-                  loader: createReportLoader,
+                  // loader: createReportLoader,
                   action: (args) =>
                     createReportAction({
                       ...args,
