@@ -1,14 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Box, Grid, Button, Collapse, Paper } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { useLoaderData, useNavigate } from "react-router";
-// import SectionForm from "./SectionForm";
-import { clients } from "../../data/clientFields";
-// import { clients } from "../../data/mockClients";
-// import { payments } from "../../data/paymentFields";
-// import { finance } from "../../data/financeFields";
-// import { admin } from "../../data/adminFields";
-import { users } from "../../data/mockUsers";
+import { redirect, useLoaderData } from "react-router";
+import SectionForm from "./SectionForm";
+import { clientFields } from "../../data/clientFields";
+import { paymentFields } from "../../data/paymentFields";
+import { financeFields } from "../../data/financeFields";
+import { submissionFields } from "../../data/submissionFields";
 import { clientService } from "../../features/clients/client.service";
 import { userService } from "../../features/users/user.service";
 import { useReportContext } from "../../context/ReportContext";
@@ -30,23 +28,27 @@ export async function reportFrameLoader(reportContext) {
     // const user = await userService.refreshToken();
     const user = userService.userValue;
     const client = await clientService.getById(user.clientId);
-    console.log("reportFrameLoader client", client);
+    // console.log("reportFrameLoader client", client);
     if (!client) {
       throw new Response("reportFrameLoader client problem", { status: 500 });
     }
-    const finance = await financeService.getByReportId(reportDetails.id);
+    const finance = await financeService.getByReportId(reportDetails.financeId);
     if (!finance) {
       throw new Response("reportFrameLoader finance problem", {
         status: 500,
       });
     }
-    const payments = await paymentService.getByReportId(reportDetails.id);
+    const payments = await paymentService.getByReportId(
+      reportDetails.paymentId
+    );
     if (!payments) {
       throw new Response("reportFrameLoader payments problem", {
         status: 500,
       });
     }
-    const submission = await submissionService.getByReportId(reportDetails.id);
+    const submission = await submissionService.getByReportId(
+      reportDetails.submissionId
+    );
     if (!submission) {
       throw new Response("reportFrameLoader submission problem", {
         status: 500,
@@ -60,27 +62,24 @@ export async function reportFrameLoader(reportContext) {
 }
 
 export default function ReportFrame() {
+  const theme = useTheme();
   const { reportDetails } = useReportContext(); // Access context
-  console.log("ReportFrame Details:", reportDetails);
+  // console.log("ReportFrame Details:", reportDetails);
   // const { client } = useLoaderData();
   const { client, finance, payments, submission } = useLoaderData();
-  console.log(
-    "ReportFrame Client Data:",
-    client,
-    finance,
-    payments,
-    submission
-  );
-
-  const theme = useTheme();
-  const navigate = useNavigate();
-  const [user, setUser] = useState({});
+  // console.log(
+  //   "ReportFrame Client Data:",
+  //   client,
+  //   finance,
+  //   payments,
+  //   submission
+  // );
 
   const sectionsConfig = {
-    client: { fields: clients, xeroData: client },
-    payments: { fields: payments, xeroData: clients },
-    finance: { fields: finance, xeroData: clients },
-    submission: { fields: submission, xeroData: users },
+    client: { fields: clientFields, xeroData: client },
+    payments: { fields: paymentFields, xeroData: payments },
+    finance: { fields: financeFields, xeroData: finance },
+    submission: { fields: submissionFields, xeroData: submission },
     // Add more sections here as needed
   };
 
@@ -103,7 +102,7 @@ export default function ReportFrame() {
   // }, [reportDetails, navigate]);
 
   const handleConfirm = () => {
-    navigate("/invoice-metrics");
+    return redirect(`/report/${reportDetails.code}/invoice-metrics`);
   };
 
   const toggleSection = (section) => {
@@ -150,13 +149,13 @@ export default function ReportFrame() {
                 <Collapse in={expandedSections[section]}>
                   {expandedSections[section] && (
                     <Box sx={{ mt: 1, pl: 2 }}>
-                      {/* <SectionForm
+                      <SectionForm
                         section={section}
                         fields={config.fields}
                         xeroData={config.xeroData}
-                        user={user}
-                      /> */}
-                      SectionForm
+                        // user={user}
+                      />
+                      {/* SectionForm */}
                     </Box>
                   )}
                   <Button

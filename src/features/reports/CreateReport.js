@@ -34,6 +34,11 @@ export async function createReportAction({ request, params, context }) {
 
   try {
     const report = await reportService.create(reportDetails);
+    // Insert the report ID into the reportDetails object
+    reportDetails = {
+      ...reportDetails,
+      reportId: report.id,
+    };
 
     // Create a record for each section in the database
     // Payment section

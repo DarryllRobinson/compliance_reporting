@@ -1,5 +1,5 @@
 // 10 fields
-export const clients = [
+export const clientFields = [
   {
     name: "businessName",
     label: "Business Name",

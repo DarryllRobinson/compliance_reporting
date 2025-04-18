@@ -1,5 +1,5 @@
 // 12 fields
-export const finance = [
+export const financeFields = [
   {
     name: "InvoicePracticesAndArrangements",
     label: "Invoice Practices And Arrangements",

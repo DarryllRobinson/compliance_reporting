@@ -1,5 +1,5 @@
 // 9 fields
-export const payments = [
+export const paymentFields = [
   {
     name: "StandardPaymentPeriodInCalendarDays",
     label: "Standard Payment Period",

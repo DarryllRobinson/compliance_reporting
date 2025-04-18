@@ -93,7 +93,7 @@ export default function AppRouter() {
                     }),
                 },
                 {
-                  path: ":code/review",
+                  path: ":code/update",
                   Component: ReportFrame,
                   loader: (args) =>
                     reportFrameLoader({

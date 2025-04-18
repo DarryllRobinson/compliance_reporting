@@ -34,7 +34,7 @@ export async function xeroAction({ request, context }) {
     // Xero login
     // const xeroLogin = await reportService.xeroLogin();
     // console.log("Xero login response:", xeroLogin);
-    return redirect(`/reports/${reportContext.reportDetails.code}/review`);
+    return redirect(`/reports/${reportContext.reportDetails.code}/update`);
   } catch (error) {
     console.error("Error logging to Xero:", error);
   }

@@ -11,17 +11,24 @@ import {
 import InfoOutlined from "@mui/icons-material/InfoOutlined";
 import { useTheme } from "@mui/material/styles";
 import { clientService } from "../../features/clients/client.service";
-import { paymentService } from "../../services/payment.service";
-import { financeService } from "../../services/finance.service";
+import {
+  financeService,
+  paymentService,
+  submissionService,
+} from "../../services";
 import { useReportContext } from "../../context/ReportContext";
+import { userService } from "../../features/users/user.service";
 
 const SectionForm = ({
   section = "",
   fields = [],
   xeroData = {},
-  user = { user },
+  // user = { user },
 }) => {
+  // console.log("SectionForm props", section, fields, xeroData);
+  const user = userService.userValue;
   const { reportDetails } = useReportContext();
+  // console.log("SectionForm reportDetails", reportDetails);
   const theme = useTheme();
 
   // Normalize xeroData keys to lowercase
@@ -38,7 +45,7 @@ const SectionForm = ({
       acc[field.name] = {
         value: isFieldPresent
           ? normalisedXeroData[field.name.toLowerCase()]
-          : "",
+          : null,
         checked: false,
       };
       return acc;
@@ -84,54 +91,64 @@ const SectionForm = ({
     e.preventDefault();
 
     // Convert all field values to strings
-    let dataToSubmit = Object.entries(fieldStatus).reduce(
-      (acc, [fieldName, status]) => {
-        acc[fieldName] = String(status.value || ""); // Ensure value is a string
-        return acc;
-      },
-      {}
-    );
+    let dataToSubmit = Object.entries(fieldStatus); //.reduce(
+    //   (acc, [fieldName, status]) => {
+    //     acc[fieldName] = String(status.value || null); // Ensure value is a string
+    //     return acc;
+    //   },
+    //   {}
+    // );
 
     dataToSubmit = {
       ...dataToSubmit,
-      reportId: reportDetails.id,
+      reportId: reportDetails.reportId,
       createdBy: user.id,
       updatedBy: user.id,
+      submittedBy: user.id,
       reportStatus: "Updated",
     };
-    console.log("Data to submit:", dataToSubmit, user.clientId);
+    // console.log("Data to submit:", dataToSubmit, user.clientId);
 
     // Use a switch block for section-specific logic
     switch (section) {
       case "client":
         // Handle client-specific submission logic here
-        console.log("Submitting client section data...");
+        // console.log("Submitting client section data...");
         clientService
           .update(user.clientId, dataToSubmit)
           .then((response) => {
             console.log("Client data submitted successfully:", response);
           })
           .catch((error) => {
-            console.error("Error submitting data:", error);
+            console.error("Error submitting client data:", error);
           });
         break;
       case "payments":
         // Handle payments-specific submission logic here
-        console.log("Submitting payments section data...", dataToSubmit);
-        paymentService.update(user.clientId, dataToSubmit).then((response) => {
-          console.log("Payments data submitted successfully:", response);
-        });
+        // console.log("Submitting payments section data...", dataToSubmit);
+        paymentService
+          .update(reportDetails.paymentId, dataToSubmit)
+          .then((response) => {
+            console.log("Payments data submitted successfully:", response);
+          });
         break;
       case "finance":
         // Handle finance-specific submission logic here
-        console.log("Submitting finance section data...");
-        financeService.update(user.clientId, dataToSubmit).then((response) => {
-          console.log("Finance data submitted successfully:", response);
-        });
+        // console.log("Submitting finance section data...");
+        financeService
+          .update(reportDetails.financeId, dataToSubmit)
+          .then((response) => {
+            console.log("Finance data submitted successfully:", response);
+          });
         break;
-      case "report":
-        // Handle report-specific submission logic here
-        console.log("Submitting report section data...");
+      case "submission":
+        // Handle submission-specific submission logic here
+        // console.log("Submitting submission section data...");
+        submissionService
+          .update(reportDetails.submissionId, dataToSubmit)
+          .then((response) => {
+            console.log("Submission data submitted successfully:", response);
+          });
         break;
       default:
         console.error("Unknown section:", section);
@@ -178,7 +195,7 @@ const SectionForm = ({
             value={fieldStatus[field.name]?.value || ""}
             onChange={(e) => handleInputChange(field.name, e.target.value)}
             variant="outlined"
-            disabled={isFieldPresent} // Disable the TextField if isFieldPresent is true
+            disabled={isFieldPresent && section === "client"} // Disable the TextField if isFieldPresent is true
             sx={{
               ...theme.typography.body2,
               backgroundColor: theme.palette.background.paper,
