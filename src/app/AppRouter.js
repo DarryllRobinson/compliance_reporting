@@ -50,7 +50,11 @@ export default function AppRouter() {
             {
               path: "dashboard",
               Component: Dashboard,
-              loader: dashboardLoader,
+              loader: (args) =>
+                dashboardLoader({
+                  ...args,
+                  context: { reportContext },
+                }),
             },
             {
               path: "login",

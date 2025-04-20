@@ -19,19 +19,13 @@ import {
 import { useReportContext } from "../../context/ReportContext";
 import { userService } from "../../features/users/user.service";
 
-const SectionForm = ({
-  section = "",
-  fields = [],
-  xeroData = {},
-  // user = { user },
-}) => {
+const SectionForm = ({ section = "", fields = [], xeroData = {} }) => {
   // console.log("SectionForm props", section, fields, xeroData);
   const user = userService.userValue;
   const { reportDetails } = useReportContext();
-  // console.log("SectionForm reportDetails", reportDetails);
   const theme = useTheme();
 
-  // Normalize xeroData keys to lowercase
+  // Normalise xeroData keys to lowercase
   const normalisedXeroData = Object.keys(xeroData).reduce((acc, key) => {
     acc[key.toLowerCase()] = xeroData[key];
     return acc;
@@ -90,24 +84,25 @@ const SectionForm = ({
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Convert all field values to strings
-    let dataToSubmit = Object.entries(fieldStatus); //.reduce(
-    //   (acc, [fieldName, status]) => {
-    //     acc[fieldName] = String(status.value || null); // Ensure value is a string
-    //     return acc;
-    //   },
-    //   {}
-    // );
+    // Convert all field values to strings, preserving null values
+    let dataToSubmit = Object.entries(fieldStatus).reduce(
+      (acc, [fieldName, status]) => {
+        acc[fieldName] = status.value != null ? String(status.value) : null; // Keep null as null
+        return acc;
+      },
+      {}
+    );
+
+    // console.log("Data to submit:", dataToSubmit);
 
     dataToSubmit = {
       ...dataToSubmit,
       reportId: reportDetails.reportId,
-      createdBy: user.id,
+      // createdBy: user.id,
       updatedBy: user.id,
       submittedBy: user.id,
       reportStatus: "Updated",
     };
-    // console.log("Data to submit:", dataToSubmit, user.clientId);
 
     // Use a switch block for section-specific logic
     switch (section) {
@@ -126,29 +121,45 @@ const SectionForm = ({
       case "payments":
         // Handle payments-specific submission logic here
         // console.log("Submitting payments section data...", dataToSubmit);
-        paymentService
-          .update(reportDetails.paymentId, dataToSubmit)
-          .then((response) => {
-            console.log("Payments data submitted successfully:", response);
-          });
+        try {
+          paymentService
+            .update(reportDetails.paymentId, dataToSubmit)
+            .then((response) => {
+              console.log("Payments data submitted successfully:", response);
+            });
+        } catch (error) {
+          console.error("SectionForm payment update error", error);
+        }
         break;
       case "finance":
         // Handle finance-specific submission logic here
         // console.log("Submitting finance section data...");
-        financeService
-          .update(reportDetails.financeId, dataToSubmit)
-          .then((response) => {
-            console.log("Finance data submitted successfully:", response);
-          });
+        try {
+          financeService
+            .update(reportDetails.financeId, dataToSubmit)
+            .then((response) => {
+              console.log("Finance data submitted successfully:", response);
+            });
+        } catch (error) {
+          console.error("SectionForm finance update error", error);
+        }
         break;
       case "submission":
         // Handle submission-specific submission logic here
-        // console.log("Submitting submission section data...");
-        submissionService
-          .update(reportDetails.submissionId, dataToSubmit)
-          .then((response) => {
-            console.log("Submission data submitted successfully:", response);
-          });
+        // console.log(
+        //   "Submitting submission section data...",
+        //   reportDetails.submissionId,
+        //   dataToSubmit
+        // );
+        try {
+          submissionService
+            .update(reportDetails.submissionId, dataToSubmit)
+            .then((response) => {
+              console.log("Submission data submitted successfully:", response);
+            });
+        } catch (error) {
+          console.error("SectionForm submission update error", error);
+        }
         break;
       default:
         console.error("Unknown section:", section);
@@ -224,14 +235,6 @@ const SectionForm = ({
       <Box sx={{ mb: 2 }}>
         <Checkbox onChange={handleSelectAll} />
         <Typography component="span">Confirm All</Typography>
-        <Button
-          variant="outlined"
-          color="primary"
-          onClick={handleSubmit}
-          sx={{ ml: 2 }}
-        >
-          State Check
-        </Button>
       </Box>
       <form>
         <Grid container spacing={1}>

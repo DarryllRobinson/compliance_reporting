@@ -16,12 +16,9 @@ import {
   submissionService,
 } from "../../services";
 
-export async function _reportFrameLoader({ params }) {
-  console.log("reportFrameLoader params", params);
-}
-
 export async function reportFrameLoader(reportContext) {
   const { reportDetails } = reportContext.context.reportContext;
+  // console.log("reportFrameLoader reportDetails", reportDetails);
   // Needs to be updated to extract all relevant data from the database
   // if (reportDetails) {
   try {
@@ -32,22 +29,20 @@ export async function reportFrameLoader(reportContext) {
     if (!client) {
       throw new Response("reportFrameLoader client problem", { status: 500 });
     }
-    const finance = await financeService.getByReportId(reportDetails.financeId);
+    const finance = await financeService.getByReportId(reportDetails.reportId);
     if (!finance) {
       throw new Response("reportFrameLoader finance problem", {
         status: 500,
       });
     }
-    const payments = await paymentService.getByReportId(
-      reportDetails.paymentId
-    );
+    const payments = await paymentService.getByReportId(reportDetails.reportId);
     if (!payments) {
       throw new Response("reportFrameLoader payments problem", {
         status: 500,
       });
     }
     const submission = await submissionService.getByReportId(
-      reportDetails.submissionId
+      reportDetails.reportId
     );
     if (!submission) {
       throw new Response("reportFrameLoader submission problem", {
@@ -89,17 +84,6 @@ export default function ReportFrame() {
       return acc;
     }, {})
   );
-
-  // useEffect(() => {
-  //   const subscription = userService.user.subscribe((x) => setUser(x));
-  //   return () => subscription.unsubscribe();
-  // }, []);
-
-  // useEffect(() => {
-  //   if (!reportDetails) {
-  //     navigate("/user/dashboard"); // Redirect if reportDetails is missing
-  //   }
-  // }, [reportDetails, navigate]);
 
   const handleConfirm = () => {
     return redirect(`/report/${reportDetails.code}/invoice-metrics`);
@@ -153,9 +137,7 @@ export default function ReportFrame() {
                         section={section}
                         fields={config.fields}
                         xeroData={config.xeroData}
-                        // user={user}
                       />
-                      {/* SectionForm */}
                     </Box>
                   )}
                   <Button
@@ -182,5 +164,3 @@ export default function ReportFrame() {
     </Box>
   );
 }
-
-// export default ReportFrame;

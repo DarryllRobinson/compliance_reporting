@@ -15,15 +15,23 @@ import {
   Paper,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { useLoaderData, useNavigate } from "react-router";
+import { redirect, useLoaderData, useNavigate } from "react-router";
 import { userService } from "./user.service";
 import { reportService } from "../reports/report.service";
+import { useReportContext } from "../../context/ReportContext";
+import prepareReport from "../reports/prepareReport";
 
-export async function dashboardLoader() {
+export async function dashboardLoader({ context }) {
   const user = userService.userValue; // Get the current user
   if (!user) {
     throw new Response("dashboardLoader user problem", { status: 500 });
   }
+
+  // Extract reportContext from the context parameter
+  // const { reportContext } = context;
+  // Clear ReportContext values
+  // reportContext.setReportDetails(null);
+
   const reports = await reportService.getAllById({ clientId: user.clientId });
   if (!reports) {
     throw new Response("dashboardLoader reports problem", { status: 500 });
@@ -33,11 +41,13 @@ export async function dashboardLoader() {
 
 export default function Dashboard() {
   const { reports } = useLoaderData();
-  const [user, setUser] = useState({});
-  useEffect(() => {
-    const subscription = userService.user.subscribe((x) => setUser(x));
-    return () => subscription.unsubscribe();
-  }, []);
+  const reportContext = useReportContext();
+  const user = userService.userValue; // Get the current user
+  // const [user, setUser] = useState({});
+  // useEffect(() => {
+  //   const subscription = userService.user.subscribe((x) => setUser(x));
+  //   return () => subscription.unsubscribe();
+  // }, []);
 
   // console.log("Dashboard reports", reports); // Debug log to check the structure of reports
   const navigate = useNavigate();
@@ -73,6 +83,16 @@ export default function Dashboard() {
     });
   }
 
+  async function continueReport(report) {
+    // console.log("continueReport report", report); // Debug log to check the structure of reports
+    const prepared = prepareReport(report, reportContext, "continue");
+    if (prepared) {
+      navigate(`/reports/${report.code}/update`);
+    } else {
+      console.error("Dashboard prepareReport error");
+    }
+  }
+
   function renderTable(row) {
     if (!row) {
       return (
@@ -95,11 +115,7 @@ export default function Dashboard() {
             <Button
               variant="contained"
               color="primary"
-              onClick={() =>
-                navigate("/xero-credentials", {
-                  state: { reportDetails: row },
-                })
-              }
+              onClick={() => continueReport(row)}
             >
               Continue
             </Button>
