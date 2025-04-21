@@ -1,17 +1,17 @@
 import React, { useState } from "react";
 import { Box, Typography, Grid, Paper, Button } from "@mui/material";
-import { calculateInvoiceMetrics } from "../../utils/invoiceCalculations";
+import { calculateInvoiceMetrics } from "../../../utils/invoiceCalculations";
 import { useTheme } from "@mui/material/styles";
 import { Link, useNavigate } from "react-router";
 
-const InvoiceMetrics = (props) => {
+export default function InvoiceMetrics() {
   const theme = useTheme();
   const navigate = useNavigate();
   const { paidMetrics = [], unpaidMetrics = [] } = calculateInvoiceMetrics();
   const metrics = [...paidMetrics, ...unpaidMetrics];
 
   const handleConfirm = () => {
-    navigate("/final-review");
+    navigate(`/reports/ptrs/review`);
   };
 
   return (
@@ -26,7 +26,7 @@ const InvoiceMetrics = (props) => {
       <Grid container spacing={2}>
         {metrics.map((metric, index) => (
           <Grid item xs={12} sm={6} md={4} key={index}>
-            <Link to={`/review/${index}`} style={{ textDecoration: "none" }}>
+            <Link to={`review/${index}`} style={{ textDecoration: "none" }}>
               <Paper
                 elevation={3}
                 sx={{ p: 2, backgroundColor: theme.palette.background.paper }}
@@ -62,6 +62,4 @@ const InvoiceMetrics = (props) => {
       </Box>
     </Box>
   );
-};
-
-export default InvoiceMetrics;
+}

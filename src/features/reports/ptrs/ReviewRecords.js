@@ -1,11 +1,11 @@
 import React from "react";
 import { useParams, useNavigate } from "react-router";
 import { Box, Typography, Grid, Paper, Button } from "@mui/material";
-import { calculateInvoiceMetrics } from "../../utils/invoiceCalculations";
-import { mockInvoices } from "../../data/mockInvoiceData";
+import { calculateInvoiceMetrics } from "../../../utils/invoiceCalculations";
+import { mockInvoices } from "../../../data/mockInvoiceData";
 import { useTheme } from "@mui/material/styles";
 
-const ReviewRecords = () => {
+export default function ReviewRecords() {
   const { index } = useParams();
   const theme = useTheme();
   const navigate = useNavigate();
@@ -74,7 +74,7 @@ const ReviewRecords = () => {
       <Button
         variant="contained"
         color="primary"
-        onClick={() => navigate("/review")}
+        onClick={() => navigate(-1)} // Navigate back one step in history
         sx={{ mt: 3 }}
       >
         Back to Metrics
@@ -146,6 +146,4 @@ const ReviewRecords = () => {
       </Grid>
     </Box>
   );
-};
-
-export default ReviewRecords;
+}

@@ -14,9 +14,16 @@ import CreateReport, {
 } from "../features/reports/CreateReport";
 import XeroCredentials, { xeroAction } from "../pages/ptrs/XeroCredentials";
 import { useReportContext } from "../context/ReportContext";
-import ReportFrame, { reportFrameLoader } from "../pages/ptrs/ReportFrame";
+import ReportFrame, {
+  reportFrameLoader,
+} from "../features/reports/ReportFrame";
 import Fallback from "../components/generic/Fallback";
 import { reportLayoutLoader } from "../features/reports/ReportsLayout";
+import InvoiceMetrics from "../features/reports/ptrs/InvoiceMetrics";
+import ReviewRecords from "../features/reports/ptrs/ReviewRecords";
+import FinalReview, {
+  finalReviewLoader,
+} from "../features/reports/FinalReview";
 
 // TODO: Optimise the whole thing: https://reactrouter.com/tutorials/address-book
 
@@ -103,6 +110,23 @@ export default function AppRouter() {
                   Component: ReportFrame,
                   loader: (args) =>
                     reportFrameLoader({
+                      ...args,
+                      context: { reportContext },
+                    }),
+                },
+                {
+                  path: ":code/invoice",
+                  Component: InvoiceMetrics,
+                },
+                {
+                  path: ":code/invoice/review/:index",
+                  Component: ReviewRecords,
+                },
+                {
+                  path: ":code/review",
+                  Component: FinalReview,
+                  loader: (args) =>
+                    finalReviewLoader({
                       ...args,
                       context: { reportContext },
                     }),

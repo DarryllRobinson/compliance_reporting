@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Box, Grid, Button, Collapse, Paper } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { redirect, useLoaderData } from "react-router";
+import { redirect, useLoaderData, useNavigate } from "react-router";
 import SectionForm from "./SectionForm";
 import { clientFields } from "../../data/clientFields";
 import { paymentFields } from "../../data/paymentFields";
@@ -62,6 +62,7 @@ export async function reportFrameLoader(reportContext) {
 }
 
 export default function ReportFrame() {
+  const navigate = useNavigate();
   const theme = useTheme();
   const { reportDetails } = useReportContext(); // Access context
   // console.log("ReportFrame Details:", reportDetails);
@@ -91,7 +92,7 @@ export default function ReportFrame() {
   );
 
   const handleConfirm = () => {
-    return redirect(`/report/${reportDetails.code}/invoice-metrics`);
+    navigate(`/reports/${reportDetails.code}/invoice`);
   };
 
   const toggleSection = (section) => {

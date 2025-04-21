@@ -10,7 +10,7 @@ import CreateReport, {
 } from "../features/reports/CreateReport";
 import ReportForm from "../pages/ptrs/ReportForm";
 import InvoiceMetrics from "../pages/ptrs/InvoiceMetrics";
-import ReviewRecords from "../pages/ptrs/ReviewRecords";
+import ReviewRecords from "../features/reports/ptrs/ReviewRecords";
 import SelectReport from "../pages/ptrs/SelectReport";
 import XeroCredentials, {
   xeroAction,
