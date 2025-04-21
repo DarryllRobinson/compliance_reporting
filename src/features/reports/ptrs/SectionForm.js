@@ -10,15 +10,15 @@ import {
 } from "@mui/material";
 import InfoOutlined from "@mui/icons-material/InfoOutlined";
 import { useTheme } from "@mui/material/styles";
-import { clientService } from "../clients/client.service";
+import { clientService } from "../../clients/client.service";
 import {
   financeService,
   paymentService,
   submissionService,
-} from "../../services";
-import { useReportContext } from "../../context/ReportContext";
-import { userService } from "../users/user.service";
-import { reportService } from "./report.service";
+} from "../../../services";
+import { useReportContext } from "../../../context/ReportContext";
+import { userService } from "../../users/user.service";
+import { reportService } from "../report.service";
 
 const SectionForm = ({ section = "", fields = [], xeroData = {} }) => {
   // console.log("SectionForm props", section, fields, xeroData);

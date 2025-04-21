@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Box, Grid, Button, Collapse, Paper } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { redirect, useLoaderData, useNavigate } from "react-router";
-import SectionForm from "./SectionForm";
+import SectionForm from "./ptrs/SectionForm";
 import { clientFields } from "../../data/clientFields";
 import { paymentFields } from "../../data/paymentFields";
 import { financeFields } from "../../data/financeFields";

@@ -19,7 +19,7 @@ import { redirect, useLoaderData, useNavigate } from "react-router";
 import { userService } from "./user.service";
 import { reportService } from "../reports/report.service";
 import { useReportContext } from "../../context/ReportContext";
-import prepareReport from "../reports/prepareReport";
+import prepareReport from "../reports/ptrs/prepareReport";
 import ProtectedRoutes from "../../utils/ProtectedRoutes";
 
 export async function dashboardLoader({ context }) {

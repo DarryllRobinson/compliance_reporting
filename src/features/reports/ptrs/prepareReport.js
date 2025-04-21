@@ -2,8 +2,8 @@ import {
   financeService,
   paymentService,
   submissionService,
-} from "../../services";
-import { userService } from "../users/user.service";
+} from "../../../services";
+import { userService } from "../../users/user.service";
 
 export default async function prepareReport(report, reportContext, reportType) {
   // Clearing existing report details

@@ -3,20 +3,20 @@ import { Box, Grid, Button, Collapse, Paper } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { redirect, useLoaderData, useNavigate } from "react-router";
 import SectionReview from "./SectionReview";
-import { clientFields } from "../../data/clientFields";
-import { paymentFields } from "../../data/paymentFields";
-import { financeFields } from "../../data/financeFields";
-import { submissionFields } from "../../data/submissionFields";
-import { clientService } from "../clients/client.service";
-import { userService } from "../users/user.service";
-import { useReportContext } from "../../context/ReportContext";
+import { clientFields } from "../../../data/clientFields";
+import { paymentFields } from "../../../data/paymentFields";
+import { financeFields } from "../../../data/financeFields";
+import { submissionFields } from "../../../data/submissionFields";
+import { clientService } from "../../clients/client.service";
+import { userService } from "../../users/user.service";
+import { useReportContext } from "../../../context/ReportContext";
 import {
   financeService,
   paymentService,
   submissionService,
-} from "../../services";
-import ProtectedRoutes from "../../utils/ProtectedRoutes";
-import { reportService } from "./report.service";
+} from "../../../services";
+import ProtectedRoutes from "../../../utils/ProtectedRoutes";
+import { reportService } from "../report.service";
 
 export async function finalReviewLoader(reportContext) {
   if (!ProtectedRoutes()) {

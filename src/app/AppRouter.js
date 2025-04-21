@@ -23,7 +23,7 @@ import InvoiceMetrics from "../features/reports/ptrs/InvoiceMetrics";
 import ReviewRecords from "../features/reports/ptrs/ReviewRecords";
 import FinalReview, {
   finalReviewLoader,
-} from "../features/reports/FinalReview";
+} from "../features/reports/ptrs/FinalReview";
 
 // TODO: Optimise the whole thing: https://reactrouter.com/tutorials/address-book
 
