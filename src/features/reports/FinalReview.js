@@ -111,6 +111,7 @@ export default function FinalReview() {
 
   const handleConfirm = () => {
     alert("Submission successful!");
+    navigate("/user/dashboard");
   };
 
   const toggleSection = (section) => {
@@ -185,7 +186,7 @@ export default function FinalReview() {
             variant="contained"
             color="primary"
             onClick={handleConfirm}
-            disabled={!allSectionsConfirmed} // Disable until all sections are confirmed
+            // disabled={!allSectionsConfirmed} // Disable until all sections are confirmed
           >
             Submit Report
           </Button>

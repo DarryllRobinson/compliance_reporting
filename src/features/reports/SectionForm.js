@@ -18,6 +18,7 @@ import {
 } from "../../services";
 import { useReportContext } from "../../context/ReportContext";
 import { userService } from "../users/user.service";
+import { reportService } from "./report.service";
 
 const SectionForm = ({ section = "", fields = [], xeroData = {} }) => {
   // console.log("SectionForm props", section, fields, xeroData);
@@ -164,6 +165,20 @@ const SectionForm = ({ section = "", fields = [], xeroData = {} }) => {
       default:
         console.error("Unknown section:", section);
         return; // Stop submission if section is unknown
+    }
+
+    // Report needs to be updated to reflect that changes have been made
+    try {
+      reportService
+        .update(reportDetails.reportId, {
+          ...reportDetails,
+          updatedBy: user.id,
+        })
+        .then((response) => {
+          console.log("Report data submitted successfully:", response);
+        });
+    } catch (error) {
+      console.error("SectionForm report update error", error);
     }
   };
 
