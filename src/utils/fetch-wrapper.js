@@ -1,4 +1,3 @@
-import { firstValueFrom } from "rxjs";
 import config from "./config";
 import { userService } from "../features/users/user.service";
 
@@ -11,11 +10,6 @@ export const fetchWrapper = {
 };
 
 async function get(url) {
-  // console.log("userService.userValue, url", userService.userValue, url);
-  // console.log(
-  //   "firstValueFrom(userService.user)",
-  //   await firstValueFrom(userService.user)
-  // );
   let headers = authHeader(url);
   headers = {
     "Content-Type": "application/json",

@@ -1,10 +1,9 @@
-import React from "react";
+import React, { Component } from "react";
 import {
   createBrowserRouter,
   Outlet,
   redirect,
   RouterProvider,
-  useLoaderData,
 } from "react-router";
 import Layout from "../components/generic/Layout";
 import LandingPage from "../components/generic/LandingPage";
@@ -22,8 +21,12 @@ import CreateReport, {
 import XeroCredentials, { xeroAction } from "../pages/ptrs/XeroCredentials";
 import { useReportContext } from "../context/ReportContext";
 import ReportFrame, { reportFrameLoader } from "../pages/ptrs/ReportFrame";
+import AuthLayout from "../utils/AuthLayout";
+import ProtectedRoutes from "../utils/ProtectedRoutes";
 
 // TODO: Implement user and role auth check
+// TODO: Implement ReportMain and ReportLayout
+// TODO: Optimise the whole thing: https://reactrouter.com/tutorials/address-book
 
 export default function AppRouter() {
   const reportContext = useReportContext();
@@ -31,6 +34,7 @@ export default function AppRouter() {
     {
       path: "",
       Component: Layout,
+      HydrateFallback: Fallback,
       ErrorBoundary: RootErrorBoundary,
       children: [
         {
@@ -48,13 +52,18 @@ export default function AppRouter() {
           children: [
             // { index: true, Component: Users },
             {
-              path: "dashboard",
-              Component: Dashboard,
-              loader: (args) =>
-                dashboardLoader({
-                  ...args,
-                  context: { reportContext },
-                }),
+              // Component: AuthLayout,
+              children: [
+                {
+                  path: "dashboard",
+                  Component: Dashboard,
+                  loader: (args) =>
+                    dashboardLoader({
+                      ...args,
+                      context: { reportContext },
+                    }),
+                },
+              ],
             },
             {
               path: "login",
@@ -73,7 +82,7 @@ export default function AppRouter() {
         {
           path: "reports",
           children: [
-            { index: true, Component: ReportsMain },
+            { index: true, Component: ReportsMain, loader: ReportsLoader },
             {
               Component: ReportsLayout,
               children: [
@@ -115,7 +124,7 @@ export default function AppRouter() {
   return <RouterProvider router={router} />;
 }
 
-// Temporary Reports main and layout components
+// Temporary Reports main, loader and layout components
 function ReportsMain() {
   // const { reports } = useLoaderData();
   // console.log("ReportsMain reports", reports);
@@ -127,6 +136,13 @@ function ReportsMain() {
   );
 }
 
+function ReportsLoader() {
+  console.log("ReportsLoader");
+  if (!ProtectedRoutes()) {
+    return redirect("/user/login");
+  }
+}
+
 function ReportsLayout() {
   return (
     <Box>
@@ -135,3 +151,28 @@ function ReportsLayout() {
     </Box>
   );
 }
+
+function Fallback() {
+  return (
+    <Box>
+      <h1>Loading...</h1>
+    </Box>
+  );
+}
+// function ProtectedRoutes() {
+//   const user = userService.userValue; // Get the current user
+//   console.log("ProtectedRoutes user", user); // Log the user for debugging
+//   if (!user) {
+//     return redirect("/user/login"); // Redirect to login page if not authenticated
+//   }
+//   return <Outlet />; // Render child routes if authenticated
+// }
+// function ProtectedRoute({ children }) {
+//   const user = userService.userValue; // Get the current user
+//   console.log("ProtectedRoute user", user); // Log the user for debugging
+//   if (!user) {
+// return <Navigate to="/user/login" replace />; // Redirect to login page if not authenticated
+//   }
+//   return children; // Render child routes if authenticated
+// }
+// }

@@ -15,8 +15,13 @@ import {
   paymentService,
   submissionService,
 } from "../../services";
+import ProtectedRoutes from "../../utils/ProtectedRoutes";
 
 export async function reportFrameLoader(reportContext) {
+  if (!ProtectedRoutes()) {
+    return redirect("/user/dashboard");
+  }
+
   const { reportDetails } = reportContext.context.reportContext;
   // console.log("reportFrameLoader reportDetails", reportDetails);
   // Needs to be updated to extract all relevant data from the database

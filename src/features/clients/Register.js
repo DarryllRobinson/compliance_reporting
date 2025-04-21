@@ -15,8 +15,15 @@ import {
 } from "@mui/material";
 import { userService } from "../../features/users/user.service";
 import { clientService } from "./client.service";
+import ProtectedRoutes from "../../utils/ProtectedRoutes";
 // Testing the form
 // import { clients } from "../../data/mockClients"; // Mock data for testing
+
+export async function clientRegisterLoader() {
+  if (!ProtectedRoutes()) {
+    return redirect("/user/dashboard");
+  }
+}
 
 export async function clientRegisterAction({ request }) {
   // const user = userService.userValue; // Get the current user

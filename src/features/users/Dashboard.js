@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   Box,
   Typography,
@@ -20,17 +20,17 @@ import { userService } from "./user.service";
 import { reportService } from "../reports/report.service";
 import { useReportContext } from "../../context/ReportContext";
 import prepareReport from "../reports/prepareReport";
+import ProtectedRoutes from "../../utils/ProtectedRoutes";
 
 export async function dashboardLoader({ context }) {
   const user = userService.userValue; // Get the current user
-  if (!user) {
-    throw new Response("dashboardLoader user problem", { status: 500 });
-  }
+  // if (!user) {
+  //   throw new Response("dashboardLoader user problem", { status: 500 });
+  // }
 
-  // Extract reportContext from the context parameter
-  // const { reportContext } = context;
-  // Clear ReportContext values
-  // reportContext.setReportDetails(null);
+  if (!ProtectedRoutes()) {
+    return redirect("/user/login");
+  }
 
   const reports = await reportService.getAllById({ clientId: user.clientId });
   if (!reports) {
@@ -43,11 +43,6 @@ export default function Dashboard() {
   const { reports } = useLoaderData();
   const reportContext = useReportContext();
   const user = userService.userValue; // Get the current user
-  // const [user, setUser] = useState({});
-  // useEffect(() => {
-  //   const subscription = userService.user.subscribe((x) => setUser(x));
-  //   return () => subscription.unsubscribe();
-  // }, []);
 
   // console.log("Dashboard reports", reports); // Debug log to check the structure of reports
   const navigate = useNavigate();

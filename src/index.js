@@ -6,6 +6,7 @@ import globalTheme from "./theme/globalTheme";
 // import { AuthProvider } from "./context/AuthContext";
 import { ReportProvider } from "./context/ReportContext"; // Import ReportProvider
 import { userService } from "./features/users/user.service";
+// import { redirect } from "react-router";
 
 // Sentry logging
 // TODO: Uncomment and configure Sentry
@@ -28,7 +29,8 @@ userService
   })
   .catch((error) => {
     console.warn("Silent token refresh failed:", error.message || error);
-    userService.logout(); // Ensure user is logged out on failure
+    // userService.logout(); // Ensure user is logged out on failure
+    // redirect("/user/login"); // Redirect to login page
   })
   .finally(startApp);
 
