@@ -16,6 +16,7 @@ import {
   submissionService,
 } from "../../services";
 import ProtectedRoutes from "../../utils/ProtectedRoutes";
+import { reportService } from "./report.service";
 
 export async function finalReviewLoader(reportContext) {
   if (!ProtectedRoutes()) {
@@ -109,9 +110,21 @@ export default function FinalReview() {
     (confirmed) => confirmed
   );
 
-  const handleConfirm = () => {
-    alert("Submission successful!");
-    navigate("/user/dashboard");
+  const handleConfirm = async () => {
+    let dataToSubmit = {
+      ...reportDetails,
+      submittedDate: new Date().toISOString(), // Format date to ISO
+      submittedBy: userService.userValue.id,
+      reportStatus: "Submitted",
+      updatedBy: userService.userValue.id,
+    };
+    try {
+      // Update the report status in the database
+      await reportService.update(reportDetails.reportId, dataToSubmit);
+      navigate("/user/dashboard");
+    } catch (error) {
+      console.error("Error updating report:", error);
+    }
   };
 
   const toggleSection = (section) => {
@@ -186,7 +199,7 @@ export default function FinalReview() {
             variant="contained"
             color="primary"
             onClick={handleConfirm}
-            // disabled={!allSectionsConfirmed} // Disable until all sections are confirmed
+            disabled={!allSectionsConfirmed} // Disable until all sections are confirmed
           >
             Submit Report
           </Button>
