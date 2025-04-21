@@ -12,7 +12,7 @@ import {
 import MenuIcon from "@mui/icons-material/Menu";
 import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
-import { Link, redirect } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useTheme } from "@mui/material/styles";
 import { userService } from "../../features/users/user.service";
 
@@ -20,6 +20,7 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
   const user = userService.userValue; // Get the current user
   const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState(null);
+  const navigate = useNavigate();
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -33,7 +34,7 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
     try {
       userService.logout();
       handleMenuClose();
-      return redirect("/user/login"); // Redirect to login page after logout
+      navigate("/user/login");
     } catch (error) {
       console.error("Logout failed:", error); // Log the error
       alert("Failed to log out. Please try again."); // Display a user-friendly message
