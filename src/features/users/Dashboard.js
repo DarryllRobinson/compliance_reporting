@@ -170,7 +170,7 @@ export default function Dashboard() {
                   </Typography>
                   {relevantReports.length > 0 ? (
                     <TableContainer component={Paper}>
-                      <Table size="small" aria-label="a dense table">
+                      <Table size="small" aria-label="dense table of reports">
                         <TableHead>
                           <TableRow>
                             <TableCell>Reporting Period Start Date</TableCell>
