@@ -31,7 +31,7 @@ export default async function prepareReport(report, reportContext, reportType) {
         financeId: finance.id,
       };
     } catch (error) {
-      console.error("Error retieving finance record", error);
+      console.error("Error retrieving finance record", error);
       return false;
     }
 

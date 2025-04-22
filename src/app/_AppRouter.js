@@ -60,7 +60,8 @@ export default function AppRouter() {
           path: "create-report",
           element: <CreateReport />,
           // loader: reportCreateLoader,
-          action: reportCreateAction(reportContext),
+          action: (args) =>
+            reportCreateAction({ ...args, context: { reportContext } }),
         },
         {
           path: "review-report/:reportId",
