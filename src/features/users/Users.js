@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router"; // Import useNavigate
+import { redirect, useNavigate } from "react-router"; // Import useNavigate
 import { userService } from "./user.service";
 import { useLoaderData } from "react-router";
 import {
@@ -12,9 +12,16 @@ import {
   ListItemText,
   Button,
 } from "@mui/material";
+import ProtectedRoutes from "../../utils/ProtectedRoutes";
 
 export async function usersLoader() {
-  const user = await userService.refreshToken();
+  const user = userService.userValue; // Get the current user
+  // const user = await userService.refreshToken();
+
+  if (!ProtectedRoutes("Admin")) {
+    return redirect("/user/dashboard");
+  }
+
   if (!user) {
     throw new Response("usersLoader refreshToken problem", { status: 500 });
   }

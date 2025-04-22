@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useNavigate } from "react-router"; // Import useNavigate
+import { redirect, useNavigate } from "react-router"; // Import useNavigate
 import { userService } from "../users/user.service";
 import { clientService } from "./client.service";
 import { useLoaderData } from "react-router";
@@ -13,12 +13,18 @@ import {
   ListItemText,
   Button,
 } from "@mui/material";
+import ProtectedRoutes from "../../utils/ProtectedRoutes";
 
 export async function clientsLoader() {
-  const user = await userService.refreshToken();
-  if (!user) {
-    throw new Response("clientsLoader user problem", { status: 500 });
+  if (!ProtectedRoutes("Admin")) {
+    return redirect("/user/dashboard");
   }
+
+  // const user = userService.userValue; // Get the current user
+  // const user = await userService.refreshToken();
+  // if (!user) {
+  //   throw new Response("clientsLoader user problem", { status: 500 });
+  // }
   //   const user = userService.userValue; // Get the current user
   const clients = await clientService.getAll();
   if (!clients) {
@@ -28,12 +34,12 @@ export async function clientsLoader() {
 }
 
 export default function Clients() {
-  const [user, setUser] = React.useState({});
+  // const [user, setUser] = React.useState({});
 
-  useEffect(() => {
-    const subscription = userService.user.subscribe((x) => setUser(x));
-    return () => subscription.unsubscribe();
-  }, []);
+  // useEffect(() => {
+  //   const subscription = userService.user.subscribe((x) => setUser(x));
+  //   return () => subscription.unsubscribe();
+  // }, []);
   const { clients } = useLoaderData();
   const theme = useTheme();
   const navigate = useNavigate(); // Initialize navigate

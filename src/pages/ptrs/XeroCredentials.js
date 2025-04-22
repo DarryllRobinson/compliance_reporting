@@ -1,45 +1,47 @@
-import React, { useState } from "react";
-import { Form, redirect, useLoaderData, useLocation } from "react-router";
+import React, { useEffect } from "react";
+import { Form, redirect, useNavigate, useLocation } from "react-router";
 import {
   Box,
   Button,
   TextField,
   useTheme,
   Paper,
-  Alert,
   Grid,
+  Typography,
 } from "@mui/material";
-import { userService } from "../../features/users/user.service";
-import { reportService } from "../../features/reports/report.service";
+import { useReportContext } from "../../context/ReportContext"; // Import ReportContext
+// import { userService } from "../../features/users/user.service";
 
-export async function xeroLoader() {
-  const user = await userService.refreshToken();
-  if (!user) {
-    throw new Response("xeroLoader refreshToken problem", {
-      status: 500,
-    });
-  }
-}
+// export async function xeroLoader() {
+//   const user = await userService.refreshToken();
+//   if (!user) {
+//     throw new Response("xeroLoader refreshToken problem", {
+//       status: 500,
+//     });
+//   }
+// }
 
-export async function xeroAction({ request }) {
-  await userService.refreshToken();
+export async function xeroAction({ request, context }) {
+  // Extract reportContext from the context parameter
+  const { reportContext } = context;
+
+  // await userService.refreshToken();
   const formData = await request.formData();
   let xeroDetails = Object.fromEntries(formData);
-  console.log("Xero Details:", xeroDetails);
 
+  const { username, password } = xeroDetails;
   try {
     // Xero login
     // const xeroLogin = await reportService.xeroLogin();
     // console.log("Xero login response:", xeroLogin);
-    return redirect("/review-report");
+    return redirect(`/reports/${reportContext.reportDetails.code}/update`);
   } catch (error) {
     console.error("Error logging to Xero:", error);
   }
 }
 
 export default function XeroCredentials() {
-  // const location = useLocation();
-  // const { reportName } = location.state || {};
+  const { reportDetails } = useReportContext(); // Access context
   const theme = useTheme();
 
   return (
@@ -62,11 +64,44 @@ export default function XeroCredentials() {
           backgroundColor: theme.palette.background.paper,
         }}
       >
+        <Typography variant="h6" gutterBottom>
+          Report Details
+        </Typography>
+        {reportDetails ? (
+          <Box>
+            <Typography variant="body1">
+              Report Name: {reportDetails.reportName}
+            </Typography>
+            <Typography variant="body1">
+              Reporting Period Start Date:{" "}
+              {
+                new Date(reportDetails.ReportingPeriodStartDate)
+                  .toISOString()
+                  .split("T")[0]
+              }
+            </Typography>
+            <Typography variant="body1">
+              Reporting Period End Date:{" "}
+              {
+                new Date(reportDetails.ReportingPeriodEndDate)
+                  .toISOString()
+                  .split("T")[0]
+              }
+            </Typography>
+          </Box>
+        ) : (
+          <Typography variant="body1">No report details available.</Typography>
+        )}
         <Form
           method="post"
           id="xero-login-form"
           style={{ display: "flex", flexDirection: "column", gap: 2 }}
         >
+          <input
+            type="hidden"
+            name="reportDetails"
+            value={JSON.stringify(reportDetails || {})}
+          />
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <TextField
@@ -74,7 +109,6 @@ export default function XeroCredentials() {
                 name="username"
                 type="string"
                 fullWidth
-                required
               />
             </Grid>
             <Grid item xs={12}>
@@ -83,7 +117,6 @@ export default function XeroCredentials() {
                 name="password"
                 type="password"
                 fullWidth
-                required
               />
             </Grid>
           </Grid>

@@ -1,32 +1,34 @@
-import React, { useState } from "react";
-import { Form, redirect, useLoaderData, useLocation } from "react-router";
+import React from "react";
+import { Form, redirect, useLocation } from "react-router";
 import {
   Box,
   Button,
   TextField,
   useTheme,
   Paper,
-  Alert,
   Grid,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import { userService } from "../users/user.service";
 import { reportService } from "./report.service";
+import {
+  financeService,
+  paymentService,
+  submissionService,
+} from "../../services";
 
-export async function reportCreateLoader() {
-  const user = await userService.refreshToken();
-  if (!user) {
-    throw new Response("userCreateLoader refreshToken problem", {
-      status: 500,
-    });
-  }
-}
+export async function createReportAction({ request, params, context }) {
+  // Extract reportContext from the context parameter
+  const { reportContext } = context;
 
-export async function reportCreateAction({ request }) {
-  await userService.refreshToken();
   const formData = await request.formData();
   let reportDetails = Object.fromEntries(formData);
   reportDetails = {
     ...reportDetails,
+    code: params.code,
     reportStatus: "Created",
     createdBy: userService.userValue.id,
     clientId: userService.userValue.clientId,
@@ -34,15 +36,70 @@ export async function reportCreateAction({ request }) {
 
   try {
     const report = await reportService.create(reportDetails);
-    return redirect("/xero-credentials", { state: { report } });
+    // Insert the report ID into the reportDetails object
+    reportDetails = {
+      ...reportDetails,
+      reportId: report.id,
+    };
+
+    // Create a record for each section in the database
+    // Payment section
+    try {
+      const payment = await paymentService.create({
+        reportId: report.id,
+        createdBy: userService.userValue.id,
+      });
+      reportDetails = {
+        ...reportDetails,
+        paymentId: payment.id,
+      };
+    } catch (error) {
+      console.error("Error creating payment record:", error);
+    }
+
+    // Finance section
+    try {
+      const finance = await financeService.create({
+        reportId: report.id,
+        createdBy: userService.userValue.id,
+      });
+      reportDetails = {
+        ...reportDetails,
+        financeId: finance.id,
+      };
+    } catch (error) {
+      console.error("Error creating finance record:", error);
+    }
+
+    // Submission section
+    try {
+      const submission = await submissionService.create({
+        reportId: report.id,
+        createdBy: userService.userValue.id,
+      });
+      reportDetails = {
+        ...reportDetails,
+        submissionId: submission.id,
+      };
+    } catch (error) {
+      console.error("Error creating submission record:", error);
+    }
+
+    // Update the ReportContext with the new report details
+    if (reportContext && reportContext.setReportDetails) {
+      reportContext.setReportDetails(reportDetails);
+    }
+
+    // Redirect to the next step in the process
+    return redirect(`/reports/${params.code}/xero-credentials`);
   } catch (error) {
     console.error("Error creating report:", error);
   }
 }
 
-export default function ReportCreate() {
+export default function CreateReport() {
   const location = useLocation();
-  const { reportName } = location.state || {};
+  const { reportName, reportList } = location.state || {};
   const theme = useTheme();
 
   const sixMonthsAgo = new Date();
@@ -76,14 +133,23 @@ export default function ReportCreate() {
         >
           <Grid container spacing={2}>
             <Grid item xs={12}>
-              <TextField
-                name="reportName"
-                type="string"
-                fullWidth
-                disabled
-                value={reportName || ""}
-              />
-              <input type="hidden" name="reportName" value={reportName || ""} />
+              <FormControl fullWidth>
+                <InputLabel id="report-select-label">Report Name</InputLabel>
+                <Select
+                  labelId="report-select-label"
+                  name="reportName"
+                  id="report"
+                  label="List of Reports"
+                  defaultValue={reportName || ""}
+                  required
+                >
+                  {reportList?.map((report) => (
+                    <MenuItem key={report.id} value={report.name}>
+                      {report.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </Grid>
             <Grid item xs={6}>
               <TextField
@@ -104,6 +170,7 @@ export default function ReportCreate() {
                 fullWidth
                 required
                 InputLabelProps={{ shrink: true }}
+                defaultValue={defaultDate || ""}
               />
             </Grid>
           </Grid>

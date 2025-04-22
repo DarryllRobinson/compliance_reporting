@@ -17,10 +17,10 @@ import { useTheme } from "@mui/material/styles";
 import { userService } from "../../features/users/user.service";
 
 export default function Navbar({ isDarkTheme, onToggleTheme }) {
-  const navigate = useNavigate();
   const user = userService.userValue; // Get the current user
   const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState(null);
+  const navigate = useNavigate();
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -32,9 +32,9 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
 
   const handleLogout = async () => {
     try {
-      await userService.logout();
+      userService.logout();
       handleMenuClose();
-      navigate("/");
+      navigate("/user/login");
     } catch (error) {
       console.error("Logout failed:", error); // Log the error
       alert("Failed to log out. Please try again."); // Display a user-friendly message
@@ -74,10 +74,10 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
             <Button
               color="inherit"
               component={Link}
-              to="/select-report"
+              to="/user/dashboard"
               sx={{ color: theme.palette.text.primary }}
             >
-              Report Selection
+              Dashboard
             </Button>
             {user.role === "Admin" && (
               <Button
@@ -112,18 +112,10 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
             <Button
               color="inherit"
               component={Link}
-              to="/signin"
+              to="/user/login"
               sx={{ color: theme.palette.text.primary }}
             >
-              Sign In
-            </Button>
-            <Button
-              color="inherit"
-              component={Link}
-              to="/signup"
-              sx={{ color: theme.palette.text.primary }}
-            >
-              Sign Up
+              Login
             </Button>
           </Box>
         )}
@@ -150,16 +142,14 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
             >
               Home
             </MenuItem>
-            {user && (
-              <MenuItem
-                onClick={handleMenuClose}
-                component={Link}
-                to="/select-report"
-                sx={{ color: theme.palette.text.primary }}
-              >
-                Report Selection
-              </MenuItem>
-            )}
+            <MenuItem
+              onClick={handleMenuClose}
+              component={Link}
+              to="/user/dashboard"
+              sx={{ color: theme.palette.text.primary }}
+            >
+              Dashboard
+            </MenuItem>
             {user?.role === "Admin" && (
               <MenuItem
                 onClick={handleMenuClose}
@@ -192,22 +182,13 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
                 ]
               : [
                   <MenuItem
-                    key="signin"
+                    key="login"
                     onClick={handleMenuClose}
                     component={Link}
-                    to="/signin"
+                    to="/user/login"
                     sx={{ color: theme.palette.text.primary }}
                   >
-                    Sign In
-                  </MenuItem>,
-                  <MenuItem
-                    key="signup"
-                    onClick={handleMenuClose}
-                    component={Link}
-                    to="/signup"
-                    sx={{ color: theme.palette.text.primary }}
-                  >
-                    Sign Up
+                    Login
                   </MenuItem>,
                 ]}
           </Menu>

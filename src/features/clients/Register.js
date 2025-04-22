@@ -15,20 +15,29 @@ import {
 } from "@mui/material";
 import { userService } from "../../features/users/user.service";
 import { clientService } from "./client.service";
+import ProtectedRoutes from "../../utils/ProtectedRoutes";
 // Testing the form
-import { clients } from "../../data/mockClients"; // Mock data for testing
+// import { clients } from "../../data/mockClients"; // Mock data for testing
+
+export async function clientRegisterLoader() {
+  if (!ProtectedRoutes()) {
+    return redirect("/user/dashboard");
+  }
+}
 
 export async function clientRegisterAction({ request }) {
-  await userService.refreshToken();
-  // const formData = await request.formData();
-  // let clientDetails = Object.fromEntries(formData);
+  // const user = userService.userValue; // Get the current user
+  // const user = await userService.refreshToken();
+  const formData = await request.formData();
+  let clientDetails = Object.fromEntries(formData);
   // don't forget to include active: true
-  // const clientDetails = { ...clientDetails, active: true };
+  clientDetails = { ...clientDetails, active: true };
   // For testing purposes, using mock data instead of form data
-  const clientDetails = clients;
-  console.log("Client Details:", clientDetails);
+  // const clientDetails = clients;
+  // console.log("Client Details:", clientDetails);
   try {
     await clientService.create(clientDetails);
+    // TODO: Open user creation form after client creation below
     return redirect("/users/create");
   } catch (error) {
     console.error("Error creating client:", error);
@@ -70,8 +79,8 @@ export default function ClientRegister() {
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <TextField
-                label="Client Name"
-                name="clientName"
+                label="Business Name"
+                name="businessName"
                 type="string"
                 fullWidth
                 // required

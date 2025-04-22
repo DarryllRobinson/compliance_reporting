@@ -6,17 +6,19 @@ import Navbar from "../navigation/Navbar";
 import Footer from "../navigation/Footer";
 import ProcessFlow from "../ProcessFlow";
 import { userService } from "../../features/users/user.service";
+import { useAuthContext } from "../../context/AuthContext";
+// import * as Sentry from "@sentry/react"; // Consider using Sentry for error tracking with user context
 
-// Need to check if the user is logged in with a silent check to the db
-// export async function layoutLoader() {
-//   try {
-//     const user = await userService.refreshToken();
-//     return { user };
-//   } catch (error) {
-//     console.warn("Silent login failed:", error.message || error);
-//     return { user: null }; // Return null user if refresh fails
-//   }
-// }
+export async function layoutLoader({ request }) {
+  const user = userService.userValue;
+  if (!user) {
+    console.log("layoutLoader user problem");
+    throw new Response("layoutLoader user problem", { status: 401 });
+  }
+
+  // If page not found
+  // throw new Response("Page not found", { status: 404 });
+}
 
 export default function Layout() {
   const [isDarkTheme, setIsDarkTheme] = useState(false);
