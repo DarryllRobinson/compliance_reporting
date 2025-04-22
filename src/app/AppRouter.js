@@ -1,5 +1,6 @@
 import React from "react";
 import { createBrowserRouter, RouterProvider } from "react-router";
+import { AlertProvider } from "../context/AlertContext";
 import Layout from "../components/generic/Layout";
 import LandingPage from "../components/generic/LandingPage";
 import RootErrorBoundary from "../components/navigation/RootErrorBoundary";
@@ -141,5 +142,9 @@ export default function AppRouter() {
     },
   ]);
 
-  return <RouterProvider router={router} />;
+  return (
+    <AlertProvider>
+      <RouterProvider router={router} />
+    </AlertProvider>
+  );
 }

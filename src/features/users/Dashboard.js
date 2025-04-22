@@ -21,6 +21,7 @@ import { reportService } from "../reports/report.service";
 import { useReportContext } from "../../context/ReportContext";
 import prepareReport from "../reports/ptrs/prepareReport";
 import ProtectedRoutes from "../../utils/ProtectedRoutes";
+import ExampleComponent from "../example/ExampleComponent";
 
 export async function dashboardLoader({ context }) {
   const user = userService.userValue; // Get the current user
@@ -144,8 +145,9 @@ export default function Dashboard() {
         Welcome to Your Dashboard, {user?.firstName} {user?.lastName}
       </Typography>
       <Typography variant="body1" gutterBottom>
-        Here you can manage your reports and track their details.
+        Here you can manage your reports and track their progress
       </Typography>
+      <ExampleComponent />
 
       <Grid container spacing={3} sx={{ marginTop: 2 }}>
         {reportList.map((report, index) => {

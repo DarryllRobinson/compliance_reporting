@@ -1,12 +1,13 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { Outlet, useLocation } from "react-router";
-import { Box, CssBaseline } from "@mui/material";
+import { Box, Button, CssBaseline } from "@mui/material";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import Navbar from "../navigation/Navbar";
 import Footer from "../navigation/Footer";
 import ProcessFlow from "../../features/reports/ptrs/ProcessFlow";
 import { userService } from "../../features/users/user.service";
-// import * as Sentry from "@sentry/react"; // Consider using Sentry for error tracking with user context
+import Alert from "./Alert";
+import { useAlert } from "../../context/AlertContext";
 
 export async function layoutLoader({ request }) {
   const user = userService.userValue;
@@ -53,9 +54,17 @@ export default function Layout() {
     "/reports/ptrs/review",
   ].includes(location.pathname);
 
+  const { alertOpen, severity, message, handleClose } = useAlert();
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
+      <Alert
+        open={alertOpen}
+        onClose={handleClose}
+        severity={severity}
+        message={message}
+      />
       <Box
         sx={{
           display: "flex",
@@ -65,7 +74,6 @@ export default function Layout() {
         }}
       >
         <Navbar isDarkTheme={isDarkTheme} onToggleTheme={toggleTheme} />
-
         {showProcessFlow && <ProcessFlow />}
         <Box sx={{ flex: 1 }}>
           <Outlet />
