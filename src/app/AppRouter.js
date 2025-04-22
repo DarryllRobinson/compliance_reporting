@@ -12,7 +12,9 @@ import ReportsLayout from "../features/reports/ReportsLayout";
 import CreateReport, {
   createReportAction,
 } from "../features/reports/CreateReport";
-import XeroCredentials, { xeroAction } from "../pages/ptrs/XeroCredentials";
+import XeroCredentials, {
+  xeroAction,
+} from "../features/reports/XeroCredentials";
 import { useReportContext } from "../context/ReportContext";
 import ReportFrame, {
   reportFrameLoader,
