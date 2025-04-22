@@ -1,9 +1,9 @@
-import React, { useState } from "react";
-import { Stepper, Step, StepLabel, Box, StepButton } from "@mui/material";
-import { Link, useLocation, useNavigate } from "react-router";
+import React from "react";
+import { Stepper, Step, Box, StepButton } from "@mui/material";
+import { useLocation, useNavigate } from "react-router";
 
 const steps = [
-  "Select Report",
+  "Select Report from Dashboard",
   "Provide Xero Credentials",
   "Review Report Details",
   "Review Invoice Metrics",
@@ -16,13 +16,13 @@ const ProcessFlow = () => {
 
   const getActiveStep = () => {
     switch (location.pathname) {
-      case "/xero-credentials":
+      case "/reports/ptrs/xero-credentials":
         return 1;
-      case "/review-report":
+      case "/reports/ptrs/update":
         return 2;
-      case "/invoice-metrics":
+      case "/reports/ptrs/invoice":
         return 3;
-      case "/final-review":
+      case "/reports/ptrs/review":
         return 4;
       default:
         return 0;
@@ -31,17 +31,17 @@ const ProcessFlow = () => {
 
   const getStepUrl = (index) => {
     const urls = [
-      "/select-report",
-      "/xero-credentials",
-      "/review-report",
-      "/invoice-metrics",
-      "/final-review",
+      "/user/dashboard",
+      "/reports/ptrs/xero-credentials",
+      "/reports/ptrs/update",
+      "/reports/ptrs/invoice",
+      "/reports/ptrs/review",
     ];
     return urls[index] || "/";
   };
 
   return (
-    <Box>
+    <Box sx={{ mt: 2, mb: 2 }}>
       <Stepper activeStep={getActiveStep()} alternativeLabel>
         {steps.map((label, index) => (
           <Step key={label}>

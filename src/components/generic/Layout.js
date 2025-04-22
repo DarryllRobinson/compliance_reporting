@@ -4,9 +4,8 @@ import { Box, CssBaseline } from "@mui/material";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import Navbar from "../navigation/Navbar";
 import Footer from "../navigation/Footer";
-import ProcessFlow from "../ProcessFlow";
+import ProcessFlow from "../../features/reports/ptrs/ProcessFlow";
 import { userService } from "../../features/users/user.service";
-import { useAuthContext } from "../../context/AuthContext";
 // import * as Sentry from "@sentry/react"; // Consider using Sentry for error tracking with user context
 
 export async function layoutLoader({ request }) {
@@ -47,10 +46,11 @@ export default function Layout() {
   const toggleTheme = () => setIsDarkTheme((prev) => !prev);
 
   const showProcessFlow = [
-    "/xero-credentials",
-    "/review-report",
-    "/invoice-metrics",
-    "/final-review",
+    "/reports/ptrs/xero-credentials",
+    "/reports/ptrs/update",
+    "/reports/ptrs/invoice",
+    "/reports/ptrs/invoice/review",
+    "/reports/ptrs/review",
   ].includes(location.pathname);
 
   return (
