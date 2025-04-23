@@ -1,12 +1,16 @@
 import React from "react";
 import { createBrowserRouter, RouterProvider } from "react-router";
-import { AlertProvider } from "../context/AlertContext";
+import { useAlert } from "../context/AlertContext";
 import Layout from "../components/generic/Layout";
 import LandingPage from "../components/generic/LandingPage";
 import RootErrorBoundary from "../components/navigation/RootErrorBoundary";
 import Login, { loginAction } from "../features/users/Login";
 import Users, { usersLoader } from "../features/users/Users";
 import Clients, { clientsLoader } from "../features/clients/Clients";
+import ClientRegister, {
+  clientRegisterLoader,
+  clientRegisterAction,
+} from "../features/clients/Register";
 import Dashboard, { dashboardLoader } from "../features/users/Dashboard";
 import ReportsMain from "../features/reports/ReportsMain";
 import ReportsLayout from "../features/reports/ReportsLayout";
@@ -27,11 +31,15 @@ import ReviewRecords from "../features/reports/ptrs/ReviewRecords";
 import FinalReview, {
   finalReviewLoader,
 } from "../features/reports/ptrs/FinalReview";
+import ClientsLayout, {
+  clientLayoutLoader,
+} from "../features/clients/ClientsLayout";
 
 // TODO: Optimise the whole thing: https://reactrouter.com/tutorials/address-book
 
 export default function AppRouter() {
   const reportContext = useReportContext();
+  const alertContext = useAlert();
   const router = createBrowserRouter([
     {
       path: "",
@@ -70,15 +78,40 @@ export default function AppRouter() {
             {
               path: "login",
               Component: Login,
-              action: loginAction,
+              action: (args) =>
+                loginAction({
+                  ...args,
+                  context: { alertContext },
+                }),
             },
           ],
         },
         // Clients
         {
           path: "/clients",
-          Component: Clients,
-          loader: clientsLoader,
+          children: [
+            {
+              index: true,
+              Component: Clients,
+              loader: clientsLoader,
+            },
+            {
+              Component: ClientsLayout,
+              loader: clientLayoutLoader,
+              children: [
+                // Register
+                {
+                  path: "register",
+                  Component: ClientRegister,
+                  action: (args) =>
+                    clientRegisterAction({
+                      ...args,
+                      context: { alertContext },
+                    }),
+                },
+              ],
+            },
+          ],
         },
         // Reports
         {
@@ -87,7 +120,8 @@ export default function AppRouter() {
             { index: true, Component: ReportsMain },
             {
               Component: ReportsLayout,
-              loader: reportLayoutLoader,
+              loader: (args) =>
+                reportLayoutLoader({ ...args, context: { alertContext } }),
               children: [
                 {
                   path: ":code/create",
@@ -131,7 +165,7 @@ export default function AppRouter() {
                   loader: (args) =>
                     finalReviewLoader({
                       ...args,
-                      context: { reportContext },
+                      context: { reportContext, alertContext },
                     }),
                 },
               ],
@@ -142,9 +176,5 @@ export default function AppRouter() {
     },
   ]);
 
-  return (
-    <AlertProvider>
-      <RouterProvider router={router} />
-    </AlertProvider>
-  );
+  return <RouterProvider router={router} />;
 }

@@ -3,11 +3,18 @@ import { Form, redirect } from "react-router";
 import { Box, Typography, Button, TextField, useTheme } from "@mui/material";
 import { userService } from "./user.service";
 
-export async function loginAction({ request }) {
+export async function loginAction({ request, context }) {
+  const { alertContext } = context;
   const formData = await request.formData();
   const userDetails = Object.fromEntries(formData);
-  await userService.login(userDetails);
-  return redirect("/user/dashboard");
+
+  try {
+    await userService.login(userDetails);
+    return redirect("/user/dashboard");
+  } catch (error) {
+    alertContext.sendAlert("error", error || "Login failed");
+    return redirect("/user/login");
+  }
 }
 
 export default function Login() {

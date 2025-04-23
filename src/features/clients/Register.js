@@ -13,34 +13,19 @@ import {
   Paper,
   Grid,
 } from "@mui/material";
-import { userService } from "../../features/users/user.service";
 import { clientService } from "./client.service";
-import ProtectedRoutes from "../../utils/ProtectedRoutes";
-// Testing the form
-// import { clients } from "../../data/mockClients"; // Mock data for testing
 
-export async function clientRegisterLoader() {
-  if (!ProtectedRoutes()) {
-    return redirect("/user/dashboard");
-  }
-}
-
-export async function clientRegisterAction({ request }) {
-  // const user = userService.userValue; // Get the current user
-  // const user = await userService.refreshToken();
+export async function clientRegisterAction({ request, context }) {
+  const { alertContext } = context;
   const formData = await request.formData();
   let clientDetails = Object.fromEntries(formData);
-  // don't forget to include active: true
   clientDetails = { ...clientDetails, active: true };
-  // For testing purposes, using mock data instead of form data
-  // const clientDetails = clients;
-  // console.log("Client Details:", clientDetails);
   try {
     await clientService.create(clientDetails);
     // TODO: Open user creation form after client creation below
     return redirect("/users/create");
   } catch (error) {
-    console.error("Error creating client:", error);
+    alertContext.sendAlert("error", error || "Error creating client:");
   }
 }
 

@@ -9,7 +9,7 @@ import { financeFields } from "../../../data/financeFields";
 import { submissionFields } from "../../../data/submissionFields";
 import { clientService } from "../../clients/client.service";
 import { userService } from "../../users/user.service";
-import { useReportContext } from "../../../context/ReportContext";
+import { useReportContext, useAlert } from "../../../context";
 import {
   financeService,
   paymentService,
@@ -18,46 +18,33 @@ import {
 import ProtectedRoutes from "../../../utils/ProtectedRoutes";
 import { reportService } from "../report.service";
 
-export async function finalReviewLoader(reportContext) {
+export async function finalReviewLoader({ context }) {
   if (!ProtectedRoutes()) {
     return redirect("/user/dashboard");
   }
 
-  const { reportDetails } = reportContext.context.reportContext;
-  // console.log("reportFrameLoader reportDetails", reportDetails);
-  // Needs to be updated to extract all relevant data from the database
-  // if (reportDetails) {
+  const { reportDetails } = context.reportContext;
+  const { alertContext } = context;
+
   try {
-    // const user = await userService.refreshToken();
     const user = userService.userValue;
     const client = await clientService.getById(user.clientId);
-    // console.log("reportFrameLoader client", client);
-    if (!client) {
-      throw new Response("finalReviewLoader client problem", { status: 500 });
-    }
+    if (!client) alertContext.sendAlert("error", "Client not found");
+
     const finance = await financeService.getByReportId(reportDetails.reportId);
-    if (!finance) {
-      throw new Response("finalReviewLoader finance problem", {
-        status: 500,
-      });
-    }
+    if (!finance) alertContext.sendAlert("error", "Finance not found");
+
     const payments = await paymentService.getByReportId(reportDetails.reportId);
-    if (!payments) {
-      throw new Response("finalReviewLoader payments problem", {
-        status: 500,
-      });
-    }
+    if (!payments) alertContext.sendAlert("error", "Payments not found");
+
     const submission = await submissionService.getByReportId(
       reportDetails.reportId
     );
-    if (!submission) {
-      throw new Response("finalReviewLoader submission problem", {
-        status: 500,
-      });
-    }
+    if (!submission) alertContext.sendAlert("error", "Submission not found");
+
     return { client, finance, payments, submission };
   } catch (error) {
-    console.error("Error fetching data:", error);
+    alertContext.sendAlert("error", error || "Error loading final review data");
   }
   // }
 }

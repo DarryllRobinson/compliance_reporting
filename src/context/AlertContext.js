@@ -1,23 +1,44 @@
-import React, { createContext, useState, useContext } from "react";
+import React, {
+  createContext,
+  useState,
+  useContext,
+  useCallback,
+  useEffect,
+} from "react";
 
 const AlertContext = createContext();
 
 export function AlertProvider({ children }) {
-  const [alertOpen, setAlertOpen] = useState(false);
-  const [severity, setSeverity] = useState("info");
-  const [message, setMessage] = useState("");
+  const [alertQueue, setAlertQueue] = useState([]);
+  const [currentAlert, setCurrentAlert] = useState(null);
 
-  const sendAlert = (severity, message) => {
-    setSeverity(severity);
-    setMessage(message);
-    setAlertOpen(true);
-  };
+  const sendAlert = useCallback((severity, message) => {
+    setAlertQueue((prevQueue) => [...prevQueue, { severity, message }]);
+  }, []);
 
-  const handleClose = () => setAlertOpen(false);
+  useEffect(() => {
+    if (!currentAlert && alertQueue.length > 0) {
+      setCurrentAlert(alertQueue[0]);
+    }
+  }, [alertQueue, currentAlert]);
+
+  const handleClose = useCallback(() => {
+    setAlertQueue((prevQueue) => {
+      const [, ...remainingQueue] = prevQueue;
+      return remainingQueue;
+    });
+    setCurrentAlert(null);
+  }, []);
 
   return (
     <AlertContext.Provider
-      value={{ alertOpen, severity, message, sendAlert, handleClose }}
+      value={{
+        alertOpen: !!currentAlert,
+        severity: currentAlert?.severity || "info",
+        message: currentAlert?.message || "",
+        sendAlert,
+        handleClose,
+      }}
     >
       {children}
     </AlertContext.Provider>
