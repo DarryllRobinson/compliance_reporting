@@ -17,71 +17,61 @@ import {
 } from "../../services";
 import ProtectedRoutes from "../../utils/ProtectedRoutes";
 
-export async function reportFrameLoader(reportContext) {
+export async function reportFrameLoader({ context }) {
   if (!ProtectedRoutes()) {
     return redirect("/user/dashboard");
   }
 
-  const { reportDetails } = reportContext.context.reportContext;
-  // console.log("reportFrameLoader reportDetails", reportDetails);
-  // Needs to be updated to extract all relevant data from the database
-  // if (reportDetails) {
+  const { reportDetails } = context.reportContext;
+  const { alertContext } = context;
+
   try {
-    // const user = await userService.refreshToken();
     const user = userService.userValue;
     const client = await clientService.getById(user.clientId);
-    // console.log("reportFrameLoader client", client);
     if (!client) {
-      throw new Response("reportFrameLoader client problem", { status: 500 });
+      alertContext.sendAlert("error", "Client not found");
+      return Promise.reject(new Error("Client not found")); // Explicitly reject the promise
     }
+
     const finance = await financeService.getByReportId(reportDetails.reportId);
     if (!finance) {
-      throw new Response("reportFrameLoader finance problem", {
-        status: 500,
-      });
+      alertContext.sendAlert("error", "Finance not found");
+      return Promise.reject(new Error("Finance not found")); // Explicitly reject the promise
     }
+
     const payments = await paymentService.getByReportId(reportDetails.reportId);
     if (!payments) {
-      throw new Response("reportFrameLoader payments problem", {
-        status: 500,
-      });
+      alertContext.sendAlert("error", "Payments not found");
+      return Promise.reject(new Error("Payments not found")); // Explicitly reject the promise
     }
+
     const submission = await submissionService.getByReportId(
       reportDetails.reportId
     );
     if (!submission) {
-      throw new Response("reportFrameLoader submission problem", {
-        status: 500,
-      });
+      alertContext.sendAlert("error", "Submission not found");
+      return Promise.reject(new Error("Submission not found")); // Explicitly reject the promise
     }
+
     return { client, finance, payments, submission };
   } catch (error) {
+    alertContext.sendAlert("error", error.message || "Error loading data");
     console.error("Error fetching data:", error);
+    return Promise.reject(error); // Explicitly reject the promise
   }
-  // }
 }
 
 export default function ReportFrame() {
   const navigate = useNavigate();
   const theme = useTheme();
   const { reportDetails } = useReportContext(); // Access context
-  // console.log("ReportFrame Details:", reportDetails);
-  // const { client } = useLoaderData();
   const { client, finance, payments, submission } = useLoaderData();
-  // console.log(
-  //   "ReportFrame Client Data:",
-  //   client,
-  //   finance,
-  //   payments,
-  //   submission
-  // );
 
   const sectionsConfig = {
     client: { fields: clientFields, xeroData: client },
     payments: { fields: paymentFields, xeroData: payments },
     finance: { fields: financeFields, xeroData: finance },
     submission: { fields: submissionFields, xeroData: submission },
-    // Add more sections here as needed
   };
 
   const [expandedSections, setExpandedSections] = useState(
@@ -117,7 +107,6 @@ export default function ReportFrame() {
         elevation={3}
         sx={{
           padding: 4,
-          // maxWidth: 1000,
           width: "100%",
           backgroundColor: theme.palette.background.paper,
         }}

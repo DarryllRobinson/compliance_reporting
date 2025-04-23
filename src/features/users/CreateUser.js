@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Form, redirect, useLoaderData } from "react-router";
 import {
   Box,
@@ -11,19 +11,18 @@ import {
   Select,
   MenuItem,
   Paper,
-  Alert,
   Grid,
 } from "@mui/material";
 import { userService } from "./user.service";
 import { clientService } from "../clients/client.service";
 
-export async function userCreateLoader() {
-  const user = await userService.refreshToken();
-  if (!user) {
-    throw new Response("userCreateLoader refreshToken problem", {
-      status: 500,
-    });
-  }
+export async function createUserLoader() {
+  // const user = await userService.refreshToken();
+  // if (!user) {
+  //   throw new Response("userCreateLoader refreshToken problem", {
+  //     status: 500,
+  //   });
+  // }
   const clients = await clientService.getAll();
   if (!clients) {
     throw new Response("userCreateLoader clients problem", { status: 500 });
@@ -31,15 +30,18 @@ export async function userCreateLoader() {
   return { clients };
 }
 
-export async function userCreateAction({ request }) {
-  await userService.refreshToken();
+export async function createUserAction({ request, context }) {
+  const { alertContext } = context;
+  // await userService.refreshToken();
   const formData = await request.formData();
   let userDetails = Object.fromEntries(formData);
   userDetails = { ...userDetails, active: true };
   try {
     await userService.register(userDetails);
+    alertContext.sendAlert("success", "User created successfully.");
     return redirect("/users");
   } catch (error) {
+    alertContext.sendAlert("error", error || "Error creating user.");
     console.error("Error creating user:", error);
   }
 }
@@ -85,6 +87,7 @@ export default function UserCreate() {
                 type="string"
                 fullWidth
                 required
+                defaultValue="Homer"
               />
             </Grid>
             <Grid item xs={6}>
@@ -94,6 +97,7 @@ export default function UserCreate() {
                 type="string"
                 fullWidth
                 required
+                defaultValue="Simpson"
               />
             </Grid>
             <Grid item xs={12}>
@@ -103,6 +107,7 @@ export default function UserCreate() {
                 type="string"
                 fullWidth
                 required
+                defaultValue="darryllrobinson@icloud.com"
               />
             </Grid>
             <Grid item xs={6}>
@@ -112,6 +117,7 @@ export default function UserCreate() {
                 type="string"
                 fullWidth
                 required
+                defaultValue="0412345678"
               />
             </Grid>
             <Grid item xs={6}>
@@ -121,6 +127,7 @@ export default function UserCreate() {
                 type="string"
                 fullWidth
                 required
+                defaultValue="Manager"
               />
             </Grid>
             <Grid item xs={6}>
@@ -130,6 +137,7 @@ export default function UserCreate() {
                 type="password"
                 fullWidth
                 required
+                defaultValue="nnnhhh"
               />
             </Grid>
             <Grid item xs={6}>
@@ -139,6 +147,7 @@ export default function UserCreate() {
                 type="password"
                 fullWidth
                 required
+                defaultValue="nnnhhh"
               />
             </Grid>
             <Grid item xs={6}>
@@ -149,12 +158,13 @@ export default function UserCreate() {
                   name="role"
                   id="role"
                   label="List of Roles"
-                  defaultValue=""
+                  defaultValue="Admin"
                   required
                 >
                   <MenuItem value="Submitter">Submitter</MenuItem>
                   <MenuItem value="Reviewer">Reviewer</MenuItem>
                   <MenuItem value="Approver">Approver</MenuItem>
+                  <MenuItem value="Admin">Admin</MenuItem>
                 </Select>
               </FormControl>
             </Grid>
@@ -168,12 +178,12 @@ export default function UserCreate() {
                   name="clientId"
                   id="clientId"
                   label="List of Clients"
-                  defaultValue=""
+                  defaultValue="3"
                   required
                 >
                   {clients.map((client) => (
                     <MenuItem key={client.id} value={client.id}>
-                      {client.clientName}
+                      {client.businessName}
                     </MenuItem>
                   ))}
                 </Select>

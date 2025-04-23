@@ -9,7 +9,7 @@ import { financeFields } from "../../../data/financeFields";
 import { submissionFields } from "../../../data/submissionFields";
 import { clientService } from "../../clients/client.service";
 import { userService } from "../../users/user.service";
-import { useReportContext, useAlert } from "../../../context";
+import { useAlert, useReportContext } from "../../../context";
 import {
   financeService,
   paymentService,
@@ -46,13 +46,13 @@ export async function finalReviewLoader({ context }) {
   } catch (error) {
     alertContext.sendAlert("error", error || "Error loading final review data");
   }
-  // }
 }
 
 export default function FinalReview() {
   const navigate = useNavigate();
   const theme = useTheme();
-  const { reportDetails } = useReportContext(); // Access context
+  const { reportDetails } = useReportContext();
+  const { alertContext } = useAlert();
   // console.log("ReportFrame Details:", reportDetails);
   // const { client } = useLoaderData();
   const { client, finance, payments, submission } = useLoaderData();
@@ -110,6 +110,7 @@ export default function FinalReview() {
       await reportService.update(reportDetails.reportId, dataToSubmit);
       navigate("/user/dashboard");
     } catch (error) {
+      useAlert.sendAlert("error", error || "Error updating report status");
       console.error("Error updating report:", error);
     }
   };

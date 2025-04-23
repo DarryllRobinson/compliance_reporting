@@ -4,6 +4,7 @@ import {
   submissionService,
 } from "../../../services";
 import { userService } from "../../users/user.service";
+import { useAlert } from "../../../context";
 
 export default async function prepareReport(report, reportContext, reportType) {
   // Clearing existing report details
@@ -20,6 +21,7 @@ export default async function prepareReport(report, reportContext, reportType) {
         paymentId: payment.id,
       };
     } catch (error) {
+      useAlert.sendAlert("error", error || "Payment not found");
       console.error("Error retrieving payment record", error);
       return false;
     }
@@ -31,6 +33,7 @@ export default async function prepareReport(report, reportContext, reportType) {
         financeId: finance.id,
       };
     } catch (error) {
+      useAlert.sendAlert("error", error || "Finance not found");
       console.error("Error retrieving finance record", error);
       return false;
     }
@@ -42,10 +45,16 @@ export default async function prepareReport(report, reportContext, reportType) {
         submissionId: submission.id,
       };
     } catch (error) {
+      useAlert.sendAlert("error", error || "Submission not found");
       console.error("Error retrieving submission record", error);
       return false;
     }
-    //   } else if (reportType === "create") {
+
+    if (reportContext && reportContext.setReportDetails) {
+      reportContext.setReportDetails(reportDetails);
+    }
+    return true;
+  } else if (reportType === "create") {
     // Create a new report
     report = {
       ...report,
@@ -62,6 +71,7 @@ export default async function prepareReport(report, reportContext, reportType) {
       });
       report.paymentId = payment.id;
     } catch (error) {
+      useAlert.sendAlert("error", error || "Error creating payment record");
       console.error("Error creating payment record:", error);
     }
 
@@ -72,6 +82,7 @@ export default async function prepareReport(report, reportContext, reportType) {
       });
       report.financeId = finance.id;
     } catch (error) {
+      useAlert.sendAlert("error", error || "Error creating finance record");
       console.error("Error creating finance record:", error);
     }
 
@@ -82,14 +93,15 @@ export default async function prepareReport(report, reportContext, reportType) {
       });
       report.submissionId = submission.id;
     } catch (error) {
+      useAlert.sendAlert("error", error || "Error creating submission record");
       console.error("Error creating submission record:", error);
     }
-  }
 
-  if (reportContext && reportContext.setReportDetails) {
-    reportContext.setReportDetails(reportDetails);
+    if (reportContext && reportContext.setReportDetails) {
+      reportContext.setReportDetails(reportDetails);
+    }
+    return true;
   }
-  return true;
 }
 
 function clearContext(reportContext) {

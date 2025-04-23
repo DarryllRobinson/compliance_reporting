@@ -24,6 +24,7 @@ import { useReportContext } from "../context/ReportContext";
 import ReportFrame, {
   reportFrameLoader,
 } from "../features/reports/ReportFrame";
+import ReportErrorBoundary from "../components/navigation/ReportErrorBoundary";
 import Fallback from "../components/generic/Fallback";
 import { reportLayoutLoader } from "../features/reports/ReportsLayout";
 import InvoiceMetrics from "../features/reports/ptrs/InvoiceMetrics";
@@ -34,6 +35,16 @@ import FinalReview, {
 import ClientsLayout, {
   clientLayoutLoader,
 } from "../features/clients/ClientsLayout";
+import UsersLayout, { usersLayoutLoader } from "../features/users/UsersLayout";
+import UsersErrorBoundary from "../features/users/UsersErrorBoundary";
+import CreateUser, {
+  createUserAction,
+  createUserLoader,
+} from "../features/users/CreateUser";
+import ForgotPassword, {
+  forgotPasswordAction,
+} from "../features/users/ForgotPassword";
+import ResetPassword from "../features/users/ResetPassword";
 
 // TODO: Optimise the whole thing: https://reactrouter.com/tutorials/address-book
 
@@ -54,7 +65,30 @@ export default function AppRouter() {
         // Users
         {
           path: "/users",
-          children: [{ index: true, Component: Users, loader: usersLoader }],
+          children: [
+            { index: true, Component: Users, loader: usersLoader },
+            {
+              Component: UsersLayout,
+              ErrorBoundary: UsersErrorBoundary,
+              loader: (args) =>
+                usersLayoutLoader({
+                  ...args,
+                  context: { alertContext },
+                }),
+              children: [
+                {
+                  path: "create",
+                  Component: CreateUser,
+                  action: (args) =>
+                    createUserAction({
+                      ...args,
+                      context: { alertContext },
+                    }),
+                  loader: createUserLoader,
+                },
+              ],
+            },
+          ],
         },
         // User
         {
@@ -72,6 +106,24 @@ export default function AppRouter() {
                       ...args,
                       context: { reportContext },
                     }),
+                },
+                {
+                  path: "forgot-password",
+                  Component: ForgotPassword,
+                  action: (args) =>
+                    forgotPasswordAction({
+                      ...args,
+                      context: { alertContext },
+                    }),
+                },
+                {
+                  path: "reset-password",
+                  Component: ResetPassword,
+                  // action: (args) =>
+                  //   forgotPasswordAction({
+                  //     ...args,
+                  //     context: { alertContext },
+                  //   }),
                 },
               ],
             },
@@ -120,6 +172,7 @@ export default function AppRouter() {
             { index: true, Component: ReportsMain },
             {
               Component: ReportsLayout,
+              ErrorBoundary: ReportErrorBoundary,
               loader: (args) =>
                 reportLayoutLoader({ ...args, context: { alertContext } }),
               children: [
@@ -130,7 +183,7 @@ export default function AppRouter() {
                   action: (args) =>
                     createReportAction({
                       ...args,
-                      context: { reportContext },
+                      context: { reportContext, alertContext },
                     }),
                 },
                 {
@@ -139,7 +192,7 @@ export default function AppRouter() {
                   action: (args) =>
                     xeroAction({
                       ...args,
-                      context: { reportContext },
+                      context: { reportContext, alertContext },
                     }),
                 },
                 {
@@ -148,7 +201,7 @@ export default function AppRouter() {
                   loader: (args) =>
                     reportFrameLoader({
                       ...args,
-                      context: { reportContext },
+                      context: { reportContext, alertContext },
                     }),
                 },
                 {

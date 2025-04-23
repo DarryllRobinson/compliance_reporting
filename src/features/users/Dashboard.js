@@ -22,21 +22,21 @@ import { useReportContext } from "../../context/ReportContext";
 import prepareReport from "../reports/ptrs/prepareReport";
 import ProtectedRoutes from "../../utils/ProtectedRoutes";
 
-export async function dashboardLoader({ context }) {
+export async function dashboardLoader() {
   const user = userService.userValue; // Get the current user
-  // if (!user) {
-  //   throw new Response("dashboardLoader user problem", { status: 500 });
-  // }
 
+  // Redirect if the user is not authenticated
   if (!ProtectedRoutes()) {
     return redirect("/user/login");
   }
 
-  const reports = await reportService.getAllById({ clientId: user.clientId });
-  if (!reports) {
-    throw new Response("dashboardLoader reports problem", { status: 500 });
+  try {
+    const reports = await reportService.getAllById({ clientId: user.clientId });
+    return { reports };
+  } catch (error) {
+    console.error("Error fetching reports:", error);
+    return { reports: [], error: "Failed to fetch reports" }; // Return an empty array and error message
   }
-  return { reports };
 }
 
 export default function Dashboard() {

@@ -11,9 +11,11 @@ const AlertContext = createContext();
 export function AlertProvider({ children }) {
   const [alertQueue, setAlertQueue] = useState([]);
   const [currentAlert, setCurrentAlert] = useState(null);
+  const [hasActiveAlert, setHasActiveAlert] = useState(false); // Track active alert
 
   const sendAlert = useCallback((severity, message) => {
     setAlertQueue((prevQueue) => [...prevQueue, { severity, message }]);
+    setHasActiveAlert(true); // Set active alert flag
   }, []);
 
   useEffect(() => {
@@ -28,7 +30,10 @@ export function AlertProvider({ children }) {
       return remainingQueue;
     });
     setCurrentAlert(null);
-  }, []);
+    if (alertQueue.length <= 1) {
+      setHasActiveAlert(false); // Reset active alert flag when queue is empty
+    }
+  }, [alertQueue]);
 
   return (
     <AlertContext.Provider
@@ -38,6 +43,7 @@ export function AlertProvider({ children }) {
         message: currentAlert?.message || "",
         sendAlert,
         handleClose,
+        hasActiveAlert, // Expose active alert flag
       }}
     >
       {children}

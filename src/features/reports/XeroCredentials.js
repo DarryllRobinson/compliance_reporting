@@ -23,7 +23,7 @@ import { useReportContext } from "../../context/ReportContext"; // Import Report
 
 export async function xeroAction({ request, context }) {
   // Extract reportContext from the context parameter
-  const { reportContext } = context;
+  const { alertContext, reportContext } = context;
 
   // await userService.refreshToken();
   const formData = await request.formData();
@@ -36,6 +36,10 @@ export async function xeroAction({ request, context }) {
     // console.log("Xero login response:", xeroLogin);
     return redirect(`/reports/${reportContext.reportDetails.code}/update`);
   } catch (error) {
+    alertContext.sendAlert(
+      "error",
+      error || "Error logging in to Xero. Please check your credentials."
+    );
     console.error("Error logging to Xero:", error);
   }
 }
