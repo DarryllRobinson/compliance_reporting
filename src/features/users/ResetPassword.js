@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Form, Link, redirect } from "react-router";
+import { Form, Link } from "react-router";
 import queryString from "query-string";
 import {
   Box,
@@ -9,7 +9,6 @@ import {
   useTheme,
   Paper,
   Grid,
-  ButtonGroup,
 } from "@mui/material";
 import { userService } from "./user.service";
 import { useNavigate } from "react-router";
@@ -18,6 +17,7 @@ import { useAlert } from "../../context";
 export default function ResetPassword() {
   const theme = useTheme();
   const navigate = useNavigate(); // Use react-router's navigate hook
+  const { sendAlert } = useAlert(); // Call useAlert at the top level
   const TokenStatus = {
     Validating: "Validating",
     Valid: "Valid",
@@ -44,7 +44,7 @@ export default function ResetPassword() {
         setTokenStatus(TokenStatus.Valid);
       })
       .catch(() => {
-        setTokenStatus(TokenStatus.Valid);
+        setTokenStatus(TokenStatus.Invalid);
       });
   }, [navigate, TokenStatus.Invalid, TokenStatus.Valid]);
 
@@ -66,7 +66,7 @@ export default function ResetPassword() {
   const checkFields = () => {
     let cont = true;
 
-    if (password.length < 8) {
+    if (!password || password.length < 8) {
       setPasswordError("Please provide a password of at least 8 characters");
       cont = false;
     }
@@ -92,14 +92,14 @@ export default function ResetPassword() {
       userService
         .resetPassword({ token, password, confirmPassword })
         .then(() => {
-          useAlert.sendAlert(
-            "Success",
+          sendAlert(
+            "success",
             "Password reset successfully - redirecting you to the login page"
           );
-          redirect("/user/login");
+          navigate("/user/login"); // Use navigate instead of redirect
         })
         .catch((error) => {
-          useAlert.sendAlert("error", error || "Error resetting your password");
+          sendAlert("error", error || "Error resetting your password");
         });
     }
   }
@@ -119,9 +119,8 @@ export default function ResetPassword() {
               type="password"
               fullWidth
               required
-              // defaultValue="newpassss"
               onChange={handlePassword}
-              error={passwordError}
+              error={!!passwordError}
               helperText={passwordError}
             />
           </Grid>
@@ -132,9 +131,8 @@ export default function ResetPassword() {
               type="password"
               fullWidth
               required
-              // defaultValue="newpassss"
               onChange={handleConfirmPassword}
-              error={confirmPasswordError}
+              error={!!confirmPasswordError}
               helperText={confirmPasswordError}
             />
           </Grid>
@@ -159,12 +157,7 @@ export default function ResetPassword() {
   function getBody() {
     switch (tokenStatus) {
       case TokenStatus.Valid:
-        try {
-          return getForm();
-        } catch (e) {
-          console.log("onSubmit e: ", e);
-        }
-        break;
+        return getForm();
       case TokenStatus.Invalid:
         return (
           <Box>

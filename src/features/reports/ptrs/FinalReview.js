@@ -29,30 +29,37 @@ export async function finalReviewLoader({ context }) {
   try {
     const user = userService.userValue;
     const client = await clientService.getById(user.clientId);
-    if (!client) alertContext.sendAlert("error", "Client not found");
-
     const finance = await financeService.getByReportId(reportDetails.reportId);
-    if (!finance) alertContext.sendAlert("error", "Finance not found");
-
     const payments = await paymentService.getByReportId(reportDetails.reportId);
-    if (!payments) alertContext.sendAlert("error", "Payments not found");
-
     const submission = await submissionService.getByReportId(
       reportDetails.reportId
     );
-    if (!submission) alertContext.sendAlert("error", "Submission not found");
 
-    return { client, finance, payments, submission };
+    console.log("FinalReview Loader data", {
+      client,
+      finance,
+      payments,
+      submission,
+    });
+    // Handle missing data gracefully
+    return {
+      client: client || null,
+      finance: finance || null,
+      payments: payments || null,
+      submission: submission || null,
+    };
   } catch (error) {
-    alertContext.sendAlert("error", error || "Error loading final review data");
+    alertContext.sendAlert("error", error.message || "Error loading data");
+    console.error("Error fetching data:", error);
+    throw error; // Only throw if it's a critical error
   }
 }
 
 export default function FinalReview() {
+  console.log("FinalReview rendered");
   const navigate = useNavigate();
   const theme = useTheme();
   const { reportDetails } = useReportContext();
-  const { alertContext } = useAlert();
   // console.log("ReportFrame Details:", reportDetails);
   // const { client } = useLoaderData();
   const { client, finance, payments, submission } = useLoaderData();
@@ -187,7 +194,7 @@ export default function FinalReview() {
             variant="contained"
             color="primary"
             onClick={handleConfirm}
-            disabled={!allSectionsConfirmed} // Disable until all sections are confirmed
+            // disabled={!allSectionsConfirmed} // Disable until all sections are confirmed
           >
             Submit Report
           </Button>

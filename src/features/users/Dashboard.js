@@ -78,11 +78,11 @@ export default function Dashboard() {
     });
   }
 
-  async function continueReport(report) {
-    // console.log("continueReport report", report); // Debug log to check the structure of reports
-    const prepared = prepareReport(report, reportContext, "continue");
+  function continueReport(report) {
+    const prepared = prepareReport(report, reportContext);
     if (prepared) {
       navigate(`/reports/${report.code}/update`);
+      // navigate(`/reports/${report.code}/update`);
     } else {
       console.error("Dashboard prepareReport error");
     }

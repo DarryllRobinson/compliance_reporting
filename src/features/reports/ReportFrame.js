@@ -28,44 +28,38 @@ export async function reportFrameLoader({ context }) {
   try {
     const user = userService.userValue;
     const client = await clientService.getById(user.clientId);
-    if (!client) {
-      alertContext.sendAlert("error", "Client not found");
-      return Promise.reject(new Error("Client not found")); // Explicitly reject the promise
-    }
-
     const finance = await financeService.getByReportId(reportDetails.reportId);
-    if (!finance) {
-      alertContext.sendAlert("error", "Finance not found");
-      return Promise.reject(new Error("Finance not found")); // Explicitly reject the promise
-    }
-
     const payments = await paymentService.getByReportId(reportDetails.reportId);
-    if (!payments) {
-      alertContext.sendAlert("error", "Payments not found");
-      return Promise.reject(new Error("Payments not found")); // Explicitly reject the promise
-    }
-
     const submission = await submissionService.getByReportId(
       reportDetails.reportId
     );
-    if (!submission) {
-      alertContext.sendAlert("error", "Submission not found");
-      return Promise.reject(new Error("Submission not found")); // Explicitly reject the promise
-    }
 
-    return { client, finance, payments, submission };
+    console.log("ReportFrame Loader data", {
+      client,
+      finance,
+      payments,
+      submission,
+    });
+    // Handle missing data gracefully
+    return {
+      client: client || null,
+      finance: finance || null,
+      payments: payments || null,
+      submission: submission || null,
+    };
   } catch (error) {
     alertContext.sendAlert("error", error.message || "Error loading data");
     console.error("Error fetching data:", error);
-    return Promise.reject(error); // Explicitly reject the promise
+    throw error; // Only throw if it's a critical error
   }
 }
 
 export default function ReportFrame() {
+  const { client, finance, payments, submission } = useLoaderData();
+  console.log("ReportFrame rendered");
   const navigate = useNavigate();
   const theme = useTheme();
   const { reportDetails } = useReportContext(); // Access context
-  const { client, finance, payments, submission } = useLoaderData();
 
   const sectionsConfig = {
     client: { fields: clientFields, xeroData: client },
