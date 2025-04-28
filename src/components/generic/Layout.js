@@ -47,7 +47,7 @@ export default function Layout() {
   const toggleTheme = () => setIsDarkTheme((prev) => !prev);
 
   const showProcessFlow = [
-    "/reports/ptrs/prepare",
+    "/reports/ptrs/create",
     "/reports/ptrs/update",
     "/reports/ptrs/extract",
     "/reports/ptrs/upload",

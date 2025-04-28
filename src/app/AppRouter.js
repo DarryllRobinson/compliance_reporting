@@ -46,6 +46,9 @@ import ReportFrame, {
 import CreatePtrs, {
   createPtrsAction,
 } from "../features/reports/ptrs/CreatePtrs";
+import UpdatePtrs, {
+  updatePtrsLoader,
+} from "../features/reports/ptrs/UpdatePtrs";
 
 // TODO: Optimise the whole thing: https://reactrouter.com/tutorials/address-book
 
@@ -187,7 +190,12 @@ export default function AppRouter() {
                 },
                 {
                   path: ":code/report/:reportId",
-                  Component: Done,
+                  Component: UpdatePtrs,
+                  loader: (args) =>
+                    updatePtrsLoader({
+                      ...args,
+                      context: { reportContext, alertContext },
+                    }),
                 },
               ],
             },
@@ -198,8 +206,4 @@ export default function AppRouter() {
   ]);
 
   return <RouterProvider router={router} />;
-}
-
-function Done() {
-  return <div>Done</div>;
 }

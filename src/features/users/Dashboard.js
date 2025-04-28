@@ -31,7 +31,9 @@ export async function dashboardLoader() {
   }
 
   try {
-    const reports = await reportService.getAllById({ clientId: user.clientId });
+    const reports = await reportService.getAllByClientId({
+      clientId: user.clientId,
+    });
     return { reports };
   } catch (error) {
     console.error("Error fetching reports:", error);

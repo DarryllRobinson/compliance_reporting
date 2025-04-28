@@ -18,7 +18,7 @@ const ProcessFlow = () => {
 
   const getActiveStep = () => {
     switch (location.pathname) {
-      case "/reports/ptrs/prepare":
+      case "/reports/ptrs/create":
         return 1;
       case "/reports/ptrs/update":
         return 2;
@@ -38,7 +38,7 @@ const ProcessFlow = () => {
   const getStepUrl = (index) => {
     const urls = [
       "/user/dashboard",
-      "/reports/ptrs/prepare",
+      "/reports/ptrs/create",
       "/reports/ptrs/update",
       "/reports/ptrs/extract",
       "/reports/ptrs/upload",
