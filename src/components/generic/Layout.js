@@ -47,11 +47,12 @@ export default function Layout() {
   const toggleTheme = () => setIsDarkTheme((prev) => !prev);
 
   const showProcessFlow = [
-    "/reports/ptrs/xero-credentials",
+    "/reports/ptrs/prepare",
     "/reports/ptrs/update",
-    "/reports/ptrs/invoice",
-    "/reports/ptrs/invoice/review",
-    "/reports/ptrs/review",
+    "/reports/ptrs/extract",
+    "/reports/ptrs/upload",
+    "/reports/ptrs/capture",
+    "/reports/ptrs/complete",
   ].includes(location.pathname);
 
   const { alertOpen, severity, message, handleClose } = useAlert();

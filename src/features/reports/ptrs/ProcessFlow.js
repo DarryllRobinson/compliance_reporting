@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from "react-router";
 
 const steps = [
   "Select Report from Dashboard",
-  "Provide Third Party Credentials",
+  "Retrieve or Create Report",
   "Review & Update Payment Details",
   "Upload Extract to PTRS Portal",
   "Upload Extract from PTRS Portal",
@@ -18,7 +18,7 @@ const ProcessFlow = () => {
 
   const getActiveStep = () => {
     switch (location.pathname) {
-      case "/reports/ptrs/credentials":
+      case "/reports/ptrs/prepare":
         return 1;
       case "/reports/ptrs/update":
         return 2;
@@ -38,7 +38,7 @@ const ProcessFlow = () => {
   const getStepUrl = (index) => {
     const urls = [
       "/user/dashboard",
-      "/reports/ptrs/credentials",
+      "/reports/ptrs/prepare",
       "/reports/ptrs/update",
       "/reports/ptrs/extract",
       "/reports/ptrs/upload",

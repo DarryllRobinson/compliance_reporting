@@ -73,12 +73,10 @@ export default function Dashboard() {
   ];
 
   function createReport(report) {
-    console.log("Create Report clicked", report);
     navigate(`/reports/${report.code}/create`);
   }
 
   function continueReport(report) {
-    console.log("Continue Report clicked", report);
     navigate(`/reports/${report.code}/report/${report.id}`);
     // const prepared = prepareReport(report, reportContext);
     // if (prepared) {

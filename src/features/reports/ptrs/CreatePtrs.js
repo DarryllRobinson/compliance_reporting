@@ -1,14 +1,16 @@
-import React from "react";
-import { Box, Button, useTheme, TextField, Grid, Paper } from "@mui/material";
-import { Form, redirect } from "react-router";
+import React, { useState } from "react";
 import { userService } from "../../users/user.service";
 import { reportService } from "../report.service";
+import { Form, redirect } from "react-router";
+import { Box, Button, Grid, Paper, useTheme } from "@mui/material";
+import XeroCredentials from "../XeroCredentials";
+import ReportDetails from "./ReportDetails";
 
 export async function createPtrsAction({ request, params, context }) {
   const { alertContext, reportContext } = context;
 
-  const formDada = await request.formData();
-  let reportDetails = Object.fromEntries(formDada);
+  const formData = await request.formData();
+  let reportDetails = Object.fromEntries(formData);
   reportDetails = {
     ...reportDetails,
     code: params.code,
@@ -39,12 +41,8 @@ export async function createPtrsAction({ request, params, context }) {
 }
 
 export default function CreatePtrs() {
+  const [xeroSuccess, setXeroSuccess] = useState(false);
   const theme = useTheme();
-
-  const today = new Date().toISOString().split("T")[0];
-  const sixMonthsAgo = new Date();
-  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-  const defaultDate = sixMonthsAgo.toISOString().split("T")[0];
 
   return (
     <Box
@@ -66,39 +64,22 @@ export default function CreatePtrs() {
           backgroundColor: theme.palette.background.paper,
         }}
       >
-        <Box sx={{ mb: 2 }}>Payment Times Reporting Scheme</Box>
-        <Form
-          method="post"
-          id="create-user-form"
-          style={{ display: "flex", flexDirection: "column", gap: 2 }}
-        >
-          <Grid container spacing={2}>
-            <Grid item xs={6}>
-              <TextField
-                label="Reporting Period Start Date"
-                name="ReportingPeriodStartDate"
-                type="date"
-                fullWidth
-                required
-                InputLabelProps={{ shrink: true }}
-                defaultValue={defaultDate || ""}
-              />
+        <Form method="post" id="create-report-form">
+          <Grid
+            container
+            rowSpacing={1}
+            columnSpacing={{ xs: 1, sm: 2, md: 3 }}
+          >
+            <Grid item xs={12}>
+              <ReportDetails />
             </Grid>
-            <Grid item xs={6}>
-              <TextField
-                label="Reporting Period End Date"
-                name="ReportingPeriodEndDate"
-                type="date"
-                fullWidth
-                required
-                InputLabelProps={{ shrink: true }}
-                defaultValue={today || ""}
-              />
+            <Grid item xs={12}>
+              <XeroCredentials setXeroSuccess={setXeroSuccess} />
             </Grid>
           </Grid>
           <Button
+            disabled={!xeroSuccess}
             variant="contained"
-            color="primary"
             type="submit"
             fullWidth
             sx={{ mt: 2 }}
