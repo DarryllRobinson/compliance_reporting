@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Box, Grid, Button, Collapse, Paper } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { redirect, useLoaderData, useNavigate } from "react-router";
-import SectionForm from "./ptrs/SectionForm";
+// import SectionForm from "./ptrs/SectionForm";
 import { clientFields } from "../../data/clientFields";
 import { paymentFields } from "../../data/paymentFields";
 import { financeFields } from "../../data/financeFields";
@@ -122,11 +122,12 @@ export default function ReportFrame() {
                 <Collapse in={expandedSections[section]}>
                   {expandedSections[section] && (
                     <Box sx={{ mt: 1, pl: 2 }}>
-                      <SectionForm
+                      {/* <SectionForm
                         section={section}
                         fields={config.fields}
                         xeroData={config.xeroData}
-                      />
+                      /> */}
+                      SectionForm
                     </Box>
                   )}
                   <Button

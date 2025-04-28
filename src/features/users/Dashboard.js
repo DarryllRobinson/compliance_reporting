@@ -19,7 +19,7 @@ import { redirect, useLoaderData, useNavigate } from "react-router";
 import { userService } from "./user.service";
 import { reportService } from "../reports/report.service";
 import { useReportContext } from "../../context/ReportContext";
-import prepareReport from "../reports/ptrs/prepareReport";
+// import prepareReport from "../reports/ptrs/prepareReport";
 import ProtectedRoutes from "../../utils/ProtectedRoutes";
 
 export async function dashboardLoader() {
@@ -79,13 +79,13 @@ export default function Dashboard() {
   }
 
   function continueReport(report) {
-    const prepared = prepareReport(report, reportContext);
-    if (prepared) {
-      navigate(`/reports/${report.code}/update`);
-      // navigate(`/reports/${report.code}/update`);
-    } else {
-      console.error("Dashboard prepareReport error");
-    }
+    // const prepared = prepareReport(report, reportContext);
+    // if (prepared) {
+    //   navigate(`/reports/${report.code}/update`);
+    //   // navigate(`/reports/${report.code}/update`);
+    // } else {
+    //   console.error("Dashboard prepareReport error");
+    // }
   }
 
   function renderTable(row) {

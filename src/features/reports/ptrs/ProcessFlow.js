@@ -4,10 +4,12 @@ import { useLocation, useNavigate } from "react-router";
 
 const steps = [
   "Select Report from Dashboard",
-  "Provide Xero Credentials",
-  "Review Report Details",
-  "Review Invoice Metrics",
-  "Final Review and Submission",
+  "Provide Third Party Credentials",
+  "Review & Update Payment Details",
+  "Upload Extract to PTRS Portal",
+  "Upload Extract from PTRS Portal",
+  "Capture Details in PTRS Portal",
+  "Final Review & Submission in PTRS Portal",
 ];
 
 const ProcessFlow = () => {
@@ -16,14 +18,18 @@ const ProcessFlow = () => {
 
   const getActiveStep = () => {
     switch (location.pathname) {
-      case "/reports/ptrs/xero-credentials":
+      case "/reports/ptrs/credentials":
         return 1;
       case "/reports/ptrs/update":
         return 2;
-      case "/reports/ptrs/invoice":
+      case "/reports/ptrs/extract":
         return 3;
-      case "/reports/ptrs/review":
+      case "/reports/ptrs/upload":
         return 4;
+      case "/reports/ptrs/capture":
+        return 5;
+      case "/reports/ptrs/complete":
+        return 6;
       default:
         return 0;
     }
@@ -32,10 +38,12 @@ const ProcessFlow = () => {
   const getStepUrl = (index) => {
     const urls = [
       "/user/dashboard",
-      "/reports/ptrs/xero-credentials",
+      "/reports/ptrs/credentials",
       "/reports/ptrs/update",
-      "/reports/ptrs/invoice",
-      "/reports/ptrs/review",
+      "/reports/ptrs/extract",
+      "/reports/ptrs/upload",
+      "/reports/ptrs/capture",
+      "/reports/ptrs/complete",
     ];
     return urls[index] || "/";
   };

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { Outlet, useLocation } from "react-router";
-import { Box, Button, CssBaseline } from "@mui/material";
+import { Box, CssBaseline } from "@mui/material";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import Navbar from "../navigation/Navbar";
 import Footer from "../navigation/Footer";
