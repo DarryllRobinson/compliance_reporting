@@ -35,7 +35,7 @@ export async function usersLoader() {
 export default function Users() {
   const { users } = useLoaderData();
   const theme = useTheme();
-  const navigate = useNavigate(); // Initialise navigate
+  const navigate = useNavigate();
 
   if (!users || users.length === 0) {
     return (
@@ -60,8 +60,8 @@ export default function Users() {
           </Typography>
           <Button
             variant="contained"
-            color="primary" // Reverted to US English
-            onClick={() => navigate("/users/register")} // Navigate to register page
+            color="primary"
+            onClick={() => navigate("/users/create")}
             sx={{ mt: 2 }}
           >
             Create a New User
@@ -97,7 +97,7 @@ export default function Users() {
         <Button
           variant="contained"
           color="primary"
-          onClick={() => navigate("/user/create")} // Navigate to create page
+          onClick={() => navigate("/users/create")}
           sx={{ mb: 2 }}
         >
           Create a New User

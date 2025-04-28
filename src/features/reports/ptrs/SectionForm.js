@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { use, useState } from "react";
 import {
   Box,
   TextField,
@@ -16,7 +16,7 @@ import {
   paymentService,
   submissionService,
 } from "../../../services";
-import { useReportContext } from "../../../context/ReportContext";
+import { useAlert, useReportContext } from "../../../context";
 import { userService } from "../../users/user.service";
 import { reportService } from "../report.service";
 
@@ -116,6 +116,10 @@ const SectionForm = ({ section = "", fields = [], xeroData = {} }) => {
             console.log("Client data submitted successfully:", response);
           })
           .catch((error) => {
+            useAlert.sendAlert(
+              "error",
+              error || "Error submitting client data"
+            );
             console.error("Error submitting client data:", error);
           });
         break;
@@ -129,6 +133,10 @@ const SectionForm = ({ section = "", fields = [], xeroData = {} }) => {
               console.log("Payments data submitted successfully:", response);
             });
         } catch (error) {
+          useAlert.sendAlert(
+            "error",
+            error || "Error submitting payments data"
+          );
           console.error("SectionForm payment update error", error);
         }
         break;
@@ -142,6 +150,7 @@ const SectionForm = ({ section = "", fields = [], xeroData = {} }) => {
               console.log("Finance data submitted successfully:", response);
             });
         } catch (error) {
+          useAlert.sendAlert("error", error || "Error submitting finance data");
           console.error("SectionForm finance update error", error);
         }
         break;
@@ -159,10 +168,15 @@ const SectionForm = ({ section = "", fields = [], xeroData = {} }) => {
               console.log("Submission data submitted successfully:", response);
             });
         } catch (error) {
+          useAlert.sendAlert(
+            "error",
+            error || "Error submitting submission data"
+          );
           console.error("SectionForm submission update error", error);
         }
         break;
       default:
+        useAlert.sendAlert("error", "Unknown section: " + section);
         console.error("Unknown section:", section);
         return; // Stop submission if section is unknown
     }
@@ -175,9 +189,11 @@ const SectionForm = ({ section = "", fields = [], xeroData = {} }) => {
           updatedBy: user.id,
         })
         .then((response) => {
+          useAlert.sendAlert("success", "Report updated successfully");
           console.log("Report data submitted successfully:", response);
         });
     } catch (error) {
+      useAlert.sendAlert("error", error || "Error updating report data");
       console.error("SectionForm report update error", error);
     }
   };

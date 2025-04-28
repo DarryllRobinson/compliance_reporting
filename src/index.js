@@ -6,6 +6,7 @@ import globalTheme from "./theme/globalTheme";
 // import { AuthProvider } from "./context/AuthContext";
 import { ReportProvider } from "./context/ReportContext"; // Import ReportProvider
 import { userService } from "./features/users/user.service";
+import { AlertProvider } from "./context/AlertContext";
 // import { redirect } from "react-router";
 
 // Sentry logging
@@ -39,9 +40,11 @@ userService
 function startApp() {
   ReactDOM.createRoot(document.getElementById("root")).render(
     <ThemeProvider theme={globalTheme}>
-      <ReportProvider>
-        <AppRouter />
-      </ReportProvider>
+      <AlertProvider>
+        <ReportProvider>
+          <AppRouter />
+        </ReportProvider>
+      </AlertProvider>
     </ThemeProvider>
   );
 }

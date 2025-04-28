@@ -22,7 +22,7 @@ import {
 
 export async function createReportAction({ request, params, context }) {
   // Extract reportContext from the context parameter
-  const { reportContext } = context;
+  const { alertContext, reportContext } = context;
 
   const formData = await request.formData();
   let reportDetails = Object.fromEntries(formData);
@@ -36,6 +36,7 @@ export async function createReportAction({ request, params, context }) {
 
   try {
     const report = await reportService.create(reportDetails);
+    if (!report) alertContext.sendAlert("error", "Report not created");
     // Insert the report ID into the reportDetails object
     reportDetails = {
       ...reportDetails,
@@ -49,11 +50,13 @@ export async function createReportAction({ request, params, context }) {
         reportId: report.id,
         createdBy: userService.userValue.id,
       });
+
       reportDetails = {
         ...reportDetails,
         paymentId: payment.id,
       };
     } catch (error) {
+      alertContext.sendAlert("error", error || "Error creating payment record");
       console.error("Error creating payment record:", error);
     }
 
@@ -63,6 +66,7 @@ export async function createReportAction({ request, params, context }) {
         reportId: report.id,
         createdBy: userService.userValue.id,
       });
+
       reportDetails = {
         ...reportDetails,
         financeId: finance.id,
@@ -77,11 +81,16 @@ export async function createReportAction({ request, params, context }) {
         reportId: report.id,
         createdBy: userService.userValue.id,
       });
+
       reportDetails = {
         ...reportDetails,
         submissionId: submission.id,
       };
     } catch (error) {
+      alertContext.sendAlert(
+        "error",
+        error || "Error creating submission record"
+      );
       console.error("Error creating submission record:", error);
     }
 
@@ -93,6 +102,7 @@ export async function createReportAction({ request, params, context }) {
     // Redirect to the next step in the process
     return redirect(`/reports/${params.code}/xero-credentials`);
   } catch (error) {
+    alertContext.sendAlert("error", error || "Error creating report");
     console.error("Error creating report:", error);
   }
 }

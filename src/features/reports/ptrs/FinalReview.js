@@ -9,7 +9,7 @@ import { financeFields } from "../../../data/financeFields";
 import { submissionFields } from "../../../data/submissionFields";
 import { clientService } from "../../clients/client.service";
 import { userService } from "../../users/user.service";
-import { useReportContext } from "../../../context/ReportContext";
+import { useAlert, useReportContext } from "../../../context";
 import {
   financeService,
   paymentService,
@@ -18,54 +18,48 @@ import {
 import ProtectedRoutes from "../../../utils/ProtectedRoutes";
 import { reportService } from "../report.service";
 
-export async function finalReviewLoader(reportContext) {
+export async function finalReviewLoader({ context }) {
   if (!ProtectedRoutes()) {
     return redirect("/user/dashboard");
   }
 
-  const { reportDetails } = reportContext.context.reportContext;
-  // console.log("reportFrameLoader reportDetails", reportDetails);
-  // Needs to be updated to extract all relevant data from the database
-  // if (reportDetails) {
+  const { reportDetails } = context.reportContext;
+  const { alertContext } = context;
+
   try {
-    // const user = await userService.refreshToken();
     const user = userService.userValue;
     const client = await clientService.getById(user.clientId);
-    // console.log("reportFrameLoader client", client);
-    if (!client) {
-      throw new Response("finalReviewLoader client problem", { status: 500 });
-    }
     const finance = await financeService.getByReportId(reportDetails.reportId);
-    if (!finance) {
-      throw new Response("finalReviewLoader finance problem", {
-        status: 500,
-      });
-    }
     const payments = await paymentService.getByReportId(reportDetails.reportId);
-    if (!payments) {
-      throw new Response("finalReviewLoader payments problem", {
-        status: 500,
-      });
-    }
     const submission = await submissionService.getByReportId(
       reportDetails.reportId
     );
-    if (!submission) {
-      throw new Response("finalReviewLoader submission problem", {
-        status: 500,
-      });
-    }
-    return { client, finance, payments, submission };
+
+    console.log("FinalReview Loader data", {
+      client,
+      finance,
+      payments,
+      submission,
+    });
+    // Handle missing data gracefully
+    return {
+      client: client || null,
+      finance: finance || null,
+      payments: payments || null,
+      submission: submission || null,
+    };
   } catch (error) {
+    alertContext.sendAlert("error", error.message || "Error loading data");
     console.error("Error fetching data:", error);
+    throw error; // Only throw if it's a critical error
   }
-  // }
 }
 
 export default function FinalReview() {
+  console.log("FinalReview rendered");
   const navigate = useNavigate();
   const theme = useTheme();
-  const { reportDetails } = useReportContext(); // Access context
+  const { reportDetails } = useReportContext();
   // console.log("ReportFrame Details:", reportDetails);
   // const { client } = useLoaderData();
   const { client, finance, payments, submission } = useLoaderData();
@@ -123,6 +117,7 @@ export default function FinalReview() {
       await reportService.update(reportDetails.reportId, dataToSubmit);
       navigate("/user/dashboard");
     } catch (error) {
+      useAlert.sendAlert("error", error || "Error updating report status");
       console.error("Error updating report:", error);
     }
   };
@@ -199,7 +194,7 @@ export default function FinalReview() {
             variant="contained"
             color="primary"
             onClick={handleConfirm}
-            disabled={!allSectionsConfirmed} // Disable until all sections are confirmed
+            // disabled={!allSectionsConfirmed} // Disable until all sections are confirmed
           >
             Submit Report
           </Button>
