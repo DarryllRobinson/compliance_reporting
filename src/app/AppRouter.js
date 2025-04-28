@@ -1,6 +1,6 @@
 import React from "react";
 import { createBrowserRouter, RouterProvider } from "react-router";
-import { useAlert } from "../context/AlertContext";
+import { useAlert, useReportContext } from "../context/";
 import Layout from "../components/generic/Layout";
 import LandingPage from "../components/generic/LandingPage";
 import RootErrorBoundary from "../components/navigation/RootErrorBoundary";
@@ -37,13 +37,15 @@ import ReportsMain from "../features/reports/ReportsMain";
 import ReportsLayout, {
   reportLayoutLoader,
 } from "../features/reports/ReportsLayout";
-import CreateReport, {
-  createReportAction,
-} from "../features/reports/CreateReport";
+// import CreateReport, {
+//   createReportAction,
+// } from "../features/reports/CreateReport";
 import ReportFrame, {
   reportFrameLoader,
 } from "../features/reports/ReportFrame";
-import { useReportContext } from "../context/ReportContext";
+import CreatePtrs, {
+  createPtrsAction,
+} from "../features/reports/ptrs/CreatePtrs";
 
 // TODO: Optimise the whole thing: https://reactrouter.com/tutorials/address-book
 
@@ -173,53 +175,21 @@ export default function AppRouter() {
               ErrorBoundary: ReportErrorBoundary,
               loader: (args) =>
                 reportLayoutLoader({ ...args, context: { alertContext } }),
-              // children: [
-              //   {
-              //     path: ":code/create",
-              //     Component: CreateReport,
-              //     // loader: createReportLoader,
-              //     action: (args) =>
-              //       createReportAction({
-              //         ...args,
-              //         context: { reportContext, alertContext },
-              //       }),
-              //   },
-              //   {
-              //     path: ":code/xero-credentials",
-              //     Component: XeroCredentials,
-              //     action: (args) =>
-              //       xeroAction({
-              //         ...args,
-              //         context: { reportContext, alertContext },
-              //       }),
-              //   },
-              //   {
-              //     path: ":code/update",
-              //     Component: ReportFrame,
-              //     loader: (args) =>
-              //       reportFrameLoader({
-              //         ...args,
-              //         context: { reportContext, alertContext },
-              //       }),
-              //   },
-              //   {
-              //     path: ":code/invoice",
-              //     Component: InvoiceMetrics,
-              //   },
-              //   {
-              //     path: ":code/invoice/review/:index",
-              //     Component: ReviewRecords,
-              //   },
-              //   {
-              //     path: ":code/review",
-              //     Component: FinalReview,
-              //     loader: (args) =>
-              //       finalReviewLoader({
-              //         ...args,
-              //         context: { reportContext, alertContext },
-              //       }),
-              //   },
-              // ],
+              children: [
+                {
+                  path: ":code/create",
+                  Component: CreatePtrs,
+                  action: (args) =>
+                    createPtrsAction({
+                      ...args,
+                      context: { alertContext, reportContext },
+                    }),
+                },
+                {
+                  path: ":code/report/:reportId",
+                  Component: Done,
+                },
+              ],
             },
           ],
         },
@@ -228,4 +198,8 @@ export default function AppRouter() {
   ]);
 
   return <RouterProvider router={router} />;
+}
+
+function Done() {
+  return <div>Done</div>;
 }

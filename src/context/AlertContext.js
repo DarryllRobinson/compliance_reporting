@@ -11,29 +11,32 @@ const AlertContext = createContext();
 export function AlertProvider({ children }) {
   const [alertQueue, setAlertQueue] = useState([]);
   const [currentAlert, setCurrentAlert] = useState(null);
-  const [hasActiveAlert, setHasActiveAlert] = useState(false); // Track active alert
 
-  const sendAlert = useCallback((severity, message) => {
-    setAlertQueue((prevQueue) => [...prevQueue, { severity, message }]);
-    setHasActiveAlert(true); // Set active alert flag
+  const sendAlert = useCallback((severity, message, duration = 6000) => {
+    setAlertQueue((prevQueue) => [
+      ...prevQueue,
+      { severity, message, duration },
+    ]);
   }, []);
 
   useEffect(() => {
     if (!currentAlert && alertQueue.length > 0) {
       setCurrentAlert(alertQueue[0]);
+
+      // Auto-dismiss the alert after the specified duration
+      const timer = setTimeout(() => {
+        setAlertQueue((prevQueue) => prevQueue.slice(1));
+        setCurrentAlert(null);
+      }, alertQueue[0].duration);
+
+      return () => clearTimeout(timer); // Cleanup the timer
     }
   }, [alertQueue, currentAlert]);
 
   const handleClose = useCallback(() => {
-    setAlertQueue((prevQueue) => {
-      const [, ...remainingQueue] = prevQueue;
-      return remainingQueue;
-    });
+    setAlertQueue((prevQueue) => prevQueue.slice(1));
     setCurrentAlert(null);
-    if (alertQueue.length <= 1) {
-      setHasActiveAlert(false); // Reset active alert flag when queue is empty
-    }
-  }, [alertQueue]);
+  }, []);
 
   return (
     <AlertContext.Provider
@@ -43,7 +46,6 @@ export function AlertProvider({ children }) {
         message: currentAlert?.message || "",
         sendAlert,
         handleClose,
-        hasActiveAlert, // Expose active alert flag
       }}
     >
       {children}

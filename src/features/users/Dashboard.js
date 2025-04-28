@@ -73,12 +73,13 @@ export default function Dashboard() {
   ];
 
   function createReport(report) {
-    navigate(`/reports/${report.code}/create`, {
-      state: { reportName: report.name, reportList },
-    });
+    console.log("Create Report clicked", report);
+    navigate(`/reports/${report.code}/create`);
   }
 
   function continueReport(report) {
+    console.log("Continue Report clicked", report);
+    navigate(`/reports/${report.code}/report/${report.id}`);
     // const prepared = prepareReport(report, reportContext);
     // if (prepared) {
     //   navigate(`/reports/${report.code}/update`);
@@ -118,11 +119,7 @@ export default function Dashboard() {
             <Button
               variant="contained"
               color="primary"
-              onClick={() =>
-                navigate(`/report-details/${row.id}`, {
-                  state: { reportDetails: row },
-                })
-              }
+              onClick={() => createReport(row)}
             >
               View Details
             </Button>
