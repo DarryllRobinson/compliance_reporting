@@ -1,6 +1,105 @@
 import { mockInvoices } from "../data/mockInvoiceData";
 
-export const calculateInvoiceMetrics = () => {
+export const calculateInvoiceMetrics = (reportType) => {
+  // Prepare the TCP Dataset
+  const tcpDataset = mockInvoices.map((invoice) => ({
+    invoiceNumber: invoice.invoiceNumber,
+    customerName: invoice.customerName,
+    customerABN: invoice.customerABN,
+    invoiceDate: invoice.invoiceDate,
+    dueDate: invoice.dueDate,
+    invoiceAmount: parseFloat(invoice.invoiceAmount),
+    paidStatus: invoice.paidStatus,
+    paidDate: invoice.paidDate,
+    isPartialPayment:
+      invoice.paidStatus && invoice.invoiceAmount > 0 && !invoice.paidDate, // Identify partial payments
+  }));
+
+  // Validate ABN, ACN, and ARBN fields
+  const validateEntityFields = (entity) => {
+    const abnRegex = /^\d{11}$/; // ABN must be 11 digits
+    const acnRegex = /^\d{9}$/; // ACN must be 9 digits
+    const arbnRegex = /^\d{9}$/; // ARBN must be 9 digits
+
+    return {
+      isValidABN: abnRegex.test(entity.customerABN),
+      isValidACN: entity.customerACN ? acnRegex.test(entity.customerACN) : true,
+      isValidARBN: entity.customerARBN
+        ? arbnRegex.test(entity.customerARBN)
+        : true,
+    };
+  };
+
+  // Validate all entities in the TCP Dataset
+  const entityValidationResults = tcpDataset.map(validateEntityFields);
+
+  // Prepare the SBTCP Dataset by filtering small business payments and excluding partial payments
+  const sbtcpDataset = tcpDataset.filter((invoice) => {
+    // Placeholder for Small Business Identification Tool logic
+    const isSmallBusiness = invoice.customerABN; // Replace with actual SBI Tool validation
+    return isSmallBusiness && !invoice.isPartialPayment;
+  });
+
+  const calculatePaymentTimes = (dataset) => {
+    const paymentTimes = [];
+    dataset.forEach((invoice) => {
+      if (invoice.paidStatus && invoice.paidDate) {
+        const invoiceDueDate = new Date(invoice.dueDate);
+        const paidDate = new Date(invoice.paidDate);
+        const daysToPay = Math.round(
+          (paidDate - invoiceDueDate) / (1000 * 60 * 60 * 24)
+        );
+        paymentTimes.push(daysToPay);
+      }
+    });
+
+    paymentTimes.sort((a, b) => a - b);
+
+    const averagePaymentTime =
+      paymentTimes.reduce((sum, time) => sum + time, 0) / paymentTimes.length ||
+      0;
+
+    const medianPaymentTime =
+      paymentTimes.length % 2 === 0
+        ? (paymentTimes[paymentTimes.length / 2 - 1] +
+            paymentTimes[paymentTimes.length / 2]) /
+          2
+        : paymentTimes[Math.floor(paymentTimes.length / 2)] || 0;
+
+    const percentile = (arr, p) =>
+      arr[Math.ceil((p / 100) * arr.length) - 1] || 0;
+
+    const paymentTime80thPercentile = percentile(paymentTimes, 80);
+    const paymentTime95thPercentile = percentile(paymentTimes, 95);
+
+    return {
+      averagePaymentTime,
+      medianPaymentTime,
+      paymentTime80thPercentile,
+      paymentTime95thPercentile,
+    };
+  };
+
+  // Calculate payment times for both datasets
+  const tcpPaymentTimes = calculatePaymentTimes(tcpDataset);
+  const sbtcpPaymentTimes = calculatePaymentTimes(sbtcpDataset);
+
+  // Adjust data preparation based on report type
+  if (reportType === "Nil Reporter") {
+    return {
+      tcpDataset: [],
+      sbtcpDataset: [],
+      tcpPaymentTimes: null,
+      sbtcpPaymentTimes: null,
+      paidMetrics: [],
+      unpaidMetrics: [],
+    };
+  }
+
+  if (reportType === "External Administration") {
+    // Placeholder logic for filtering based on external administration dates
+  }
+
   const metrics = [
     {
       label: "Invoices paid within 20 days of receipt",
@@ -67,7 +166,7 @@ export const calculateInvoiceMetrics = () => {
     },
   ];
 
-  mockInvoices.forEach((invoice) => {
+  sbtcpDataset.forEach((invoice) => {
     if (invoice.paidStatus && invoice.paidDate) {
       const invoiceDueDate = new Date(invoice.dueDate);
       const paidDate = new Date(invoice.paidDate);
@@ -123,5 +222,13 @@ export const calculateInvoiceMetrics = () => {
     }
   });
 
-  return { paidMetrics: metrics, unpaidMetrics };
+  return {
+    tcpDataset,
+    sbtcpDataset,
+    tcpPaymentTimes,
+    sbtcpPaymentTimes,
+    paidMetrics: metrics,
+    unpaidMetrics,
+    entityValidationResults, // Include validation results for ABN, ACN, and ARBN
+  };
 };

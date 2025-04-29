@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Form, redirect, useLocation } from "react-router";
 import {
   Box,
@@ -108,6 +108,19 @@ export async function createReportAction({ request, params, context }) {
 }
 
 export default function CreateReport() {
+  const [reportType, setReportType] = useState("Standard PTR");
+  const [validationResults, setValidationResults] = useState([]);
+
+  const handleReportTypeChange = (event) => {
+    setReportType(event.target.value);
+  };
+
+  const handleSubmit = () => {
+    const metrics = calculateInvoiceMetrics(reportType);
+    setValidationResults(metrics.entityValidationResults);
+    console.log("Metrics:", metrics);
+  };
+
   const location = useLocation();
   const { reportName, reportList } = location.state || {};
   const theme = useTheme();
@@ -184,14 +197,56 @@ export default function CreateReport() {
               />
             </Grid>
           </Grid>
-          <Button
-            variant="contained"
-            color="primary"
-            type="submit"
-            fullWidth
-            sx={{ mt: 2 }}
-          >
-            Create Report
+
+          {/* Reminder for confirmation */}
+          <Paper elevation={3} sx={{ padding: 2, marginBottom: 2 }}>
+            <h3>Reminder</h3>
+            <p>
+              Before submitting your report in the regulator portal, ensure that
+              all entity information is up-to-date and confirmed.
+            </p>
+          </Paper>
+
+          {/* Report Type Selection */}
+          <FormControl fullWidth>
+            <InputLabel id="report-type-select-label">Report Type</InputLabel>
+            <Select
+              labelId="report-type-select-label"
+              value={reportType}
+              onChange={handleReportTypeChange}
+            >
+              <MenuItem value="Standard PTR">Standard PTR</MenuItem>
+              <MenuItem value="AASB 8">Modified PTR - AASB 8</MenuItem>
+              <MenuItem value="Nil Reporter">
+                Modified PTR - Nil Reporter
+              </MenuItem>
+              <MenuItem value="External Administration">
+                Modified PTR - External Administration
+              </MenuItem>
+              <MenuItem value="Nominated Entity">
+                Modified PTR - Nominated Entity
+              </MenuItem>
+            </Select>
+          </FormControl>
+
+          {/* Validation Results */}
+          {validationResults.length > 0 && (
+            <Paper elevation={3} sx={{ padding: 2, marginTop: 2 }}>
+              <h3>Validation Results</h3>
+              <ul>
+                {validationResults.map((result, index) => (
+                  <li key={index}>
+                    ABN Valid: {result.isValidABN ? "Yes" : "No"}, ACN Valid:{" "}
+                    {result.isValidACN ? "Yes" : "No"}, ARBN Valid:{" "}
+                    {result.isValidARBN ? "Yes" : "No"}
+                  </li>
+                ))}
+              </ul>
+            </Paper>
+          )}
+
+          <Button onClick={handleSubmit} variant="contained" color="primary">
+            Submit
           </Button>
         </Form>
       </Paper>
