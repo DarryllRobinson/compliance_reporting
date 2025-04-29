@@ -191,11 +191,11 @@ export default function AppRouter() {
                 {
                   path: ":code/report/:reportId",
                   Component: UpdatePtrs,
-                  loader: (args) =>
-                    updatePtrsLoader({
-                      ...args,
-                      context: { reportContext, alertContext },
-                    }),
+                  // loader: (args) =>
+                  //   updatePtrsLoader({
+                  //     ...args,
+                  //     context: { reportContext, alertContext },
+                  //   }),
                 },
               ],
             },
