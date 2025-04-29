@@ -107,18 +107,105 @@ export async function createReportAction({ request, params, context }) {
   }
 }
 
+// Placeholder email service function
+const sendEmailToApprover = async (approverEmail, reportDetails) => {
+  try {
+    // Replace this with a real email service integration
+    console.log(`Sending email to ${approverEmail}...`);
+    console.log("Report Details:", reportDetails);
+    // Simulate email sending
+    return Promise.resolve("Email sent successfully");
+  } catch (error) {
+    console.error("Error sending email:", error);
+    return Promise.reject("Failed to send email");
+  }
+};
+
 export default function CreateReport() {
   const [reportType, setReportType] = useState("Standard PTR");
+  const [paymentPractices, setPaymentPractices] = useState({
+    supplyChainFinance: "No",
+    procurementFees: "No",
+    legalObligations: "No",
+  });
   const [validationResults, setValidationResults] = useState([]);
+  const [errors, setErrors] = useState({});
 
-  const handleReportTypeChange = (event) => {
-    setReportType(event.target.value);
+  const handlePaymentPracticesChange = (field, value) => {
+    setPaymentPractices((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = () => {
+  const validateReportingPeriod = (startDate, endDate, approvalDate) => {
+    const errors = {};
+    const today = new Date();
+    const minStartDate = new Date("2024-07-01");
+
+    if (new Date(startDate) < minStartDate) {
+      errors.startDate = "Start date cannot be before 1 July 2024.";
+    }
+
+    if (new Date(endDate) >= today) {
+      errors.endDate =
+        "End date cannot be the same as or later than the date of submission.";
+    }
+
+    if (new Date(startDate) >= new Date(endDate)) {
+      errors.dateRange = "Start date must be earlier than the end date.";
+    }
+
+    if (approvalDate && new Date(approvalDate) < new Date(endDate)) {
+      errors.approvalDate =
+        "Approval date cannot be before the reporting period end date.";
+    }
+
+    return errors;
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const startDate = formData.get("ReportingPeriodStartDate");
+    const endDate = formData.get("ReportingPeriodEndDate");
+    const approvalDate = formData.get("ApprovalDate");
+    const approverGivenName = formData.get("ApproverGivenName");
+    const approverFamilyName = formData.get("ApproverFamilyName");
+    const approverEmail = formData.get("ApproverEmail");
+
+    const periodErrors = validateReportingPeriod(
+      startDate,
+      endDate,
+      approvalDate
+    );
+    if (Object.keys(periodErrors).length > 0) {
+      setErrors(periodErrors);
+      return;
+    }
+
     const metrics = calculateInvoiceMetrics(reportType);
     setValidationResults(metrics.entityValidationResults);
-    console.log("Metrics:", metrics);
+
+    // Prepare report details for the email
+    const reportDetails = {
+      reportType,
+      startDate,
+      endDate,
+      approvalDate,
+      approverName: `${approverGivenName} ${approverFamilyName}`,
+      paymentPractices,
+    };
+
+    // Send email to the approver
+    try {
+      const emailResponse = await sendEmailToApprover(
+        approverEmail,
+        reportDetails
+      );
+      console.log(emailResponse);
+    } catch (error) {
+      console.error("Failed to send email to approver:", error);
+    }
+
+    console.log("Report Details:", reportDetails);
   };
 
   const location = useLocation();
@@ -128,6 +215,13 @@ export default function CreateReport() {
   const sixMonthsAgo = new Date();
   sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
   const defaultDate = sixMonthsAgo.toISOString().split("T")[0];
+
+  const entityDetails = {
+    entityName: "Example Entity Pty Ltd", // Replace with actual data if available
+    entityABN: "12345678901",
+    entityACN: "123456789",
+    entityARBN: "987654321",
+  };
 
   return (
     <Box
@@ -152,6 +246,7 @@ export default function CreateReport() {
         <Form
           method="post"
           id="create-user-form"
+          onSubmit={handleSubmit}
           style={{ display: "flex", flexDirection: "column", gap: 2 }}
         >
           <Grid container spacing={2}>
@@ -183,6 +278,8 @@ export default function CreateReport() {
                 required
                 InputLabelProps={{ shrink: true }}
                 defaultValue={defaultDate || ""}
+                error={!!errors.startDate}
+                helperText={errors.startDate}
               />
             </Grid>
             <Grid item xs={6}>
@@ -194,9 +291,141 @@ export default function CreateReport() {
                 required
                 InputLabelProps={{ shrink: true }}
                 defaultValue={defaultDate || ""}
+                error={!!errors.endDate}
+                helperText={errors.endDate}
               />
             </Grid>
+            {errors.dateRange && (
+              <Grid item xs={12}>
+                <p style={{ color: "red" }}>{errors.dateRange}</p>
+              </Grid>
+            )}
+
+            {/* Approver Fields */}
+            <Grid item xs={6}>
+              <TextField
+                label="Approving Responsible Member Given Name"
+                name="ApproverGivenName"
+                type="text"
+                fullWidth
+                required
+                inputProps={{ maxLength: 1000 }}
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <TextField
+                label="Approving Responsible Member Family Name"
+                name="ApproverFamilyName"
+                type="text"
+                fullWidth
+                required
+                inputProps={{ maxLength: 1000 }}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                label="Responsible Member Approval Date"
+                name="ApprovalDate"
+                type="date"
+                fullWidth
+                required
+                InputLabelProps={{ shrink: true }}
+                error={!!errors.approvalDate}
+                helperText={errors.approvalDate}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                label="Approver Email"
+                name="ApproverEmail"
+                type="email"
+                fullWidth
+                required
+              />
+            </Grid>
+
+            {/* Payment Practices */}
+            <Grid item xs={12}>
+              <FormControl fullWidth>
+                <InputLabel id="supply-chain-finance-label">
+                  Did the entity offer supply chain finance arrangements during
+                  the reporting period?
+                </InputLabel>
+                <Select
+                  labelId="supply-chain-finance-label"
+                  value={paymentPractices.supplyChainFinance}
+                  onChange={(e) =>
+                    handlePaymentPracticesChange(
+                      "supplyChainFinance",
+                      e.target.value
+                    )
+                  }
+                >
+                  <MenuItem value="Yes">Yes</MenuItem>
+                  <MenuItem value="No">No</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12}>
+              <FormControl fullWidth>
+                <InputLabel id="procurement-fees-label">
+                  Did the entity charge fees as part of the procurement process?
+                </InputLabel>
+                <Select
+                  labelId="procurement-fees-label"
+                  value={paymentPractices.procurementFees}
+                  onChange={(e) =>
+                    handlePaymentPracticesChange(
+                      "procurementFees",
+                      e.target.value
+                    )
+                  }
+                >
+                  <MenuItem value="Yes">Yes</MenuItem>
+                  <MenuItem value="No">No</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12}>
+              <FormControl fullWidth>
+                <InputLabel id="legal-obligations-label">
+                  Do any Australian laws, voluntary codes, or agreements impose
+                  requirements on the entity's payment times and practices to
+                  small businesses?
+                </InputLabel>
+                <Select
+                  labelId="legal-obligations-label"
+                  value={paymentPractices.legalObligations}
+                  onChange={(e) =>
+                    handlePaymentPracticesChange(
+                      "legalObligations",
+                      e.target.value
+                    )
+                  }
+                >
+                  <MenuItem value="Yes">Yes</MenuItem>
+                  <MenuItem value="No">No</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
           </Grid>
+
+          {/* Entity Details */}
+          <Paper elevation={3} sx={{ padding: 2, marginBottom: 2 }}>
+            <h3>Entity Details</h3>
+            <p>
+              <strong>Entity Name:</strong> {entityDetails.entityName}
+            </p>
+            <p>
+              <strong>Entity ABN:</strong> {entityDetails.entityABN}
+            </p>
+            <p>
+              <strong>Entity ACN:</strong> {entityDetails.entityACN}
+            </p>
+            <p>
+              <strong>Entity ARBN:</strong> {entityDetails.entityARBN}
+            </p>
+          </Paper>
 
           {/* Reminder for confirmation */}
           <Paper elevation={3} sx={{ padding: 2, marginBottom: 2 }}>
@@ -245,7 +474,7 @@ export default function CreateReport() {
             </Paper>
           )}
 
-          <Button onClick={handleSubmit} variant="contained" color="primary">
+          <Button type="submit" variant="contained" color="primary">
             Submit
           </Button>
         </Form>
