@@ -74,7 +74,15 @@ export default function UpdatePtrs() {
         <TableContainer>
           <Table>
             <TableHead>
-              <TableRow>
+              <TableRow
+                sx={{
+                  position: "sticky",
+                  top: 0,
+                  backgroundColor: theme.palette.primary.main,
+                  color: theme.palette.primary.contrastText,
+                  zIndex: 1,
+                }}
+              >
                 <TableCell>Select</TableCell>
                 <TableCell>Invoice Number</TableCell>
                 <TableCell>Payer Name</TableCell>
