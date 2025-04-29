@@ -17,6 +17,10 @@ const ProcessFlow = () => {
   const navigate = useNavigate();
 
   const getActiveStep = () => {
+    if (location.pathname.startsWith("/reports/ptrs/report/")) {
+      return 2; // Step 2 for dynamic report URLs
+    }
+
     switch (location.pathname) {
       case "/reports/ptrs/create":
         return 1;
@@ -45,6 +49,12 @@ const ProcessFlow = () => {
       "/reports/ptrs/capture",
       "/reports/ptrs/complete",
     ];
+
+    // Handle dynamic URLs for step 2
+    if (index === 2 && location.pathname.startsWith("/reports/ptrs/report/")) {
+      return location.pathname; // Preserve the current dynamic URL
+    }
+
     return urls[index] || "/";
   };
 

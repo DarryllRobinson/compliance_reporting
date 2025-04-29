@@ -1,6 +1,9 @@
 import { mockInvoices, mockReceivables } from "../data/mockInvoiceData";
 
-export const calculateInvoiceMetrics = (reportType) => {
+export const calculateInvoiceMetrics = (
+  reportType,
+  isModifiedReport = false
+) => {
   // Prepare the TCP Dataset
   const tcpDataset = mockInvoices.map((invoice) => ({
     invoiceNumber: invoice.invoiceNumber,
@@ -238,6 +241,22 @@ export const calculateInvoiceMetrics = (reportType) => {
   // Calculate percentages for payment time ranges in the SBTCP Dataset
   const paymentTimePercentages = calculatePaymentTimePercentages(sbtcpDataset);
 
+  // Extract entity details from the first invoice in the TCP Dataset
+  const entityDetails =
+    tcpDataset.length > 0
+      ? {
+          entityName: tcpDataset[0].customerName,
+          entityABN: tcpDataset[0].customerABN,
+          entityACN: tcpDataset[0].customerACN || null,
+          entityARBN: tcpDataset[0].customerARBN || null,
+        }
+      : {
+          entityName: null,
+          entityABN: null,
+          entityACN: null,
+          entityARBN: null,
+        };
+
   // Adjust data preparation based on report type
   if (reportType === "Nil Reporter") {
     return {
@@ -249,6 +268,7 @@ export const calculateInvoiceMetrics = (reportType) => {
       unpaidMetrics: [],
       reportComments: "", // Optional field for report comments
       declaration: false, // Mandatory checkbox field for declaration
+      confirmationStatement: isModifiedReport ? false : undefined, // Mandatory for modified reports
     };
   }
 
@@ -392,5 +412,7 @@ export const calculateInvoiceMetrics = (reportType) => {
     entityValidationResults, // Include validation results for ABN, ACN, and ARBN
     reportComments: "", // Optional field for report comments
     declaration: false, // Mandatory checkbox field for declaration
+    confirmationStatement: isModifiedReport ? false : undefined, // Mandatory for modified reports
+    entityDetails, // Include entity details in the return object
   };
 };

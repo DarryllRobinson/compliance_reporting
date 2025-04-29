@@ -19,6 +19,7 @@ import {
   paymentService,
   submissionService,
 } from "../../services";
+import { calculateInvoiceMetrics } from "../../utils/invoiceCalculations";
 
 export async function createReportAction({ request, params, context }) {
   // Extract reportContext from the context parameter
@@ -123,6 +124,7 @@ const sendEmailToApprover = async (approverEmail, reportDetails) => {
 
 export default function CreateReport() {
   const [reportType, setReportType] = useState("Standard PTR");
+  const [isModifiedReport, setIsModifiedReport] = useState(false); // Track if the report is modified
   const [paymentPractices, setPaymentPractices] = useState({
     supplyChainFinance: "No",
     procurementFees: "No",
@@ -130,6 +132,20 @@ export default function CreateReport() {
   });
   const [validationResults, setValidationResults] = useState([]);
   const [errors, setErrors] = useState({});
+
+  const handleReportTypeChange = (event) => {
+    const selectedReportType = event.target.value;
+    setReportType(selectedReportType);
+
+    // Determine if the report is a modified report
+    const modifiedReportTypes = [
+      "AASB 8",
+      "Nil Reporter",
+      "External Administration",
+      "Nominated Entity",
+    ];
+    setIsModifiedReport(modifiedReportTypes.includes(selectedReportType));
+  };
 
   const handlePaymentPracticesChange = (field, value) => {
     setPaymentPractices((prev) => ({ ...prev, [field]: value }));
@@ -166,22 +182,25 @@ export default function CreateReport() {
     const formData = new FormData(event.target);
     const startDate = formData.get("ReportingPeriodStartDate");
     const endDate = formData.get("ReportingPeriodEndDate");
-    const approvalDate = formData.get("ApprovalDate");
-    const approverGivenName = formData.get("ApproverGivenName");
-    const approverFamilyName = formData.get("ApproverFamilyName");
-    const approverEmail = formData.get("ApproverEmail");
+
+    // TODO: Add approver info
+    // const approvalDate = formData.get("ApprovalDate");
+    // const approverGivenName = formData.get("ApproverGivenName");
+    // const approverFamilyName = formData.get("ApproverFamilyName");
+    // const approverEmail = formData.get("ApproverEmail");
 
     const periodErrors = validateReportingPeriod(
       startDate,
-      endDate,
-      approvalDate
+      endDate
+      // approvalDate
     );
     if (Object.keys(periodErrors).length > 0) {
       setErrors(periodErrors);
       return;
     }
 
-    const metrics = calculateInvoiceMetrics(reportType);
+    // Pass the isModifiedReport parameter to calculateInvoiceMetrics
+    const metrics = calculateInvoiceMetrics(reportType, isModifiedReport);
     setValidationResults(metrics.entityValidationResults);
 
     // Prepare report details for the email
@@ -189,21 +208,21 @@ export default function CreateReport() {
       reportType,
       startDate,
       endDate,
-      approvalDate,
-      approverName: `${approverGivenName} ${approverFamilyName}`,
+      // approvalDate,
+      // approverName: `${approverGivenName} ${approverFamilyName}`,
       paymentPractices,
     };
 
     // Send email to the approver
-    try {
-      const emailResponse = await sendEmailToApprover(
-        approverEmail,
-        reportDetails
-      );
-      console.log(emailResponse);
-    } catch (error) {
-      console.error("Failed to send email to approver:", error);
-    }
+    // try {
+    //   const emailResponse = await sendEmailToApprover(
+    //     approverEmail,
+    //     reportDetails
+    //   );
+    //   console.log(emailResponse);
+    // } catch (error) {
+    //   console.error("Failed to send email to approver:", error);
+    // }
 
     console.log("Report Details:", reportDetails);
   };
@@ -216,12 +235,12 @@ export default function CreateReport() {
   sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
   const defaultDate = sixMonthsAgo.toISOString().split("T")[0];
 
-  const entityDetails = {
-    entityName: "Example Entity Pty Ltd", // Replace with actual data if available
-    entityABN: "12345678901",
-    entityACN: "123456789",
-    entityARBN: "987654321",
-  };
+  // const entityDetails = {
+  //   entityName: "Example Entity Pty Ltd", // Replace with actual data if available
+  //   entityABN: "12345678901",
+  //   entityACN: "123456789",
+  //   entityARBN: "987654321",
+  // };
 
   return (
     <Box
@@ -250,7 +269,7 @@ export default function CreateReport() {
           style={{ display: "flex", flexDirection: "column", gap: 2 }}
         >
           <Grid container spacing={2}>
-            <Grid item xs={12}>
+            {/* <Grid item xs={12}>
               <FormControl fullWidth>
                 <InputLabel id="report-select-label">Report Name</InputLabel>
                 <Select
@@ -259,7 +278,7 @@ export default function CreateReport() {
                   id="report"
                   label="List of Reports"
                   defaultValue={reportName || ""}
-                  required
+                  // required
                 >
                   {reportList?.map((report) => (
                     <MenuItem key={report.id} value={report.name}>
@@ -268,7 +287,7 @@ export default function CreateReport() {
                   ))}
                 </Select>
               </FormControl>
-            </Grid>
+            </Grid> */}
             <Grid item xs={6}>
               <TextField
                 label="Reporting Period Start Date"
@@ -302,7 +321,7 @@ export default function CreateReport() {
             )}
 
             {/* Approver Fields */}
-            <Grid item xs={6}>
+            {/* <Grid item xs={6}>
               <TextField
                 label="Approving Responsible Member Given Name"
                 name="ApproverGivenName"
@@ -342,7 +361,7 @@ export default function CreateReport() {
                 fullWidth
                 required
               />
-            </Grid>
+            </Grid> */}
 
             {/* Payment Practices */}
             <Grid item xs={12}>
@@ -411,7 +430,7 @@ export default function CreateReport() {
           </Grid>
 
           {/* Entity Details */}
-          <Paper elevation={3} sx={{ padding: 2, marginBottom: 2 }}>
+          {/* <Paper elevation={3} sx={{ padding: 2, marginBottom: 2 }}>
             <h3>Entity Details</h3>
             <p>
               <strong>Entity Name:</strong> {entityDetails.entityName}
@@ -425,7 +444,7 @@ export default function CreateReport() {
             <p>
               <strong>Entity ARBN:</strong> {entityDetails.entityARBN}
             </p>
-          </Paper>
+          </Paper> */}
 
           {/* Reminder for confirmation */}
           <Paper elevation={3} sx={{ padding: 2, marginBottom: 2 }}>
@@ -437,7 +456,7 @@ export default function CreateReport() {
           </Paper>
 
           {/* Report Type Selection */}
-          <FormControl fullWidth>
+          {/* <FormControl fullWidth>
             <InputLabel id="report-type-select-label">Report Type</InputLabel>
             <Select
               labelId="report-type-select-label"
@@ -456,10 +475,10 @@ export default function CreateReport() {
                 Modified PTR - Nominated Entity
               </MenuItem>
             </Select>
-          </FormControl>
+          </FormControl> */}
 
           {/* Validation Results */}
-          {validationResults.length > 0 && (
+          {/* {validationResults.length > 0 && (
             <Paper elevation={3} sx={{ padding: 2, marginTop: 2 }}>
               <h3>Validation Results</h3>
               <ul>
@@ -472,7 +491,7 @@ export default function CreateReport() {
                 ))}
               </ul>
             </Paper>
-          )}
+          )} */}
 
           <Button type="submit" variant="contained" color="primary">
             Submit

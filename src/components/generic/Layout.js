@@ -44,16 +44,16 @@ export default function Layout() {
     return () => mediaQuery.removeEventListener("change", handleChange);
   }, []);
 
+  // Scroll to the top of the screen when the pathname changes
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
+
   const toggleTheme = () => setIsDarkTheme((prev) => !prev);
 
-  const showProcessFlow = [
-    "/reports/ptrs/create",
-    "/reports/ptrs/update",
-    "/reports/ptrs/extract",
-    "/reports/ptrs/upload",
-    "/reports/ptrs/capture",
-    "/reports/ptrs/complete",
-  ].includes(location.pathname);
+  const showProcessFlow = ["/reports/ptrs/"].some((path) =>
+    location.pathname.startsWith(path)
+  );
 
   const { alertOpen, severity, message, handleClose } = useAlert();
 

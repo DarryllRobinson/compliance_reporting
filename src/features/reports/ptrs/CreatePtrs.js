@@ -9,7 +9,42 @@ import ReportDetails from "./ReportDetails";
 export async function createPtrsAction({ request, params, context }) {
   const { alertContext, reportContext } = context;
 
+  const validateReportingPeriod = (startDate, endDate, approvalDate) => {
+    const errors = {};
+    const today = new Date();
+    const minStartDate = new Date("2024-07-01");
+
+    if (new Date(startDate) < minStartDate) {
+      errors.startDate = "Start date cannot be before 1 July 2024.";
+    }
+
+    if (new Date(endDate) >= today) {
+      errors.endDate =
+        "End date cannot be the same as or later than the date of submission.";
+    }
+
+    if (new Date(startDate) >= new Date(endDate)) {
+      errors.dateRange = "Start date must be earlier than the end date.";
+    }
+
+    if (approvalDate && new Date(approvalDate) < new Date(endDate)) {
+      errors.approvalDate =
+        "Approval date cannot be before the reporting period end date.";
+    }
+
+    return errors;
+  };
+
   const formData = await request.formData();
+  const startDate = formData.get("ReportingPeriodStartDate");
+  const endDate = formData.get("ReportingPeriodEndDate");
+
+  const periodErrors = validateReportingPeriod(startDate, endDate);
+  if (Object.keys(periodErrors).length > 0) {
+    // setErrors(periodErrors);
+    return;
+  }
+
   let reportDetails = Object.fromEntries(formData);
   reportDetails = {
     ...reportDetails,
@@ -42,6 +77,7 @@ export async function createPtrsAction({ request, params, context }) {
 
 export default function CreatePtrs() {
   const [xeroSuccess, setXeroSuccess] = useState(false);
+  const [errors, setErrors] = useState({});
   const theme = useTheme();
 
   return (
@@ -77,6 +113,27 @@ export default function CreatePtrs() {
               <XeroCredentials setXeroSuccess={setXeroSuccess} />
             </Grid>
           </Grid>
+
+          {/* Reminder for confirmation */}
+          <Paper
+            elevation={3}
+            sx={{
+              padding: 2,
+              marginBottom: 2,
+              backgroundColor: theme.palette.background.default,
+              color: theme.palette.text.primary,
+              border: `1px solid ${theme.palette.divider}`,
+            }}
+          >
+            <h3 style={{ margin: 0, color: theme.palette.text.secondary }}>
+              Reminder
+            </h3>
+            <p style={{ margin: 0, color: theme.palette.text.primary }}>
+              Before submitting your report in the regulator portal, ensure that
+              all entity information is up to date and confirmed.
+            </p>
+          </Paper>
+
           <Button
             disabled={!xeroSuccess}
             variant="contained"
