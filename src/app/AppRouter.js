@@ -40,15 +40,17 @@ import ReportsLayout, {
 // import CreateReport, {
 //   createReportAction,
 // } from "../features/reports/CreateReport";
-import ReportFrame, {
-  reportFrameLoader,
-} from "../features/reports/ReportFrame";
-import CreatePtrs, {
-  createPtrsAction,
-} from "../features/reports/ptrs/CreatePtrs";
-import UpdatePtrs, {
-  updatePtrsLoader,
-} from "../features/reports/ptrs/UpdatePtrs";
+// import ReportFrame, {
+//   reportFrameLoader,
+// } from "../features/reports/ReportFrame";
+// import CreatePtrs, {
+//   createPtrsAction,
+// } from "../features/reports/ptrs/CreatePtrs";
+// import UpdatePtrs, {
+//   updatePtrsLoader,
+// } from "../features/reports/ptrs/UpdatePtrs";
+import CreateReport from "../features/reports/ptrs/CreateReport";
+import { createReportAction } from "../features/reports/ptrs/actions";
 
 // TODO: Optimise the whole thing: https://reactrouter.com/tutorials/address-book
 
@@ -181,22 +183,22 @@ export default function AppRouter() {
               children: [
                 {
                   path: ":code/create",
-                  Component: CreatePtrs,
+                  Component: CreateReport,
                   action: (args) =>
-                    createPtrsAction({
+                    createReportAction({
                       ...args,
                       context: { alertContext, reportContext },
                     }),
                 },
-                {
-                  path: ":code/report/:reportId",
-                  Component: UpdatePtrs,
-                  // loader: (args) =>
-                  //   updatePtrsLoader({
-                  //     ...args,
-                  //     context: { reportContext, alertContext },
-                  //   }),
-                },
+                // {
+                //   path: ":code/report/:reportId",
+                //   Component: UpdatePtrs,
+                //   // loader: (args) =>
+                //   //   updatePtrsLoader({
+                //   //     ...args,
+                //   //     context: { reportContext, alertContext },
+                //   //   }),
+                // },
               ],
             },
           ],
