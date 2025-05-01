@@ -20,7 +20,6 @@ async function getById(id) {
 }
 
 async function create(params) {
-  console.log("Creating PTRS with params:", params);
   return await fetchWrapper.post(baseUrl, params);
 }
 

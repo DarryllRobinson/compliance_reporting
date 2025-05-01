@@ -67,7 +67,7 @@ export async function createReportAction({ request, context, params }) {
     if (reportContext && reportContext.setReportDetails) {
       reportContext.setReportDetails(reportDetails);
     }
-    console.log("Final createReport reportDetails:", reportDetails);
+    // console.log("Final createReport reportDetails:", reportDetails);
 
     // Alert the user about the successful creation
     alertContext.sendAlert("success", "Report created successfully");

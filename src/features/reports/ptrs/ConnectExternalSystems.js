@@ -47,12 +47,37 @@ export default function ConnectExternalSystems() {
         return acc;
       }, {});
 
+      // List of fields to clean
+      const numericFields = [
+        "payerEntityAbn",
+        "payerEntityAcnArbn",
+        "payeeEntityAbn",
+        "payeeEntityAcnArbn",
+      ];
+      const dateFields = [
+        "supplyDate",
+        "paymentDate",
+        "invoiceIssueDate",
+        "invoiceReceiptDate",
+        "invoiceDueDate",
+        "noticeForPaymentIssueDate",
+      ];
+
       // Iterate through each record and replace keys
       return records.map((record) => {
         let mappedRecord = {};
         Object.keys(record).forEach((key) => {
           const newKey = keyMapping[key.toLowerCase()] || key; // Convert key to lowercase for comparison
           mappedRecord[newKey] = record[key];
+        });
+
+        // Clean numeric fields
+        numericFields.forEach((field) => {
+          if (mappedRecord[field] === "" || mappedRecord[field] === " ") {
+            mappedRecord[field] = null; // Convert blank strings to null
+          } else if (mappedRecord[field] !== null) {
+            mappedRecord[field] = parseInt(mappedRecord[field], 10); // Convert to integer
+          }
         });
 
         // Convert paymentAmount to a number
@@ -62,16 +87,19 @@ export default function ConnectExternalSystems() {
           );
         }
 
-        // Validate and format supplyDate
-        if (mappedRecord.supplyDate) {
-          const supplyDate = new Date(mappedRecord.supplyDate);
-          if (!isNaN(supplyDate.getTime())) {
-            mappedRecord.supplyDate = supplyDate.toISOString().split("T")[0]; // Format as YYYY-MM-DD
-          } else {
-            console.warn("Invalid supplyDate:", mappedRecord.supplyDate);
-            mappedRecord.supplyDate = null; // Set to null if invalid
+        // Validate and format all date fields
+        dateFields.forEach((field) => {
+          if (mappedRecord[field]) {
+            const [day, month, year] = mappedRecord[field].split("/"); // Split DD/MM/YYYY
+            const formattedDate = new Date(`${year}-${month}-${day}`); // Convert to YYYY-MM-DD
+            if (!isNaN(formattedDate.getTime())) {
+              mappedRecord[field] = formattedDate.toISOString().split("T")[0]; // Format as YYYY-MM-DD
+            } else {
+              console.warn(`Invalid ${field}:`, mappedRecord[field]);
+              mappedRecord[field] = null; // Set to null if invalid
+            }
           }
-        }
+        });
 
         // Add additional fields
         mappedRecord = {
@@ -95,7 +123,7 @@ export default function ConnectExternalSystems() {
           let mappedRecords = mapRecordKeys(data); // Map the record keys
 
           setRecords(mappedRecords);
-          //   console.log("Mapped Records:", mappedRecords);
+          console.log("Mapped Records:", mappedRecords);
 
           // Save the mapped records to the database
           return ptrsService.create({ records: mappedRecords });
