@@ -46,8 +46,6 @@ export async function createReportAction({ request, context, params }) {
     return { errors };
   }
 
-  console.log("Form data:", reportDetails);
-
   reportDetails = {
     ...reportDetails,
     code: params.code,
@@ -56,6 +54,8 @@ export async function createReportAction({ request, context, params }) {
     createdBy: userService.userValue.id,
     clientId: userService.userValue.clientId,
   };
+
+  console.log("reportDetails:", reportDetails);
 
   // Save the report details to the database
   try {
@@ -81,6 +81,13 @@ export async function createReportAction({ request, context, params }) {
 export default function CreateReport() {
   const theme = useTheme();
   const actionData = useActionData(); // Access validation errors returned by the action
+
+  // For development purposes, set default dates
+  const today = new Date();
+  let yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+  yesterday = yesterday.toISOString().split("T")[0];
+  const defaultDate = new Date("2024-07-01").toISOString().split("T")[0];
 
   return (
     <Box
@@ -113,6 +120,7 @@ export default function CreateReport() {
                 InputLabelProps={{ shrink: true }}
                 error={!!actionData?.errors?.ReportingPeriodStartDate}
                 helperText={actionData?.errors?.ReportingPeriodStartDate || ""}
+                defaultValue={defaultDate || ""}
               />
             </Grid>
             <Grid item xs={6}>
@@ -124,6 +132,7 @@ export default function CreateReport() {
                 InputLabelProps={{ shrink: true }}
                 error={!!actionData?.errors?.ReportingPeriodEndDate}
                 helperText={actionData?.errors?.ReportingPeriodEndDate || ""}
+                defaultValue={yesterday || ""}
               />
             </Grid>
             <Grid item xs={12}>
