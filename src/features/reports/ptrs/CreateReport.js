@@ -69,9 +69,8 @@ export async function createReportAction({ request, context, params }) {
 
     // Alert the user about the successful creation
     alertContext.sendAlert("success", "Report created successfully");
-    // Redirect to the report page
-    //   return redirect(`/reports/${params.code}/report/${report.id}`);
-    return null;
+    // Redirect to the external data source connection page
+    return redirect(`/reports/${params.code}/report/${report.id}/connect`);
   } catch (error) {
     alertContext.sendAlert("error", error || "Error creating report");
     console.error("Error creating report:", error);

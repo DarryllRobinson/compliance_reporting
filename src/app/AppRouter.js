@@ -52,6 +52,7 @@ import ReportsLayout, {
 import CreateReport, {
   createReportAction,
 } from "../features/reports/ptrs/CreateReport";
+import ConnectExternalSystems from "../features/reports/ptrs/ConnectExternalSystems";
 
 // TODO: Optimise the whole thing: https://reactrouter.com/tutorials/address-book
 
@@ -183,6 +184,7 @@ export default function AppRouter() {
                 reportLayoutLoader({ ...args, context: { alertContext } }),
               children: [
                 {
+                  // Create PTRS Report
                   path: ":code/create",
                   Component: CreateReport,
                   action: (args) =>
@@ -191,15 +193,11 @@ export default function AppRouter() {
                       context: { alertContext, reportContext },
                     }),
                 },
-                // {
-                //   path: ":code/report/:reportId",
-                //   Component: UpdatePtrs,
-                //   // loader: (args) =>
-                //   //   updatePtrsLoader({
-                //   //     ...args,
-                //   //     context: { reportContext, alertContext },
-                //   //   }),
-                // },
+                {
+                  // Connect to external data source
+                  path: ":code/report/:reportId/connect",
+                  Component: ConnectExternalSystems,
+                },
               ],
             },
           ],
