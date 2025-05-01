@@ -114,6 +114,72 @@ export default function ConnectExternalSystems() {
     [reportDetails.reportId]
   );
 
+  const validateRecords = (records) => {
+    const errors = [];
+    records.forEach((record, index) => {
+      if (!record.payerEntityName) {
+        errors.push(`Record ${index + 1}: Payer Entity Name is required.`);
+      }
+      if (!record.payeeEntityName) {
+        errors.push(`Record ${index + 1}: Payee Entity Name is required.`);
+      }
+      if (record.paymentAmount && isNaN(record.paymentAmount)) {
+        errors.push(
+          `Record ${index + 1}: Payment Amount must be a valid number.`
+        );
+      }
+      if (record.supplyDate && isNaN(new Date(record.supplyDate).getTime())) {
+        errors.push(`Record ${index + 1}: Supply Date must be a valid date.`);
+      }
+      // Add more validations as needed
+    });
+
+    return errors;
+  };
+
+  const handleSave = async (tcpRecords) => {
+    console.log("TCP Records:", tcpRecords);
+    console.log("Report Context:", reportDetails);
+
+    // Validate records before saving
+    const validationErrors = validateRecords(tcpRecords);
+    if (validationErrors.length > 0) {
+      validationErrors.forEach((error) => sendAlert("error", error));
+      return;
+    }
+
+    try {
+      const response = await ptrsService.update(tcpRecords); // Update records in the backend
+      if (response.success) {
+        sendAlert("success", "Records updated successfully.");
+      } else {
+        sendAlert("error", "Failed to update records.");
+      }
+    } catch (error) {
+      console.error("Error updating records:", error);
+      sendAlert("error", "An error occurred while updating records.");
+    }
+  };
+
+  const fetchRecords = async () => {
+    try {
+      const response = await ptrsService.getAllByReportId(
+        reportDetails.reportId
+      ); // Fetch records from the backend
+
+      if (response) {
+        return response; // Return the fetched records
+      } else {
+        console.warn("Unexpected response structure:", response);
+        return []; // Return an empty array if the response structure is unexpected
+      }
+    } catch (error) {
+      console.error("Error fetching records:", error);
+      sendAlert("error", "Failed to fetch records.");
+      throw error; // Re-throw the error to ensure it is handled properly
+    }
+  };
+
   useEffect(() => {
     if (isConnected) {
       setIsLoading(true);
@@ -123,8 +189,6 @@ export default function ConnectExternalSystems() {
           let mappedRecords = mapRecordKeys(data); // Map the record keys
 
           setRecords(mappedRecords);
-          console.log("Mapped Records:", mappedRecords);
-
           // Save the mapped records to the database
           return ptrsService.create({ records: mappedRecords });
         })
@@ -142,35 +206,6 @@ export default function ConnectExternalSystems() {
         .finally(() => setIsLoading(false));
     }
   }, [isConnected, mapRecordKeys, reportDetails.reportId, sendAlert]);
-
-  const handleSave = async (tcpRecords) => {
-    console.log("TCP Records:", tcpRecords);
-    console.log("Report Context:", reportDetails);
-    // Save the TCP records
-    // try {
-    //   tcpRecords = {
-    //     ...tcpRecords,
-    //     updatedBy: userService.userValue.userId,
-    //     reportId: reportDetails.reportId,
-    //   };
-    //   ptrsService
-    //     .create(tcpRecords)
-    //     .then((response) => {
-    //       if (response.success) {
-    //         sendAlert("success", "Records saved successfully.");
-    //       } else {
-    //         sendAlert("error", "Failed to save records.");
-    //       }
-    //     })
-    //     .catch((error) => {
-    //       sendAlert("error", error || "Error saving records:");
-    //     });
-    // } catch (error) => {
-    //   sendAlert("error", error || "Error saving records:");
-    // }
-
-    // Pass them to the next step
-  };
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -206,5 +241,11 @@ export default function ConnectExternalSystems() {
     );
   }
 
-  return <ReviewRecords records={records} onSave={handleSave} />;
+  return (
+    <ReviewRecords
+      records={records}
+      fetchRecords={fetchRecords} // Pass fetchRecords to ReviewRecords
+      onSave={handleSave}
+    />
+  );
 }

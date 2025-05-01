@@ -5,6 +5,7 @@ const baseUrl = `${config.apiUrl}/ptrs`;
 
 export const ptrsService = {
   getAll,
+  getAllByReportId,
   getById,
   create,
   update,
@@ -13,6 +14,10 @@ export const ptrsService = {
 
 async function getAll() {
   return await fetchWrapper.get(baseUrl);
+}
+
+async function getAllByReportId(reportId) {
+  return await fetchWrapper.get(`${baseUrl}/report/${reportId}`);
 }
 
 async function getById(id) {
