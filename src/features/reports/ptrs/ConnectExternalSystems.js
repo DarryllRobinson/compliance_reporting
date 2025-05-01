@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { xeroService } from "../../../services/xero.service";
 import ReviewRecords from "./ReviewRecords";
 import { Box, TextField, Button, Typography } from "@mui/material";
@@ -39,36 +39,52 @@ export default function ConnectExternalSystems() {
     }
   };
 
-  const mapRecordKeys = (records) => {
-    // Create a mapping object from fieldMapping for quick lookup
-    const keyMapping = fieldMapping.reduce((acc, field) => {
-      //   console.log("Field Mapping:", field);
-      //   console.log("Field Name:", field.name);
-      //   console.log("Field Label:", field.label);
+  const mapRecordKeys = useCallback(
+    (records) => {
+      // Create a mapping object from fieldMapping for quick lookup
+      const keyMapping = fieldMapping.reduce((acc, field) => {
+        acc[field.label.toLowerCase()] = field.name; // Convert label to lowercase
+        return acc;
+      }, {});
 
-      acc[field.label] = field.name;
-      //   console.log("acc[field.label]:", acc[field.label]);
-      return acc;
-    }, {});
+      // Iterate through each record and replace keys
+      return records.map((record) => {
+        let mappedRecord = {};
+        Object.keys(record).forEach((key) => {
+          const newKey = keyMapping[key.toLowerCase()] || key; // Convert key to lowercase for comparison
+          mappedRecord[newKey] = record[key];
+        });
 
-    console.log("Key Mapping:", keyMapping);
+        // Convert paymentAmount to a number
+        if (mappedRecord.paymentAmount) {
+          mappedRecord.paymentAmount = parseFloat(
+            mappedRecord.paymentAmount.toString().replace(/[^0-9.-]+/g, "")
+          );
+        }
 
-    // Iterate through each record and replace keys
-    return records.map((record) => {
-      const mappedRecord = {};
-      Object.keys(record).forEach((key, index) => {
-        console.log("index:", index);
-        console.log("Record:", record);
-        console.log("Original Key:", key);
-        console.log("Original Value:", record[key]);
-        console.log("Mapped Key:", keyMapping[index]);
-        console.log("Mapped Value:", record[key]);
-        const newKey = keyMapping[key] || key; // Use the mapped key or fallback to the original key
-        mappedRecord[newKey] = record[key];
+        // Validate and format supplyDate
+        if (mappedRecord.supplyDate) {
+          const supplyDate = new Date(mappedRecord.supplyDate);
+          if (!isNaN(supplyDate.getTime())) {
+            mappedRecord.supplyDate = supplyDate.toISOString().split("T")[0]; // Format as YYYY-MM-DD
+          } else {
+            console.warn("Invalid supplyDate:", mappedRecord.supplyDate);
+            mappedRecord.supplyDate = null; // Set to null if invalid
+          }
+        }
+
+        // Add additional fields
+        mappedRecord = {
+          ...mappedRecord,
+          updatedBy: userService.userValue.id,
+          reportId: reportDetails.reportId,
+        };
+
+        return mappedRecord;
       });
-      return mappedRecord;
-    });
-  };
+    },
+    [reportDetails.reportId]
+  );
 
   useEffect(() => {
     if (isConnected) {
@@ -76,7 +92,8 @@ export default function ConnectExternalSystems() {
       xeroService
         .fetchData()
         .then((data) => {
-          const mappedRecords = mapRecordKeys(data); // Map the record keys
+          let mappedRecords = mapRecordKeys(data); // Map the record keys
+
           setRecords(mappedRecords);
           //   console.log("Mapped Records:", mappedRecords);
 
@@ -96,7 +113,7 @@ export default function ConnectExternalSystems() {
         })
         .finally(() => setIsLoading(false));
     }
-  }, [isConnected, reportDetails.reportId, sendAlert]);
+  }, [isConnected, mapRecordKeys, reportDetails.reportId, sendAlert]);
 
   const handleSave = async (tcpRecords) => {
     console.log("TCP Records:", tcpRecords);
