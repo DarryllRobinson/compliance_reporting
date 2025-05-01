@@ -1,7 +1,7 @@
 import React from "react";
 import { Form, redirect } from "react-router";
 import { Box, Typography, Button, TextField, useTheme } from "@mui/material";
-import { userService } from "./user.service";
+import { userService } from "../../services";
 
 export async function loginAction({ request, context }) {
   const { alertContext } = context;

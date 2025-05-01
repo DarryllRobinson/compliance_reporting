@@ -5,7 +5,7 @@ import { ThemeProvider, createTheme } from "@mui/material/styles";
 import Navbar from "../navigation/Navbar";
 import Footer from "../navigation/Footer";
 import ProcessFlow from "../../features/reports/ptrs/ProcessFlow";
-import { userService } from "../../features/users/user.service";
+import { userService } from "../../services";
 import Alert from "./Alert";
 import { useAlert } from "../../context/AlertContext";
 

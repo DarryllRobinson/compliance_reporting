@@ -1,8 +1,7 @@
 import React from "react";
 import { Box, Paper, TextField, Button, Grid, useTheme } from "@mui/material";
 import { useActionData, Form, redirect } from "react-router";
-import { userService } from "../../users/user.service";
-import { reportService } from "../report.service";
+import { reportService, userService } from "../../../services";
 
 export async function createReportAction({ request, context, params }) {
   const { alertContext, reportContext } = context;

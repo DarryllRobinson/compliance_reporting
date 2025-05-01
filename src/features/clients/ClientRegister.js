@@ -13,7 +13,7 @@ import {
   Paper,
   Grid,
 } from "@mui/material";
-import { clientService } from "./client.service";
+import { clientService } from "../../services";
 
 export async function clientRegisterAction({ request, context }) {
   const { alertContext } = context;

@@ -1,10 +1,11 @@
-import config from "../../utils/config";
-import { fetchWrapper } from "../../utils/fetch-wrapper";
+import config from "../utils/config";
+import { fetchWrapper } from "../utils/fetch-wrapper";
 
-const baseUrl = `${config.apiUrl}/clients`;
+const baseUrl = `${config.apiUrl}/reports`;
 
-export const clientService = {
+export const reportService = {
   getAll,
+  getAllByClientId,
   getById,
   create,
   update,
@@ -15,8 +16,13 @@ async function getAll() {
   return await fetchWrapper.get(baseUrl);
 }
 
+async function getAllByClientId(params) {
+  const { clientId } = params;
+  return await fetchWrapper.get(`${baseUrl}/${clientId}`);
+}
+
 async function getById(id) {
-  return await fetchWrapper.get(`${baseUrl}/${id}`);
+  return await fetchWrapper.get(`${baseUrl}/report/${id}`);
 }
 
 async function create(params) {

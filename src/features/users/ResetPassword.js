@@ -10,7 +10,7 @@ import {
   Paper,
   Grid,
 } from "@mui/material";
-import { userService } from "./user.service";
+import { userService } from "../../services";
 import { useNavigate } from "react-router";
 import { useAlert } from "../../context";
 

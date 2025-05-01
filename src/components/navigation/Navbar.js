@@ -14,7 +14,7 @@ import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
 import { Link, useNavigate } from "react-router";
 import { useTheme } from "@mui/material/styles";
-import { userService } from "../../features/users/user.service";
+import { userService } from "../../services";
 
 export default function Navbar({ isDarkTheme, onToggleTheme }) {
   const user = userService.userValue; // Get the current user

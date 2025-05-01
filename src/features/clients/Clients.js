@@ -1,7 +1,6 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { redirect, useNavigate } from "react-router"; // Import useNavigate
-import { userService } from "../users/user.service";
-import { clientService } from "./client.service";
+import { clientService } from "../../services";
 import { useLoaderData } from "react-router";
 import {
   useTheme,

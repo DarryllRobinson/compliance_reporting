@@ -10,7 +10,7 @@ import {
   Grid,
   ButtonGroup,
 } from "@mui/material";
-import { userService } from "./user.service";
+import { userService } from "../../services";
 
 export async function forgotPasswordAction({ request, context }) {
   const { alertContext } = context;

@@ -16,8 +16,7 @@ import {
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { redirect, useLoaderData, useNavigate } from "react-router";
-import { userService } from "./user.service";
-import { reportService } from "../reports/report.service";
+import { reportService, userService } from "../../services";
 import { useReportContext } from "../../context/ReportContext";
 // import prepareReport from "../reports/ptrs/prepareReport";
 import ProtectedRoutes from "../../utils/ProtectedRoutes";

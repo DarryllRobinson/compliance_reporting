@@ -5,7 +5,7 @@ import { ThemeProvider } from "@mui/material/styles";
 import globalTheme from "./theme/globalTheme";
 // import { AuthProvider } from "./context/AuthContext";
 import { ReportProvider } from "./context/ReportContext"; // Import ReportProvider
-import { userService } from "./features/users/user.service";
+import { userService } from "./services";
 import { AlertProvider } from "./context/AlertContext";
 // import { redirect } from "react-router";
 

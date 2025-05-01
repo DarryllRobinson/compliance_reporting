@@ -13,8 +13,7 @@ import {
   Paper,
   Grid,
 } from "@mui/material";
-import { userService } from "./user.service";
-import { clientService } from "../clients/client.service";
+import { clientService, userService } from "../../services";
 
 export async function createUserLoader() {
   // const user = await userService.refreshToken();

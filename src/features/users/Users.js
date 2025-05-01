@@ -1,6 +1,6 @@
 import React from "react";
 import { redirect, useNavigate } from "react-router"; // Import useNavigate
-import { userService } from "./user.service";
+import { userService } from "../../services";
 import { useLoaderData } from "react-router";
 import {
   useTheme,
