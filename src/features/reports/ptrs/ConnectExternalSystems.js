@@ -1,113 +1,87 @@
-import React, { useState } from "react";
-import {
-  Box,
-  Paper,
-  Button,
-  Typography,
-  CircularProgress,
-  useTheme,
-} from "@mui/material";
-import { xeroService } from "../../../services";
+import React, { useState, useEffect } from "react";
+import { xeroService } from "../../../services/xero.service";
+import ReviewRecords from "./ReviewRecords";
+import { Box, TextField, Button, Typography } from "@mui/material";
 
 export default function ConnectExternalSystems() {
-  const theme = useTheme();
-  const [isConnected, setIsConnected] = useState(false);
+  const [credentials, setCredentials] = useState({
+    clientId: "",
+    clientSecret: "",
+  });
+  const [records, setRecords] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [isConnected, setIsConnected] = useState(false);
+
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+    setCredentials((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleConnect = async () => {
     setIsLoading(true);
-    setError("");
-
     try {
-      const response = await xeroService.connect();
+      const response = await xeroService.connect(credentials);
       if (response.success) {
         setIsConnected(true);
       } else {
-        setError("Failed to connect to Xero. Please try again.");
+        console.error("Failed to connect to Xero.");
       }
-    } catch (err) {
-      setError("An error occurred while connecting to Xero.");
-      console.error(err);
+    } catch (error) {
+      console.error("Error connecting to Xero:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleFetchData = async () => {
-    setIsLoading(true);
-    setError("");
-
-    try {
-      const data = await xeroService.fetchData();
-      console.log("Fetched data:", data);
-      // Process and store the fetched data as needed
-    } catch (err) {
-      setError("An error occurred while fetching data from Xero.");
-      console.error(err);
-    } finally {
-      setIsLoading(false);
+  useEffect(() => {
+    if (isConnected) {
+      setIsLoading(true);
+      xeroService
+        .fetchData()
+        .then((data) => setRecords(data))
+        .catch((error) => console.error("Error fetching records:", error))
+        .finally(() => setIsLoading(false));
     }
+  }, [isConnected]);
+
+  const handleSave = (tcpRecords) => {
+    console.log("TCP Records:", tcpRecords);
+    // Save the TCP records or pass them to the next step
   };
 
-  return (
-    <Box
-      sx={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "flex-start",
-        minHeight: "100vh",
-        backgroundColor: theme.palette.background.default,
-        padding: 2,
-      }}
-    >
-      <Paper
-        elevation={3}
-        sx={{
-          padding: 4,
-          maxWidth: 600,
-          width: "100%",
-          backgroundColor: theme.palette.background.paper,
-        }}
-      >
-        <Typography variant="h5" sx={{ mb: 2 }}>
-          Connect External Systems
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!isConnected) {
+    return (
+      <Box sx={{ padding: 2 }}>
+        <Typography variant="h5" sx={{ marginBottom: 2 }}>
+          Connect to External Data Source
         </Typography>
-        {isLoading ? (
-          <CircularProgress />
-        ) : (
-          <>
-            <Typography variant="body1" sx={{ mb: 2 }}>
-              {isConnected
-                ? "You are connected to Xero."
-                : "You are not connected to Xero."}
-            </Typography>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleConnect}
-              disabled={isConnected}
-              sx={{ mb: 2 }}
-            >
-              {isConnected ? "Connected" : "Connect to Xero"}
-            </Button>
-            {isConnected && (
-              <Button
-                variant="contained"
-                color="secondary"
-                onClick={handleFetchData}
-              >
-                Fetch Data
-              </Button>
-            )}
-            {error && (
-              <Typography variant="body2" color="error" sx={{ mt: 2 }}>
-                {error}
-              </Typography>
-            )}
-          </>
-        )}
-      </Paper>
-    </Box>
-  );
+        <TextField
+          label="Client ID"
+          name="clientId"
+          fullWidth
+          value={credentials.clientId}
+          onChange={handleInputChange}
+          sx={{ marginBottom: 2 }}
+        />
+        <TextField
+          label="Client Secret"
+          name="clientSecret"
+          fullWidth
+          type="password"
+          value={credentials.clientSecret}
+          onChange={handleInputChange}
+          sx={{ marginBottom: 2 }}
+        />
+        <Button variant="contained" color="primary" onClick={handleConnect}>
+          Connect
+        </Button>
+      </Box>
+    );
+  }
+
+  return <ReviewRecords records={records} onSave={handleSave} />;
 }

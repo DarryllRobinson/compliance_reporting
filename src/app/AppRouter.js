@@ -53,6 +53,7 @@ import CreateReport, {
   createReportAction,
 } from "../features/reports/ptrs/CreateReport";
 import ConnectExternalSystems from "../features/reports/ptrs/ConnectExternalSystems";
+import ReviewRecords from "../features/reports/ptrs/ReviewRecords";
 
 // TODO: Optimise the whole thing: https://reactrouter.com/tutorials/address-book
 
@@ -194,8 +195,8 @@ export default function AppRouter() {
                     }),
                 },
                 {
-                  // Connect to external data source
-                  path: ":code/report/:reportId/connect",
+                  // Connect to external data source and review records
+                  path: ":code/report/:reportId/review",
                   Component: ConnectExternalSystems,
                 },
               ],
