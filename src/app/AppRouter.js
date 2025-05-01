@@ -49,8 +49,9 @@ import ReportsLayout, {
 // import UpdatePtrs, {
 //   updatePtrsLoader,
 // } from "../features/reports/ptrs/UpdatePtrs";
-import CreateReport from "../features/reports/ptrs/CreateReport";
-import { createReportAction } from "../features/reports/ptrs/actions";
+import CreateReport, {
+  createReportAction,
+} from "../features/reports/ptrs/CreateReport";
 
 // TODO: Optimise the whole thing: https://reactrouter.com/tutorials/address-book
 
