@@ -54,17 +54,20 @@ export async function createReportAction({ request, context, params }) {
     clientId: userService.userValue.clientId,
   };
 
-  console.log("reportDetails:", reportDetails);
-
   // Save the report details to the database
   try {
     const report = await reportService.create(reportDetails);
     if (!report) alertContext.sendAlert("error", "Report not created");
 
     // Update the ReportContext with the new report details
+    reportDetails = {
+      ...reportDetails,
+      reportId: report.id,
+    };
     if (reportContext && reportContext.setReportDetails) {
       reportContext.setReportDetails(reportDetails);
     }
+    console.log("Final createReport reportDetails:", reportDetails);
 
     // Alert the user about the successful creation
     alertContext.sendAlert("success", "Report created successfully");
