@@ -59,6 +59,7 @@ import ReviewRecords, {
 } from "../features/reports/ptrs/StepOne";
 import StepsOverview from "../features/reports/ptrs/StepsOverview";
 import StepOne from "../features/reports/ptrs/StepOne";
+import StepTwo, { stepTwoLoader } from "../features/reports/ptrs/StepTwo";
 
 // TODO: Optimise the whole thing: https://reactrouter.com/tutorials/address-book
 
@@ -214,16 +215,16 @@ export default function AppRouter() {
                       context: { alertContext, reportContext },
                     }),
                 },
-                // {
-                //   // Step 2: Capture additional required details for each TCP (Peppol enabled eInvoice, RCTI, Credit Card Payment, Credit Card Number, Partial Payment, Payment Term, Excluded TCPs
-                //   path: ":code/step2/:reportId",
-                //   Component: StepT,
-                //   loader: (args) =>
-                //     stepTwoLoad({
-                //       ...args,
-                //       context: { alertContext, reportContext },
-                //     }),
-                // },
+                {
+                  // Step 2: Capture additional required details for each TCP (Peppol enabled eInvoice, RCTI, Credit Card Payment, Credit Card Number, Partial Payment, Payment Term, Excluded TCPs
+                  path: ":code/step2/:reportId",
+                  Component: StepTwo,
+                  loader: (args) =>
+                    stepTwoLoader({
+                      ...args,
+                      context: { alertContext, reportContext },
+                    }),
+                },
                 { path: "steps", Component: StepsOverview },
               ],
             },

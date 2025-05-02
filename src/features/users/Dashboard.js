@@ -18,7 +18,7 @@ import { useTheme } from "@mui/material/styles";
 import { redirect, useLoaderData, useNavigate } from "react-router";
 import { reportService, userService } from "../../services";
 import { useReportContext } from "../../context/ReportContext";
-import { ptrsService } from "../../services/ptrs.service"; // Import ptrsService
+import { tcpService } from "../../services";
 import ProtectedRoutes from "../../utils/ProtectedRoutes";
 
 export async function dashboardLoader() {
@@ -79,7 +79,7 @@ export default function Dashboard() {
 
   async function continueReport(report) {
     try {
-      const savedRecords = await ptrsService.getAllByReportId(report.id); // Fetch saved PTRS records
+      const savedRecords = await tcpService.getAllByReportId(report.id); // Fetch saved PTRS records
       if (savedRecords) {
         navigate(`/reports/ptrs/step1/${report.id}`, {
           state: { savedRecords },

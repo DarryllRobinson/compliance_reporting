@@ -5,3 +5,4 @@ export * from "./xero.service";
 export * from "./user.service";
 export * from "./report.service";
 export * from "./client.service";
+export * from "./tcp.service";

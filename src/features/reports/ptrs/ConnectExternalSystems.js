@@ -1,10 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { xeroService } from "../../../services/xero.service";
-import ReviewRecords from "./StepOne";
+import { tcpService, userService, xeroService } from "../../../services";
 import { Box, TextField, Button, Typography } from "@mui/material";
-import { userService } from "../../../services/user.service";
+import {} from "../../../services/user.service";
 import { useAlert, useReportContext } from "../../../context";
-import { ptrsService } from "../../../services/ptrs.service";
 import { fieldMapping } from "./fieldMapping"; // Import the field mapping
 import { useNavigate } from "react-router"; // Import useNavigate
 
@@ -32,7 +30,7 @@ export default function ConnectExternalSystems() {
         const mappedRecords = mapRecordKeys(fetchedData); // Map the record keys
 
         // Save the mapped records to the backend
-        const saveResponse = await ptrsService.bulkCreate({
+        const saveResponse = await tcpService.bulkCreate({
           records: mappedRecords,
         });
         if (saveResponse.success) {

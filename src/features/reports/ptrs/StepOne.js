@@ -17,14 +17,13 @@ import {
 } from "@mui/material";
 import { useAlert } from "../../../context";
 import { fieldMapping } from "./fieldMapping"; // Import fieldMapping
-import { useLoaderData, useNavigate } from "react-router"; // Import useNavigate
-import { ptrsService } from "../../../services/ptrs.service";
-import { userService } from "../../../services/user.service";
+import { useLoaderData, useNavigate, useParams } from "react-router"; // Import useNavigate
+import { tcpService, userService } from "../../../services";
 
 export async function stepOneLoader({ params }) {
   const { reportId } = params; // Extract reportId from route params
   try {
-    const savedRecords = await ptrsService.getAllByReportId(reportId); // Fetch records by reportId
+    const savedRecords = await tcpService.getAllByReportId(reportId); // Fetch records by reportId
     console.log("Fetched records:", savedRecords); // Debug log to check the structure of savedRecords
     return { savedRecords: savedRecords || [] }; // Return saved records or an empty array
   } catch (error) {
@@ -34,6 +33,8 @@ export async function stepOneLoader({ params }) {
 }
 
 export default function StepOne() {
+  const params = useParams();
+  const { reportId } = params; // Extract reportId from route params
   const theme = useTheme();
   const { sendAlert } = useAlert();
   const navigate = useNavigate();
@@ -82,7 +83,7 @@ export default function StepOne() {
 
       try {
         console.log("Saving changed records:", updatedRecords);
-        const response = await ptrsService.bulkUpdate(updatedRecords);
+        const response = await tcpService.bulkUpdate(updatedRecords);
         if (response.success) {
           sendAlert("success", "Changed records saved successfully.");
 
@@ -277,7 +278,7 @@ export default function StepOne() {
           color="secondary"
           onClick={async () => {
             await saveChangedRows();
-            navigate("/reports/ptrs/step2");
+            navigate(`/reports/ptrs/step2/${reportId}`);
           }}
         >
           Next: Add Additional Details
