@@ -54,6 +54,7 @@ import CreateReport, {
 } from "../features/reports/ptrs/CreateReport";
 import ConnectExternalSystems from "../features/reports/ptrs/ConnectExternalSystems";
 import ReviewRecords from "../features/reports/ptrs/ReviewRecords";
+import StepsOverview from "../features/reports/ptrs/StepsOverview";
 
 // TODO: Optimise the whole thing: https://reactrouter.com/tutorials/address-book
 
@@ -199,6 +200,7 @@ export default function AppRouter() {
                   path: ":code/report/:reportId/review",
                   Component: ConnectExternalSystems,
                 },
+                { path: "steps", Component: StepsOverview },
               ],
             },
           ],
