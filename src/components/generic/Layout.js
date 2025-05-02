@@ -51,7 +51,7 @@ export default function Layout() {
 
   const toggleTheme = () => setIsDarkTheme((prev) => !prev);
 
-  const showProcessFlow = ["/reports/ptrs/"].some((path) =>
+  const showProcessFlow = ["/reports/ptr/"].some((path) =>
     location.pathname.startsWith(path)
   );
 

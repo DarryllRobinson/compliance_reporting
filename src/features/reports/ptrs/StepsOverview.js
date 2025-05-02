@@ -11,23 +11,23 @@ import Typography from "@mui/material/Typography";
 const steps = [
   {
     step: "Step 1",
-    description: "Load and review full payment data",
+    description:
+      "Load full payment data and exclude payments that are not trade credit payments (TCPs)",
   },
   {
     step: "Step 2",
-    description: "Apply filtering rules (e.g., credit card, <$100)",
+    description:
+      "Capture additional required details for each TCP (Peppol enabled eInoivce, RCTI, Credit Card Payment, Credit Card Number, Partial Payment, Payment Term, Excluded TCPs",
   },
   {
     step: "Step 3",
-    description: "Lock in valid trade credit payments",
+    description:
+      "Remove payments that meet exclusion criteria (Entities without an ABN, Intra-group payments, Credit card payments of < $100 (optional), credit card payments using prohibited credit cards under a genuine internal policy (if applicable), others?",
   },
   {
     step: "Step 4",
-    description: "Export ABNs for portal classification",
-  },
-  {
-    step: "Step 5",
-    description: "Upload SBI results from regulator tool",
+    description:
+      "Run TCP extract against SBI and upload SBI results to highlight Small Business TCPs",
   },
   {
     step: "Step 6",

@@ -18,7 +18,7 @@ import { useTheme } from "@mui/material/styles";
 import { redirect, useLoaderData, useNavigate } from "react-router";
 import { reportService, userService } from "../../services";
 import { useReportContext } from "../../context/ReportContext";
-// import prepareReport from "../reports/ptrs/prepareReport";
+import { ptrsService } from "../../services/ptrs.service"; // Import ptrsService
 import ProtectedRoutes from "../../utils/ProtectedRoutes";
 
 export async function dashboardLoader() {
@@ -77,15 +77,20 @@ export default function Dashboard() {
     navigate(`/reports/${report.code}/create`);
   }
 
-  function continueReport(report) {
-    navigate(`/reports/${report.code}/report/${report.id}`);
-    // const prepared = prepareReport(report, reportContext);
-    // if (prepared) {
-    //   navigate(`/reports/${report.code}/update`);
-    //   // navigate(`/reports/${report.code}/update`);
-    // } else {
-    //   console.error("Dashboard prepareReport error");
-    // }
+  async function continueReport(report) {
+    try {
+      const savedRecords = await ptrsService.getAllByReportId(report.id); // Fetch saved PTRS records
+      if (savedRecords) {
+        console.log("Fetched saved records:", savedRecords);
+        navigate(`/reports/ptrs/report/${report.id}`, {
+          state: { savedRecords },
+        }); // Navigate to the report page with saved records
+      } else {
+        console.warn("No saved records found for report ID:", report.id);
+      }
+    } catch (error) {
+      console.error("Error fetching saved records:", error);
+    }
   }
 
   function renderTable(row) {
@@ -150,6 +155,10 @@ export default function Dashboard() {
             ? reports.filter((r) => r.code === report.code)
             : [];
 
+          const hasCreatedReport = relevantReports.some(
+            (r) => r.reportStatus === "Created"
+          );
+
           return (
             <Grid item xs={12} key={index}>
               <Card>
@@ -189,14 +198,16 @@ export default function Dashboard() {
                       No records found for this report
                     </Typography>
                   )}
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => createReport(report)}
-                    sx={{ marginTop: 2 }}
-                  >
-                    Create New Report
-                  </Button>
+                  {hasCreatedReport && (
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={() => createReport(report)}
+                      sx={{ marginTop: 2 }}
+                    >
+                      Create New Report
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
             </Grid>

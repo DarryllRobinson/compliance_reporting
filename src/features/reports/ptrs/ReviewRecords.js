@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Box,
   Paper,
@@ -16,52 +16,37 @@ import {
   useTheme,
 } from "@mui/material";
 import { useAlert } from "../../../context";
+import { fieldMapping } from "./fieldMapping"; // Import fieldMapping
+import { useLoaderData } from "react-router";
+import { ptrsService } from "../../../services/ptrs.service";
 
-export default function ReviewRecords({ fetchRecords, onSave }) {
+export async function reviewRecordsLoader({ params }) {
+  const { reportId } = params; // Extract reportId from route params
+  try {
+    const savedRecords = await ptrsService.getAllByReportId(reportId); // Fetch records by reportId
+    return { savedRecords: savedRecords || [] }; // Return saved records or an empty array
+  } catch (error) {
+    console.error("Error fetching records:", error);
+    throw new Response("Failed to fetch records", { status: 500 });
+  }
+}
+
+export default function ReviewRecords({ onSave }) {
   const theme = useTheme();
   const { sendAlert } = useAlert();
-  const [records, setRecords] = useState([]); // Records fetched from the backend
-  const [filteredRecords, setFilteredRecords] = useState([]); // Ensure this is initialized as an empty array
+  const { savedRecords } = useLoaderData(); // Access saved records from loader
+  const [records, setRecords] = useState(savedRecords); // Initialize with saved records
+  const [filteredRecords, setFilteredRecords] = useState(savedRecords); // Initialize with saved records
   const [searchTerm, setSearchTerm] = useState("");
-  const [tcpStatus, setTcpStatus] = useState({}); // Track TCP status for each record
-  const [comments, setComments] = useState({}); // Track comments for each record
+  const [tcpStatus, setTcpStatus] = useState(() =>
+    savedRecords.reduce((acc, _, index) => {
+      acc[index] = true; // Default all checkboxes to checked
+      return acc;
+    }, {})
+  );
+  const [comments, setComments] = useState({});
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [isLoading, setIsLoading] = useState(true); // Track loading state
-
-  useEffect(() => {
-    // Fetch records from the backend
-    fetchRecords()
-      .then((fetchedRecords) => {
-        if (Array.isArray(fetchedRecords) && fetchedRecords.length > 0) {
-          setRecords(fetchedRecords); // Set records if data is valid
-          setFilteredRecords(fetchedRecords); // Set filteredRecords if data is valid
-        } else {
-          console.warn("No records fetched or invalid data structure.");
-          setRecords([]); // Fallback to empty array
-          setFilteredRecords([]); // Fallback to empty array
-        }
-        setIsLoading(false); // Set loading to false after fetching
-      })
-      .catch((error) => {
-        console.error("Error fetching records:", error);
-        sendAlert("error", "Failed to fetch records.");
-        setIsLoading(false); // Set loading to false even if there's an error
-      });
-  }, [fetchRecords, sendAlert]);
-
-  useEffect(() => {
-    // Filter records based on the search term
-    const lowerCaseSearchTerm = searchTerm.toLowerCase();
-    setFilteredRecords(
-      records.filter((record) =>
-        Object.values(record)
-          .join(" ")
-          .toLowerCase()
-          .includes(lowerCaseSearchTerm)
-      )
-    );
-  }, [searchTerm, records]);
 
   const handleTcpToggle = (index) => {
     setTcpStatus((prev) => ({
@@ -90,20 +75,12 @@ export default function ReviewRecords({ fetchRecords, onSave }) {
       }));
 
     if (updatedRecords.length > 0) {
-      console.log("Updated Records with IDs:", updatedRecords);
-      setIsLoading(true); // Set loading to true while saving
       try {
         await onSave(updatedRecords); // Save the updated records
         sendAlert("success", "Records updated successfully.");
-        // Refetch records after saving
-        const fetchedRecords = await fetchRecords();
-        setRecords(fetchedRecords || []);
-        setFilteredRecords(fetchedRecords || []);
       } catch (error) {
         console.error("Error saving records:", error);
         sendAlert("error", "Failed to save records.");
-      } finally {
-        setIsLoading(false); // Set loading to false after saving
       }
     } else {
       sendAlert("info", "No records have been updated.");
@@ -119,14 +96,23 @@ export default function ReviewRecords({ fetchRecords, onSave }) {
     setPage(0);
   };
 
+  const handleSearch = (event) => {
+    const lowerCaseSearchTerm = event.target.value.toLowerCase();
+    setSearchTerm(lowerCaseSearchTerm);
+    setFilteredRecords(
+      records.filter((record) =>
+        Object.values(record)
+          .join(" ")
+          .toLowerCase()
+          .includes(lowerCaseSearchTerm)
+      )
+    );
+  };
+
   const displayedRecords = filteredRecords.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
   );
-
-  if (isLoading) {
-    return <Typography variant="h6">Loading records...</Typography>;
-  }
 
   if (records.length === 0) {
     return (
@@ -144,23 +130,15 @@ export default function ReviewRecords({ fetchRecords, onSave }) {
         variant="outlined"
         fullWidth
         value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
+        onChange={handleSearch}
         sx={{ marginBottom: 2 }}
       />
-      <TableContainer component={Paper}>
-        <Table>
+      <TableContainer component={Paper} sx={{ maxHeight: 500 }}>
+        <Table stickyHeader>
           <TableHead>
-            <TableRow
-              sx={{
-                position: "sticky",
-                top: 0,
-                backgroundColor: theme.palette.primary.main,
-                color: theme.palette.primary.contrastText,
-                zIndex: 1,
-              }}
-            >
-              {Object.keys(records[0] || {}).map((field, index) => (
-                <TableCell key={index}>{field}</TableCell>
+            <TableRow>
+              {fieldMapping.map((field, index) => (
+                <TableCell key={index}>{field.label}</TableCell>
               ))}
               <TableCell>Mark as TCP</TableCell>
               <TableCell>Comment</TableCell>
@@ -169,8 +147,10 @@ export default function ReviewRecords({ fetchRecords, onSave }) {
           <TableBody>
             {displayedRecords.map((record, index) => (
               <TableRow key={record.id}>
-                {Object.values(record).map((value, fieldIndex) => (
-                  <TableCell key={fieldIndex}>{value || "-"}</TableCell>
+                {fieldMapping.map((field, fieldIndex) => (
+                  <TableCell key={fieldIndex}>
+                    {record[field.name] || "-"}
+                  </TableCell>
                 ))}
                 <TableCell>
                   <Checkbox
