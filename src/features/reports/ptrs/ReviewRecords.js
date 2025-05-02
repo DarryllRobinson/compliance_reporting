@@ -51,9 +51,7 @@ export default function ReviewRecords() {
 
   const saveRecords = async (updatedRecords) => {
     try {
-      console.log("Updated records:", updatedRecords); // Debug log to check the structure of updated records
       const response = await ptrsService.bulkUpdate(updatedRecords); // Save records to the backend
-      console.log("Save response:", response); // Debug log to check the response
       if (response.success) {
         sendAlert("success", "Records updated successfully.");
       } else {
@@ -67,16 +65,21 @@ export default function ReviewRecords() {
 
   const handleSave = async () => {
     const updatedRecords = records
-      .filter((record, index) => {
-        return !!tcpStatus[index] || comments[index]; // Check if TCP status or comment has been updated
+      .map((record, index) => {
+        const isTcpUpdated = record.isTcp !== !!tcpStatus[index];
+        const isCommentUpdated = record.comment !== (comments[index] || "");
+        if (isTcpUpdated || isCommentUpdated) {
+          return {
+            id: record.id, // Include the correct database ID
+            ...record,
+            isTcp: !!tcpStatus[index],
+            comment: comments[index] || "",
+            updatedBy: userService.userValue.id, // Add the user ID of the person updating
+          };
+        }
+        return null; // Exclude records that have not been updated
       })
-      .map((record, index) => ({
-        id: record.id, // Include the correct database ID
-        ...record,
-        isTcp: !!tcpStatus[index],
-        comment: comments[index] || "",
-        updatedBy: userService.userValue.id, // Add the user ID of the person updating
-      }));
+      .filter(Boolean); // Remove null values
 
     if (updatedRecords.length > 0) {
       await saveRecords(updatedRecords); // Call the saveRecords function
@@ -108,17 +111,19 @@ export default function ReviewRecords() {
   };
 
   const handleTcpToggle = (index) => {
-    setTcpStatus((prev) => ({
-      ...prev,
-      [index]: !prev[index],
-    }));
+    setTcpStatus((prev) => {
+      const updatedStatus = { ...prev, [index]: !prev[index] };
+      console.log("Updated TCP Status:", updatedStatus); // Debug log to verify state update
+      return updatedStatus;
+    });
   };
 
   const handleCommentChange = (index, value) => {
-    setComments((prev) => ({
-      ...prev,
-      [index]: value,
-    }));
+    setComments((prev) => {
+      const updatedComments = { ...prev, [index]: value };
+      console.log("Updated Comments:", updatedComments); // Debug log to verify state update
+      return updatedComments;
+    });
   };
 
   const displayedRecords = filteredRecords.slice(
