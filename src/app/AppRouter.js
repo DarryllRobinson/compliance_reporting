@@ -55,8 +55,10 @@ import CreateReport, {
 import ConnectExternalSystems from "../features/reports/ptrs/ConnectExternalSystems";
 import ReviewRecords, {
   reviewRecordsLoader,
-} from "../features/reports/ptrs/ReviewRecords";
+  stepOneLoader,
+} from "../features/reports/ptrs/StepOne";
 import StepsOverview from "../features/reports/ptrs/StepsOverview";
+import StepOne from "../features/reports/ptrs/StepOne";
 
 // TODO: Optimise the whole thing: https://reactrouter.com/tutorials/address-book
 
@@ -199,15 +201,15 @@ export default function AppRouter() {
                 },
                 {
                   // Connect to external data source
-                  path: ":code/report/:reportId/connect",
+                  path: ":code/:reportId/connect",
                   Component: ConnectExternalSystems,
                 },
                 {
-                  // Review records
-                  path: ":code/report/:reportId",
-                  Component: ReviewRecords,
+                  // Step 1: TCP Dataset
+                  path: ":code/step1/:reportId",
+                  Component: StepOne,
                   loader: (args) =>
-                    reviewRecordsLoader({
+                    stepOneLoader({
                       ...args,
                       context: { alertContext, reportContext },
                     }),

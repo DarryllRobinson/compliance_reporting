@@ -21,7 +21,7 @@ import { useLoaderData, useNavigate } from "react-router"; // Import useNavigate
 import { ptrsService } from "../../../services/ptrs.service";
 import { userService } from "../../../services/user.service";
 
-export async function reviewRecordsLoader({ params }) {
+export async function stepOneLoader({ params }) {
   const { reportId } = params; // Extract reportId from route params
   try {
     const savedRecords = await ptrsService.getAllByReportId(reportId); // Fetch records by reportId
@@ -33,7 +33,7 @@ export async function reviewRecordsLoader({ params }) {
   }
 }
 
-export default function ReviewRecords() {
+export default function StepOne() {
   const theme = useTheme();
   const { sendAlert } = useAlert();
   const navigate = useNavigate();

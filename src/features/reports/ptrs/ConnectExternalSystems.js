@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { xeroService } from "../../../services/xero.service";
-import ReviewRecords from "./ReviewRecords";
+import ReviewRecords from "./StepOne";
 import { Box, TextField, Button, Typography } from "@mui/material";
 import { userService } from "../../../services/user.service";
 import { useAlert, useReportContext } from "../../../context";
@@ -43,7 +43,7 @@ export default function ConnectExternalSystems() {
         }
 
         // Navigate to ReviewRecords with the fetched records
-        navigate(`/reports/ptrs/report/${reportDetails.reportId}`, {
+        navigate(`/reports/ptrs/step1/${reportDetails.reportId}`, {
           state: { savedRecords: mappedRecords },
         });
       } else {
