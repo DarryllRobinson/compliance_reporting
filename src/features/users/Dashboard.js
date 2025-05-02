@@ -81,7 +81,6 @@ export default function Dashboard() {
     try {
       const savedRecords = await ptrsService.getAllByReportId(report.id); // Fetch saved PTRS records
       if (savedRecords) {
-        console.log("Fetched saved records:", savedRecords);
         navigate(`/reports/ptrs/report/${report.id}`, {
           state: { savedRecords },
         }); // Navigate to the report page with saved records

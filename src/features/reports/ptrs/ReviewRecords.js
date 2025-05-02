@@ -17,7 +17,7 @@ import {
 } from "@mui/material";
 import { useAlert } from "../../../context";
 import { fieldMapping } from "./fieldMapping"; // Import fieldMapping
-import { useLoaderData } from "react-router";
+import { useLoaderData, useNavigate } from "react-router"; // Import useNavigate
 import { ptrsService } from "../../../services/ptrs.service";
 import { userService } from "../../../services/user.service";
 
@@ -25,6 +25,7 @@ export async function reviewRecordsLoader({ params }) {
   const { reportId } = params; // Extract reportId from route params
   try {
     const savedRecords = await ptrsService.getAllByReportId(reportId); // Fetch records by reportId
+    console.log("Fetched records:", savedRecords); // Debug log to check the structure of savedRecords
     return { savedRecords: savedRecords || [] }; // Return saved records or an empty array
   } catch (error) {
     console.error("Error fetching records:", error);
@@ -35,95 +36,128 @@ export async function reviewRecordsLoader({ params }) {
 export default function ReviewRecords() {
   const theme = useTheme();
   const { sendAlert } = useAlert();
-  const { savedRecords } = useLoaderData(); // Access saved records from loader
-  const [records, setRecords] = useState(savedRecords); // Initialize with saved records
-  const [filteredRecords, setFilteredRecords] = useState(savedRecords); // Initialize with saved records
+  const navigate = useNavigate();
+  const { savedRecords } = useLoaderData();
+  const [records, setRecords] = useState(savedRecords);
+  const [filteredRecords, setFilteredRecords] = useState(savedRecords);
   const [searchTerm, setSearchTerm] = useState("");
   const [tcpStatus, setTcpStatus] = useState(() =>
-    savedRecords.reduce((acc, _, index) => {
-      acc[index] = true; // Default all checkboxes to checked
+    savedRecords.reduce((acc, record) => {
+      acc[record.id] = record.isTcp || false;
       return acc;
     }, {})
   );
-  const [comments, setComments] = useState({});
+  const [comments, setComments] = useState(() =>
+    savedRecords.reduce((acc, record) => {
+      acc[record.id] = record.comment || "";
+      return acc;
+    }, {})
+  );
+  const [changedRows, setChangedRows] = useState(() =>
+    savedRecords.reduce((acc, record) => {
+      if (new Date(record.updatedAt) > new Date(record.createdAt)) {
+        acc[record.id] = "saved"; // Mark rows as saved if updatedAt > createdAt
+      } else {
+        acc[record.id] = false; // Initialize other rows as unchanged
+      }
+      return acc;
+    }, {})
+  );
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  const saveRecords = async (updatedRecords) => {
-    try {
-      const response = await ptrsService.bulkUpdate(updatedRecords); // Save records to the backend
-      if (response.success) {
-        sendAlert("success", "Records updated successfully.");
-      } else {
-        sendAlert("error", "Failed to update records.");
-      }
-    } catch (error) {
-      console.error("Error saving records:", error);
-      sendAlert("error", "An error occurred while saving records.");
-    }
-  };
+  const saveChangedRows = async () => {
+    // Filter records that are marked as "unsaved"
+    const rowsToSave = records.filter(
+      (record) => changedRows[record.id] === "unsaved"
+    );
+    if (rowsToSave.length > 0) {
+      const updatedRecords = rowsToSave.map((record) => ({
+        id: record.id,
+        ...record,
+        isTcp: !!tcpStatus[record.id],
+        comment: comments[record.id] || "",
+        updatedBy: userService.userValue.id,
+      }));
 
-  const handleSave = async () => {
-    const updatedRecords = records
-      .map((record, index) => {
-        const isTcpUpdated = record.isTcp !== !!tcpStatus[index];
-        const isCommentUpdated = record.comment !== (comments[index] || "");
-        if (isTcpUpdated || isCommentUpdated) {
-          return {
-            id: record.id, // Include the correct database ID
-            ...record,
-            isTcp: !!tcpStatus[index],
-            comment: comments[index] || "",
-            updatedBy: userService.userValue.id, // Add the user ID of the person updating
-          };
+      try {
+        console.log("Saving changed records:", updatedRecords);
+        const response = await ptrsService.bulkUpdate(updatedRecords);
+        if (response.success) {
+          sendAlert("success", "Changed records saved successfully.");
+
+          // Update only the changed rows in the `records` and `filteredRecords` states
+          setRecords((prev) => {
+            const updatedRecordsMap = new Map(
+              updatedRecords.map((row) => [row.id, row])
+            );
+            return prev.map((record) =>
+              updatedRecordsMap.has(record.id)
+                ? { ...record, ...updatedRecordsMap.get(record.id) }
+                : record
+            );
+          });
+
+          setFilteredRecords((prev) => {
+            const updatedRecordsMap = new Map(
+              updatedRecords.map((row) => [row.id, row])
+            );
+            return prev.map((record) =>
+              updatedRecordsMap.has(record.id)
+                ? { ...record, ...updatedRecordsMap.get(record.id) }
+                : record
+            );
+          });
+
+          // Mark saved rows as successfully saved
+          setChangedRows((prev) =>
+            rowsToSave.reduce(
+              (acc, row) => {
+                acc[row.id] = "saved";
+                return acc;
+              },
+              { ...prev }
+            )
+          );
+        } else {
+          sendAlert("error", "Failed to save changed records.");
         }
-        return null; // Exclude records that have not been updated
-      })
-      .filter(Boolean); // Remove null values
-
-    if (updatedRecords.length > 0) {
-      await saveRecords(updatedRecords); // Call the saveRecords function
-    } else {
-      sendAlert("info", "No records have been updated.");
+      } catch (error) {
+        console.error("Error saving changed records:", error);
+        sendAlert("error", "An error occurred while saving changed records.");
+      }
     }
   };
 
-  const handleChangePage = (event, newPage) => {
+  const handleSaveAll = async () => {
+    await saveChangedRows(); // Save only unsaved rows when the user clicks the save button
+  };
+
+  const handleChangePage = async (event, newPage) => {
+    await saveChangedRows(); // Save only unsaved rows before navigating
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
+  const handleTcpToggle = (id) => {
+    setTcpStatus((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+    setChangedRows((prev) => ({
+      ...prev,
+      [id]: "unsaved", // Mark the row as unsaved
+    }));
   };
 
-  const handleSearch = (event) => {
-    const lowerCaseSearchTerm = event.target.value.toLowerCase();
-    setSearchTerm(lowerCaseSearchTerm);
-    setFilteredRecords(
-      records.filter((record) =>
-        Object.values(record)
-          .join(" ")
-          .toLowerCase()
-          .includes(lowerCaseSearchTerm)
-      )
-    );
-  };
-
-  const handleTcpToggle = (index) => {
-    setTcpStatus((prev) => {
-      const updatedStatus = { ...prev, [index]: !prev[index] };
-      console.log("Updated TCP Status:", updatedStatus); // Debug log to verify state update
-      return updatedStatus;
-    });
-  };
-
-  const handleCommentChange = (index, value) => {
-    setComments((prev) => {
-      const updatedComments = { ...prev, [index]: value };
-      console.log("Updated Comments:", updatedComments); // Debug log to verify state update
-      return updatedComments;
-    });
+  const handleCommentChange = (id, value) => {
+    setComments((prev) => ({
+      ...prev,
+      [id]: value,
+    }));
+    setChangedRows((prev) => ({
+      ...prev,
+      [id]: "unsaved", // Mark the row as unsaved
+    }));
   };
 
   const displayedRecords = filteredRecords.slice(
@@ -147,7 +181,7 @@ export default function ReviewRecords() {
         variant="outlined"
         fullWidth
         value={searchTerm}
-        onChange={handleSearch}
+        onChange={(e) => setSearchTerm(e.target.value.toLowerCase())}
         sx={{ marginBottom: 2 }}
       />
       <TableContainer component={Paper} sx={{ maxHeight: 500 }}>
@@ -162,8 +196,18 @@ export default function ReviewRecords() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {displayedRecords.map((record, index) => (
-              <TableRow key={record.id}>
+            {displayedRecords.map((record) => (
+              <TableRow
+                key={record.id}
+                sx={{
+                  backgroundColor:
+                    changedRows[record.id] === "unsaved"
+                      ? "rgba(255, 0, 0, 0.1)" // Highlight unsaved rows in red
+                      : changedRows[record.id] === "saved"
+                        ? "rgba(0, 255, 0, 0.1)" // Highlight saved rows in green
+                        : "inherit",
+                }}
+              >
                 {fieldMapping.map((field, fieldIndex) => (
                   <TableCell key={fieldIndex}>
                     {record[field.name] || "-"}
@@ -171,8 +215,8 @@ export default function ReviewRecords() {
                 ))}
                 <TableCell>
                   <Checkbox
-                    checked={!!tcpStatus[index]}
-                    onChange={() => handleTcpToggle(index)}
+                    checked={!!tcpStatus[record.id]}
+                    onChange={() => handleTcpToggle(record.id)}
                   />
                 </TableCell>
                 <TableCell sx={{ width: "300px" }}>
@@ -181,8 +225,10 @@ export default function ReviewRecords() {
                     size="small"
                     fullWidth
                     multiline
-                    value={comments[index] || ""}
-                    onChange={(e) => handleCommentChange(index, e.target.value)}
+                    value={comments[record.id] || ""}
+                    onChange={(e) =>
+                      handleCommentChange(record.id, e.target.value)
+                    }
                   />
                 </TableCell>
               </TableRow>
@@ -196,17 +242,31 @@ export default function ReviewRecords() {
         page={page}
         onPageChange={handleChangePage}
         rowsPerPage={rowsPerPage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
+        onRowsPerPageChange={(event) =>
+          setRowsPerPage(parseInt(event.target.value, 10))
+        }
         rowsPerPageOptions={[5, 10, 25]}
       />
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={handleSave}
-        sx={{ marginTop: 2 }}
-      >
-        Save TCP Records
-      </Button>
+      <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleSaveAll}
+          sx={{ marginRight: 2 }}
+        >
+          Save All Changes
+        </Button>
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={async () => {
+            await saveChangedRows();
+            navigate("/reports/ptrs/additional-details");
+          }}
+        >
+          Next: Add Additional Details
+        </Button>
+      </Box>
     </Box>
   );
 }

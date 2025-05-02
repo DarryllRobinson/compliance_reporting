@@ -17,7 +17,7 @@ const steps = [
   {
     step: "Step 2",
     description:
-      "Capture additional required details for each TCP (Peppol enabled eInoivce, RCTI, Credit Card Payment, Credit Card Number, Partial Payment, Payment Term, Excluded TCPs",
+      "Capture additional required details for each TCP (Peppol enabled eInvoice, RCTI, Credit Card Payment, Credit Card Number, Partial Payment, Payment Term, Excluded TCPs",
   },
   {
     step: "Step 3",
