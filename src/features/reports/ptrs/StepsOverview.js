@@ -17,17 +17,16 @@ const steps = [
   {
     step: "Step 2",
     description:
-      "Capture additional required details for each TCP (Peppol enabled eInvoice, RCTI, Credit Card Payment, Credit Card Number, Partial Payment, Payment Term, Excluded TCPs",
+      "Capture additional required details for each TCP (Peppol enabled eInvoice, RCTI, Credit Card Payment, Credit Card Number, Partial Payment, Payment Term, Excluded TCPs and Remove payments that meet exclusion criteria (Entities without an ABN, Intra-group payments, Credit card payments of < $100 (optional), credit card payments using prohibited credit cards under a genuine internal policy (if applicable), others?",
   },
   {
     step: "Step 3",
     description:
-      "Remove payments that meet exclusion criteria (Entities without an ABN, Intra-group payments, Credit card payments of < $100 (optional), credit card payments using prohibited credit cards under a genuine internal policy (if applicable), others?",
+      "Run TCP extract against SBI tool and upload SBI results to highlight Small Business TCPs",
   },
   {
     step: "Step 4",
-    description:
-      "Run TCP extract against SBI and upload SBI results to highlight Small Business TCPs",
+    description: "Review final TCP dataset",
   },
   {
     step: "Step 6",

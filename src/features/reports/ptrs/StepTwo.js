@@ -66,6 +66,7 @@ export default function StepTwo() {
           partialPayment: record.partialPayment || false,
           paymentTerm: record.paymentTerm || 0,
           notes: record.notes || "",
+          excludedTcp: record.excludedTcp || false, // Add excludedTcp field
         };
       }
       return acc;
@@ -113,7 +114,7 @@ export default function StepTwo() {
       const updatedRecords = rowsToSave.map((record) => ({
         id: record.id,
         ...record,
-        ...fields[record.id],
+        ...fields[record.id], // Include excludedTcp in the save object
         updatedBy: userService.userValue.id,
       }));
 
@@ -242,12 +243,13 @@ export default function StepTwo() {
                 "Invoice Receipt Date",
                 "Invoice Payment Terms",
                 "Invoice Due Date",
-                "Peppol Enabled",
+                "Peppol eInvoice Enabled",
                 "RCTI",
                 "Credit Card Payment",
                 "Credit Card Number",
                 "Partial Payment",
                 "Payment Term",
+                "Excluded TCP", // Add Excluded TCP to the table header
                 "Notes",
               ].map((label, index) => (
                 <TableCell key={index}>{label}</TableCell>
@@ -363,6 +365,18 @@ export default function StepTwo() {
                         record.id,
                         "paymentTerm",
                         e.target.value
+                      )
+                    }
+                  />
+                </TableCell>
+                <TableCell>
+                  <Checkbox
+                    checked={fields[record.id]?.excludedTcp || false}
+                    onChange={(e) =>
+                      handleFieldChange(
+                        record.id,
+                        "excludedTcp",
+                        e.target.checked
                       )
                     }
                   />
