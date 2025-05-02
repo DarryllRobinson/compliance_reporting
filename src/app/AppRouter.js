@@ -214,6 +214,16 @@ export default function AppRouter() {
                       context: { alertContext, reportContext },
                     }),
                 },
+                // {
+                //   // Step 2: Capture additional required details for each TCP (Peppol enabled eInvoice, RCTI, Credit Card Payment, Credit Card Number, Partial Payment, Payment Term, Excluded TCPs
+                //   path: ":code/step2/:reportId",
+                //   Component: StepT,
+                //   loader: (args) =>
+                //     stepTwoLoad({
+                //       ...args,
+                //       context: { alertContext, reportContext },
+                //     }),
+                // },
                 { path: "steps", Component: StepsOverview },
               ],
             },

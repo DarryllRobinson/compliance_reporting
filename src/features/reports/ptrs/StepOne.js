@@ -47,9 +47,9 @@ export default function StepOne() {
       return acc;
     }, {})
   );
-  const [comments, setComments] = useState(() =>
+  const [tcpExclusions, setTcpExclusions] = useState(() =>
     savedRecords.reduce((acc, record) => {
-      acc[record.id] = record.comment || "";
+      acc[record.id] = record.tcpExclusion || "";
       return acc;
     }, {})
   );
@@ -76,7 +76,7 @@ export default function StepOne() {
         id: record.id,
         ...record,
         isTcp: !!tcpStatus[record.id],
-        comment: comments[record.id] || "",
+        tcpExclusion: tcpExclusions[record.id] || "",
         updatedBy: userService.userValue.id,
       }));
 
@@ -149,8 +149,8 @@ export default function StepOne() {
     }));
   };
 
-  const handleCommentChange = (id, value) => {
-    setComments((prev) => ({
+  const handleTcpExclusionChange = (id, value) => {
+    setTcpExclusions((prev) => ({
       ...prev,
       [id]: value,
     }));
@@ -158,6 +158,22 @@ export default function StepOne() {
       ...prev,
       [id]: "unsaved", // Mark the row as unsaved
     }));
+  };
+
+  const handleSearch = (event) => {
+    const lowerCaseSearchTerm = event.target.value.toLowerCase();
+    setSearchTerm(lowerCaseSearchTerm);
+
+    // Filter records based on the search term
+    setFilteredRecords(
+      records.filter(
+        (record) =>
+          Object.values(record)
+            .join(" ") // Combine all record values into a single string
+            .toLowerCase()
+            .includes(lowerCaseSearchTerm) // Check if the search term is included
+      )
+    );
   };
 
   const displayedRecords = filteredRecords.slice(
@@ -181,7 +197,7 @@ export default function StepOne() {
         variant="outlined"
         fullWidth
         value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value.toLowerCase())}
+        onChange={handleSearch} // Use the updated search handler
         sx={{ marginBottom: 2 }}
       />
       <TableContainer component={Paper} sx={{ maxHeight: 500 }}>
@@ -192,7 +208,7 @@ export default function StepOne() {
                 <TableCell key={index}>{field.label}</TableCell>
               ))}
               <TableCell>Mark as TCP</TableCell>
-              <TableCell>Comment</TableCell>
+              <TableCell>Exclusion Reason</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -225,9 +241,9 @@ export default function StepOne() {
                     size="small"
                     fullWidth
                     multiline
-                    value={comments[record.id] || ""}
+                    value={tcpExclusions[record.id] || ""}
                     onChange={(e) =>
-                      handleCommentChange(record.id, e.target.value)
+                      handleTcpExclusionChange(record.id, e.target.value)
                     }
                   />
                 </TableCell>
@@ -261,7 +277,7 @@ export default function StepOne() {
           color="secondary"
           onClick={async () => {
             await saveChangedRows();
-            navigate("/reports/ptrs/additional-details");
+            navigate("/reports/ptrs/step2");
           }}
         >
           Next: Add Additional Details
