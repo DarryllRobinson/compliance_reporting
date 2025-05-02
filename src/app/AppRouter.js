@@ -198,7 +198,12 @@ export default function AppRouter() {
                     }),
                 },
                 {
-                  // Connect to external data source and review records
+                  // Connect to external data source
+                  path: ":code/report/:reportId/connect",
+                  Component: ConnectExternalSystems,
+                },
+                {
+                  // Review records
                   path: ":code/report/:reportId",
                   Component: ReviewRecords,
                   loader: (args) =>

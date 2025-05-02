@@ -7,8 +7,8 @@ export const ptrsService = {
   getAll,
   getAllByReportId,
   getById,
-  create,
-  update,
+  bulkCreate,
+  bulkUpdate,
   delete: _delete,
 };
 
@@ -24,12 +24,12 @@ async function getById(id) {
   return await fetchWrapper.get(`${baseUrl}/${id}`);
 }
 
-async function create(params) {
+async function bulkCreate(params) {
   return await fetchWrapper.post(baseUrl, params);
 }
 
-async function update(id, params) {
-  return await fetchWrapper.put(`${baseUrl}/${id}`, params);
+async function bulkUpdate(params) {
+  return await fetchWrapper.put(baseUrl, params);
 }
 
 async function _delete(id) {

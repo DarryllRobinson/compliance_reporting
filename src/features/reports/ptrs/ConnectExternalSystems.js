@@ -32,7 +32,7 @@ export default function ConnectExternalSystems() {
         const mappedRecords = mapRecordKeys(fetchedData); // Map the record keys
 
         // Save the mapped records to the backend
-        const saveResponse = await ptrsService.create({
+        const saveResponse = await ptrsService.bulkCreate({
           records: mappedRecords,
         });
         if (saveResponse.success) {
@@ -122,7 +122,7 @@ export default function ConnectExternalSystems() {
         // Add additional fields
         mappedRecord = {
           ...mappedRecord,
-          updatedBy: userService.userValue.id,
+          createdBy: userService.userValue.id,
           reportId: reportDetails.reportId,
         };
 

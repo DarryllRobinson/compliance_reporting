@@ -19,6 +19,7 @@ import { useAlert } from "../../../context";
 import { fieldMapping } from "./fieldMapping"; // Import fieldMapping
 import { useLoaderData } from "react-router";
 import { ptrsService } from "../../../services/ptrs.service";
+import { userService } from "../../../services/user.service";
 
 export async function reviewRecordsLoader({ params }) {
   const { reportId } = params; // Extract reportId from route params
@@ -31,7 +32,7 @@ export async function reviewRecordsLoader({ params }) {
   }
 }
 
-export default function ReviewRecords({ onSave }) {
+export default function ReviewRecords() {
   const theme = useTheme();
   const { sendAlert } = useAlert();
   const { savedRecords } = useLoaderData(); // Access saved records from loader
@@ -48,18 +49,20 @@ export default function ReviewRecords({ onSave }) {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  const handleTcpToggle = (index) => {
-    setTcpStatus((prev) => ({
-      ...prev,
-      [index]: !prev[index],
-    }));
-  };
-
-  const handleCommentChange = (index, value) => {
-    setComments((prev) => ({
-      ...prev,
-      [index]: value,
-    }));
+  const saveRecords = async (updatedRecords) => {
+    try {
+      console.log("Updated records:", updatedRecords); // Debug log to check the structure of updated records
+      const response = await ptrsService.bulkUpdate(updatedRecords); // Save records to the backend
+      console.log("Save response:", response); // Debug log to check the response
+      if (response.success) {
+        sendAlert("success", "Records updated successfully.");
+      } else {
+        sendAlert("error", "Failed to update records.");
+      }
+    } catch (error) {
+      console.error("Error saving records:", error);
+      sendAlert("error", "An error occurred while saving records.");
+    }
   };
 
   const handleSave = async () => {
@@ -72,16 +75,11 @@ export default function ReviewRecords({ onSave }) {
         ...record,
         isTcp: !!tcpStatus[index],
         comment: comments[index] || "",
+        updatedBy: userService.userValue.id, // Add the user ID of the person updating
       }));
 
     if (updatedRecords.length > 0) {
-      try {
-        await onSave(updatedRecords); // Save the updated records
-        sendAlert("success", "Records updated successfully.");
-      } catch (error) {
-        console.error("Error saving records:", error);
-        sendAlert("error", "Failed to save records.");
-      }
+      await saveRecords(updatedRecords); // Call the saveRecords function
     } else {
       sendAlert("info", "No records have been updated.");
     }
@@ -107,6 +105,20 @@ export default function ReviewRecords({ onSave }) {
           .includes(lowerCaseSearchTerm)
       )
     );
+  };
+
+  const handleTcpToggle = (index) => {
+    setTcpStatus((prev) => ({
+      ...prev,
+      [index]: !prev[index],
+    }));
+  };
+
+  const handleCommentChange = (index, value) => {
+    setComments((prev) => ({
+      ...prev,
+      [index]: value,
+    }));
   };
 
   const displayedRecords = filteredRecords.slice(
