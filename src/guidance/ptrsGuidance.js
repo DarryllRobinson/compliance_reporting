@@ -34,7 +34,7 @@ export const ptrsGuidance = [
   {
     name: "Payment Term",
     description:
-      "The payment term refers to the period within which a payment should be made after the invoice date.",
+      "The payment term refers to the period within which a payment should be made after the invoice date. Contract/PO payment terms take precedence over invoice payment terms.",
     guidanceMaterial: "Paragraphs 143-150, Examples 33-35",
     requirement:
       "The reporting entity needs to record the payment terms for each TCP.",

@@ -17,19 +17,42 @@ import {
 import { useAlert } from "../../../context";
 import { useLoaderData, useNavigate } from "react-router";
 import { tcpService, userService } from "../../../services";
+import { calculatePaymentTerm } from "../../../calculations/ptrs"; // Import the function
 
 export async function stepTwoLoader({ params, location }) {
   const { reportId } = params;
   const passedRecords = location?.state?.records;
 
   if (passedRecords) {
-    return { records: passedRecords };
+    // Update paymentTerm for each record using calculatePaymentTerm
+    const updatedRecords = passedRecords.map((record) => ({
+      ...record,
+      paymentTerm: calculatePaymentTerm({
+        contractPoPaymentTerms: record.contractPoPaymentTerms,
+        invoicePaymentTerms: record.invoicePaymentTerms,
+        invoiceIssueDate: record.invoiceIssueDate,
+        invoiceDueDate: record.invoiceDueDate,
+      }),
+    }));
+    return { records: updatedRecords };
   }
 
   try {
     const fetchedRecords = await tcpService.getAllByReportId(reportId);
     console.log("Fetched records:", fetchedRecords);
-    return { records: fetchedRecords || [] };
+
+    // Update paymentTerm for each record using calculatePaymentTerm
+    const updatedRecords = fetchedRecords.map((record) => ({
+      ...record,
+      paymentTerm: calculatePaymentTerm({
+        contractPoPaymentTerms: record.contractPoPaymentTerms,
+        invoicePaymentTerms: record.invoicePaymentTerms,
+        invoiceIssueDate: record.invoiceIssueDate,
+        invoiceDueDate: record.invoiceDueDate,
+      }),
+    }));
+
+    return { records: updatedRecords || [] };
   } catch (error) {
     console.error("Error fetching records:", error);
     throw new Response("Failed to fetch records", { status: 500 });
@@ -262,11 +285,13 @@ export default function StepTwo() {
                 key={record.id}
                 sx={{
                   backgroundColor:
-                    changedRows[record.id] === "unsaved"
-                      ? "rgba(255, 0, 0, 0.1)" // Highlight unsaved rows in red
-                      : changedRows[record.id] === "saved"
-                        ? "rgba(0, 255, 0, 0.1)" // Highlight saved rows in green
-                        : "inherit",
+                    fields[record.id]?.paymentTerm === 99
+                      ? "rgba(255, 165, 0, 0.3)" // Highlight records with paymentTerm = 99 in orange
+                      : changedRows[record.id] === "unsaved"
+                        ? "rgba(255, 0, 0, 0.1)" // Highlight unsaved rows in red
+                        : changedRows[record.id] === "saved"
+                          ? "rgba(0, 255, 0, 0.1)" // Highlight saved rows in green
+                          : "inherit",
                 }}
               >
                 <TableCell>{record.payerEntityName || "-"}</TableCell>
@@ -358,13 +383,14 @@ export default function StepTwo() {
                     size="small"
                     type="number"
                     fullWidth
+                    sx={{ width: "70px" }} // Make the field wide enough for 3 digits
                     inputProps={{ maxLength: 3, min: 0, max: 999 }}
                     value={fields[record.id]?.paymentTerm || 0}
                     onChange={(e) =>
                       handleFieldChange(
                         record.id,
                         "paymentTerm",
-                        e.target.value
+                        parseInt(e.target.value, 10) || 0
                       )
                     }
                   />

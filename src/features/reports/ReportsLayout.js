@@ -26,7 +26,7 @@ export function reportLayoutLoader() {
 }
 
 export default function ReportsLayout() {
-  const [isDrawerOpen, setIsDrawerOpen] = useState(true);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const toggleDrawer = () => {
     setIsDrawerOpen((prev) => !prev);
