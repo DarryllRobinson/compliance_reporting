@@ -37,29 +37,14 @@ import ReportsMain from "../features/reports/ReportsMain";
 import ReportsLayout, {
   reportLayoutLoader,
 } from "../features/reports/ReportsLayout";
-// import CreateReport, {
-//   createReportAction,
-// } from "../features/reports/CreateReport";
-// import ReportFrame, {
-//   reportFrameLoader,
-// } from "../features/reports/ReportFrame";
-// import CreatePtrs, {
-//   createPtrsAction,
-// } from "../features/reports/ptrs/CreatePtrs";
-// import UpdatePtrs, {
-//   updatePtrsLoader,
-// } from "../features/reports/ptrs/UpdatePtrs";
 import CreateReport, {
   createReportAction,
 } from "../features/reports/ptrs/CreateReport";
 import ConnectExternalSystems from "../features/reports/ptrs/ConnectExternalSystems";
-import ReviewRecords, {
-  reviewRecordsLoader,
-  stepOneLoader,
-} from "../features/reports/ptrs/StepOne";
 import StepsOverview from "../features/reports/ptrs/StepsOverview";
-import StepOne from "../features/reports/ptrs/StepOne";
-import StepTwo, { stepTwoLoader } from "../features/reports/ptrs/StepTwo";
+import Step1, { step1Loader } from "../features/reports/ptrs/Step1";
+import Step2, { step2Loader } from "../features/reports/ptrs/Step2";
+import Step3, { step3Loader } from "../features/reports/ptrs/Step3";
 
 // TODO: Optimise the whole thing: https://reactrouter.com/tutorials/address-book
 
@@ -208,9 +193,9 @@ export default function AppRouter() {
                 {
                   // Step 1: TCP Dataset
                   path: ":code/step1/:reportId",
-                  Component: StepOne,
+                  Component: Step1,
                   loader: (args) =>
-                    stepOneLoader({
+                    step1Loader({
                       ...args,
                       context: { alertContext, reportContext },
                     }),
@@ -218,9 +203,19 @@ export default function AppRouter() {
                 {
                   // Step 2: Capture additional required details for each TCP (Peppol enabled eInvoice, RCTI, Credit Card Payment, Credit Card Number, Partial Payment, Payment Term, Excluded TCPs
                   path: ":code/step2/:reportId",
-                  Component: StepTwo,
+                  Component: Step2,
                   loader: (args) =>
-                    stepTwoLoader({
+                    step2Loader({
+                      ...args,
+                      context: { alertContext, reportContext },
+                    }),
+                },
+                {
+                  // Step 3: Run TCP extract against SBI tool and upload SBI results to highlight Small Business TCPs
+                  path: ":code/step3/:reportId",
+                  Component: Step3,
+                  loader: (args) =>
+                    step3Loader({
                       ...args,
                       context: { alertContext, reportContext },
                     }),

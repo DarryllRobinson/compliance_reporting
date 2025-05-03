@@ -15,11 +15,11 @@ import {
   TablePagination,
 } from "@mui/material";
 import { useAlert } from "../../../context";
-import { useLoaderData, useNavigate } from "react-router";
+import { useLoaderData, useNavigate, useParams } from "react-router";
 import { tcpService, userService } from "../../../services";
 import { calculatePaymentTerm } from "../../../calculations/ptrs"; // Import the function
 
-export async function stepTwoLoader({ params, location }) {
+export async function step2Loader({ params, location }) {
   const { reportId } = params;
   const passedRecords = location?.state?.records;
 
@@ -59,7 +59,9 @@ export async function stepTwoLoader({ params, location }) {
   }
 }
 
-export default function StepTwo() {
+export default function Step2() {
+  const params = useParams();
+  const { reportId } = params; // Extract reportId from route params
   const { sendAlert } = useAlert();
   const navigate = useNavigate();
   const { records: savedRecords } = useLoaderData();
@@ -448,7 +450,7 @@ export default function StepTwo() {
           color="secondary"
           onClick={async () => {
             await saveChangedRows();
-            navigate("/reports/ptrs/step3");
+            navigate(`/reports/ptrs/step3/${reportId}`);
           }}
         >
           Next: Step 3

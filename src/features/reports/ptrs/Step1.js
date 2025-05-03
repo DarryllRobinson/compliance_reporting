@@ -20,7 +20,7 @@ import { fieldMapping } from "./fieldMapping"; // Import fieldMapping
 import { useLoaderData, useNavigate, useParams } from "react-router"; // Import useNavigate
 import { tcpService, userService } from "../../../services";
 
-export async function stepOneLoader({ params }) {
+export async function step1Loader({ params }) {
   const { reportId } = params; // Extract reportId from route params
   try {
     const savedRecords = await tcpService.getAllByReportId(reportId); // Fetch records by reportId
@@ -32,7 +32,7 @@ export async function stepOneLoader({ params }) {
   }
 }
 
-export default function StepOne() {
+export default function Step1() {
   const params = useParams();
   const { reportId } = params; // Extract reportId from route params
   const theme = useTheme();

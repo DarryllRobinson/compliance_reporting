@@ -6,6 +6,8 @@ const baseUrl = `${config.apiUrl}/tcp`;
 export const tcpService = {
   getAll,
   getAllByReportId,
+  getTcpByReportId,
+  updateTcpFile,
   getById,
   bulkCreate,
   bulkUpdate,
@@ -18,6 +20,14 @@ async function getAll() {
 
 async function getAllByReportId(reportId) {
   return await fetchWrapper.get(`${baseUrl}/report/${reportId}`);
+}
+
+async function getTcpByReportId(reportId) {
+  return await fetchWrapper.get(`${baseUrl}/tcp/${reportId}`);
+}
+
+async function updateTcpFile(reportId, params) {
+  return await fetchWrapper.put(`${baseUrl}/sbi/${reportId}`, params);
 }
 
 async function getById(id) {
