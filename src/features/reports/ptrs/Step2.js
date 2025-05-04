@@ -17,23 +17,63 @@ import {
 import { useAlert } from "../../../context";
 import { useLoaderData, useNavigate, useParams } from "react-router";
 import { tcpService, userService } from "../../../services";
-import { calculatePaymentTerm } from "../../../calculations/ptrs"; // Import the function
+import {
+  calculatePartialPayment,
+  calculatePaymentTerm,
+} from "../../../calculations/ptrs"; // Import the function
+
+const calculatePartialPaymentsForBatch = (records) => {
+  // Group payments by invoiceReferenceNumber
+  const groupedPayments = records.reduce((acc, record) => {
+    const key = record.invoiceReferenceNumber;
+    if (!acc[key]) {
+      acc[key] = [];
+    }
+    acc[key].push({
+      amount: record.paymentAmount,
+      date: record.paymentDate,
+      id: record.id,
+      invoiceReferenceNumber: record.invoiceReferenceNumber,
+    });
+    return acc;
+  }, {});
+
+  // Calculate partialPayment for each record
+  return records.map((record) => {
+    const payments = groupedPayments[record.invoiceReferenceNumber] || [];
+
+    // Call calculatePartialPayment for each record
+    const isPartial = calculatePartialPayment(
+      record.paymentAmount,
+      record.invoiceAmount,
+      payments
+    );
+
+    return {
+      ...record,
+      partialPayment: isPartial,
+    };
+  });
+};
 
 export async function step2Loader({ params, location }) {
   const { reportId } = params;
   const passedRecords = location?.state?.records;
 
   if (passedRecords) {
-    // Update paymentTerm for each record using calculatePaymentTerm
-    const updatedRecords = passedRecords.map((record) => ({
-      ...record,
-      paymentTerm: calculatePaymentTerm({
-        contractPoPaymentTerms: record.contractPoPaymentTerms,
-        invoicePaymentTerms: record.invoicePaymentTerms,
-        invoiceIssueDate: record.invoiceIssueDate,
-        invoiceDueDate: record.invoiceDueDate,
-      }),
-    }));
+    // Update paymentTerm and partialPayment for the batch of records
+    const updatedRecords = calculatePartialPaymentsForBatch(
+      passedRecords.map((record) => ({
+        ...record,
+        paymentTerm: calculatePaymentTerm({
+          contractPoPaymentTerms: record.contractPoPaymentTerms,
+          invoicePaymentTerms: record.invoicePaymentTerms,
+          invoiceIssueDate: record.invoiceIssueDate,
+          invoiceDueDate: record.invoiceDueDate,
+        }),
+      }))
+    );
+
     return { records: updatedRecords };
   }
 
@@ -41,17 +81,20 @@ export async function step2Loader({ params, location }) {
     const fetchedRecords = await tcpService.getAllByReportId(reportId);
     console.log("Fetched records:", fetchedRecords);
 
-    // Update paymentTerm for each record using calculatePaymentTerm
-    const updatedRecords = fetchedRecords.map((record) => ({
-      ...record,
-      paymentTerm: calculatePaymentTerm({
-        contractPoPaymentTerms: record.contractPoPaymentTerms,
-        invoicePaymentTerms: record.invoicePaymentTerms,
-        invoiceIssueDate: record.invoiceIssueDate,
-        invoiceDueDate: record.invoiceDueDate,
-      }),
-    }));
+    // Update paymentTerm and partialPayment for the batch of records
+    const updatedRecords = calculatePartialPaymentsForBatch(
+      fetchedRecords.map((record) => ({
+        ...record,
+        paymentTerm: calculatePaymentTerm({
+          contractPoPaymentTerms: record.contractPoPaymentTerms,
+          invoicePaymentTerms: record.invoicePaymentTerms,
+          invoiceIssueDate: record.invoiceIssueDate,
+          invoiceDueDate: record.invoiceDueDate,
+        }),
+      }))
+    );
 
+    console.log("Updated records partialPayment:", updatedRecords);
     return { records: updatedRecords || [] };
   } catch (error) {
     console.error("Error fetching records:", error);
@@ -101,6 +144,7 @@ export default function Step2() {
   const [validationErrors, setValidationErrors] = useState({});
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [showPartialPaymentsOnly, setShowPartialPaymentsOnly] = useState(false);
 
   const validateCreditCardNumber = (id) => {
     const isCreditCardPayment = fields[id]?.creditCardPayment || false;
@@ -216,7 +260,55 @@ export default function Step2() {
     );
   };
 
-  const displayedRecords = filteredRecords.slice(
+  const togglePartialPaymentsFilter = () => {
+    setShowPartialPaymentsOnly((prev) => !prev);
+  };
+
+  const filteredRecordsToDisplay = showPartialPaymentsOnly
+    ? (() => {
+        // Group payments by invoiceReferenceNumber
+        const groupedPayments = filteredRecords.reduce((acc, record) => {
+          const key = record.invoiceReferenceNumber;
+          if (!acc[key]) {
+            acc[key] = [];
+          }
+          acc[key].push(record);
+          return acc;
+        }, {});
+
+        // Identify partial and final payments for each group
+        const relevantRecords = [];
+        Object.values(groupedPayments).forEach((group) => {
+          // Sort payments by date in ascending order
+          const sortedPayments = group.sort(
+            (a, b) => new Date(a.paymentDate) - new Date(b.paymentDate)
+          );
+
+          // Calculate cumulative total and determine partial and final payments
+          let cumulativeTotal = 0;
+          sortedPayments.forEach((payment, index) => {
+            cumulativeTotal += payment.paymentAmount;
+
+            // Include partial payments
+            if (payment.partialPayment) {
+              relevantRecords.push(payment);
+            }
+
+            // Include the final payment that clears the invoice
+            if (
+              cumulativeTotal === payment.invoiceAmount &&
+              index === sortedPayments.length - 1
+            ) {
+              relevantRecords.push(payment);
+            }
+          });
+        });
+
+        return relevantRecords;
+      })()
+    : filteredRecords;
+
+  const displayedRecords = filteredRecordsToDisplay.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
   );
@@ -236,6 +328,16 @@ export default function Step2() {
       <Typography variant="h5" sx={{ marginBottom: 2 }}>
         Step 2: Capture Additional Details
       </Typography>
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={togglePartialPaymentsFilter}
+        sx={{ marginBottom: 2 }}
+      >
+        {showPartialPaymentsOnly
+          ? "Show All Payments"
+          : "Show Partial and Final Payments"}
+      </Button>
       <TextField
         label="Search"
         variant="outlined"
@@ -266,6 +368,7 @@ export default function Step2() {
                 "Invoice Reference Number",
                 "Invoice Issue Date",
                 "Invoice Receipt Date",
+                "Invoice Amount",
                 "Invoice Payment Terms",
                 "Invoice Due Date",
                 "Peppol eInvoice Enabled",
@@ -286,8 +389,9 @@ export default function Step2() {
               <TableRow
                 key={record.id}
                 sx={{
-                  backgroundColor:
-                    fields[record.id]?.paymentTerm === 99
+                  backgroundColor: fields[record.id]?.partialPayment
+                    ? "rgba(0, 0, 255, 0.1)" // Highlight records with partialPayment = true in blue
+                    : fields[record.id]?.paymentTerm === 99
                       ? "rgba(255, 165, 0, 0.3)" // Highlight records with paymentTerm = 99 in orange
                       : changedRows[record.id] === "unsaved"
                         ? "rgba(255, 0, 0, 0.1)" // Highlight unsaved rows in red
@@ -313,6 +417,7 @@ export default function Step2() {
                 <TableCell>{record.invoiceReferenceNumber || "-"}</TableCell>
                 <TableCell>{record.invoiceIssueDate || "-"}</TableCell>
                 <TableCell>{record.invoiceReceiptDate || "-"}</TableCell>
+                <TableCell>{record.invoiceAmount || "-"}</TableCell>
                 <TableCell>{record.invoicePaymentTerms || "-"}</TableCell>
                 <TableCell>{record.invoiceDueDate || "-"}</TableCell>
                 <TableCell>
@@ -429,7 +534,7 @@ export default function Step2() {
       </TableContainer>
       <TablePagination
         component="div"
-        count={filteredRecords.length}
+        count={filteredRecordsToDisplay.length}
         page={page}
         onPageChange={handleChangePage}
         rowsPerPage={rowsPerPage}
