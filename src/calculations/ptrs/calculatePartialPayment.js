@@ -22,7 +22,7 @@ export const partialPaymentCalculation = [
  * @param {number} paymentAmount - The amount of the payment.
  * @param {number} invoiceAmount - The total invoice amount.
  * @param {Array<{ amount: number, date: Date, invoiceReferenceNumber: string }>} payments - An array of all payments for the invoice, including their amounts, dates, and invoice references.
- * @returns {boolean} - Returns true if the payment is a partial payment, otherwise false.
+ * @returns {{ partialPayment: boolean, invoiceReferenceNumber: string }} - Returns an object containing the partial payment status and the invoice reference number.
  */
 export function calculatePartialPayment(
   paymentAmount,
@@ -48,13 +48,12 @@ export function calculatePartialPayment(
   )) {
     // Ensure the group has more than one payment before flagging
     if (invoicePayments.length <= 1) {
-      continue; // Skip invoices with only one payment
+      // If there is only one payment, check if it is less than the invoice amount
+      if (paymentAmount < invoiceAmount) {
+        return { partialPayment: true, invoiceReferenceNumber }; // Single payment is partial
+      }
+      return { partialPayment: false, invoiceReferenceNumber }; // Single payment clears the invoice
     }
-
-    console.log(
-      `Invoice with multiple payments detected. Invoice Reference: ${invoiceReferenceNumber}, Invoice Amount: ${invoiceAmount}, Payments:`,
-      invoicePayments
-    );
 
     // Sort payments by date in ascending order
     const sortedPayments = invoicePayments.sort(
@@ -73,12 +72,16 @@ export function calculatePartialPayment(
           sortedPayments[i].amount === paymentAmount &&
           i === sortedPayments.length - 1
         ) {
-          return false; // This payment clears the invoice
+          return { partialPayment: false, invoiceReferenceNumber }; // This payment clears the invoice
         }
-        return true; // All other payments are partial
+        return { partialPayment: true, invoiceReferenceNumber }; // All other payments are partial
       }
     }
   }
 
-  return true; // If the total never matches the invoice amount, all payments are partial
+  // If no matching invoice amount is found or the record lacks an invoiceReferenceNumber
+  if (paymentAmount < invoiceAmount) {
+    return { partialPayment: true, invoiceReferenceNumber: null }; // Payment is partial
+  }
+  return { partialPayment: false, invoiceReferenceNumber: null }; // Payment clears the invoice
 }

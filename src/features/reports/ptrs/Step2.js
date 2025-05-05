@@ -43,7 +43,7 @@ const calculatePartialPaymentsForBatch = (records) => {
     const payments = groupedPayments[record.invoiceReferenceNumber] || [];
 
     // Call calculatePartialPayment for each record
-    const isPartial = calculatePartialPayment(
+    const { partialPayment, invoiceReferenceNumber } = calculatePartialPayment(
       record.paymentAmount,
       record.invoiceAmount,
       payments
@@ -51,7 +51,8 @@ const calculatePartialPaymentsForBatch = (records) => {
 
     return {
       ...record,
-      partialPayment: isPartial,
+      partialPayment,
+      invoiceReferenceNumber,
     };
   });
 };
@@ -79,7 +80,7 @@ export async function step2Loader({ params, location }) {
 
   try {
     const fetchedRecords = await tcpService.getAllByReportId(reportId);
-    console.log("Fetched records:", fetchedRecords);
+    // console.log("Fetched records:", fetchedRecords);
 
     // Update paymentTerm and partialPayment for the batch of records
     const updatedRecords = calculatePartialPaymentsForBatch(
@@ -94,7 +95,7 @@ export async function step2Loader({ params, location }) {
       }))
     );
 
-    console.log("Updated records partialPayment:", updatedRecords);
+    // console.log("Updated records partialPayment:", updatedRecords);
     return { records: updatedRecords || [] };
   } catch (error) {
     console.error("Error fetching records:", error);
@@ -108,6 +109,7 @@ export default function Step2() {
   const { sendAlert } = useAlert();
   const navigate = useNavigate();
   const { records: savedRecords } = useLoaderData();
+  // console.log("Saved records:", savedRecords);
   const [filteredRecords, setFilteredRecords] = useState(
     savedRecords.filter((record) => record.isTcp) // Filter records with isTcp = true
   );
@@ -266,45 +268,27 @@ export default function Step2() {
 
   const filteredRecordsToDisplay = showPartialPaymentsOnly
     ? (() => {
-        // Group payments by invoiceReferenceNumber
-        const groupedPayments = filteredRecords.reduce((acc, record) => {
-          const key = record.invoiceReferenceNumber;
-          if (!acc[key]) {
-            acc[key] = [];
+        // Identify all invoiceReferenceNumbers with at least one partial payment
+        const invoicesWithPartialPayments = new Set(
+          filteredRecords
+            .filter((record) => record.partialPayment)
+            .map((record) => record.invoiceReferenceNumber)
+        );
+
+        // Include all payments associated with those invoices
+        const relevantRecords = filteredRecords.filter((record) =>
+          invoicesWithPartialPayments.has(record.invoiceReferenceNumber)
+        );
+
+        // Sort by invoiceReferenceNumber and then paymentDate
+        return relevantRecords.sort((a, b) => {
+          if (a.invoiceReferenceNumber === b.invoiceReferenceNumber) {
+            return new Date(a.paymentDate) - new Date(b.paymentDate);
           }
-          acc[key].push(record);
-          return acc;
-        }, {});
-
-        // Identify partial and final payments for each group
-        const relevantRecords = [];
-        Object.values(groupedPayments).forEach((group) => {
-          // Sort payments by date in ascending order
-          const sortedPayments = group.sort(
-            (a, b) => new Date(a.paymentDate) - new Date(b.paymentDate)
+          return a.invoiceReferenceNumber.localeCompare(
+            b.invoiceReferenceNumber
           );
-
-          // Calculate cumulative total and determine partial and final payments
-          let cumulativeTotal = 0;
-          sortedPayments.forEach((payment, index) => {
-            cumulativeTotal += payment.paymentAmount;
-
-            // Include partial payments
-            if (payment.partialPayment) {
-              relevantRecords.push(payment);
-            }
-
-            // Include the final payment that clears the invoice
-            if (
-              cumulativeTotal === payment.invoiceAmount &&
-              index === sortedPayments.length - 1
-            ) {
-              relevantRecords.push(payment);
-            }
-          });
         });
-
-        return relevantRecords;
       })()
     : filteredRecords;
 
@@ -336,7 +320,7 @@ export default function Step2() {
       >
         {showPartialPaymentsOnly
           ? "Show All Payments"
-          : "Show Partial and Final Payments"}
+          : "Show Partial Payments Only"}
       </Button>
       <TextField
         label="Search"
@@ -389,15 +373,13 @@ export default function Step2() {
               <TableRow
                 key={record.id}
                 sx={{
-                  backgroundColor: fields[record.id]?.partialPayment
+                  backgroundColor: record.partialPayment
                     ? "rgba(0, 0, 255, 0.1)" // Highlight records with partialPayment = true in blue
-                    : fields[record.id]?.paymentTerm === 99
-                      ? "rgba(255, 165, 0, 0.3)" // Highlight records with paymentTerm = 99 in orange
-                      : changedRows[record.id] === "unsaved"
-                        ? "rgba(255, 0, 0, 0.1)" // Highlight unsaved rows in red
-                        : changedRows[record.id] === "saved"
-                          ? "rgba(0, 255, 0, 0.1)" // Highlight saved rows in green
-                          : "inherit",
+                    : changedRows[record.id] === "unsaved"
+                      ? "rgba(255, 0, 0, 0.1)" // Highlight unsaved rows in red
+                      : changedRows[record.id] === "saved"
+                        ? "rgba(0, 255, 0, 0.1)" // Highlight saved rows in green
+                        : "inherit",
                 }}
               >
                 <TableCell>{record.payerEntityName || "-"}</TableCell>
