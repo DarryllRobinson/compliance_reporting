@@ -19,12 +19,13 @@ import { useAlert } from "../../../context";
 import { fieldMapping } from "./fieldMapping"; // Import fieldMapping
 import { useLoaderData, useNavigate, useParams } from "react-router"; // Import useNavigate
 import { tcpService, userService } from "../../../services";
+import { getRowHighlightColor } from "../../../utils/highlightRow";
 
 export async function step1Loader({ params }) {
   const { reportId } = params; // Extract reportId from route params
   try {
     const savedRecords = await tcpService.getAllByReportId(reportId); // Fetch records by reportId
-    console.log("Fetched records:", savedRecords); // Debug log to check the structure of savedRecords
+    // console.log("Fetched records:", savedRecords); // Debug log to check the structure of savedRecords
     return { savedRecords: savedRecords || [] }; // Return saved records or an empty array
   } catch (error) {
     console.error("Error fetching records:", error);
@@ -61,6 +62,14 @@ export default function Step1() {
       } else {
         acc[record.id] = false; // Initialize other rows as unchanged
       }
+      return acc;
+    }, {})
+  );
+  const [fields, setFields] = useState(() =>
+    savedRecords.reduce((acc, record) => {
+      acc[record.id] = {
+        paymentTerm: record.paymentTerm || 0,
+      };
       return acc;
     }, {})
   );
@@ -140,25 +149,46 @@ export default function Step1() {
   };
 
   const handleTcpToggle = (id) => {
-    setTcpStatus((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }));
-    setChangedRows((prev) => ({
-      ...prev,
-      [id]: "unsaved", // Mark the row as unsaved
-    }));
+    setTcpStatus((prev) => {
+      const updatedStatus = {
+        ...prev,
+        [id]: !prev[id],
+      };
+
+      // Check if the value matches the original value from savedRecords
+      const originalValue = savedRecords.find(
+        (record) => record.id === id
+      )?.isTcp;
+      const isReverted = updatedStatus[id] === originalValue;
+
+      setChangedRows((prev) => ({
+        ...prev,
+        [id]: isReverted ? false : "unsaved", // Remove orange highlight if reverted
+      }));
+
+      return updatedStatus;
+    });
   };
 
   const handleTcpExclusionChange = (id, value) => {
-    setTcpExclusions((prev) => ({
-      ...prev,
-      [id]: value,
-    }));
-    setChangedRows((prev) => ({
-      ...prev,
-      [id]: "unsaved", // Mark the row as unsaved
-    }));
+    setTcpExclusions((prev) => {
+      const updatedExclusions = {
+        ...prev,
+        [id]: value,
+      };
+
+      // Check if the value matches the original value from savedRecords
+      const originalValue =
+        savedRecords.find((record) => record.id === id)?.tcpExclusion || "";
+      const isReverted = updatedExclusions[id] === originalValue;
+
+      setChangedRows((prev) => ({
+        ...prev,
+        [id]: isReverted ? false : "unsaved", // Remove orange highlight if reverted
+      }));
+
+      return updatedExclusions;
+    });
   };
 
   const handleSearch = (event) => {
@@ -217,12 +247,7 @@ export default function Step1() {
               <TableRow
                 key={record.id}
                 sx={{
-                  backgroundColor:
-                    changedRows[record.id] === "unsaved"
-                      ? "rgba(255, 0, 0, 0.1)" // Highlight unsaved rows in red
-                      : changedRows[record.id] === "saved"
-                        ? "rgba(0, 255, 0, 0.1)" // Highlight saved rows in green
-                        : "inherit",
+                  backgroundColor: getRowHighlightColor(record, changedRows),
                 }}
               >
                 {fieldMapping.map((field, fieldIndex) => (

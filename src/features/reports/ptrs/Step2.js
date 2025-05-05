@@ -21,6 +21,8 @@ import {
   calculatePartialPayment,
   calculatePaymentTerm,
 } from "../../../calculations/ptrs"; // Import the function
+import { getRowHighlightColor } from "../../../utils/highlightRow";
+import { inputValidationRules } from "../../../utils/inputValidation";
 
 const calculatePartialPaymentsForBatch = (records) => {
   // Group payments by invoiceReferenceNumber
@@ -265,6 +267,32 @@ export default function Step2() {
         },
       };
 
+      // Apply validation based on inputValidationRules
+      const validationRule = inputValidationRules[field];
+      if (validationRule) {
+        const fieldName = validationRule.headerName || field; // Use headerName if available
+        if (validationRule.type === "number" && isNaN(value)) {
+          sendAlert("error", `${fieldName} must be a number.`);
+          return prev; // Reject invalid input
+        }
+        if (
+          validationRule.type === "integer" &&
+          (!Number.isInteger(+value) ||
+            value < validationRule.min ||
+            value > validationRule.max)
+        ) {
+          sendAlert(
+            "error",
+            `${fieldName} must be an integer between ${validationRule.min} and ${validationRule.max}.`
+          );
+          return prev; // Reject invalid input
+        }
+        if (validationRule.pattern && !validationRule.pattern.test(value)) {
+          sendAlert("error", `${fieldName} contains invalid characters.`);
+          return prev; // Reject invalid input
+        }
+      }
+
       // Automatically set creditCardPayment to true if creditCardNumber has a value
       if (field === "creditCardNumber") {
         updatedFields[id].creditCardPayment = value.trim() ? true : false;
@@ -280,10 +308,18 @@ export default function Step2() {
       }
 
       // Check if the field value has changed compared to the original record
-      const originalValue = savedRecords.find((record) => record.id === id)?.[
-        field
-      ];
-      const isChanged = value !== originalValue;
+      const originalRecord = savedRecords.find((record) => record.id === id);
+      const originalValue = originalRecord?.[field];
+      const originalCreditCardNumber = originalRecord?.creditCardNumber || "";
+      const originalCreditCardPayment =
+        originalRecord?.creditCardPayment || false;
+
+      const isCreditCardNumberChanged =
+        field === "creditCardNumber" &&
+        (value !== originalCreditCardNumber ||
+          updatedFields[id].creditCardPayment !== originalCreditCardPayment);
+
+      const isChanged = isCreditCardNumberChanged || value !== originalValue;
 
       setChangedRows((prev) => ({
         ...prev,
@@ -416,162 +452,146 @@ export default function Step2() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {displayedRecords.map((record) => {
-              const isChanged = changedRows[record.id] === "unsaved";
-              const isSaved = changedRows[record.id] === "saved";
-              const isError = changedRows[record.id] === "error";
-              const isPartialPayment =
-                record.partialPayment && showPartialPaymentsOnly; // Apply blue highlight only in filtered view
-
-              return (
-                <TableRow
-                  key={record.id}
-                  sx={{
-                    backgroundColor: isError
-                      ? "rgba(255, 0, 0, 0.1)" // Highlight records with save errors in red
-                      : isChanged
-                        ? "rgba(255, 165, 0, 0.3)" // Highlight unsaved changes in orange
-                        : isSaved
-                          ? "rgba(0, 255, 0, 0.1)" // Highlight successfully saved records in green
-                          : isPartialPayment
-                            ? "rgba(0, 0, 255, 0.1)" // Highlight partialPayment records in blue (only in filtered view)
-                            : "inherit", // Default background color
-                  }}
-                >
-                  <TableCell>{record.payerEntityName || "-"}</TableCell>
-                  <TableCell>{record.payerEntityAbn || "-"}</TableCell>
-                  <TableCell>{record.payerEntityAcnArbn || "-"}</TableCell>
-                  <TableCell>{record.payeeEntityName || "-"}</TableCell>
-                  <TableCell>{record.payeeEntityAbn || "-"}</TableCell>
-                  <TableCell>{record.payeeEntityAcnArbn || "-"}</TableCell>
-                  <TableCell>{record.paymentAmount || "-"}</TableCell>
-                  <TableCell>{record.description || "-"}</TableCell>
-                  <TableCell>{record.supplyDate || "-"}</TableCell>
-                  <TableCell>{record.paymentDate || "-"}</TableCell>
-                  <TableCell>
-                    {record.contractPoReferenceNumber || "-"}
-                  </TableCell>
-                  <TableCell>{record.contractPoPaymentTerms || "-"}</TableCell>
-                  <TableCell>
-                    {record.noticeForPaymentIssueDate || "-"}
-                  </TableCell>
-                  <TableCell>{record.noticeForPaymentTerms || "-"}</TableCell>
-                  <TableCell>{record.invoiceReferenceNumber || "-"}</TableCell>
-                  <TableCell>{record.invoiceIssueDate || "-"}</TableCell>
-                  <TableCell>{record.invoiceReceiptDate || "-"}</TableCell>
-                  <TableCell>{record.invoiceAmount || "-"}</TableCell>
-                  <TableCell>{record.invoicePaymentTerms || "-"}</TableCell>
-                  <TableCell>{record.invoiceDueDate || "-"}</TableCell>
-                  <TableCell>
-                    <Checkbox
-                      checked={fields[record.id]?.peppolEnabled || false}
-                      onChange={(e) =>
-                        handleFieldChange(
-                          record.id,
-                          "peppolEnabled",
-                          e.target.checked
-                        )
-                      }
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Checkbox
-                      checked={fields[record.id]?.rcti || false}
-                      onChange={(e) =>
-                        handleFieldChange(record.id, "rcti", e.target.checked)
-                      }
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Checkbox
-                      checked={fields[record.id]?.creditCardPayment || false}
-                      disabled={!!fields[record.id]?.creditCardNumber.trim()} // Disable if creditCardNumber has a value
-                      onChange={(e) =>
-                        handleFieldChange(
-                          record.id,
-                          "creditCardPayment",
-                          e.target.checked
-                        )
-                      }
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <TextField
-                      variant="outlined"
-                      size="small"
-                      fullWidth
-                      inputProps={{ maxLength: 16 }} // Restrict input to 16 characters
-                      sx={{ width: "250px" }} // Make the field wide enough for 16 digits
-                      error={!!validationErrors[record.id]}
-                      helperText={validationErrors[record.id] || ""}
-                      value={fields[record.id]?.creditCardNumber || ""}
-                      onChange={(e) =>
-                        handleFieldChange(
-                          record.id,
-                          "creditCardNumber",
-                          e.target.value
-                        )
-                      }
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Checkbox
-                      checked={fields[record.id]?.partialPayment || false}
-                      onChange={(e) =>
-                        handleFieldChange(
-                          record.id,
-                          "partialPayment",
-                          e.target.checked
-                        )
-                      }
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <TextField
-                      variant="outlined"
-                      size="small"
-                      type="number"
-                      fullWidth
-                      sx={{ width: "70px" }} // Make the field wide enough for 3 digits
-                      inputProps={{ maxLength: 3, min: 0, max: 999 }}
-                      value={fields[record.id]?.paymentTerm || 0}
-                      onChange={(e) =>
-                        handleFieldChange(
-                          record.id,
-                          "paymentTerm",
-                          parseInt(e.target.value, 10) || 0
-                        )
-                      }
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Checkbox
-                      checked={fields[record.id]?.excludedTcp || false}
-                      onChange={(e) =>
-                        handleFieldChange(
-                          record.id,
-                          "excludedTcp",
-                          e.target.checked
-                        )
-                      }
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <TextField
-                      variant="outlined"
-                      size="small"
-                      fullWidth
-                      multiline
-                      sx={{ width: "400px" }} // Make the notes field wider
-                      value={fields[record.id]?.notes || ""}
-                      onChange={(e) =>
-                        handleFieldChange(record.id, "notes", e.target.value)
-                      }
-                    />
-                  </TableCell>
-                </TableRow>
-              );
-            })}
+            {displayedRecords.map((record) => (
+              <TableRow
+                key={record.id}
+                sx={{
+                  backgroundColor: getRowHighlightColor(
+                    record,
+                    changedRows,
+                    showPartialPaymentsOnly
+                  ),
+                }}
+              >
+                <TableCell>{record.payerEntityName || "-"}</TableCell>
+                <TableCell>{record.payerEntityAbn || "-"}</TableCell>
+                <TableCell>{record.payerEntityAcnArbn || "-"}</TableCell>
+                <TableCell>{record.payeeEntityName || "-"}</TableCell>
+                <TableCell>{record.payeeEntityAbn || "-"}</TableCell>
+                <TableCell>{record.payeeEntityAcnArbn || "-"}</TableCell>
+                <TableCell>{record.paymentAmount || "-"}</TableCell>
+                <TableCell>{record.description || "-"}</TableCell>
+                <TableCell>{record.supplyDate || "-"}</TableCell>
+                <TableCell>{record.paymentDate || "-"}</TableCell>
+                <TableCell>{record.contractPoReferenceNumber || "-"}</TableCell>
+                <TableCell>{record.contractPoPaymentTerms || "-"}</TableCell>
+                <TableCell>{record.noticeForPaymentIssueDate || "-"}</TableCell>
+                <TableCell>{record.noticeForPaymentTerms || "-"}</TableCell>
+                <TableCell>{record.invoiceReferenceNumber || "-"}</TableCell>
+                <TableCell>{record.invoiceIssueDate || "-"}</TableCell>
+                <TableCell>{record.invoiceReceiptDate || "-"}</TableCell>
+                <TableCell>{record.invoiceAmount || "-"}</TableCell>
+                <TableCell>{record.invoicePaymentTerms || "-"}</TableCell>
+                <TableCell>{record.invoiceDueDate || "-"}</TableCell>
+                <TableCell>
+                  <Checkbox
+                    checked={fields[record.id]?.peppolEnabled || false}
+                    onChange={(e) =>
+                      handleFieldChange(
+                        record.id,
+                        "peppolEnabled",
+                        e.target.checked
+                      )
+                    }
+                  />
+                </TableCell>
+                <TableCell>
+                  <Checkbox
+                    checked={fields[record.id]?.rcti || false}
+                    onChange={(e) =>
+                      handleFieldChange(record.id, "rcti", e.target.checked)
+                    }
+                  />
+                </TableCell>
+                <TableCell>
+                  <Checkbox
+                    checked={fields[record.id]?.creditCardPayment || false}
+                    disabled={!!fields[record.id]?.creditCardNumber.trim()} // Disable if creditCardNumber has a value
+                    onChange={(e) =>
+                      handleFieldChange(
+                        record.id,
+                        "creditCardPayment",
+                        e.target.checked
+                      )
+                    }
+                  />
+                </TableCell>
+                <TableCell>
+                  <TextField
+                    variant="outlined"
+                    size="small"
+                    fullWidth
+                    inputProps={{ maxLength: 16 }} // Restrict input to 16 characters
+                    sx={{ width: "250px" }} // Make the field wide enough for 16 digits
+                    error={!!validationErrors[record.id]}
+                    helperText={validationErrors[record.id] || ""}
+                    value={fields[record.id]?.creditCardNumber || ""}
+                    onChange={(e) =>
+                      handleFieldChange(
+                        record.id,
+                        "creditCardNumber",
+                        e.target.value
+                      )
+                    }
+                  />
+                </TableCell>
+                <TableCell>
+                  <Checkbox
+                    checked={fields[record.id]?.partialPayment || false}
+                    onChange={(e) =>
+                      handleFieldChange(
+                        record.id,
+                        "partialPayment",
+                        e.target.checked
+                      )
+                    }
+                  />
+                </TableCell>
+                <TableCell>
+                  <TextField
+                    variant="outlined"
+                    size="small"
+                    type="number"
+                    fullWidth
+                    sx={{ width: "70px" }} // Make the field wide enough for 3 digits
+                    inputProps={{ maxLength: 3, min: 0, max: 999 }}
+                    value={fields[record.id]?.paymentTerm || 0}
+                    onChange={(e) =>
+                      handleFieldChange(
+                        record.id,
+                        "paymentTerm",
+                        parseInt(e.target.value, 10) || 0
+                      )
+                    }
+                  />
+                </TableCell>
+                <TableCell>
+                  <Checkbox
+                    checked={fields[record.id]?.excludedTcp || false}
+                    onChange={(e) =>
+                      handleFieldChange(
+                        record.id,
+                        "excludedTcp",
+                        e.target.checked
+                      )
+                    }
+                  />
+                </TableCell>
+                <TableCell>
+                  <TextField
+                    variant="outlined"
+                    size="small"
+                    fullWidth
+                    multiline
+                    sx={{ width: "400px" }} // Make the notes field wider
+                    value={fields[record.id]?.notes || ""}
+                    onChange={(e) =>
+                      handleFieldChange(record.id, "notes", e.target.value)
+                    }
+                  />
+                </TableCell>
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
       </TableContainer>

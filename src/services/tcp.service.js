@@ -32,7 +32,6 @@ async function updateTcpFile(reportId, params) {
 }
 
 async function partialUpdate(params) {
-  console.log("tcpService partialUpdate", params);
   return await fetchWrapper.put(`${baseUrl}/partial`, params);
 }
 
@@ -45,7 +44,6 @@ async function bulkCreate(params) {
 }
 
 async function bulkUpdate(params) {
-  console.log("tcpService bulkUpdate", params);
   return await fetchWrapper.put(baseUrl, params);
 }
 
