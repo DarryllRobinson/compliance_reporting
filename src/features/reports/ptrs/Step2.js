@@ -61,6 +61,30 @@ export async function step2Loader({ params, location }) {
   const { reportId } = params;
   const passedRecords = location?.state?.records;
 
+  const savePartialPaymentRecords = async (records) => {
+    const partialPaymentRecords = records.filter(
+      (record) => record.partialPayment
+    );
+
+    if (partialPaymentRecords.length > 0) {
+      try {
+        console.log("Saving partial payment records:", partialPaymentRecords);
+        await tcpService.partialUpdate(
+          partialPaymentRecords.map((record) => ({
+            id: record.id,
+            partialPayment: record.partialPayment,
+            updatedBy: userService.userValue.id,
+          }))
+        );
+      } catch (error) {
+        console.error("Error saving partial payment records:", error);
+        throw new Response("Failed to save partial payment records", {
+          status: 500,
+        });
+      }
+    }
+  };
+
   if (passedRecords) {
     // Update paymentTerm and partialPayment for the batch of records
     const updatedRecords = calculatePartialPaymentsForBatch(
@@ -75,12 +99,12 @@ export async function step2Loader({ params, location }) {
       }))
     );
 
+    await savePartialPaymentRecords(updatedRecords);
     return { records: updatedRecords };
   }
 
   try {
     const fetchedRecords = await tcpService.getAllByReportId(reportId);
-    // console.log("Fetched records:", fetchedRecords);
 
     // Update paymentTerm and partialPayment for the batch of records
     const updatedRecords = calculatePartialPaymentsForBatch(
@@ -95,7 +119,7 @@ export async function step2Loader({ params, location }) {
       }))
     );
 
-    // console.log("Updated records partialPayment:", updatedRecords);
+    await savePartialPaymentRecords(updatedRecords);
     return { records: updatedRecords || [] };
   } catch (error) {
     console.error("Error fetching records:", error);
@@ -116,11 +140,7 @@ export default function Step2() {
   const [searchTerm, setSearchTerm] = useState("");
   const [changedRows, setChangedRows] = useState(() =>
     savedRecords.reduce((acc, record) => {
-      if (new Date(record.updatedAt) > new Date(record.createdAt)) {
-        acc[record.id] = "saved"; // Mark rows as saved if updatedAt > createdAt
-      } else {
-        acc[record.id] = false; // Initialize other rows as unchanged
-      }
+      acc[record.id] = false; // Initialize rows as unchanged
       return acc;
     }, {})
   );
@@ -375,11 +395,10 @@ export default function Step2() {
                 sx={{
                   backgroundColor: record.partialPayment
                     ? "rgba(0, 0, 255, 0.1)" // Highlight records with partialPayment = true in blue
-                    : changedRows[record.id] === "unsaved"
-                      ? "rgba(255, 0, 0, 0.1)" // Highlight unsaved rows in red
-                      : changedRows[record.id] === "saved"
-                        ? "rgba(0, 255, 0, 0.1)" // Highlight saved rows in green
-                        : "inherit",
+                    : new Date(record.updatedAt) > new Date(record.createdAt) &&
+                        !record.partialPayment
+                      ? "rgba(0, 255, 0, 0.1)" // Highlight records with updatedAt > createdAt and partialPayment = false in green
+                      : "inherit", // Default background color
                 }}
               >
                 <TableCell>{record.payerEntityName || "-"}</TableCell>
