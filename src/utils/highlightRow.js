@@ -19,7 +19,7 @@ export function getRowHighlightColor(
 
   if (isError) return "rgba(255, 0, 0, 0.1)"; // Red for save errors
   if (isChanged) return "rgba(255, 165, 0, 0.3)"; // Orange for unsaved changes
-  if (isSaved) return "rgba(0, 255, 0, 0.1)"; // Green for saved or updated records
   if (isPartialPayment) return "rgba(0, 0, 255, 0.1)"; // Blue for partial payments (filtered view only)
+  if (isSaved) return "rgba(0, 255, 0, 0.1)"; // Green for saved or updated records
   return "inherit"; // Default background color
 }

@@ -459,7 +459,7 @@ export default function Step2() {
                   backgroundColor: getRowHighlightColor(
                     record,
                     changedRows,
-                    showPartialPaymentsOnly
+                    showPartialPaymentsOnly // Ensure the filter state is passed to highlight partial payments in blue
                   ),
                 }}
               >
