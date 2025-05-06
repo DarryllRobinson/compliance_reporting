@@ -1,4 +1,4 @@
 export * from "./calculatePaymentTerm";
 export * from "./calculatePartialPayment";
 export * from "./paymentTime";
-export * from "./ptrs";
+export * from "./calculateFinalMetrics";

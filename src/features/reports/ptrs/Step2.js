@@ -64,20 +64,21 @@ export async function step2Loader({ params, location }) {
   const passedRecords = location?.state?.records;
 
   const savePartialPaymentRecords = async (records) => {
-    const partialPaymentRecords = records.filter(
-      (record) => record.partialPayment
-    );
+    // Changing to be able to save all records
+    // const partialPaymentRecords = records.filter(
+    //   (record) => record.partialPayment
+    // );
 
-    if (partialPaymentRecords.length > 0) {
+    if (records.length > 0) {
       try {
-        console.log("Saving partial payment records:", partialPaymentRecords);
-        await tcpService.partialUpdate(
-          partialPaymentRecords.map((record) => ({
-            id: record.id,
-            partialPayment: record.partialPayment,
-            updatedBy: userService.userValue.id,
-          }))
-        );
+        // console.log("Saving partial payment records:", records);
+        records.map((record) => ({
+          ...records,
+          id: record.id,
+          partialPayment: record.partialPayment,
+          updatedBy: userService.userValue.id,
+        }));
+        await tcpService.bulkUpdate(records);
       } catch (error) {
         console.error("Error saving partial payment records:", error);
         throw new Response("Failed to save partial payment records", {
