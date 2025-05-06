@@ -25,10 +25,20 @@ export async function step4Loader({ params }) {
   try {
     // Fetch TCP dataset for Step4
     const tcpDataset = await tcpService.getTcpByReportId(reportId);
-    return { tcpDataset: tcpDataset || [] };
+
+    // Calculate paymentTime for each record
+    const updatedDataset = tcpDataset.map((record) => ({
+      ...record,
+      paymentTime: calculatePaymentTime(record),
+    }));
+
+    // Save updated records with paymentTime to the backend
+    await tcpService.bulkUpdate(updatedDataset);
+
+    return { tcpDataset: updatedDataset };
   } catch (error) {
-    console.error("Error fetching TCP dataset:", error);
-    throw new Response("Failed to fetch TCP dataset", { status: 500 });
+    console.error("Error fetching or saving TCP dataset:", error);
+    throw new Response("Failed to fetch or save TCP dataset", { status: 500 });
   }
 }
 

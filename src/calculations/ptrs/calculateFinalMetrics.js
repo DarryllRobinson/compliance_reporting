@@ -57,6 +57,7 @@ export function calculateFinalMetrics(dataset) {
   const paymentTimes = sbtcpDataset
     .map((record) => Number(record.paymentTime)) // Normalize to numbers
     .filter((time) => !isNaN(time)); // Exclude invalid numbers
+  console.log("paymentTimes: ", paymentTimes);
 
   if (paymentTimes.length === 0) {
     console.warn("No valid payment times found in the SBTCP dataset.");

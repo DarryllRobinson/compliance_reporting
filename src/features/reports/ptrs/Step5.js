@@ -180,50 +180,52 @@ export default function Step5() {
       fields: [
         {
           label: "Average payment time",
-          value: "28.95",
+          value: metrics.averagePaymentTime, // Use the calculated metric
           comment:
-            "Calculated using AVERAGE() on all values in the 'Payment Time' column of the Final SBTCP Dataset.",
+            "WRONG Calculated using AVERAGE() on all values in the 'Payment Time' column of the Final SBTCP Dataset.",
         },
         {
           label: "Median payment time",
-          value: "26.00",
+          value: metrics.medianPaymentTime, // Use the calculated metric
           comment:
-            "Calculated using MEDIAN() on all values in the 'Payment Time' column.",
+            "WRONG Calculated using MEDIAN() on all values in the 'Payment Time' column.",
         },
         {
           label: "80th percentile payment time",
-          value: "44",
+          value: metrics.percentile80, // Use the calculated metric
           comment:
-            "Calculated using PERCENTILE.INC() on the 'Payment Time' column with 0.8 input; result must be a real data point.",
+            "WRONG Calculated using PERCENTILE.INC() on the 'Payment Time' column with 0.8 input; result must be a real data point.",
         },
         {
           label: "95th percentile payment time",
-          value: "59",
+          value: metrics.percentile95, // Use the calculated metric
           comment:
-            "Calculated using PERCENTILE.INC() on the 'Payment Time' column with 0.95 input; interpolation not permitted.",
+            "WRONG Calculated using PERCENTILE.INC() on the 'Payment Time' column with 0.95 input; interpolation not permitted.",
         },
         {
           label:
             "Percentage of small business trade credit arrangements paid within payment terms",
-          value: "62.90",
+          value: metrics.paidWithinTermsPercent, // Use the calculated metric
           comment:
-            "Payments where Payment Time ≤ Payment Term ÷ Total Payments × 100.",
+            "WRONG Payments where Payment Time ≤ Payment Term ÷ Total Payments × 100.",
         },
         {
           label: "Invoices paid within 30 days (%)",
-          value: "64.52",
-          comment: "Payments where Payment Time ≤ 30 ÷ Total Payments × 100.",
+          value: metrics.paidWithin30DaysPercent, // Use the calculated metric
+          comment:
+            "WRONG Payments where Payment Time ≤ 30 ÷ Total Payments × 100.",
         },
         {
           label: "Invoices paid in 31-60 days (%)",
-          value: "30.65",
+          value: metrics.paid31To60DaysPercent, // Use the calculated metric
           comment:
-            "Payments where Payment Time is between 31 and 60 ÷ Total Payments × 100.",
+            "WRONG Payments where Payment Time is between 31 and 60 ÷ Total Payments × 100.",
         },
         {
           label: "Invoices paid over 60 days (%)",
-          value: "4.84",
-          comment: "Payments where Payment Time > 60 ÷ Total Payments × 100.",
+          value: metrics.paidOver60DaysPercent, // Use the calculated metric
+          comment:
+            "WRONG Payments where Payment Time > 60 ÷ Total Payments × 100.",
         },
       ],
     },
@@ -233,13 +235,13 @@ export default function Step5() {
         {
           label:
             "Small business trade credit payments as a percentage of total trade credit payments",
-          value: "89.74",
+          value: "tbc",
           comment:
             "Total small business trade credit payments ÷ Total trade credit payments × 100. Calculated using payment amounts from Steps 5 & 6 SBTCP and Final TCP datasets.",
         },
         {
           label: "Percentage of Peppol enabled small business procurement",
-          value: "74.19",
+          value: "tbc",
           comment:
             "Payments marked 'Yes' in the 'Peppol invoice enabled' column ÷ Total SBTCP payments × 100. Only certain entities were set up for Peppol.",
         },
