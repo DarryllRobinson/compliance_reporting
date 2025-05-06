@@ -46,6 +46,7 @@ import Step1, { step1Loader } from "../features/reports/ptrs/Step1";
 import Step2, { step2Loader } from "../features/reports/ptrs/Step2";
 import Step3, { step3Loader } from "../features/reports/ptrs/Step3";
 import Step4, { step4Loader } from "../features/reports/ptrs/Step4";
+import Step5, { step5Loader } from "../features/reports/ptrs/Step5";
 
 // TODO: Optimise the whole thing: https://reactrouter.com/tutorials/address-book
 
@@ -227,6 +228,16 @@ export default function AppRouter() {
                   Component: Step4,
                   loader: (args) =>
                     step4Loader({
+                      ...args,
+                      context: { alertContext, reportContext },
+                    }),
+                },
+                {
+                  // Step 5:
+                  path: ":code/step5/:reportId",
+                  Component: Step5,
+                  loader: (args) =>
+                    step5Loader({
                       ...args,
                       context: { alertContext, reportContext },
                     }),
