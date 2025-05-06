@@ -1,4 +1,4 @@
-import { mockInvoices, mockReceivables } from "../data/mockInvoiceData";
+import { mockInvoices, mockReceivables } from "../../data/mockInvoiceData";
 
 export const calculateInvoiceMetrics = (
   reportType,

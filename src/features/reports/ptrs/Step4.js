@@ -1,0 +1,200 @@
+import React, { useState } from "react";
+import {
+  Box,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+  Button,
+  TextField,
+  TablePagination,
+} from "@mui/material";
+import { useAlert } from "../../../context";
+import { useLoaderData, useNavigate, useParams } from "react-router";
+import { tcpService } from "../../../services";
+import { getRowHighlightColor } from "../../../utils/highlightRow";
+import { calculatePaymentTime } from "../../../calculations/ptrs";
+
+export async function step4Loader({ params }) {
+  const { reportId } = params;
+
+  try {
+    // Fetch TCP dataset for Step4
+    const tcpDataset = await tcpService.getTcpByReportId(reportId);
+    return { tcpDataset: tcpDataset || [] };
+  } catch (error) {
+    console.error("Error fetching TCP dataset:", error);
+    throw new Response("Failed to fetch TCP dataset", { status: 500 });
+  }
+}
+
+export default function Step4() {
+  const params = useParams();
+  const { reportId } = params; // Extract reportId from route params
+  const { sendAlert } = useAlert();
+  const navigate = useNavigate();
+  const { tcpDataset } = useLoaderData();
+  const [records, setRecords] = useState(
+    tcpDataset.map((record) => ({
+      ...record,
+      paymentTime: calculatePaymentTime(record), // Add calculated paymentTime field
+    }))
+  );
+  const [searchTerm, setSearchTerm] = useState("");
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  const handleSearch = (event) => {
+    const lowerCaseSearchTerm = event.target.value.toLowerCase();
+    setSearchTerm(lowerCaseSearchTerm);
+
+    setRecords(
+      tcpDataset
+        .map((record) => ({
+          ...record,
+          paymentTime: calculatePaymentTime(record),
+        }))
+        .filter((record) =>
+          Object.values(record)
+            .join(" ")
+            .toLowerCase()
+            .includes(lowerCaseSearchTerm)
+        )
+    );
+  };
+
+  const displayedRecords = records.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
+  );
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  return (
+    <Box sx={{ padding: 2 }}>
+      <Typography variant="h5" sx={{ marginBottom: 2 }}>
+        Step 4: Review and Update TCP Records
+      </Typography>
+      <TextField
+        label="Search"
+        variant="outlined"
+        fullWidth
+        value={searchTerm}
+        onChange={handleSearch}
+        sx={{ marginBottom: 2 }}
+      />
+      <TableContainer component={Paper} sx={{ maxHeight: 500 }}>
+        <Table stickyHeader>
+          <TableHead>
+            <TableRow>
+              {[
+                "Payer Entity Name",
+                "Payer Entity ABN",
+                "Payer Entity ACN/ARBN",
+                "Payee Entity Name",
+                "Payee Entity ABN",
+                "Payee Entity ACN/ARBN",
+                "Payment Amount",
+                "Description",
+                "Supply Date",
+                "Payment Date",
+                "Contract PO Reference Number",
+                "Contract PO Payment Terms",
+                "Notice for Payment Issue Date",
+                "Notice for Payment Terms",
+                "Invoice Reference Number",
+                "Invoice Issue Date",
+                "Invoice Receipt Date",
+                "Invoice Amount",
+                "Invoice Payment Terms",
+                "Invoice Due Date",
+                "Peppol eInvoice Enabled",
+                "RCTI",
+                "Credit Card Payment",
+                "Credit Card Number",
+                "Partial Payment",
+                "Payment Term",
+                "Excluded TCP",
+                "Notes",
+                "Is Small Business",
+                "Payment Time",
+              ].map((label, index) => (
+                <TableCell key={index}>{label}</TableCell>
+              ))}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {displayedRecords.map((record) => (
+              <TableRow
+                key={record.id}
+                sx={{
+                  backgroundColor: getRowHighlightColor(record, {}),
+                }}
+              >
+                <TableCell>{record.payerEntityName || "-"}</TableCell>
+                <TableCell>{record.payerEntityAbn || "-"}</TableCell>
+                <TableCell>{record.payerEntityAcnArbn || "-"}</TableCell>
+                <TableCell>{record.payeeEntityName || "-"}</TableCell>
+                <TableCell>{record.payeeEntityAbn || "-"}</TableCell>
+                <TableCell>{record.payeeEntityAcnArbn || "-"}</TableCell>
+                <TableCell>{record.paymentAmount || "-"}</TableCell>
+                <TableCell>{record.description || "-"}</TableCell>
+                <TableCell>{record.supplyDate || "-"}</TableCell>
+                <TableCell>{record.paymentDate || "-"}</TableCell>
+                <TableCell>{record.contractPoReferenceNumber || "-"}</TableCell>
+                <TableCell>{record.contractPoPaymentTerms || "-"}</TableCell>
+                <TableCell>{record.noticeForPaymentIssueDate || "-"}</TableCell>
+                <TableCell>{record.noticeForPaymentTerms || "-"}</TableCell>
+                <TableCell>{record.invoiceReferenceNumber || "-"}</TableCell>
+                <TableCell>{record.invoiceIssueDate || "-"}</TableCell>
+                <TableCell>{record.invoiceReceiptDate || "-"}</TableCell>
+                <TableCell>{record.invoiceAmount || "-"}</TableCell>
+                <TableCell>{record.invoicePaymentTerms || "-"}</TableCell>
+                <TableCell>{record.invoiceDueDate || "-"}</TableCell>
+                <TableCell>{record.peppolEnabled ? "Yes" : "No"}</TableCell>
+                <TableCell>{record.rcti ? "Yes" : "No"}</TableCell>
+                <TableCell>{record.creditCardPayment ? "Yes" : "No"}</TableCell>
+                <TableCell>{record.creditCardNumber || "-"}</TableCell>
+                <TableCell>{record.partialPayment ? "Yes" : "No"}</TableCell>
+                <TableCell>{record.paymentTerm || "-"}</TableCell>
+                <TableCell>{record.excludedTcp ? "Yes" : "No"}</TableCell>
+                <TableCell>{record.notes || "-"}</TableCell>
+                <TableCell>{record.isSb ? "Yes" : "No"}</TableCell>
+                <TableCell>{record.paymentTime ?? "-"}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <TablePagination
+        component="div"
+        count={records.length}
+        page={page}
+        onPageChange={handleChangePage}
+        rowsPerPage={rowsPerPage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+        rowsPerPageOptions={[5, 10, 25]}
+      />
+      <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={() => navigate(`/reports/ptrs/step5/${reportId}`)}
+        >
+          Next: Step 5
+        </Button>
+      </Box>
+    </Box>
+  );
+}

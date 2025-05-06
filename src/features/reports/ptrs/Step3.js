@@ -128,7 +128,7 @@ export default function Step3() {
 
       // Send valid records to the backend
       try {
-        await tcpService.updateTcpFile(reportId, validRecords);
+        await tcpService.sbiUpdate(reportId, validRecords);
         sendAlert(
           "success",
           `File uploaded successfully! ${validRecords.length} records were uploaded and processed.`
