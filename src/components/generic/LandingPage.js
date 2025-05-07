@@ -1,7 +1,9 @@
 import React from "react";
 import { Container, Typography, Box, Button } from "@mui/material";
+import { useNavigate } from "react-router";
 
 export default function LandingPage() {
+  const navigate = useNavigate();
   return (
     <Container maxWidth="md" sx={{ textAlign: "center", py: 4 }}>
       <Typography variant="h3" gutterBottom>
@@ -11,6 +13,18 @@ export default function LandingPage() {
         We simplify compliance reporting for businesses of all sizes. Choose the
         reports you need, and we’ll handle the rest—accurately and on time.
       </Typography>
+      <Typography variant="body1" paragraph>
+        Try our awesome entity checker thing
+      </Typography>
+      <Box sx={{ display: "flex", justifyContent: "center", mb: 3 }}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => navigate("/entity-flow")}
+        >
+          Entity Checker
+        </Button>
+      </Box>
       <Typography variant="h5" gutterBottom>
         Pricing
       </Typography>

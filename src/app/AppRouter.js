@@ -67,6 +67,10 @@ export default function AppRouter() {
           index: true,
           Component: LandingPage,
         },
+        {
+          path: "entity-flow",
+          Component: EntityFlowChart,
+        },
         // Users
         {
           path: "/users",
@@ -180,10 +184,6 @@ export default function AppRouter() {
               loader: (args) =>
                 reportLayoutLoader({ ...args, context: { alertContext } }),
               children: [
-                {
-                  path: "ptrs/entity-flow",
-                  Component: EntityFlowChart,
-                },
                 {
                   // Create PTRS Report
                   path: ":code/create",
