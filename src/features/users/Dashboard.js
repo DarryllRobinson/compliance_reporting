@@ -54,22 +54,6 @@ export default function Dashboard() {
       name: "Payment Times Reporting Scheme",
       code: "ptrs",
       description: "History of submitted reports",
-      items: 10,
-      link: "/xero-credentials",
-    },
-    {
-      name: "Report B",
-      code: "reportB",
-      description: "Description of Report B",
-      items: 25,
-      link: "/xero-credentials",
-    },
-    {
-      name: "Report C",
-      code: "reportC",
-      description: "Description of Report C",
-      items: 15,
-      link: "/xero-credentials",
     },
   ];
 
