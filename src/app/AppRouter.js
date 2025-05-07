@@ -37,6 +37,9 @@ import ReportsMain from "../features/reports/ReportsMain";
 import ReportsLayout, {
   reportLayoutLoader,
 } from "../features/reports/ReportsLayout";
+
+// PTRS
+import EntityFlowChart from "../features/reports/ptrs/EntityFlowChart";
 import CreateReport, {
   createReportAction,
 } from "../features/reports/ptrs/CreateReport";
@@ -177,6 +180,10 @@ export default function AppRouter() {
               loader: (args) =>
                 reportLayoutLoader({ ...args, context: { alertContext } }),
               children: [
+                {
+                  path: "ptrs/entity-flow",
+                  Component: EntityFlowChart,
+                },
                 {
                   // Create PTRS Report
                   path: ":code/create",
