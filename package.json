@@ -19,6 +19,7 @@
     "csv-parser": "^3.2.0",
     "html-entities": "^2.6.0",
     "jspdf": "^3.0.1",
+    "multer": "^1.4.5-lts.2",
     "query-string": "^9.1.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",

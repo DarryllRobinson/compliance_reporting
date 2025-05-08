@@ -56,8 +56,14 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
       <Toolbar>
         <Typography
           variant="h6"
-          component="div"
-          sx={{ flexGrow: 1, color: theme.palette.text.primary }}
+          component={Link} // Use Link component for navigation
+          to="/" // Navigate to the root route
+          sx={{
+            flexGrow: 1,
+            color: theme.palette.text.primary,
+            textDecoration: "none", // Remove underline from the link
+            cursor: "pointer", // Indicate it's clickable
+          }}
         >
           Placeholder Logo
         </Typography>
@@ -101,6 +107,14 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
             )}
             <Button
               color="inherit"
+              component={Link}
+              to="/contact" // Add Contact link
+              sx={{ color: theme.palette.text.primary }}
+            >
+              Contact
+            </Button>
+            <Button
+              color="inherit"
               onClick={handleLogout}
               sx={{ color: theme.palette.text.primary }}
             >
@@ -109,13 +123,21 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
           </Box>
         ) : (
           <Box sx={{ display: { xs: "none", md: "flex" } }}>
-            <Button
+            {/* <Button
               color="inherit"
               component={Link}
               to="/user/login"
               sx={{ color: theme.palette.text.primary }}
             >
               Login
+            </Button> */}
+            <Button
+              color="inherit"
+              component={Link}
+              to="/contact" // Add Contact link for non-logged-in users
+              sx={{ color: theme.palette.text.primary }}
+            >
+              Contact
             </Button>
           </Box>
         )}
@@ -142,14 +164,16 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
             >
               Home
             </MenuItem>
-            <MenuItem
-              onClick={handleMenuClose}
-              component={Link}
-              to="/user/dashboard"
-              sx={{ color: theme.palette.text.primary }}
-            >
-              Dashboard
-            </MenuItem>
+            {user && (
+              <MenuItem
+                onClick={handleMenuClose}
+                component={Link}
+                to="/user/dashboard"
+                sx={{ color: theme.palette.text.primary }}
+              >
+                Dashboard
+              </MenuItem>
+            )}
             {user?.role === "Admin" && (
               <MenuItem
                 onClick={handleMenuClose}
@@ -170,6 +194,14 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
                 Users
               </MenuItem>
             )}
+            <MenuItem
+              onClick={handleMenuClose}
+              component={Link}
+              to="/contact" // Add Contact link to the menu
+              sx={{ color: theme.palette.text.primary }}
+            >
+              Contact
+            </MenuItem>
             {user
               ? [
                   <MenuItem
@@ -181,15 +213,15 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
                   </MenuItem>,
                 ]
               : [
-                  <MenuItem
-                    key="login"
-                    onClick={handleMenuClose}
-                    component={Link}
-                    to="/user/login"
-                    sx={{ color: theme.palette.text.primary }}
-                  >
-                    Login
-                  </MenuItem>,
+                  // <MenuItem
+                  //   key="login"
+                  //   onClick={handleMenuClose}
+                  //   component={Link}
+                  //   to="/user/login"
+                  //   sx={{ color: theme.palette.text.primary }}
+                  // >
+                  //   Login
+                  // </MenuItem>,
                 ]}
           </Menu>
         </Box>

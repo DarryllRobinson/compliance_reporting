@@ -50,6 +50,7 @@ import Step2, { step2Loader } from "../features/reports/ptrs/Step2";
 import Step3, { step3Loader } from "../features/reports/ptrs/Step3";
 import Step4, { step4Loader } from "../features/reports/ptrs/Step4";
 import Step5, { step5Loader } from "../features/reports/ptrs/Step5";
+import Contact from "../components/generic/Contact";
 
 // TODO: Optimise the whole thing: https://reactrouter.com/tutorials/address-book
 
@@ -70,6 +71,10 @@ export default function AppRouter() {
         {
           path: "entity-flow",
           Component: EntityFlowChart,
+        },
+        {
+          path: "contact",
+          Component: Contact,
         },
         // Users
         {

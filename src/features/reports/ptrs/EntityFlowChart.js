@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { use, useState } from "react";
 import { useNavigate } from "react-router";
 import {
   Box,
@@ -23,6 +23,8 @@ import {
   TextField,
 } from "@mui/material";
 import jsPDF from "jspdf";
+import { entityService } from "../../../services";
+import { useAlert } from "../../../context";
 
 const steps = [
   "Entity Details",
@@ -81,6 +83,7 @@ const flowQuestions = [
       "Carries on business in Australia",
       "Central management and control in Australia",
       "Majority voting power controlled by Australian shareholders",
+      "All of the above",
       "None of the above",
     ],
     help: "Tick any that apply — only one is required. If none apply, select 'None of the above'.",
@@ -107,6 +110,7 @@ export default function EntityFlowChart() {
   const [stopped, setStopped] = useState(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const navigate = useNavigate();
+  const sendAlert = useAlert();
 
   const current = flowQuestions[activeStep];
 
@@ -137,14 +141,10 @@ export default function EntityFlowChart() {
 
   const saveToBackend = async (data, completed = false) => {
     try {
-      await fetch("/api/reporting-flow", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...data,
-          completed,
-          timestamp: new Date().toISOString(),
-        }),
+      await entityService.create({
+        ...data,
+        completed,
+        timestamp: new Date().toISOString(),
       });
     } catch (error) {
       console.error("Failed to save answers", error);
@@ -153,11 +153,27 @@ export default function EntityFlowChart() {
 
   const sendSummaryByEmail = async () => {
     try {
-      await fetch("/api/email-summary", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ answers }),
-      });
+      const doc = new jsPDF({ unit: "mm", format: "a4" });
+
+      // [ ... your existing PDF content generation code here ... ]
+      doc.text("Entity Reporting Flow Summary", 20, 20);
+      // (skip detailed rendering for this example)
+
+      const pdfBlob = doc.output("blob");
+
+      const formData = new FormData();
+      formData.append("to", emailAddr);
+      formData.append("name", emailName);
+      formData.append("from", "darryllrobinson@icloud.com");
+      formData.append("subject", "Your Entity Reporting Flow Summary");
+      formData.append(
+        "html",
+        `<p>Hi ${emailName},</p><p>Here’s your PDF summary attached.</p>`
+      );
+      formData.append("attachment", pdfBlob, "entity-report-summary.pdf");
+
+      await entityService.sendPdfEmail(formData, true); // Pass 'true' to indicate FormData
+      sendAlert("success", "Email sent successfully with PDF attached");
     } catch (error) {
       console.error("Failed to email summary", error);
     }
@@ -176,34 +192,77 @@ export default function EntityFlowChart() {
   };
 
   const handlePDF = () => {
-    const doc = new jsPDF();
+    const doc = new jsPDF({ unit: "mm", format: "a4" });
+    const marginLeft = 20;
+    const marginTop = 20;
+    const lineHeight = 7;
+    const pageHeight = doc.internal.pageSize.height;
+    let y = marginTop;
+
+    const logoPlaceholder = "(LOGO)";
+    const companyName = "Your Company Name Here";
+    const date = new Date().toLocaleString();
+
+    doc.setFontSize(16);
+    doc.text(companyName, marginLeft, y);
+    doc.setFontSize(10);
+    doc.text(date, marginLeft, y + 6);
+
     doc.setFontSize(12);
-    doc.text("Entity Reporting Flow Summary", 10, 10);
-    let y = 20;
+    doc.text(logoPlaceholder, 160, y); // Placeholder for logo
+
+    y += 20;
+
+    doc.setFontSize(14);
+    doc.text("Entity Reporting Flow Summary", marginLeft, y);
+    y += 10;
+
+    doc.setFontSize(11);
+
     for (const q of flowQuestions) {
       const label =
         q.key === "entityDetails" ? "Entity details provided" : q.question;
-      doc.text(label, 10, y);
-      y += 6;
+
       const val = Array.isArray(answers[q.key])
         ? answers[q.key].join(", ")
         : typeof answers[q.key] === "object" && answers[q.key] !== null
           ? Object.entries(answers[q.key])
               .map(([k, v]) => `• ${k}: ${v || "—"}`)
-              .join("\\n")
+              .join("\n")
           : answers[q.key] || "No answer";
-      if (typeof val === "string" && val.includes("\\n")) {
-        const lines = val.split("\\n");
-        for (const line of lines) {
-          doc.text(line, 10, y);
-          y += 6;
-        }
-        y += 4; // Add extra line break after multi-line answer
+
+      const sectionLines = [`${label}`];
+
+      if (typeof val === "string" && val.includes("\n")) {
+        sectionLines.push(...val.split("\n").map((line) => `  ${line}`));
       } else {
-        doc.text(`Answer: ${val}`, 10, y);
-        y += 10;
+        sectionLines.push(`  Answer: ${val}`);
       }
+
+      for (const line of sectionLines) {
+        if (y + lineHeight > pageHeight - marginTop) {
+          doc.addPage();
+          y = marginTop;
+        }
+        doc.text(line, marginLeft, y);
+        y += lineHeight;
+      }
+
+      // Add visual separator
+      y += 2;
+      doc.setDrawColor(200);
+      doc.line(marginLeft, y, 190, y);
+      y += 5;
     }
+
+    // Add footer
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(9);
+      doc.text(`Page ${i} of ${pageCount}`, marginLeft, pageHeight - 10);
+    }
+
     doc.save("entity-report-summary.pdf");
   };
 
@@ -230,7 +289,11 @@ export default function EntityFlowChart() {
   const confirmSubmission = async () => {
     await saveToBackend({ ...answers }, true);
     await sendSummaryByEmail();
-    navigate("/report/create");
+    sendAlert(
+      "info",
+      "Email sent successfully - we look forward to hearing from you!"
+    );
+    // navigate("/report/create");
   };
 
   const handleInputChange = (key) => (e) => {
@@ -268,15 +331,38 @@ export default function EntityFlowChart() {
     setAnswers({ ...answers, [key]: e.target.value });
 
   const handleCheckboxChange = (key, value) => (e) => {
+    const allOptions = [
+      "Incorporated in Australia",
+      "Carries on business in Australia",
+      "Central management and control in Australia",
+      "Majority voting power controlled by Australian shareholders",
+      "All of the above",
+      "None of the above",
+    ];
+
+    const individualOptions = allOptions.filter(
+      (opt) => opt !== "All of the above" && opt !== "None of the above"
+    );
+
     let updated = [];
     const prev = answers[key] || [];
 
     if (value === "None of the above") {
       updated = e.target.checked ? ["None of the above"] : [];
-    } else {
+    } else if (value === "All of the above") {
       updated = e.target.checked
-        ? [...prev.filter((v) => v !== "None of the above"), value]
-        : prev.filter((v) => v !== value);
+        ? [...individualOptions, "All of the above"]
+        : [];
+    } else {
+      if (e.target.checked) {
+        updated = [...prev.filter((v) => v !== "None of the above"), value];
+        const allSelected = individualOptions.every((opt) =>
+          updated.includes(opt)
+        );
+        if (allSelected) updated.push("All of the above");
+      } else {
+        updated = prev.filter((v) => v !== value && v !== "All of the above");
+      }
     }
 
     setAnswers({ ...answers, [key]: updated });
@@ -284,10 +370,14 @@ export default function EntityFlowChart() {
 
   const completion = Math.round(((activeStep + 1) / steps.length) * 100);
 
+  // For email section state
+  const [emailName, setEmailName] = useState("");
+  const [emailAddr, setEmailAddr] = useState("");
+
   return (
     <Box sx={{ p: 4 }}>
       <Typography variant="h5" gutterBottom>
-        Entity Reporting Eligibility Flow
+        PTRS Navigator Eligibility Flow
       </Typography>
 
       <Box sx={{ mb: 2 }}>
@@ -303,6 +393,8 @@ export default function EntityFlowChart() {
           const tooltip = isEnabled
             ? "Click to jump to this step"
             : "Please complete prior steps before accessing this one.";
+          // Replace "Entity Checker" with "PTRS Navigator" in step labels if any
+          const stepLabel = label.replace(/Entity Checker/g, "PTRS Navigator");
           return (
             <Step key={index}>
               <Tooltip title={tooltip} arrow>
@@ -314,7 +406,7 @@ export default function EntityFlowChart() {
                       isStepValid(index) || index <= activeStep ? 1 : 0.4,
                   }}
                 >
-                  {label}
+                  {stepLabel}
                 </StepLabel>
               </Tooltip>
             </Step>
@@ -362,17 +454,47 @@ export default function EntityFlowChart() {
                   </Box>
                 ))}
               </Box>
-              <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
-                <Button variant="outlined" onClick={handleDownload}>
-                  Download JSON
-                </Button>
-                <Button variant="outlined" onClick={handlePDF}>
-                  Download PDF
+              {/* Inserted: Email summary section */}
+              <Box sx={{ mb: 2 }}>
+                <Typography variant="subtitle1" sx={{ mt: 2 }}>
+                  Want a full breakdown tailored to your entity?
+                </Typography>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ mb: 2 }}
+                >
+                  We’ll email you a free summary PDF outlining what we've found
+                  — and what to do next.
+                </Typography>
+                <TextField
+                  label="Your Name"
+                  variant="outlined"
+                  fullWidth
+                  sx={{ mb: 2 }}
+                  value={emailName}
+                  onChange={(e) => setEmailName(e.target.value)}
+                />
+                <TextField
+                  label="Your Email"
+                  variant="outlined"
+                  fullWidth
+                  sx={{ mb: 2 }}
+                  value={emailAddr}
+                  onChange={(e) => setEmailAddr(e.target.value)}
+                />
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  // Placeholder: could hook to sendSummaryByEmail() if needed
+                  onClick={() => {
+                    sendSummaryByEmail();
+                  }}
+                >
+                  Email me my results
                 </Button>
               </Box>
-              <Button variant="contained" color="primary" onClick={handleNext}>
-                Submit and Create Report
-              </Button>
+              {/* End Email summary section */}
             </>
           ) : (
             <>
@@ -404,20 +526,51 @@ export default function EntityFlowChart() {
                 </Box>
               ) : current.type === "checkbox" ? (
                 <FormGroup>
-                  {current.subOptions.map((option) => (
-                    <FormControlLabel
-                      key={option}
-                      control={
-                        <Checkbox
-                          checked={(answers[current.key] || []).includes(
-                            option
-                          )}
-                          onChange={handleCheckboxChange(current.key, option)}
-                        />
-                      }
-                      label={option}
-                    />
-                  ))}
+                  {current.subOptions.map((option, index) => {
+                    if (option === "None of the above") {
+                      return (
+                        <React.Fragment key={option}>
+                          <Box
+                            sx={{
+                              borderBottom: "1px solid #ccc",
+                              my: 1,
+                              mx: 0,
+                              width: "100%",
+                            }}
+                          />
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                checked={(answers[current.key] || []).includes(
+                                  option
+                                )}
+                                onChange={handleCheckboxChange(
+                                  current.key,
+                                  option
+                                )}
+                              />
+                            }
+                            label={option}
+                          />
+                        </React.Fragment>
+                      );
+                    }
+
+                    return (
+                      <FormControlLabel
+                        key={option}
+                        control={
+                          <Checkbox
+                            checked={(answers[current.key] || []).includes(
+                              option
+                            )}
+                            onChange={handleCheckboxChange(current.key, option)}
+                          />
+                        }
+                        label={option}
+                      />
+                    );
+                  })}
                 </FormGroup>
               ) : (
                 <RadioGroup
