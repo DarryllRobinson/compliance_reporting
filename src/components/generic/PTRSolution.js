@@ -6,11 +6,13 @@ import {
   Card,
   CardContent,
   Button,
+  useTheme,
 } from "@mui/material";
 import { useNavigate } from "react-router";
 
 export default function PTRSolution() {
   const navigate = useNavigate();
+  const theme = useTheme();
 
   const features = [
     {
@@ -46,12 +48,22 @@ export default function PTRSolution() {
   ];
 
   return (
-    <Box sx={{ px: { xs: 3, md: 8 }, py: 6 }}>
-      <Typography variant="h4" gutterBottom>
+    <Box
+      sx={{
+        px: { xs: 3, md: 8 },
+        py: 6,
+        backgroundColor: theme.palette.background.default,
+      }}
+    >
+      <Typography variant="h4" gutterBottom color={theme.palette.text.primary}>
         Payment Times Reporting Compliance Platform
       </Typography>
 
-      <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
+      <Typography
+        variant="body1"
+        color={theme.palette.text.secondary}
+        sx={{ mb: 4 }}
+      >
         A complete compliance solution for Australian businesses with over A$100
         million in annual turnover. Built to simplify your reporting
         obligations, reduce risk, and give you confidence in your compliance
@@ -61,12 +73,22 @@ export default function PTRSolution() {
       <Grid container spacing={4}>
         {features.map((feature, idx) => (
           <Grid item xs={12} sm={6} md={4} key={idx}>
-            <Card elevation={3} sx={{ height: "100%" }}>
+            <Card
+              elevation={3}
+              sx={{
+                height: "100%",
+                backgroundColor: theme.palette.background.paper,
+                color: theme.palette.text.primary,
+              }}
+            >
               <CardContent>
                 <Typography variant="h6" gutterBottom>
                   {feature.title}
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
+                <Typography
+                  variant="body2"
+                  color={theme.palette.text.secondary}
+                >
                   {feature.description}
                 </Typography>
               </CardContent>
@@ -76,13 +98,23 @@ export default function PTRSolution() {
       </Grid>
 
       <Box sx={{ mt: 6, textAlign: "center" }}>
-        <Typography variant="h6" gutterBottom>
+        <Typography
+          variant="h6"
+          gutterBottom
+          color={theme.palette.text.primary}
+        >
           Ready to check your entity's reporting eligibility?
         </Typography>
         <Button
           variant="contained"
           size="large"
           onClick={() => navigate("/entity-checker")}
+          sx={{
+            backgroundColor: theme.palette.primary.main,
+            "&:hover": {
+              backgroundColor: theme.palette.primary.dark,
+            },
+          }}
         >
           Start Eligibility Check
         </Button>

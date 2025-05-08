@@ -1,9 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import AppRouter from "./app/AppRouter";
-import { ThemeProvider } from "@mui/material/styles";
 import { HelmetProvider } from "react-helmet-async";
-import globalTheme from "./theme/globalTheme";
 // import { AuthProvider } from "./context/AuthContext";
 import { ReportProvider } from "./context/ReportContext"; // Import ReportProvider
 import { userService } from "./services";
@@ -41,13 +39,11 @@ userService
 function startApp() {
   ReactDOM.createRoot(document.getElementById("root")).render(
     <HelmetProvider>
-      <ThemeProvider theme={globalTheme}>
-        <AlertProvider>
-          <ReportProvider>
-            <AppRouter />
-          </ReportProvider>
-        </AlertProvider>
-      </ThemeProvider>
+      <AlertProvider>
+        <ReportProvider>
+          <AppRouter />
+        </ReportProvider>
+      </AlertProvider>
     </HelmetProvider>
   );
 }
