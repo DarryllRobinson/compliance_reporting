@@ -5,6 +5,7 @@ export const fetchWrapper = {
   get,
   getDocument,
   post,
+  postEmail, // Export the new function
   put,
   delete: _delete,
 };
@@ -60,6 +61,19 @@ async function post(url, body) {
   // console.log("post requestOptions", requestOptions);
   const response = await fetch(url, requestOptions);
   // console.log("post response", response);
+  return handleResponse(response);
+}
+
+async function postEmail(url, formData) {
+  const headers = authHeader(url); // Do not set Content-Type manually for FormData
+  const requestOptions = {
+    method: "POST",
+    headers, // Only include Authorization header
+    credentials: "include",
+    body: formData, // Pass FormData directly
+  };
+
+  const response = await fetch(url, requestOptions);
   return handleResponse(response);
 }
 

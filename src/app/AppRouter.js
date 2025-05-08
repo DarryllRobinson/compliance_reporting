@@ -6,6 +6,13 @@ import LandingPage from "../components/generic/LandingPage";
 import RootErrorBoundary from "../components/navigation/RootErrorBoundary";
 import Fallback from "../components/generic/Fallback";
 
+// Publicly available
+import Contact from "../components/generic/Contact";
+import PublicEntityFlowChart from "../components/generic/PublicEntityFlowChart";
+// Testing pdf email
+import TestPdfEmail from "../components/generic/TestPdfEmail";
+import PTRSolution from "../components/generic/PTRSolution";
+
 // Users
 import Users, { usersLoader } from "../features/users/Users";
 import UsersLayout, { usersLayoutLoader } from "../features/users/UsersLayout";
@@ -39,7 +46,7 @@ import ReportsLayout, {
 } from "../features/reports/ReportsLayout";
 
 // PTRS
-import EntityFlowChart from "../features/reports/ptrs/EntityFlowChart";
+// import EntityFlowChart from "../features/reports/ptrs/EntityFlowChart";
 import CreateReport, {
   createReportAction,
 } from "../features/reports/ptrs/CreateReport";
@@ -50,7 +57,6 @@ import Step2, { step2Loader } from "../features/reports/ptrs/Step2";
 import Step3, { step3Loader } from "../features/reports/ptrs/Step3";
 import Step4, { step4Loader } from "../features/reports/ptrs/Step4";
 import Step5, { step5Loader } from "../features/reports/ptrs/Step5";
-import Contact from "../components/generic/Contact";
 
 // TODO: Optimise the whole thing: https://reactrouter.com/tutorials/address-book
 
@@ -70,11 +76,19 @@ export default function AppRouter() {
         },
         {
           path: "entity-flow",
-          Component: EntityFlowChart,
+          Component: PublicEntityFlowChart,
+        },
+        {
+          path: "test-pdf-email",
+          Component: TestPdfEmail,
         },
         {
           path: "contact",
           Component: Contact,
+        },
+        {
+          path: "ptr-solution",
+          Component: PTRSolution,
         },
         // Users
         {

@@ -1,3 +1,4 @@
+import { data } from "react-router";
 import config from "../utils/config";
 import { fetchWrapper } from "../utils/fetch-wrapper";
 
@@ -24,10 +25,33 @@ async function create(params) {
   return await fetchWrapper.post(baseUrl, params);
 }
 
-async function sendPdfEmail(params) {
-  console.log("entityService sendPdfEmail", params);
-  return null;
-  // return await fetchWrapper.post(`${baseUrl}/send-email`, params);
+async function sendPdfEmail(formData, isFormData = false) {
+  try {
+    // Log FormData contents for debugging
+    if (isFormData) {
+      for (let pair of formData.entries()) {
+        console.log(pair[0], pair[1]);
+      }
+    }
+
+    const config = {
+      headers: {
+        "Content-Type": isFormData ? "multipart/form-data" : "application/json",
+      },
+    };
+
+    const response = await fetchWrapper.postEmail(
+      `${baseUrl}/send-email`, // Replace with your actual API endpoint
+      formData,
+      config
+    );
+    // const response = { data: { success: true } }; // Mock response for testing
+
+    return response.data;
+  } catch (error) {
+    console.error("Failed to send email:", error);
+    throw error;
+  }
 }
 
 async function update(id, params) {
