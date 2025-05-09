@@ -75,7 +75,7 @@ export default function AppRouter() {
           Component: LandingPage,
         },
         {
-          path: "entity-flow",
+          path: "entity-navigator",
           Component: PublicEntityFlowChart,
         },
         {

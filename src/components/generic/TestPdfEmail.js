@@ -66,6 +66,74 @@ export default function TestPdfEmail() {
       <Button variant="contained" color="primary" onClick={handleSendTestEmail}>
         Send Test Email
       </Button>
+      <Box
+        sx={{
+          backgroundImage: `url(/images/backgrounds/Large_zebra_crossing.jpg)`, // Updated to encode spaces as %20
+          // backgroundImage: `url(/images/backgrounds/Abstract%20dots.jpg)`, // Updated to encode spaces as %20
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          height: 500,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          textAlign: "center",
+          px: 2,
+        }}
+      ></Box>
+      <Box
+        sx={{
+          backgroundImage: `url(/images/backgrounds/Abstract%20dots.jpg)`, // Updated to encode spaces as %20
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          height: 500,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          textAlign: "center",
+          px: 2,
+        }}
+      ></Box>
+      <Box
+        sx={{
+          backgroundImage: `url(/images/backgrounds/Grayscale%20background.jpg)`, // Updated to encode spaces as %20
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          height: 500,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          textAlign: "center",
+          px: 2,
+        }}
+      ></Box>
+      <Box
+        sx={{
+          backgroundImage: `url(/images/backgrounds/monochromatic%20squares.jpg)`, // Updated to encode spaces as %20
+          // backgroundImage: `url(/images/backgrounds/Abstract%20dots.jpg)`, // Updated to encode spaces as %20
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          height: 500,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          textAlign: "center",
+          px: 2,
+        }}
+      ></Box>
+      <Box
+        sx={{
+          backgroundImage: `url(/images/backgrounds/right_zebra_crossing.jpg)`, // Updated to encode spaces as %20
+          // backgroundImage: `url(/images/backgrounds/Abstract%20dots.jpg)`, // Updated to encode spaces as %20
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          height: 500,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          textAlign: "center",
+          px: 2,
+        }}
+      ></Box>
     </Box>
   );
 }

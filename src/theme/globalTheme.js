@@ -1,19 +1,25 @@
 import { createTheme } from "@mui/material/styles";
 
+// Palette
+// Lightest: #ffffff
+// Light: #eceff1
+// Dark: #4d4d4d
+// Darkest: #141414
+
 const lightPalette = {
   primary: {
-    main: "#607d8b", // Medium Blue Grey
+    main: "#ffffff", // Lightest for primary color
   },
   secondary: {
-    main: "#263238", // Dark Blue Grey
+    main: "#eceff1", // Light for secondary color
   },
   background: {
-    default: "#eceff1", // Light Blue Grey
-    paper: "#ffffff", // Paper background color remains white
+    default: "#ffffff", // Lightest for default background
+    paper: "#eceff1", // Light for paper background
   },
   text: {
-    primary: "#263238", // Dark Blue Grey for primary text
-    secondary: "#607d8b", // Medium Blue Grey for secondary text
+    primary: "#141414", // Darkest for primary text
+    secondary: "#4d4d4d", // Dark for secondary text
   },
   action: {
     hoverOpacity: 0.08, // Ensure hoverOpacity is defined
@@ -22,18 +28,18 @@ const lightPalette = {
 
 const darkPalette = {
   primary: {
-    main: "#90caf9", // Light Blue
+    main: "#141414", // Darkest for primary color
   },
   secondary: {
-    main: "#ce93d8", // Light Purple
+    main: "#4d4d4d", // Dark for secondary color
   },
   background: {
-    default: "#121212", // Dark background
-    paper: "#1e1e1e", // Slightly lighter dark background for paper
+    default: "#141414", // Darkest for default background
+    paper: "#4d4d4d", // Dark for paper background
   },
   text: {
-    primary: "#ffffff", // White for primary text
-    secondary: "rgba(255, 255, 255, 0.7)", // Muted white for secondary text
+    primary: "#ffffff", // Lightest for primary text
+    secondary: "#eceff1", // Light for secondary text
   },
   action: {
     hoverOpacity: 0.08, // Ensure hoverOpacity is defined
@@ -63,7 +69,10 @@ const globalTheme = (mode) => {
       },
       body1: {
         fontSize: "1rem",
-        color: mode === "light" ? "#555555" : "#cccccc", // Adjust text color for modes
+        color:
+          mode === "light"
+            ? lightPalette.text.primary
+            : darkPalette.text.primary, // Adjust text color for modes
       },
     },
     components: {

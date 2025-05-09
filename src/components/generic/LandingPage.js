@@ -1,83 +1,276 @@
 import React from "react";
-import { Box, Typography, Paper, useMediaQuery } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
+import {
+  Typography,
+  Box,
+  Button,
+  Grid,
+  Container,
+  useMediaQuery,
+  useTheme,
+  Paper,
+  Card,
+  CardMedia,
+  CardContent,
+} from "@mui/material";
+import { useNavigate } from "react-router";
 
 export default function LandingPage() {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const navigate = useNavigate();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
   return (
-    <Box sx={{ position: "relative" }}>
-      {/* Full-width header image */}
-      <Box
-        component="img"
-        src="/assets/images/backgrounds/monochromatic squares.jpg"
-        alt="Background pattern"
-        sx={{
-          width: "100%",
-          height: isMobile ? "200px" : "400px",
-          objectFit: "cover",
-        }}
-      />
-
-      {/* Text over the image */}
+    <Box sx={{ backgroundColor: theme.palette.background.default }}>
+      {/* Hero Banner */}
       <Box
         sx={{
-          position: "absolute",
-          top: "20%",
-          left: "15%",
-          transform: "translateY(-50%)",
-          color: theme.palette.common.white,
-          textAlign: "left",
-          maxWidth: "45%",
+          backgroundImage: `url(/images/backgrounds/monochromatic%20squares.jpg)`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          height: isSmallScreen ? 300 : 500,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          textAlign: "center",
+          px: 2,
         }}
       >
-        <Typography variant="h4" component="h1" gutterBottom>
-          Simplify Your Payment Times Reporting
-        </Typography>
+        <Box
+          sx={{
+            bgcolor: "rgba(0, 0, 0, 0.6)",
+            p: isSmallScreen ? 2 : 4,
+            borderRadius: 2,
+            width: isSmallScreen ? "90%" : "60%",
+          }}
+        >
+          <Typography
+            variant={isSmallScreen ? "h4" : "h2"}
+            sx={{
+              color: "#fff",
+              fontWeight: "bold",
+              mb: 2,
+            }}
+          >
+            Navigate PTR obligations with confidence
+          </Typography>
+          <Typography
+            variant={isSmallScreen ? "body1" : "h5"}
+            sx={{ color: "#fff", mb: 3 }}
+          >
+            Our smart tool helps determine which entities must report and what
+            to do next.
+          </Typography>
+          <Button
+            variant="contained"
+            color="primary"
+            size="large"
+            onClick={() => navigate("/entity-navigator")}
+            sx={{ width: isSmallScreen ? "100%" : "auto" }}
+          >
+            Start Entity Navigator
+          </Button>
+        </Box>
       </Box>
 
-      {/* Main content */}
-      <Paper
-        elevation={3}
-        sx={{ p: 4, backgroundColor: theme.palette.background.paper, mt: 4 }}
-      >
-        <Typography variant="body1">
-          The Payment Times Reporting Scheme (PTRS) requires qualifying
-          businesses in Australia to report on their payment practices to small
-          businesses. Our platform simplifies this process for you.
-        </Typography>
-        <Typography variant="body1" paragraph>
-          The Payment Times Reporting Scheme (PTRS) requires qualifying
-          businesses in Australia to report on their payment practices to small
-          businesses. Navigating the eligibility rules and understanding which
-          entities must report can be difficult, especially within complex
-          corporate structures.
-        </Typography>
+      {/* Benefits */}
+      {/* <Box sx={{ bgcolor: theme.palette.background.paper, py: 6 }}>
+        <Container>
+          <Grid container spacing={4}>
+            {[
+              "Australian regulation aligned",
+              "Secure & private",
+              "No login required to start",
+            ].map((text, index) => (
+              <Grid item xs={12} sm={6} md={4} key={index}>
+                <Typography
+                  variant="h6"
+                  gutterBottom
+                  sx={{
+                    color: theme.palette.text.primary,
+                    textAlign: "center",
+                  }}
+                >
+                  {text}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: theme.palette.text.secondary,
+                    textAlign: "center",
+                  }}
+                >
+                  {text === "Australian regulation aligned"
+                    ? "Built specifically to comply with the Payment Times Reporting Act 2020."
+                    : text === "Secure & private"
+                      ? "We don’t store sensitive data — your results remain confidential."
+                      : "Jump straight in and explore entity eligibility without creating an account."}
+                </Typography>
+              </Grid>
+            ))}
+          </Grid>
+        </Container>
+      </Box> */}
 
-        <Typography variant="body1" paragraph>
-          Our compliance platform helps your business meet these obligations
-          more easily. At its core is the Entity Navigator — an intuitive tool
-          that walks you through a series of eligibility questions, tailored to
-          your business structure. The process is streamlined and removes the
-          ambiguity often associated with regulatory compliance.
-        </Typography>
+      {/* Benefits as Cards */}
+      <Box sx={{ bgcolor: theme.palette.background.paper, py: 6 }}>
+        <Container>
+          <Grid container spacing={4}>
+            {[
+              "Australian regulation aligned",
+              "Secure & private",
+              "No login required to start",
+            ].map((text, index) => (
+              <Grid item xs={12} sm={6} md={4} key={index}>
+                {/* <Card>
+                  <CardMedia
+                    sx={{ height: 140 }}
+                    image="/images/backgrounds/right_zebra_crossing.jpg"
+                  />
+                  <CardContent> */}
+                <Box
+                  sx={{
+                    backgroundImage: `url(/images/backgrounds/right_zebra_crossing.jpg)`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                    height: 100,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    textAlign: "center",
+                    px: 2,
+                    mb: 2,
+                  }}
+                ></Box>
+                <Typography
+                  variant="h6"
+                  gutterBottom
+                  sx={{
+                    color: theme.palette.text.primary,
+                    textAlign: "center",
+                  }}
+                >
+                  {text}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: theme.palette.text.secondary,
+                    textAlign: "center",
+                  }}
+                >
+                  {text === "Australian regulation aligned"
+                    ? "Built specifically to comply with the Payment Times Reporting Act 2020."
+                    : text === "Secure & private"
+                      ? "We don’t store sensitive data — your results remain confidential."
+                      : "Jump straight in and explore entity eligibility without creating an account."}
+                </Typography>
+                {/* </CardContent>
+                </Card> */}
+              </Grid>
+            ))}
+          </Grid>
+        </Container>
+      </Box>
 
-        <Typography variant="body1" paragraph>
-          Upon completion, users receive a summary report via email, outlining
-          their likely obligations under the PTRS. The report is generated in
-          real time and provides an audit-friendly record for internal and
-          external use. All user inputs are handled confidentially, and no
-          unnecessary data is requested or stored.
-        </Typography>
+      {/* Features as Cards */}
+      <Box sx={{ bgcolor: theme.palette.background.paper, py: 3 }}>
+        <Container>
+          <Grid container spacing={4}>
+            {[
+              "Evaluate eligibility",
+              "Complete reporting flow",
+              "Receive tailored summary",
+            ].map((text, index) => (
+              <Grid item xs={12} sm={6} md={4} key={index}>
+                <Card>
+                  <CardMedia
+                    sx={{ height: 140 }}
+                    image="/images/backgrounds/right_zebra_crossing.jpg"
+                  />
+                  <CardContent>
+                    <Typography
+                      variant="h6"
+                      gutterBottom
+                      sx={{ color: theme.palette.text.primary }}
+                    >
+                      {text}
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      sx={{ color: theme.palette.text.secondary }}
+                    >
+                      {text === "Evaluate eligibility"
+                        ? "Determine your entity’s obligations through a guided flow aligned with current legislation."
+                        : text === "Complete reporting flow"
+                          ? "Answer key questions step-by-step to assess reporting requirements."
+                          : "Receive a clear PDF report summarising the results and what actions to take next."}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        </Container>
+      </Box>
 
-        <Typography variant="body1" paragraph>
-          Designed with security, clarity, and scalability in mind, our platform
-          is built for enterprise-grade compliance without the usual overheads.
-          Whether you're reporting for a single entity or a complex group, the
-          process remains consistent, accurate, and easy to follow.
+      {/* Features */}
+      {/* <Container sx={{ py: 6 }}>
+        <Grid container spacing={4}>
+          {[
+            "Evaluate eligibility",
+            "Complete reporting flow",
+            "Receive tailored summary",
+          ].map((text, index) => (
+            <Grid item xs={12} sm={6} md={4} key={index}>
+              <Paper
+                elevation={1}
+                sx={{
+                  p: 3,
+                  height: "100%",
+                  textAlign: "center", // Center-align text for consistency
+                }}
+              >
+                <Typography
+                  variant="h6"
+                  gutterBottom
+                  sx={{ color: theme.palette.text.primary }}
+                >
+                  {text}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{ color: theme.palette.text.secondary }}
+                >
+                  {text === "Evaluate eligibility"
+                    ? "Determine your entity’s obligations through a guided flow aligned with current legislation."
+                    : text === "Complete reporting flow"
+                      ? "Answer key questions step-by-step to assess reporting requirements."
+                      : "Receive a clear PDF report summarising the results and what actions to take next."}
+                </Typography>
+              </Paper>
+            </Grid>
+          ))}
+        </Grid>
+      </Container> */}
+
+      {/* CTA */}
+      <Box sx={{ py: 6, textAlign: "center", px: 2 }}>
+        <Typography
+          variant={isSmallScreen ? "h5" : "h4"}
+          sx={{ mb: 2, color: theme.palette.text.primary }}
+        >
+          Take the guesswork out of PTR compliance
         </Typography>
-      </Paper>
+        <Button
+          variant="contained"
+          color="primary"
+          size="large"
+          onClick={() => navigate("/entity-navigator")}
+          sx={{ width: isSmallScreen ? "100%" : "auto" }}
+        >
+          Start Entity Navigator
+        </Button>
+      </Box>
     </Box>
   );
 }

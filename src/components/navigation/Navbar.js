@@ -42,15 +42,22 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
   };
 
   return (
+    // <AppBar
+    //   position="sticky"
+    //   sx={{
+    //     backgroundColor: isDarkTheme
+    //       ? theme.palette.background.paper
+    //       : theme.palette.primary.main,
+    //     color: isDarkTheme
+    //       ? theme.palette.text.primary
+    //       : theme.palette.common.white,
+    //   }}
+    // >
     <AppBar
       position="sticky"
       sx={{
-        backgroundColor: isDarkTheme
-          ? theme.palette.background.paper
-          : theme.palette.primary.main,
-        color: isDarkTheme
-          ? theme.palette.text.primary
-          : theme.palette.common.white,
+        backgroundColor: theme.palette.primary.main,
+        color: theme.palette.primary.main,
       }}
     >
       <Toolbar>
