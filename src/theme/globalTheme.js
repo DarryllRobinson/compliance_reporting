@@ -22,7 +22,7 @@ const lightPalette = {
     secondary: "#4d4d4d", // Dark for secondary text
   },
   action: {
-    hoverOpacity: 0.08, // Ensure hoverOpacity is defined
+    hoverOpacity: 0.8, // Ensure hoverOpacity is defined
   },
 };
 
@@ -42,7 +42,7 @@ const darkPalette = {
     secondary: "#eceff1", // Light for secondary text
   },
   action: {
-    hoverOpacity: 0.08, // Ensure hoverOpacity is defined
+    hoverOpacity: 0.8, // Ensure hoverOpacity is defined
   },
 };
 
@@ -119,6 +119,14 @@ const globalTheme = (mode) => {
         styleOverrides: {
           root: {
             marginBottom: "16px", // Consistent spacing for form controls
+          },
+        },
+      },
+      MuiAppBar: {
+        styleOverrides: {
+          root: {
+            backgroundColor: mode === "light" ? "#ffffff" : "#141414", // Explicitly set AppBar background
+            backgroundImage: "none", // Remove the default gradient
           },
         },
       },

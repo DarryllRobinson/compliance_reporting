@@ -72,46 +72,7 @@ export default function LandingPage() {
         </Box>
       </Box>
 
-      {/* Benefits */}
-      {/* <Box sx={{ bgcolor: theme.palette.background.paper, py: 6 }}>
-        <Container>
-          <Grid container spacing={4}>
-            {[
-              "Australian regulation aligned",
-              "Secure & private",
-              "No login required to start",
-            ].map((text, index) => (
-              <Grid item xs={12} sm={6} md={4} key={index}>
-                <Typography
-                  variant="h6"
-                  gutterBottom
-                  sx={{
-                    color: theme.palette.text.primary,
-                    textAlign: "center",
-                  }}
-                >
-                  {text}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    color: theme.palette.text.secondary,
-                    textAlign: "center",
-                  }}
-                >
-                  {text === "Australian regulation aligned"
-                    ? "Built specifically to comply with the Payment Times Reporting Act 2020."
-                    : text === "Secure & private"
-                      ? "We don’t store sensitive data — your results remain confidential."
-                      : "Jump straight in and explore entity eligibility without creating an account."}
-                </Typography>
-              </Grid>
-            ))}
-          </Grid>
-        </Container>
-      </Box> */}
-
-      {/* Benefits as Cards */}
+      {/* Benefits (1 - 3) Features (4 - 6) */}
       <Box sx={{ bgcolor: theme.palette.background.paper, py: 6 }}>
         <Container>
           <Grid container spacing={4}>
@@ -119,28 +80,11 @@ export default function LandingPage() {
               "Australian regulation aligned",
               "Secure & private",
               "No login required to start",
+              "Evaluate eligibility",
+              "Complete reporting flow",
+              "Receive tailored summary",
             ].map((text, index) => (
               <Grid item xs={12} sm={6} md={4} key={index}>
-                {/* <Card>
-                  <CardMedia
-                    sx={{ height: 140 }}
-                    image="/images/backgrounds/right_zebra_crossing.jpg"
-                  />
-                  <CardContent> */}
-                <Box
-                  sx={{
-                    backgroundImage: `url(/images/backgrounds/right_zebra_crossing.jpg)`,
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                    height: 100,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    textAlign: "center",
-                    px: 2,
-                    mb: 2,
-                  }}
-                ></Box>
                 <Typography
                   variant="h6"
                   gutterBottom
@@ -162,96 +106,19 @@ export default function LandingPage() {
                     ? "Built specifically to comply with the Payment Times Reporting Act 2020."
                     : text === "Secure & private"
                       ? "We don’t store sensitive data — your results remain confidential."
-                      : "Jump straight in and explore entity eligibility without creating an account."}
+                      : text === "No login required to start"
+                        ? "Jump straight in and explore entity eligibility without creating an account."
+                        : text === "Evaluate eligibility"
+                          ? "Determine your entity’s obligations through a guided flow aligned with current legislation."
+                          : text === "Complete reporting flow"
+                            ? "Answer key questions step-by-step to assess reporting requirements."
+                            : "Receive a clear PDF report summarising the results and what actions to take next."}
                 </Typography>
-                {/* </CardContent>
-                </Card> */}
               </Grid>
             ))}
           </Grid>
         </Container>
       </Box>
-
-      {/* Features as Cards */}
-      <Box sx={{ bgcolor: theme.palette.background.paper, py: 3 }}>
-        <Container>
-          <Grid container spacing={4}>
-            {[
-              "Evaluate eligibility",
-              "Complete reporting flow",
-              "Receive tailored summary",
-            ].map((text, index) => (
-              <Grid item xs={12} sm={6} md={4} key={index}>
-                <Card>
-                  <CardMedia
-                    sx={{ height: 140 }}
-                    image="/images/backgrounds/right_zebra_crossing.jpg"
-                  />
-                  <CardContent>
-                    <Typography
-                      variant="h6"
-                      gutterBottom
-                      sx={{ color: theme.palette.text.primary }}
-                    >
-                      {text}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      sx={{ color: theme.palette.text.secondary }}
-                    >
-                      {text === "Evaluate eligibility"
-                        ? "Determine your entity’s obligations through a guided flow aligned with current legislation."
-                        : text === "Complete reporting flow"
-                          ? "Answer key questions step-by-step to assess reporting requirements."
-                          : "Receive a clear PDF report summarising the results and what actions to take next."}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
-        </Container>
-      </Box>
-
-      {/* Features */}
-      {/* <Container sx={{ py: 6 }}>
-        <Grid container spacing={4}>
-          {[
-            "Evaluate eligibility",
-            "Complete reporting flow",
-            "Receive tailored summary",
-          ].map((text, index) => (
-            <Grid item xs={12} sm={6} md={4} key={index}>
-              <Paper
-                elevation={1}
-                sx={{
-                  p: 3,
-                  height: "100%",
-                  textAlign: "center", // Center-align text for consistency
-                }}
-              >
-                <Typography
-                  variant="h6"
-                  gutterBottom
-                  sx={{ color: theme.palette.text.primary }}
-                >
-                  {text}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{ color: theme.palette.text.secondary }}
-                >
-                  {text === "Evaluate eligibility"
-                    ? "Determine your entity’s obligations through a guided flow aligned with current legislation."
-                    : text === "Complete reporting flow"
-                      ? "Answer key questions step-by-step to assess reporting requirements."
-                      : "Receive a clear PDF report summarising the results and what actions to take next."}
-                </Typography>
-              </Paper>
-            </Grid>
-          ))}
-        </Grid>
-      </Container> */}
 
       {/* CTA */}
       <Box sx={{ py: 6, textAlign: "center", px: 2 }}>

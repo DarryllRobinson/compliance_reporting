@@ -42,22 +42,12 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
   };
 
   return (
-    // <AppBar
-    //   position="sticky"
-    //   sx={{
-    //     backgroundColor: isDarkTheme
-    //       ? theme.palette.background.paper
-    //       : theme.palette.primary.main,
-    //     color: isDarkTheme
-    //       ? theme.palette.text.primary
-    //       : theme.palette.common.white,
-    //   }}
-    // >
     <AppBar
       position="sticky"
       sx={{
-        backgroundColor: theme.palette.primary.main,
-        color: theme.palette.primary.main,
+        backgroundColor: theme.palette.background.default,
+        color: theme.palette.text.primary,
+        backgroundImage: "none", // Explicitly remove the gradient
       }}
     >
       <Toolbar>
@@ -72,6 +62,20 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
             cursor: "pointer", // Indicate it's clickable
           }}
         >
+          {/* <Box
+            sx={{
+              backgroundImage: `url(/images/backgrounds/darkest_logo.png)`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              height: 70,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              textAlign: "center",
+              px: 2,
+              mb: 2,
+            }}
+          ></Box> */}
           Placeholder Logo
         </Typography>
         {user ? ( // Check if user exists
