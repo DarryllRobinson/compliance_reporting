@@ -1,67 +1,83 @@
 import React from "react";
-import { Container, Typography, Box, Button, Paper, Grid } from "@mui/material";
-import { ThemeProvider } from "@mui/material/styles";
-import globalTheme from "../../theme/globalTheme";
-import { useNavigate } from "react-router";
+import { Box, Typography, Paper, useMediaQuery } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 
 export default function LandingPage() {
-  const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   return (
-    <ThemeProvider theme={globalTheme}>
-      <Container maxWidth="md" sx={{ textAlign: "center", py: 6 }}>
-        <Paper elevation={3} sx={{ p: 4 }}>
-          <Box sx={{ borderTop: "6px solid #607d8b", pt: 2 }}>
-            <Typography variant="h3" gutterBottom>
-              Simplify Your Payment Times Reporting
-            </Typography>
-            <Typography variant="body1" paragraph>
-              Answer a few quick questions to find out which entities in your
-              group need to report under the PTRS. We’ll guide you through the
-              process and email you a personalised summary.
-            </Typography>
-            <Box
-              sx={{ display: "flex", justifyContent: "center", mt: 3, mb: 5 }}
-            >
-              <Button
-                variant="contained"
-                color="primary"
-                size="large"
-                onClick={() => navigate("/entity-flow")}
-              >
-                Start Entity Navigator
-              </Button>
-            </Box>
+    <Box sx={{ position: "relative" }}>
+      {/* Full-width header image */}
+      <Box
+        component="img"
+        src="/assets/images/backgrounds/monochromatic squares.jpg"
+        alt="Background pattern"
+        sx={{
+          width: "100%",
+          height: isMobile ? "200px" : "400px",
+          objectFit: "cover",
+        }}
+      />
 
-            <Grid container spacing={3} justifyContent="center" sx={{ mt: 2 }}>
-              <Grid item xs={12} sm={4}>
-                <Typography variant="h6" gutterBottom>
-                  Tailored Compliance Guidance
-                </Typography>
-                <Typography variant="body2">
-                  Step-by-step logic aligned with your business structure.
-                </Typography>
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <Typography variant="h6" gutterBottom>
-                  Personalised Email Summary
-                </Typography>
-                <Typography variant="body2">
-                  Receive a report outlining your likely obligations.
-                </Typography>
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <Typography variant="h6" gutterBottom>
-                  Secure & Confidential
-                </Typography>
-                <Typography variant="body2">
-                  Your data is encrypted and never shared without your consent.
-                </Typography>
-              </Grid>
-            </Grid>
-          </Box>
-        </Paper>
-      </Container>
-    </ThemeProvider>
+      {/* Text over the image */}
+      <Box
+        sx={{
+          position: "absolute",
+          top: "20%",
+          left: "15%",
+          transform: "translateY(-50%)",
+          color: theme.palette.common.white,
+          textAlign: "left",
+          maxWidth: "45%",
+        }}
+      >
+        <Typography variant="h4" component="h1" gutterBottom>
+          Simplify Your Payment Times Reporting
+        </Typography>
+      </Box>
+
+      {/* Main content */}
+      <Paper
+        elevation={3}
+        sx={{ p: 4, backgroundColor: theme.palette.background.paper, mt: 4 }}
+      >
+        <Typography variant="body1">
+          The Payment Times Reporting Scheme (PTRS) requires qualifying
+          businesses in Australia to report on their payment practices to small
+          businesses. Our platform simplifies this process for you.
+        </Typography>
+        <Typography variant="body1" paragraph>
+          The Payment Times Reporting Scheme (PTRS) requires qualifying
+          businesses in Australia to report on their payment practices to small
+          businesses. Navigating the eligibility rules and understanding which
+          entities must report can be difficult, especially within complex
+          corporate structures.
+        </Typography>
+
+        <Typography variant="body1" paragraph>
+          Our compliance platform helps your business meet these obligations
+          more easily. At its core is the Entity Navigator — an intuitive tool
+          that walks you through a series of eligibility questions, tailored to
+          your business structure. The process is streamlined and removes the
+          ambiguity often associated with regulatory compliance.
+        </Typography>
+
+        <Typography variant="body1" paragraph>
+          Upon completion, users receive a summary report via email, outlining
+          their likely obligations under the PTRS. The report is generated in
+          real time and provides an audit-friendly record for internal and
+          external use. All user inputs are handled confidentially, and no
+          unnecessary data is requested or stored.
+        </Typography>
+
+        <Typography variant="body1" paragraph>
+          Designed with security, clarity, and scalability in mind, our platform
+          is built for enterprise-grade compliance without the usual overheads.
+          Whether you're reporting for a single entity or a complex group, the
+          process remains consistent, accurate, and easy to follow.
+        </Typography>
+      </Paper>
+    </Box>
   );
 }

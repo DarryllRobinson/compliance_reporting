@@ -46,13 +46,7 @@ const globalTheme = (mode) => {
     mode = mode.mode; // Extract the mode property
   }
 
-  if (!mode || typeof mode !== "string") {
-    // console.error(
-    //   "Invalid mode provided to globalTheme. Defaulting to 'light'.",
-    //   mode
-    // );
-    mode = "light"; // Default to light mode if mode is invalid
-  }
+  if (!mode || typeof mode !== "string") mode = "light"; // Default to light mode if mode is invalid
 
   // console.log("globalTheme mode", mode); // Debug log to check the theme mode
 

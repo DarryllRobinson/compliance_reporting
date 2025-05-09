@@ -16,12 +16,6 @@ import {
 import { clientService, userService } from "../../services";
 
 export async function createUserLoader() {
-  // const user = await userService.refreshToken();
-  // if (!user) {
-  //   throw new Response("userCreateLoader refreshToken problem", {
-  //     status: 500,
-  //   });
-  // }
   const clients = await clientService.getAll();
   if (!clients) {
     throw new Response("userCreateLoader clients problem", { status: 500 });
@@ -31,7 +25,6 @@ export async function createUserLoader() {
 
 export async function createUserAction({ request, context }) {
   const { alertContext } = context;
-  // await userService.refreshToken();
   const formData = await request.formData();
   let userDetails = Object.fromEntries(formData);
   userDetails = { ...userDetails, active: true };
@@ -57,13 +50,13 @@ export default function UserCreate() {
         alignItems: "flex-start",
         minHeight: "100vh",
         backgroundColor: theme.palette.background.default,
-        padding: 2,
+        padding: theme.spacing(2),
       }}
     >
       <Paper
         elevation={3}
         sx={{
-          padding: 4,
+          padding: theme.spacing(4),
           maxWidth: 800,
           width: "100%",
           backgroundColor: theme.palette.background.paper,
@@ -75,8 +68,11 @@ export default function UserCreate() {
         <Form
           method="post"
           id="create-user-form"
-          // onSubmit={handleSubmit}
-          style={{ display: "flex", flexDirection: "column", gap: 2 }}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: theme.spacing(2),
+          }}
         >
           <Grid container spacing={2}>
             <Grid item xs={6}>
@@ -194,7 +190,7 @@ export default function UserCreate() {
             color="primary"
             type="submit"
             fullWidth
-            sx={{ mt: 2 }}
+            sx={{ mt: theme.spacing(2) }}
           >
             Create User
           </Button>

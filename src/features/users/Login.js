@@ -28,7 +28,7 @@ export default function Login() {
         alignItems: "center",
         justifyContent: "center",
         height: "100vh",
-        padding: 2,
+        padding: theme.spacing(2),
         backgroundColor: theme.palette.background.default,
       }}
     >
@@ -40,13 +40,18 @@ export default function Login() {
         id="signin-form"
         style={{ width: "100%", maxWidth: 400 }}
       >
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: theme.spacing(2),
+          }}
+        >
           <TextField
             label="Email address"
             name="email"
             type="email"
             defaultValue="darryll@stillproud.com"
-            // defaultValue="darryllrobinson@icloud.com"
             fullWidth
             required
           />
@@ -55,7 +60,6 @@ export default function Login() {
             name="password"
             type="password"
             defaultValue="nnnhhh"
-            // defaultValue="newpassss"
             fullWidth
             required
           />

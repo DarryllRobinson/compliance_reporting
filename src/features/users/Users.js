@@ -34,14 +34,14 @@ export async function usersLoader() {
 
 export default function Users() {
   const { users } = useLoaderData();
-  const theme = useTheme();
+  const theme = useTheme(); // Access the theme
   const navigate = useNavigate();
 
   if (!users || users.length === 0) {
     return (
       <Box
         sx={{
-          padding: 3,
+          padding: theme.spacing(3),
           backgroundColor: theme.palette.background.default,
           minHeight: "100vh",
         }}
@@ -49,7 +49,7 @@ export default function Users() {
         <Paper
           elevation={3}
           sx={{
-            padding: 3,
+            padding: theme.spacing(3),
             maxWidth: 800,
             margin: "0 auto",
             backgroundColor: theme.palette.background.paper,
@@ -62,7 +62,7 @@ export default function Users() {
             variant="contained"
             color="primary"
             onClick={() => navigate("/users/create")}
-            sx={{ mt: 2 }}
+            sx={{ mt: theme.spacing(2) }}
           >
             Create a New User
           </Button>
@@ -74,7 +74,7 @@ export default function Users() {
   return (
     <Box
       sx={{
-        padding: 3,
+        padding: theme.spacing(3),
         backgroundColor: theme.palette.background.default,
         minHeight: "100vh",
       }}
@@ -82,7 +82,7 @@ export default function Users() {
       <Paper
         elevation={3}
         sx={{
-          padding: 3,
+          padding: theme.spacing(3),
           maxWidth: 800,
           margin: "0 auto",
           backgroundColor: theme.palette.background.paper,
@@ -98,7 +98,7 @@ export default function Users() {
           variant="contained"
           color="primary"
           onClick={() => navigate("/users/create")}
-          sx={{ mb: 2 }}
+          sx={{ mb: theme.spacing(2) }}
         >
           Create a New User
         </Button>
@@ -109,7 +109,7 @@ export default function Users() {
               sx={{ borderBottom: `1px solid ${theme.palette.divider}` }}
             >
               <ListItemText
-                primary={user.firstName + " " + user.lastName}
+                primary={`${user.firstName} ${user.lastName}`}
                 secondary={`Role: ${user.role} | Position: ${user.position} | Email: ${user.email} | Phone: ${user.phone}`}
               />
             </ListItem>

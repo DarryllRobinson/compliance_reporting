@@ -44,10 +44,8 @@ export default function Dashboard() {
   const { reports } = useLoaderData();
   const reportContext = useReportContext();
   const user = userService.userValue; // Get the current user
-
-  // console.log("Dashboard reports", reports); // Debug log to check the structure of reports
   const navigate = useNavigate();
-  const theme = useTheme();
+  const theme = useTheme(); // Access the theme
 
   const reportList = [
     {
@@ -119,7 +117,7 @@ export default function Dashboard() {
   return (
     <Box
       sx={{
-        padding: 4,
+        padding: theme.spacing(4),
         backgroundColor: theme.palette.background.default,
         minHeight: "100vh",
       }}
@@ -131,7 +129,7 @@ export default function Dashboard() {
         Here you can manage your reports and track their progress
       </Typography>
 
-      <Grid container spacing={3} sx={{ marginTop: 2 }}>
+      <Grid container spacing={3} sx={{ marginTop: theme.spacing(2) }}>
         {reportList.map((report, index) => {
           // Ensure reports is an array before filtering
           const relevantReports = Array.isArray(reports)
@@ -186,7 +184,7 @@ export default function Dashboard() {
                       variant="contained"
                       color="primary"
                       onClick={() => createReport(report)}
-                      sx={{ marginTop: 2 }}
+                      sx={{ marginTop: theme.spacing(2) }}
                     >
                       Create New Report
                     </Button>

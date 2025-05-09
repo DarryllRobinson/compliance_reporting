@@ -15,7 +15,12 @@ export default function InvoiceMetrics() {
   };
 
   return (
-    <Box sx={{ p: 3, backgroundColor: theme.palette.background.default }}>
+    <Box
+      sx={{
+        p: theme.spacing(3),
+        backgroundColor: theme.palette.background.default,
+      }}
+    >
       <Typography
         variant="h3"
         gutterBottom
@@ -29,7 +34,10 @@ export default function InvoiceMetrics() {
             <Link to={`review/${index}`} style={{ textDecoration: "none" }}>
               <Paper
                 elevation={3}
-                sx={{ p: 2, backgroundColor: theme.palette.background.paper }}
+                sx={{
+                  p: theme.spacing(2),
+                  backgroundColor: theme.palette.background.paper,
+                }}
               >
                 <Typography
                   variant="h6"
@@ -55,7 +63,7 @@ export default function InvoiceMetrics() {
           </Grid>
         ))}
       </Grid>
-      <Box sx={{ mt: 3, textAlign: "center" }}>
+      <Box sx={{ mt: theme.spacing(3), textAlign: "center" }}>
         <Button variant="contained" color="primary" onClick={handleConfirm}>
           Confirm and Proceed
         </Button>

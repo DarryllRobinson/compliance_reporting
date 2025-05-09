@@ -50,8 +50,8 @@ export default function PTRSolution() {
   return (
     <Box
       sx={{
-        px: { xs: 3, md: 8 },
-        py: 6,
+        px: { xs: theme.spacing(3), md: theme.spacing(8) },
+        py: theme.spacing(6),
         backgroundColor: theme.palette.background.default,
       }}
     >
@@ -62,7 +62,7 @@ export default function PTRSolution() {
       <Typography
         variant="body1"
         color={theme.palette.text.secondary}
-        sx={{ mb: 4 }}
+        sx={{ mb: theme.spacing(4) }}
       >
         A complete compliance solution for Australian businesses with over A$100
         million in annual turnover. Built to simplify your reporting
@@ -97,7 +97,7 @@ export default function PTRSolution() {
         ))}
       </Grid>
 
-      <Box sx={{ mt: 6, textAlign: "center" }}>
+      <Box sx={{ mt: theme.spacing(6), textAlign: "center" }}>
         <Typography
           variant="h6"
           gutterBottom
