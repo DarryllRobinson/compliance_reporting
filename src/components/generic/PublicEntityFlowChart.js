@@ -175,13 +175,8 @@ export default function PublicEntityFlowChart() {
     }
   };
 
-  const sendSummaryByEmail = async () => {
+  const sendSummaryByEmail = async (pdfFile) => {
     try {
-      const doc = new jsPDF({ unit: "mm", format: "a4" });
-      doc.text("Entity Reporting Flow Summary", 20, 20);
-      // (skip detailed rendering for this example)
-      const pdfBlob = doc.output("blob");
-      // Get contact details from answers
       const contact = answers.contactDetails || {};
       const to = contact.email || "";
       const name = contact.name || "";
@@ -192,17 +187,17 @@ export default function PublicEntityFlowChart() {
       formData.append("to", to);
       formData.append("name", name);
       formData.append("from", "darryllrobinson@icloud.com");
-      formData.append("subject", "Your Entity Reporting Flow Summary");
+      formData.append("subject", "Your Entity Navigator Summary");
       formData.append(
         "html",
         `<p>Hi ${name},</p>
-        <p>Here’s your PDF summary attached.</p>
+        <p>Thank you for using the PTRS Navigator. Attached is your summary.</p>
         <p><strong>Company:</strong> ${companyName}<br/><strong>Position:</strong> ${position}</p>`
       );
-      formData.append("attachment", pdfBlob, "entity-report-summary.pdf");
+      formData.append("attachment", pdfFile, "entity-report-summary.pdf");
 
       await entityService.sendPdfEmail(formData, true); // Pass 'true' to indicate FormData
-      sendAlert("success", "Email sent successfully with PDF attached");
+      sendAlert("success", "Your summary should be in your inbox shortly.");
     } catch (error) {
       console.error("Failed to email summary", error);
     }
@@ -292,7 +287,12 @@ export default function PublicEntityFlowChart() {
       doc.text(`Page ${i} of ${pageCount}`, marginLeft, pageHeight - 10);
     }
 
-    doc.save("entity-report-summary.pdf");
+    // doc.save("entity-report-summary.pdf");
+    const pdfBlob = doc.output("blob");
+    const pdfFile = new File([pdfBlob], "entity-report-summary.pdf", {
+      type: "application/pdf",
+    });
+    return pdfFile;
   };
 
   const handleNext = async () => {
@@ -331,71 +331,20 @@ export default function PublicEntityFlowChart() {
     }
 
     try {
-      console.log("Preparing to save answers and send email...");
-      console.log("Contact details:", contact);
+      // console.log("Preparing to save answers and send email...");
+      // console.log("Contact details:", contact);
 
       // Save answers to the backend
       console.log("Saving answers to backend:", answers);
       await saveToBackend({ ...answers }, true);
 
       // Generate PDF
-      const doc = new jsPDF({ unit: "mm", format: "a4" });
-      doc.setFontSize(16);
-      doc.text("Entity Reporting Flow Summary", 20, 20);
-      doc.setFontSize(12);
-      doc.text(`Name: ${contact.name}`, 20, 30);
-      doc.text(`Email: ${contact.email}`, 20, 40);
-      doc.text(`Company Name: ${contact.companyName}`, 20, 50);
-      doc.text(`Position: ${contact.position}`, 20, 60);
+      const pdfFile = handlePDF();
 
-      let y = 70;
-      for (const q of flowQuestions) {
-        const label =
-          q.key === "entityDetails" ? "Entity details provided" : q.question;
-        const val = Array.isArray(answers[q.key])
-          ? answers[q.key].join(", ")
-          : typeof answers[q.key] === "object" && answers[q.key] !== null
-            ? Object.entries(answers[q.key])
-                .map(([k, v]) => `${k}: ${v || "—"}`)
-                .join(", ")
-            : answers[q.key] || "No answer";
-
-        doc.text(`${label}: ${val}`, 20, y);
-        y += 10;
-        if (y > 280) {
-          doc.addPage();
-          y = 20;
-        }
-      }
-
-      const pdfBlob = doc.output("blob");
-      const pdfFile = new File([pdfBlob], "entity-report-summary.pdf", {
-        type: "application/pdf",
-      });
-
-      console.log("PDF generated successfully.");
+      // console.log("PDF generated successfully.");
 
       // Send email with PDF
-      const formData = new FormData();
-      formData.append("to", contact.email);
-      formData.append("name", contact.name);
-      formData.append("from", "darryllrobinson@icloud.com");
-      formData.append("subject", "Your Entity Reporting Flow Summary");
-      formData.append(
-        "html",
-        `<p>Hi ${contact.name},</p>
-        <p>Thank you for using the PTRS Navigator. Attached is your flow summary.</p>
-        <p><strong>Company:</strong> ${contact.companyName}<br/><strong>Position:</strong> ${contact.position}</p>`
-      );
-      formData.append("attachment", pdfFile);
-
-      console.log("FormData prepared for email:");
-      for (let pair of formData.entries()) {
-        console.log(pair[0], pair[1]);
-      }
-
-      await entityService.sendPdfEmail(formData, true);
-      sendAlert("success", "Email sent successfully with PDF attached");
+      sendSummaryByEmail(pdfFile);
 
       // Navigate to /ptr-solution after successful email
       navigate("/ptr-solution");

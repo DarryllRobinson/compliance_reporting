@@ -9,14 +9,16 @@ import {
   useTheme,
 } from "@mui/material";
 import { useAlert } from "../../context";
+import { publicService } from "../../services/public.services";
 
 export default function Contact() {
   const theme = useTheme();
   const { sendAlert } = useAlert();
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    message: "",
+    name: "Mickey Mouse",
+    email: "mickey@disney.com",
+    subject: "Contact Us",
+    message: "Whatever",
   });
 
   const handleChange = (e) => {
@@ -24,11 +26,23 @@ export default function Contact() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const sendContactEmail = async (data) => {
+    try {
+      const response = await publicService.sendEmail(data);
+      if (response.success) {
+        sendAlert("success", "Thank you for contacting us!");
+      }
+    } catch (error) {
+      console.error("Error sending email:", error);
+      sendAlert("error", "Failed to send email.");
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log("Form submitted:", formData);
-    sendAlert("success", "Thank you for contacting us!");
-    setFormData({ name: "", email: "", message: "" });
+    sendContactEmail(formData);
+    // setFormData({ name: "", email: "", message: "" });
   };
 
   return (
@@ -68,6 +82,7 @@ export default function Contact() {
           <TextField
             label="Name"
             name="name"
+            type="text"
             value={formData.name}
             onChange={handleChange}
             fullWidth
@@ -87,6 +102,7 @@ export default function Contact() {
           <TextField
             label="Message"
             name="message"
+            type="text"
             value={formData.message}
             onChange={handleChange}
             fullWidth
