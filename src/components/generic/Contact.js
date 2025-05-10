@@ -15,10 +15,10 @@ export default function Contact() {
   const theme = useTheme();
   const { sendAlert } = useAlert();
   const [formData, setFormData] = useState({
-    name: "Mickey Mouse",
-    email: "mickey@disney.com",
+    name: "",
+    email: "",
     subject: "Contact Us",
-    message: "Whatever",
+    message: "",
   });
 
   const handleChange = (e) => {
@@ -40,9 +40,9 @@ export default function Contact() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
+    // console.log("Form submitted:", formData);
     sendContactEmail(formData);
-    // setFormData({ name: "", email: "", message: "" });
+    setFormData({ name: "", email: "", message: "" });
   };
 
   return (
