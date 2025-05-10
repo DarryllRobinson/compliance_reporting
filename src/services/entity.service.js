@@ -1,4 +1,3 @@
-import { data } from "react-router";
 import config from "../utils/config";
 import { fetchWrapper } from "../utils/fetch-wrapper";
 

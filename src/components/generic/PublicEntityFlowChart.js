@@ -21,8 +21,9 @@ import {
   useTheme,
 } from "@mui/material";
 import jsPDF from "jspdf";
-import { entityService } from "../../services";
+import { entityService, userService } from "../../services";
 import { useAlert } from "../../context";
+import { create } from "@mui/material/styles/createTransitions";
 
 const steps = [
   "Entity Details",
@@ -120,102 +121,12 @@ export default function PublicEntityFlowChart() {
   const theme = useTheme();
   const [activeStep, setActiveStep] = useState(0);
   const [answers, setAnswers] = useState({});
-  const [stopped, setStopped] = useState(null);
   const navigate = useNavigate();
   const { sendAlert } = useAlert();
 
   const current = flowQuestions[activeStep];
 
-  const shouldStopFlow = (key, value) => {
-    // Instead of stopping, just log the reason and allow flow to continue
-    let reason = null;
-    if (key === "section7" && value === "No") {
-      reason =
-        "The entity does not meet the Section 7 criteria of the Payment Times Reporting Act 2020 and is therefore not required to report.";
-    }
-    if (key === "cce" && value === "No") {
-      reason =
-        "The entity is not a Constitutionally Covered Entity and is not required to report under the Act.";
-    }
-    if (key === "charity" && value === "Yes") {
-      reason =
-        "The entity is a registered charity and is excluded from reporting. See Section 6(1)(e) of the Payment Times Reporting Act 2020.";
-    }
-    if (
-      key === "connectionToAustralia" &&
-      (value?.includes("None of the above") || !value || value.length === 0)
-    ) {
-      reason =
-        "The entity does not have a connection to Australia and is not required to report. Payments by this entity must be excluded from any reporting.";
-    }
-    if (key === "revenue" && value === "No") {
-      reason =
-        "The entity does not meet the A$100 million consolidated revenue threshold and is not required to report.";
-    }
-    if (key === "controlled" && value === "Yes") {
-      reason =
-        "This entity is controlled by another reporting entity and does not need to report separately.";
-    }
-    if (reason) {
-      // Log reason for audit, but do NOT stop flow
-      console.log(`Flow note: ${reason}`);
-    }
-    return reason;
-  };
-
-  const saveToBackend = async (data, completed = false) => {
-    try {
-      await entityService.create({
-        ...data,
-        completed,
-        timestamp: new Date().toISOString(),
-      });
-    } catch (error) {
-      console.error("Failed to save answers", error);
-    }
-  };
-
-  const sendSummaryByEmail = async (pdfFile) => {
-    try {
-      const contact = answers.contactDetails || {};
-      const to = contact.email || "";
-      const name = contact.name || "";
-      const companyName = contact.companyName || "";
-      const position = contact.position || "";
-
-      const formData = new FormData();
-      formData.append("to", to);
-      formData.append("name", name);
-      formData.append("from", "darryllrobinson@icloud.com");
-      formData.append("subject", "Your Entity Navigator Summary");
-      formData.append(
-        "html",
-        `<p>Hi ${name},</p>
-        <p>Thank you for using the PTRS Navigator. Attached is your summary.</p>
-        <p><strong>Company:</strong> ${companyName}<br/><strong>Position:</strong> ${position}</p>`
-      );
-      formData.append("attachment", pdfFile, "entity-report-summary.pdf");
-
-      await entityService.sendPdfEmail(formData, true); // Pass 'true' to indicate FormData
-      sendAlert("success", "Your summary should be in your inbox shortly.");
-    } catch (error) {
-      console.error("Failed to email summary", error);
-    }
-  };
-
-  const handleDownload = () => {
-    const blob = new Blob([JSON.stringify(answers, null, 2)], {
-      type: "application/json",
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "entity-report-summary.json";
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  const handlePDF = () => {
+  const handlePDF = (recordId) => {
     const doc = new jsPDF({ unit: "mm", format: "a4" });
     const marginLeft = 20;
     const marginTop = 20;
@@ -233,9 +144,9 @@ export default function PublicEntityFlowChart() {
     doc.text(date, marginLeft, y + 6);
 
     doc.setFontSize(12);
-    doc.text(logoPlaceholder, 160, y); // Placeholder for logo
+    doc.text(`Record ID: ${recordId}`, marginLeft, y + 12); // Include recordId in the PDF
 
-    y += 20;
+    y += 30;
 
     doc.setFontSize(14);
     doc.text("Entity Reporting Flow Summary", marginLeft, y);
@@ -287,7 +198,6 @@ export default function PublicEntityFlowChart() {
       doc.text(`Page ${i} of ${pageCount}`, marginLeft, pageHeight - 10);
     }
 
-    // doc.save("entity-report-summary.pdf");
     const pdfBlob = doc.output("blob");
     const pdfFile = new File([pdfBlob], "entity-report-summary.pdf", {
       type: "application/pdf",
@@ -295,27 +205,7 @@ export default function PublicEntityFlowChart() {
     return pdfFile;
   };
 
-  const handleNext = async () => {
-    // Always log the reason but allow flow to continue
-    const reason = shouldStopFlow(current.key, answers[current.key]);
-    // Save answer and reason (if any) for audit, but do not stop
-    await saveToBackend({
-      ...answers,
-      ...(reason ? { flowNote: reason } : {}),
-    });
-    if (activeStep < steps.length - 1) {
-      setActiveStep((prev) => prev + 1);
-    } else {
-      await confirmSubmission(); // Automatically send email on the last step
-    }
-  };
-
-  const handleBack = () => {
-    if (activeStep > 0) setActiveStep((prev) => prev - 1);
-  };
-
   const confirmSubmission = async () => {
-    // Validate contact details before submission
     const contact = answers.contactDetails || {};
     if (
       !contact.name ||
@@ -331,27 +221,83 @@ export default function PublicEntityFlowChart() {
     }
 
     try {
-      // console.log("Preparing to save answers and send email...");
-      // console.log("Contact details:", contact);
+      // Structure the data for saving to the backend
+      const dataToSave = {
+        entityName: answers.entityDetails?.entityName || "",
+        entityABN: answers.entityDetails?.entityABN || "",
+        startEntity: answers.startEntity || "",
+        section7: answers.section7 || "",
+        cce: answers.cce || "",
+        charity: answers.charity || "",
+        connectionToAustralia: Array.isArray(answers.connectionToAustralia)
+          ? answers.connectionToAustralia.join(", ") // Convert to string if it's an array
+          : answers.connectionToAustralia || "", // Use as-is if already a string
+        revenue: answers.revenue || "",
+        controlled: answers.controlled || "",
+        contactDetails: answers.contactDetails || {},
+        completed: true,
+        timestamp: new Date().toISOString(),
+        createdBy: userService.userValue.id,
+      };
 
-      // Save answers to the backend
-      console.log("Saving answers to backend:", answers);
-      await saveToBackend({ ...answers }, true);
+      // Create the record in the backend
+      const response = await entityService.create(dataToSave);
+      const recordId = response.id;
 
-      // Generate PDF
-      const pdfFile = handlePDF();
+      // Generate the PDF with the recordId
+      const pdfFile = handlePDF(recordId);
 
-      // console.log("PDF generated successfully.");
+      // Send the PDF via email
+      await sendSummaryByEmail(pdfFile, recordId);
 
-      // Send email with PDF
-      sendSummaryByEmail(pdfFile);
-
-      // Navigate to /ptr-solution after successful email
+      // Navigate to the solution page
       navigate("/ptr-solution");
     } catch (error) {
-      console.error("Failed to send email with PDF", error);
+      console.error("Failed to complete submission", error);
+      sendAlert("error", "Failed to complete submission. Please try again.");
+    }
+  };
+
+  const sendSummaryByEmail = async (pdfFile, recordId) => {
+    try {
+      const contact = answers.contactDetails || {};
+      const to = contact.email || "";
+      const name = contact.name || "";
+      const companyName = contact.companyName || "";
+      const position = contact.position || "";
+
+      const formData = new FormData();
+      formData.append("to", to);
+      formData.append("name", name);
+      formData.append("from", "darryllrobinson@icloud.com");
+      formData.append("subject", "Your Entity Navigator Summary");
+      formData.append(
+        "html",
+        `<p>Hi ${name},</p>
+        <p>Thank you for using the PTRS Navigator. Attached is your summary.</p>
+        <p><strong>Company:</strong> ${companyName}<br/><strong>Position:</strong> ${position}</p>
+        <p><strong>Record ID:</strong> ${recordId}</p>`
+      );
+      formData.append("attachment", pdfFile, "entity-report-summary.pdf");
+
+      await entityService.sendPdfEmail(formData, true);
+      sendAlert("success", "Your summary should be in your inbox shortly.");
+    } catch (error) {
+      console.error("Failed to email summary", error);
       sendAlert("error", "Failed to send email. Please try again.");
     }
+  };
+
+  const handleNext = async () => {
+    if (activeStep < steps.length - 1) {
+      setActiveStep((prev) => prev + 1);
+    } else {
+      await confirmSubmission();
+    }
+  };
+
+  const handleBack = () => {
+    if (activeStep > 0) setActiveStep((prev) => prev - 1);
   };
 
   const handleInputChange = (key) => (e) => {
@@ -381,7 +327,6 @@ export default function PublicEntityFlowChart() {
       flowQuestions.slice(0, step).every((_, i) => isStepValid(i))
     ) {
       setActiveStep(step);
-      setStopped(null);
     }
   };
 
@@ -402,15 +347,21 @@ export default function PublicEntityFlowChart() {
       (opt) => opt !== "All of the above" && opt !== "None of the above"
     );
 
+    // Ensure `answers[key]` is treated as an array
+    const prev = Array.isArray(answers[key]) ? answers[key] : [];
+
     let updated = [];
-    const prev = answers[key] || [];
 
     if (value === "None of the above") {
-      updated = e.target.checked ? ["None of the above"] : [];
+      updated = e.target.checked
+        ? ["None of the above"]
+        : prev.filter((v) => v !== "None of the above");
     } else if (value === "All of the above") {
       updated = e.target.checked
         ? [...individualOptions, "All of the above"]
-        : [];
+        : prev.filter(
+            (v) => !individualOptions.includes(v) && v !== "All of the above"
+          );
     } else {
       if (e.target.checked) {
         updated = [...prev.filter((v) => v !== "None of the above"), value];
@@ -423,16 +374,18 @@ export default function PublicEntityFlowChart() {
       }
     }
 
-    setAnswers({ ...answers, [key]: updated });
+    // Convert the array to a comma-separated string
+    const connectionToAustraliaString = updated.join(", ");
+    setAnswers({ ...answers, [key]: updated }); // Keep `updated` as an array for internal state
   };
 
   const handleKeyUp = (e) => {
     if (e.key === "Enter") {
-      e.preventDefault(); // Prevent default form submission behavior
+      e.preventDefault();
       if (activeStep < steps.length - 1) {
         handleNext();
       } else if (activeStep === steps.length - 1) {
-        confirmSubmission(); // Trigger submission on the last step
+        confirmSubmission();
       }
     }
   };
@@ -459,7 +412,6 @@ export default function PublicEntityFlowChart() {
           const tooltip = isEnabled
             ? "Click to jump to this step"
             : "Please complete prior steps before accessing this one.";
-          // Replace "Entity Checker" with "PTRS Navigator" in step labels if any
           const stepLabel = label.replace(/Entity Checker/g, "PTRS Navigator");
           return (
             <Step key={index}>
@@ -483,19 +435,13 @@ export default function PublicEntityFlowChart() {
       <Card
         sx={{
           maxWidth: 700,
-          margin: "0 auto", // Center the card horizontally
+          margin: "0 auto",
           backgroundColor: theme.palette.background.paper,
           color: theme.palette.text.primary,
         }}
       >
         <CardContent>
-          {stopped ? (
-            <Alert severity="info">
-              <Typography variant="subtitle1">Flow Complete</Typography>
-              <Typography variant="body2">{stopped}</Typography>
-            </Alert>
-          ) : activeStep === steps.length - 2 ? (
-            // Summary step
+          {activeStep === steps.length - 2 ? (
             <>
               <Typography variant="h6" gutterBottom>
                 Summary of Responses
@@ -546,7 +492,6 @@ export default function PublicEntityFlowChart() {
               </Box>
             </>
           ) : activeStep === steps.length - 1 ? (
-            // Contact Details step
             <>
               <Typography variant="h6" gutterBottom>
                 {current.question}
@@ -621,7 +566,6 @@ export default function PublicEntityFlowChart() {
               </Box>
             </>
           ) : (
-            // All other steps
             <>
               <Typography variant="h6" gutterBottom>
                 {current.question}
