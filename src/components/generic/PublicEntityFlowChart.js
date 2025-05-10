@@ -18,6 +18,7 @@ import {
   Tooltip,
   LinearProgress,
   TextField,
+  useTheme,
 } from "@mui/material";
 import jsPDF from "jspdf";
 import { entityService } from "../../services";
@@ -116,6 +117,7 @@ flowQuestions.push({
 });
 
 export default function PublicEntityFlowChart() {
+  const theme = useTheme();
   const [activeStep, setActiveStep] = useState(0);
   const [answers, setAnswers] = useState({});
   const [stopped, setStopped] = useState(null);
@@ -529,7 +531,14 @@ export default function PublicEntityFlowChart() {
         })}
       </Stepper>
 
-      <Card sx={{ maxWidth: 700, margin: "auto" }}>
+      <Card
+        sx={{
+          maxWidth: 700,
+          margin: "0 auto", // Center the card horizontally
+          backgroundColor: theme.palette.background.paper,
+          color: theme.palette.text.primary,
+        }}
+      >
         <CardContent>
           {stopped ? (
             <Alert severity="info">

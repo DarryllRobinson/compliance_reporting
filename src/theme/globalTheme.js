@@ -62,7 +62,7 @@ const globalTheme = (mode) => {
       ...(mode === "light" ? lightPalette : darkPalette),
     },
     typography: {
-      fontFamily: "'Roboto', 'Arial', sans-serif",
+      fontFamily: "'Outfit', 'Roboto', 'Arial', sans-serif",
       h4: {
         fontWeight: 600,
         fontSize: "1.8rem",
@@ -97,9 +97,9 @@ const globalTheme = (mode) => {
             padding: "10px 16px",
           },
           containedPrimary: {
-            backgroundColor: mode === "light" ? "#1976d2" : "#42a5f5",
+            backgroundColor: mode === "light" ? "#eceff1" : "#4d4d4d",
             "&:hover": {
-              backgroundColor: mode === "light" ? "#1565c0" : "#1e88e5",
+              backgroundColor: mode === "light" ? "#eceff1" : "#4d4d4d",
               opacity:
                 mode === "light"
                   ? lightPalette.action.hoverOpacity

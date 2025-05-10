@@ -6,11 +6,13 @@ import {
   Typography,
   Button,
   Paper,
+  useTheme,
 } from "@mui/material";
 import { useAlert } from "../../context";
 
 export default function Contact() {
-  const { sendAlert } = useAlert(); // Destructure sendAlert from useAlert
+  const theme = useTheme();
+  const { sendAlert } = useAlert();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -25,17 +27,40 @@ export default function Contact() {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log("Form submitted:", formData);
-    sendAlert("success", "Thank you for contacting us!"); // Use sendAlert correctly
+    sendAlert("success", "Thank you for contacting us!");
     setFormData({ name: "", email: "", message: "" });
   };
 
   return (
-    <Container maxWidth="sm" sx={{ mt: 4 }}>
-      <Paper elevation={3} sx={{ p: 3 }}>
-        <Typography variant="h4" gutterBottom>
+    <Container
+      maxWidth="sm"
+      sx={{
+        mt: theme.spacing(4),
+        backgroundColor: theme.palette.background.default,
+        padding: theme.spacing(2),
+        borderRadius: theme.shape.borderRadius,
+      }}
+    >
+      <Paper
+        elevation={3}
+        sx={{
+          padding: theme.spacing(3),
+          backgroundColor: theme.palette.background.paper,
+          color: theme.palette.text.primary,
+        }}
+      >
+        <Typography
+          variant="h4"
+          gutterBottom
+          sx={{ color: theme.palette.text.primary }}
+        >
           Contact Us
         </Typography>
-        <Typography variant="body1" paragraph>
+        <Typography
+          variant="body1"
+          paragraph
+          sx={{ color: theme.palette.text.secondary }}
+        >
           We'd love to hear from you! Please fill out the form below and we'll
           get back to you as soon as possible.
         </Typography>
@@ -47,7 +72,7 @@ export default function Contact() {
             onChange={handleChange}
             fullWidth
             required
-            sx={{ mb: 2 }}
+            sx={{ mb: theme.spacing(2) }}
           />
           <TextField
             label="Email"
@@ -57,7 +82,7 @@ export default function Contact() {
             onChange={handleChange}
             fullWidth
             required
-            sx={{ mb: 2 }}
+            sx={{ mb: theme.spacing(2) }}
           />
           <TextField
             label="Message"
@@ -68,9 +93,19 @@ export default function Contact() {
             multiline
             rows={4}
             required
-            sx={{ mb: 2 }}
+            sx={{ mb: theme.spacing(2) }}
           />
-          <Button type="submit" variant="contained" color="primary" fullWidth>
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            fullWidth
+            sx={{
+              padding: theme.spacing(1.5),
+              fontWeight: "bold",
+              borderRadius: theme.shape.borderRadius,
+            }}
+          >
             Submit
           </Button>
         </Box>
