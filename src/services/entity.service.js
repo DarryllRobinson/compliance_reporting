@@ -27,11 +27,11 @@ async function create(params) {
 async function sendPdfEmail(formData, isFormData = false) {
   try {
     // Log FormData contents for debugging
-    if (isFormData) {
-      for (let pair of formData.entries()) {
-        console.log(pair[0], pair[1]);
-      }
-    }
+    // if (isFormData) {
+    //   for (let pair of formData.entries()) {
+    //     console.log(pair[0], pair[1]);
+    //   }
+    // }
 
     const config = {
       headers: {

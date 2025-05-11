@@ -145,7 +145,7 @@ export default function PublicEntityFlowChart() {
     doc.text(date, marginLeft, y + 6);
 
     doc.setFontSize(12);
-    doc.text(`Record ID: ${recordId}`, marginLeft, y + 12); // Include recordId in the PDF
+    doc.text(`Reference: ${recordId}`, marginLeft, y + 12); // Include recordId in the PDF
 
     y += 30;
 
@@ -207,6 +207,7 @@ export default function PublicEntityFlowChart() {
   };
 
   const confirmSubmission = async () => {
+    setFormSubmitted(true); // Mark the form as submitted
     const contact = answers.contactDetails || {};
     if (
       !contact.name ||
@@ -243,7 +244,11 @@ export default function PublicEntityFlowChart() {
 
       // Create the record in the backend
       const response = await entityService.create(dataToSave);
-      const recordId = response.id;
+      const recordId = response?.id; // Ensure recordId is retrieved from the response
+
+      if (!recordId) {
+        throw new Error("Failed to retrieve record ID from the backend.");
+      }
 
       // Generate the PDF with the recordId
       const pdfFile = handlePDF(recordId);
@@ -277,7 +282,7 @@ export default function PublicEntityFlowChart() {
         `<p>Hi ${name},</p>
         <p>Thank you for using the PTRS Navigator. Attached is your summary.</p>
         <p><strong>Company:</strong> ${companyName}<br/><strong>Position:</strong> ${position}</p>
-        <p><strong>Record ID:</strong> ${recordId}</p>`
+        <p><strong>Reference:</strong> ${recordId}</p>`
       );
       formData.append("attachment", pdfFile, "entity-report-summary.pdf");
 
@@ -302,10 +307,22 @@ export default function PublicEntityFlowChart() {
   };
 
   const handleInputChange = (key) => (e) => {
-    setAnswers({
-      ...answers,
-      [key]: { ...answers[key], [e.target.name]: e.target.value },
-    });
+    const { name, value } = e.target;
+
+    // Restrict `entityABN` to 11 digits only
+    if (key === "entityDetails" && name === "entityABN") {
+      const sanitizedValue = value.replace(/\D/g, ""); // Remove non-digit characters
+      if (sanitizedValue.length > 11) return; // Prevent input longer than 11 digits
+      setAnswers({
+        ...answers,
+        [key]: { ...answers[key], [name]: sanitizedValue },
+      });
+    } else {
+      setAnswers({
+        ...answers,
+        [key]: { ...answers[key], [name]: value },
+      });
+    }
   };
 
   const isStepValid = (stepIndex) => {
@@ -320,6 +337,11 @@ export default function PublicEntityFlowChart() {
       );
     }
     return val && (Array.isArray(val) ? val.length > 0 : true);
+  };
+
+  const isEntityABNValid = () => {
+    const abn = answers.entityDetails?.entityABN || "";
+    return abn === "" || abn.length === 11; // Valid if empty or exactly 11 digits
   };
 
   const handleStepClick = (step) => {
@@ -695,14 +717,19 @@ export default function PublicEntityFlowChart() {
                 </Button>
                 <Button
                   variant="contained"
-                  onClick={handleNext}
+                  onClick={
+                    activeStep === steps.length - 1
+                      ? confirmSubmission
+                      : handleNext
+                  }
                   disabled={
-                    current.type === "checkbox"
-                      ? !(answers[current.key]?.length > 0)
-                      : !answers[current.key]
+                    // Enforce ABN validation only on the first screen
+                    (activeStep === 0 && !isEntityABNValid()) ||
+                    // Validate other steps based on their specific requirements
+                    (activeStep !== 0 && !isStepValid(activeStep))
                   }
                 >
-                  Next
+                  {activeStep === steps.length - 1 ? "Submit" : "Next"}
                 </Button>
               </Box>
             </>
