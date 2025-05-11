@@ -7,12 +7,14 @@ import {
   CardContent,
   Button,
   useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import { useNavigate } from "react-router";
 
 export default function PTRSolution() {
   const navigate = useNavigate();
   const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
   const features = [
     {
@@ -107,14 +109,10 @@ export default function PTRSolution() {
         </Typography>
         <Button
           variant="contained"
+          color="primary"
           size="large"
-          onClick={() => navigate("/entity-checker")}
-          sx={{
-            backgroundColor: theme.palette.primary.main,
-            "&:hover": {
-              backgroundColor: theme.palette.primary.dark,
-            },
-          }}
+          onClick={() => navigate("/entity-navigator")}
+          sx={{ width: isSmallScreen ? "100%" : "auto" }}
         >
           Start Eligibility Check
         </Button>

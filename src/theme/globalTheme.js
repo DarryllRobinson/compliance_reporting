@@ -37,7 +37,7 @@ const darkPalette = {
   background: {
     default: "#141414", // Darkest for default background
     paper: "#4d4d4d", // Dark for paper background
-    navbar: "#141414", // Dark for navbar background
+    navbar: "#4d4d4d", // Dark for navbar background
   },
   text: {
     primary: "#ffffff", // Lightest for primary text

@@ -7,10 +7,6 @@ import {
   Container,
   useMediaQuery,
   useTheme,
-  Paper,
-  Card,
-  CardMedia,
-  CardContent,
 } from "@mui/material";
 import { useNavigate } from "react-router";
 
@@ -37,7 +33,7 @@ export default function LandingPage() {
       >
         <Box
           sx={{
-            bgcolor: "rgba(0, 0, 0, 0.6)",
+            // bgcolor: "rgba(0, 0, 0, 0.6)",
             p: isSmallScreen ? 2 : 4,
             borderRadius: 2,
             width: isSmallScreen ? "90%" : "60%",

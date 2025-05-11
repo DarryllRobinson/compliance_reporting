@@ -66,7 +66,7 @@ export default function TestPdfEmail() {
       <Button variant="contained" color="primary" onClick={handleSendTestEmail}>
         Send Test Email
       </Button>
-      <Box
+      {/* <Box
         sx={{
           backgroundImage: `url(/images/backgrounds/Large_zebra_crossing.jpg)`, // Updated to encode spaces as %20
           // backgroundImage: `url(/images/backgrounds/Abstract%20dots.jpg)`, // Updated to encode spaces as %20
@@ -133,7 +133,7 @@ export default function TestPdfEmail() {
           textAlign: "center",
           px: 2,
         }}
-      ></Box>
+      ></Box> */}
     </Box>
   );
 }

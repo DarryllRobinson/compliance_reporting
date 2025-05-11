@@ -83,12 +83,20 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
             <Button
               color="inherit"
               component={Link}
-              to="/"
+              to="/ptr-solution"
               sx={{ color: theme.palette.text.primary }}
             >
-              Home
+              PTR Solution
             </Button>
             <Button
+              color="inherit"
+              component={Link}
+              to="/contact" // Add Contact link
+              sx={{ color: theme.palette.text.primary }}
+            >
+              Contact
+            </Button>
+            {/* <Button
               color="inherit"
               component={Link}
               to="/user/dashboard"
@@ -118,19 +126,11 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
             )}
             <Button
               color="inherit"
-              component={Link}
-              to="/contact" // Add Contact link
-              sx={{ color: theme.palette.text.primary }}
-            >
-              Contact
-            </Button>
-            <Button
-              color="inherit"
               onClick={handleLogout}
               sx={{ color: theme.palette.text.primary }}
             >
               Logout
-            </Button>
+            </Button> */}
           </Box>
         ) : (
           <Box sx={{ display: { xs: "none", md: "flex" } }}>
@@ -170,12 +170,20 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
             <MenuItem
               onClick={handleMenuClose}
               component={Link}
-              to="/"
+              to="/ptr-solution"
               sx={{ color: theme.palette.text.primary }}
             >
-              Home
+              PTR Solution
             </MenuItem>
-            {user && (
+            <MenuItem
+              onClick={handleMenuClose}
+              component={Link}
+              to="/contact" // Add Contact link to the menu
+              sx={{ color: theme.palette.text.primary }}
+            >
+              Contact
+            </MenuItem>
+            {/* {user && (
               <MenuItem
                 onClick={handleMenuClose}
                 component={Link}
@@ -205,14 +213,6 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
                 Users
               </MenuItem>
             )}
-            <MenuItem
-              onClick={handleMenuClose}
-              component={Link}
-              to="/contact" // Add Contact link to the menu
-              sx={{ color: theme.palette.text.primary }}
-            >
-              Contact
-            </MenuItem>
             {user
               ? [
                   <MenuItem
@@ -224,16 +224,16 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
                   </MenuItem>,
                 ]
               : [
-                  // <MenuItem
-                  //   key="login"
-                  //   onClick={handleMenuClose}
-                  //   component={Link}
-                  //   to="/user/login"
-                  //   sx={{ color: theme.palette.text.primary }}
-                  // >
-                  //   Login
-                  // </MenuItem>,
-                ]}
+                  <MenuItem
+                    key="login"
+                    onClick={handleMenuClose}
+                    component={Link}
+                    to="/user/login"
+                    sx={{ color: theme.palette.text.primary }}
+                  >
+                    Login
+                  </MenuItem>,
+                ]} */}
           </Menu>
         </Box>
         <IconButton
