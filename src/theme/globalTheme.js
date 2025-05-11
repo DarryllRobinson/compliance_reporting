@@ -16,6 +16,7 @@ const lightPalette = {
   background: {
     default: "#ffffff", // Lightest for default background
     paper: "#eceff1", // Light for paper background
+    navbar: "#eceff1", // Light for navbar background
   },
   text: {
     primary: "#141414", // Darkest for primary text
@@ -36,6 +37,7 @@ const darkPalette = {
   background: {
     default: "#141414", // Darkest for default background
     paper: "#4d4d4d", // Dark for paper background
+    navbar: "#141414", // Dark for navbar background
   },
   text: {
     primary: "#ffffff", // Lightest for primary text
@@ -125,7 +127,10 @@ const globalTheme = (mode) => {
       MuiAppBar: {
         styleOverrides: {
           root: {
-            backgroundColor: mode === "light" ? "#ffffff" : "#141414", // Explicitly set AppBar background
+            backgroundColor:
+              mode === "light"
+                ? lightPalette.background.navbar // Use navbar color for light mode
+                : darkPalette.background.navbar, // Use navbar color for dark mode
             backgroundImage: "none", // Remove the default gradient
           },
         },

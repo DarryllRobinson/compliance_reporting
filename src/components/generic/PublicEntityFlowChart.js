@@ -322,6 +322,11 @@ export default function PublicEntityFlowChart() {
     return val && (Array.isArray(val) ? val.length > 0 : true);
   };
 
+  const isEntityABNValid = () => {
+    const abn = answers.entityDetails?.entityABN || "";
+    return abn === "" || abn.length === 11; // Valid if empty or exactly 11 digits
+  };
+
   const handleStepClick = (step) => {
     if (
       step <= activeStep ||
@@ -697,9 +702,10 @@ export default function PublicEntityFlowChart() {
                   variant="contained"
                   onClick={handleNext}
                   disabled={
-                    current.type === "checkbox"
+                    (activeStep === 0 && !isEntityABNValid()) ||
+                    (current.type === "checkbox"
                       ? !(answers[current.key]?.length > 0)
-                      : !answers[current.key]
+                      : !answers[current.key])
                   }
                 >
                   Next

@@ -45,7 +45,7 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
     <AppBar
       position="sticky"
       sx={{
-        backgroundColor: theme.palette.background.default,
+        backgroundColor: theme.palette.background.navbar,
         color: theme.palette.text.primary,
         backgroundImage: "none", // Explicitly remove the gradient
       }}
