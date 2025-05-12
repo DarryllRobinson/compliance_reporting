@@ -5,22 +5,48 @@ export const fetchWrapper = {
   get,
   getDocument,
   post,
-  postEmail, // Export the new function
+  postEmail,
   put,
   delete: _delete,
 };
 
+async function handleRequestWithRetry(
+  requestFn,
+  args,
+  retries = 3,
+  delay = 1000
+) {
+  for (let attempt = 0; attempt < retries; attempt++) {
+    try {
+      return await requestFn(...args);
+    } catch (error) {
+      if (attempt < retries - 1 && isTransientError(error)) {
+        await new Promise((resolve) => setTimeout(resolve, delay)); // Wait before retrying
+      } else {
+        throw error; // Rethrow if retries are exhausted or error is not transient
+      }
+    }
+  }
+}
+
+function isTransientError(error) {
+  // Check for transient errors like network timeouts or 5xx server errors
+  return (
+    error.name === "FetchError" ||
+    (error.response && error.response.status >= 500)
+  );
+}
+
 async function get(url) {
-  let headers = authHeader(url);
-  headers = {
+  return await handleRequestWithRetry(_get, [url]);
+}
+
+async function _get(url) {
+  const headers = {
     "Content-Type": "application/json",
-    ...headers,
+    ...authHeader(url),
   };
-  // console.log("post headers", headers);
-  const requestOptions = {
-    method: "GET",
-    headers,
-  };
+  const requestOptions = { method: "GET", headers };
   return fetch(url, requestOptions).then(handleResponse);
 }
 
@@ -40,27 +66,21 @@ function getDocument(url, location) {
 }
 
 async function post(url, body) {
-  // console.log(
-  //   "userService.userValue, url, body",
-  //   userService.userValue,
-  //   url,
-  //   body
-  // );
-  let headers = authHeader(url);
-  headers = {
+  return await handleRequestWithRetry(_post, [url, body]);
+}
+
+async function _post(url, body) {
+  const headers = {
     "Content-Type": "application/json",
-    ...headers,
+    ...authHeader(url),
   };
-  // console.log("post headers", headers);
   const requestOptions = {
     method: "POST",
     headers,
     credentials: "include",
     body: JSON.stringify(body),
   };
-  // console.log("post requestOptions", requestOptions);
   const response = await fetch(url, requestOptions);
-  // console.log("post response", response);
   return handleResponse(response);
 }
 
@@ -77,7 +97,11 @@ async function postEmail(url, formData) {
   return handleResponse(response);
 }
 
-function put(url, body) {
+async function put(url, body) {
+  return await handleRequestWithRetry(_put, [url, body]);
+}
+
+async function _put(url, body) {
   const requestOptions = {
     method: "PUT",
     headers: { "Content-Type": "application/json", ...authHeader(url) },
@@ -86,8 +110,11 @@ function put(url, body) {
   return fetch(url, requestOptions).then(handleResponse);
 }
 
-// prefixed with underscored because delete is a reserved word in javascript
-function _delete(url) {
+async function _delete(url) {
+  return await handleRequestWithRetry(_deleteRequest, [url]);
+}
+
+async function _deleteRequest(url) {
   const requestOptions = {
     method: "DELETE",
     headers: authHeader(url),

@@ -17,6 +17,11 @@ export async function layoutLoader({ request }) {
     throw new Response("layoutLoader user problem", { status: 401 });
   }
 
+  // Scroll to the top of the screen
+  if (typeof window !== "undefined") {
+    window.scrollTo(0, 0);
+  }
+
   // If page not found
   // throw new Response("Page not found", { status: 404 });
 }

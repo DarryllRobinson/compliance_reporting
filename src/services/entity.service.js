@@ -26,26 +26,10 @@ async function create(params) {
 
 async function sendPdfEmail(formData, isFormData = false) {
   try {
-    // Log FormData contents for debugging
-    // if (isFormData) {
-    //   for (let pair of formData.entries()) {
-    //     console.log(pair[0], pair[1]);
-    //   }
-    // }
-
-    const config = {
-      headers: {
-        "Content-Type": isFormData ? "multipart/form-data" : "application/json",
-      },
-    };
-
     const response = await fetchWrapper.postEmail(
-      `${baseUrl}/send-email`, // Replace with your actual API endpoint
-      formData,
-      config
+      `${baseUrl}/send-email`,
+      formData
     );
-    // const response = { data: { success: true } }; // Mock response for testing
-
     return response.data;
   } catch (error) {
     console.error("Failed to send email:", error);
