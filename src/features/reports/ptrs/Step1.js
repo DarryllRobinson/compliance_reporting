@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   Box,
   Paper,
@@ -207,10 +207,43 @@ export default function Step1() {
     );
   };
 
-  const displayedRecords = filteredRecords.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
+  const displayedRecords = useMemo(
+    () =>
+      filteredRecords.slice(
+        page * rowsPerPage,
+        page * rowsPerPage + rowsPerPage
+      ),
+    [filteredRecords, page, rowsPerPage]
   );
+
+  const MemoizedTableRow = React.memo(({ record }) => (
+    <TableRow
+      key={record.id}
+      sx={{
+        backgroundColor: getRowHighlightColor(record, changedRows),
+      }}
+    >
+      {fieldMapping.map((field, fieldIndex) => (
+        <TableCell key={fieldIndex}>{record[field.name] || "-"}</TableCell>
+      ))}
+      <TableCell>
+        <Checkbox
+          checked={!!tcpStatus[record.id]}
+          onChange={() => handleTcpToggle(record.id)}
+        />
+      </TableCell>
+      <TableCell sx={{ width: "300px" }}>
+        <TextField
+          variant="outlined"
+          size="small"
+          fullWidth
+          multiline
+          value={tcpExclusions[record.id] || ""}
+          onChange={(e) => handleTcpExclusionChange(record.id, e.target.value)}
+        />
+      </TableCell>
+    </TableRow>
+  ));
 
   if (records.length === 0) {
     return (
@@ -244,36 +277,7 @@ export default function Step1() {
           </TableHead>
           <TableBody>
             {displayedRecords.map((record) => (
-              <TableRow
-                key={record.id}
-                sx={{
-                  backgroundColor: getRowHighlightColor(record, changedRows),
-                }}
-              >
-                {fieldMapping.map((field, fieldIndex) => (
-                  <TableCell key={fieldIndex}>
-                    {record[field.name] || "-"}
-                  </TableCell>
-                ))}
-                <TableCell>
-                  <Checkbox
-                    checked={!!tcpStatus[record.id]}
-                    onChange={() => handleTcpToggle(record.id)}
-                  />
-                </TableCell>
-                <TableCell sx={{ width: "300px" }}>
-                  <TextField
-                    variant="outlined"
-                    size="small"
-                    fullWidth
-                    multiline
-                    value={tcpExclusions[record.id] || ""}
-                    onChange={(e) =>
-                      handleTcpExclusionChange(record.id, e.target.value)
-                    }
-                  />
-                </TableCell>
-              </TableRow>
+              <MemoizedTableRow key={record.id} record={record} />
             ))}
           </TableBody>
         </Table>

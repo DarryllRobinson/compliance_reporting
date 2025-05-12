@@ -70,25 +70,34 @@ export default function Step3() {
     const text = await file.text();
     const rows = text.split("\n").map((row) => row.trim());
 
-    rows.forEach((row, index) => {
-      if (index === 0) {
-        if (row !== "Payee Entity ABN") {
-          errors.push(`Row ${index + 1}: Header must be "Payee Entity ABN".`);
+    const chunkSize = 1000; // Process rows in chunks
+    for (let i = 0; i < rows.length; i += chunkSize) {
+      const chunk = rows.slice(i, i + chunkSize);
+      chunk.forEach((row, index) => {
+        const globalIndex = i + index;
+        if (globalIndex === 0) {
+          if (row !== "Payee Entity ABN") {
+            errors.push(
+              `Row ${globalIndex + 1}: Header must be "Payee Entity ABN".`
+            );
+          }
+          return;
         }
-        return;
-      }
 
-      if (!row) return;
+        if (!row) return;
 
-      const fields = row.split(",");
-      if (fields.length !== 1) {
-        errors.push(`Row ${index + 1}: Must contain exactly one field.`);
-      } else if (!/^\d{11}$/.test(fields[0].trim())) {
-        errors.push(
-          `Row ${index + 1}: Value "${fields[0]}" must be an 11-digit number.`
-        );
-      }
-    });
+        const fields = row.split(",");
+        if (fields.length !== 1) {
+          errors.push(
+            `Row ${globalIndex + 1}: Must contain exactly one field.`
+          );
+        } else if (!/^\d{11}$/.test(fields[0].trim())) {
+          errors.push(
+            `Row ${globalIndex + 1}: Value "${fields[0]}" must be an 11-digit number.`
+          );
+        }
+      });
+    }
 
     if (rows.length <= 1) {
       errors.push("The file must contain at least one valid data row.");

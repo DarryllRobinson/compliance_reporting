@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   Box,
   Paper,
@@ -77,9 +77,9 @@ export default function Step4() {
     );
   };
 
-  const displayedRecords = records.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
+  const displayedRecords = useMemo(
+    () => records.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
+    [records, page, rowsPerPage]
   );
 
   const handleChangePage = (event, newPage) => {
@@ -90,6 +90,46 @@ export default function Step4() {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
+
+  const MemoizedTableRow = React.memo(({ record }) => (
+    <TableRow
+      key={record.id}
+      sx={{
+        backgroundColor: getRowHighlightColor(record, {}),
+      }}
+    >
+      <TableCell>{record.payerEntityName || "-"}</TableCell>
+      <TableCell>{record.payerEntityAbn || "-"}</TableCell>
+      <TableCell>{record.payerEntityAcnArbn || "-"}</TableCell>
+      <TableCell>{record.payeeEntityName || "-"}</TableCell>
+      <TableCell>{record.payeeEntityAbn || "-"}</TableCell>
+      <TableCell>{record.payeeEntityAcnArbn || "-"}</TableCell>
+      <TableCell>{record.paymentAmount || "-"}</TableCell>
+      <TableCell>{record.description || "-"}</TableCell>
+      <TableCell>{record.supplyDate || "-"}</TableCell>
+      <TableCell>{record.paymentDate || "-"}</TableCell>
+      <TableCell>{record.contractPoReferenceNumber || "-"}</TableCell>
+      <TableCell>{record.contractPoPaymentTerms || "-"}</TableCell>
+      <TableCell>{record.noticeForPaymentIssueDate || "-"}</TableCell>
+      <TableCell>{record.noticeForPaymentTerms || "-"}</TableCell>
+      <TableCell>{record.invoiceReferenceNumber || "-"}</TableCell>
+      <TableCell>{record.invoiceIssueDate || "-"}</TableCell>
+      <TableCell>{record.invoiceReceiptDate || "-"}</TableCell>
+      <TableCell>{record.invoiceAmount || "-"}</TableCell>
+      <TableCell>{record.invoicePaymentTerms || "-"}</TableCell>
+      <TableCell>{record.invoiceDueDate || "-"}</TableCell>
+      <TableCell>{record.peppolEnabled ? "Yes" : "No"}</TableCell>
+      <TableCell>{record.rcti ? "Yes" : "No"}</TableCell>
+      <TableCell>{record.creditCardPayment ? "Yes" : "No"}</TableCell>
+      <TableCell>{record.creditCardNumber || "-"}</TableCell>
+      <TableCell>{record.partialPayment ? "Yes" : "No"}</TableCell>
+      <TableCell>{record.paymentTerm || "-"}</TableCell>
+      <TableCell>{record.excludedTcp ? "Yes" : "No"}</TableCell>
+      <TableCell>{record.notes || "-"}</TableCell>
+      <TableCell>{record.isSb ? "Yes" : "No"}</TableCell>
+      <TableCell>{record.paymentTime ?? "-"}</TableCell>
+    </TableRow>
+  ));
 
   return (
     <Box sx={{ padding: 2 }}>
@@ -146,43 +186,7 @@ export default function Step4() {
           </TableHead>
           <TableBody>
             {displayedRecords.map((record) => (
-              <TableRow
-                key={record.id}
-                sx={{
-                  backgroundColor: getRowHighlightColor(record, {}),
-                }}
-              >
-                <TableCell>{record.payerEntityName || "-"}</TableCell>
-                <TableCell>{record.payerEntityAbn || "-"}</TableCell>
-                <TableCell>{record.payerEntityAcnArbn || "-"}</TableCell>
-                <TableCell>{record.payeeEntityName || "-"}</TableCell>
-                <TableCell>{record.payeeEntityAbn || "-"}</TableCell>
-                <TableCell>{record.payeeEntityAcnArbn || "-"}</TableCell>
-                <TableCell>{record.paymentAmount || "-"}</TableCell>
-                <TableCell>{record.description || "-"}</TableCell>
-                <TableCell>{record.supplyDate || "-"}</TableCell>
-                <TableCell>{record.paymentDate || "-"}</TableCell>
-                <TableCell>{record.contractPoReferenceNumber || "-"}</TableCell>
-                <TableCell>{record.contractPoPaymentTerms || "-"}</TableCell>
-                <TableCell>{record.noticeForPaymentIssueDate || "-"}</TableCell>
-                <TableCell>{record.noticeForPaymentTerms || "-"}</TableCell>
-                <TableCell>{record.invoiceReferenceNumber || "-"}</TableCell>
-                <TableCell>{record.invoiceIssueDate || "-"}</TableCell>
-                <TableCell>{record.invoiceReceiptDate || "-"}</TableCell>
-                <TableCell>{record.invoiceAmount || "-"}</TableCell>
-                <TableCell>{record.invoicePaymentTerms || "-"}</TableCell>
-                <TableCell>{record.invoiceDueDate || "-"}</TableCell>
-                <TableCell>{record.peppolEnabled ? "Yes" : "No"}</TableCell>
-                <TableCell>{record.rcti ? "Yes" : "No"}</TableCell>
-                <TableCell>{record.creditCardPayment ? "Yes" : "No"}</TableCell>
-                <TableCell>{record.creditCardNumber || "-"}</TableCell>
-                <TableCell>{record.partialPayment ? "Yes" : "No"}</TableCell>
-                <TableCell>{record.paymentTerm || "-"}</TableCell>
-                <TableCell>{record.excludedTcp ? "Yes" : "No"}</TableCell>
-                <TableCell>{record.notes || "-"}</TableCell>
-                <TableCell>{record.isSb ? "Yes" : "No"}</TableCell>
-                <TableCell>{record.paymentTime ?? "-"}</TableCell>
-              </TableRow>
+              <MemoizedTableRow key={record.id} record={record} />
             ))}
           </TableBody>
         </Table>
