@@ -590,7 +590,7 @@ export default function PublicEntityNavigator() {
           const tooltip = isEnabled
             ? "Click to jump to this step"
             : "Please complete prior steps before accessing this one.";
-          const stepLabel = label.replace(/Entity Checker/g, "PTRS Navigator");
+          const stepLabel = label; // Keep the label as is
           return (
             <Step key={index}>
               <Tooltip title={tooltip} arrow>
@@ -598,8 +598,7 @@ export default function PublicEntityNavigator() {
                   onClick={() => isEnabled && handleStepClick(index)}
                   style={{
                     cursor: isEnabled ? "pointer" : "not-allowed",
-                    opacity:
-                      isStepValid(index) || index <= activeStep ? 1 : 0.4,
+                    opacity: isEnabled ? 1 : 0.4, // Ensure inactive steps are visually distinct
                   }}
                 >
                   {stepLabel}
