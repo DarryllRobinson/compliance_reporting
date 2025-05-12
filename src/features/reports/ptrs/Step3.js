@@ -72,17 +72,13 @@ export default function Step3() {
 
     rows.forEach((row, index) => {
       if (index === 0) {
-        // Validate header row
         if (row !== "Payee Entity ABN") {
           errors.push(`Row ${index + 1}: Header must be "Payee Entity ABN".`);
         }
         return;
       }
 
-      if (!row) {
-        // Skip empty rows
-        return;
-      }
+      if (!row) return;
 
       const fields = row.split(",");
       if (fields.length !== 1) {
@@ -94,7 +90,6 @@ export default function Step3() {
       }
     });
 
-    // Check if the file contains at least one valid data row
     if (rows.length <= 1) {
       errors.push("The file must contain at least one valid data row.");
     }

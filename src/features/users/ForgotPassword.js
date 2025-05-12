@@ -15,9 +15,15 @@ import { userService } from "../../services";
 export async function forgotPasswordAction({ request, context }) {
   const { alertContext } = context;
   const formData = await request.formData();
-  let userDetails = Object.fromEntries(formData);
+  const email = formData.get("email").trim();
+
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    alertContext.sendAlert("error", "Invalid email address");
+    return;
+  }
+
   try {
-    const response = await userService.forgotPassword(userDetails.email);
+    const response = await userService.forgotPassword(email);
     alertContext.sendAlert(
       "success",
       response.message ||

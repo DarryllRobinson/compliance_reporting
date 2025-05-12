@@ -19,13 +19,26 @@ export async function clientRegisterAction({ request, context }) {
   const { alertContext } = context;
   const formData = await request.formData();
   let clientDetails = Object.fromEntries(formData);
+
+  // Input validation
+  if (!clientDetails.businessName || clientDetails.businessName.trim() === "") {
+    alertContext.sendAlert("error", "Business Name is required");
+    return;
+  }
+
+  if (!clientDetails.abn || !/^\d{11}$/.test(clientDetails.abn)) {
+    alertContext.sendAlert("error", "ABN must be exactly 11 digits");
+    return;
+  }
+
   clientDetails = { ...clientDetails, active: true };
+
   try {
     await clientService.create(clientDetails);
     // TODO: Open user creation form after client creation below
     return redirect("/users/create");
   } catch (error) {
-    alertContext.sendAlert("error", error || "Error creating client:");
+    alertContext.sendAlert("error", error || "Error creating client");
   }
 }
 

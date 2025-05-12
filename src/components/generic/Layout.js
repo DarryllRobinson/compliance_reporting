@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { Outlet, useLocation } from "react-router";
-import { Box, CssBaseline } from "@mui/material";
+import { Box, CssBaseline, Typography } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
 import Navbar from "../navigation/Navbar";
 import Footer from "../navigation/Footer";
@@ -13,8 +13,8 @@ import globalTheme from "../../theme/globalTheme"; // Ensure the import matches 
 export async function layoutLoader({ request }) {
   const user = userService.userValue;
   if (!user) {
-    console.log("layoutLoader user problem");
-    throw new Response("layoutLoader user problem", { status: 401 });
+    console.error("Unauthorized access attempt detected."); // Avoid exposing sensitive details
+    throw new Response("Unauthorized access", { status: 401 });
   }
 
   // Scroll to the top of the screen
@@ -29,6 +29,7 @@ export async function layoutLoader({ request }) {
 export default function Layout() {
   const [isDarkTheme, setIsDarkTheme] = useState(false);
   const location = useLocation();
+  const [isAuthorized, setIsAuthorized] = useState(true); // Track authorization status
 
   const theme = useMemo(() => {
     const mode = isDarkTheme ? "dark" : "light"; // Determine the mode
@@ -57,6 +58,33 @@ export default function Layout() {
   );
 
   const { alertOpen, severity, message, handleClose } = useAlert();
+
+  if (!isAuthorized) {
+    // Fallback UI for unauthorized users
+    return (
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            minHeight: "100vh",
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: theme.palette.background.default,
+          }}
+        >
+          <Typography variant="h4" color="text.primary" gutterBottom>
+            Access Denied
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            You are not authorised to view this page. Please contact support if
+            you believe this is an error.
+          </Typography>
+        </Box>
+      </ThemeProvider>
+    );
+  }
 
   return (
     <ThemeProvider theme={theme}>

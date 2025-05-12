@@ -67,7 +67,7 @@ export default function ResetPassword() {
     let cont = true;
 
     if (!password || password.length < 8) {
-      setPasswordError("Please provide a password of at least 8 characters");
+      setPasswordError("Password must be at least 8 characters long");
       cont = false;
     }
 
