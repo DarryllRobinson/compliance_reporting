@@ -1,0 +1,83 @@
+# ==============================
+# 1. AWS Amplify Configuration
+# ==============================
+# Save this as amplify.yml at the root of your front-end repo
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - npm ci
+    build:
+      commands:
+        - npm run build
+  artifacts:
+    baseDirectory: build
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - node_modules/**/*
+
+# ==============================
+# 2. AWS Elastic Beanstalk AppSpec
+# ==============================
+# Save this as .ebextensions/app.config in your backend repo
+option_settings:
+  aws:elasticbeanstalk:application:environment:
+    NODE_ENV: production
+  aws:elasticbeanstalk:container:nodejs:
+    NodeCommand: "npm start"
+  aws:elasticbeanstalk:environment:
+    EnvironmentType: LoadBalanced
+
+packages:
+  yum:
+    git: []
+
+commands:
+  01_npm_install:
+    command: "npm install"
+
+# ==============================
+# 3. CloudFormation for Core Stack
+# ==============================
+# Create this template in CloudFormation to provision base services
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Core infrastructure for compliance reporting
+
+Parameters:
+  DBUsername:
+    Type: String
+  DBPassword:
+    Type: String
+    NoEcho: true
+
+Resources:
+  ComplianceDB:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      AllocatedStorage: 20
+      DBInstanceClass: db.t3.micro
+      Engine: mysql
+      MasterUsername: !Ref DBUsername
+      MasterUserPassword: !Ref DBPassword
+      PubliclyAccessible: false
+      MultiAZ: false
+      BackupRetentionPeriod: 7
+      StorageEncrypted: true
+
+  AppInstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow internal app access to RDS
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3306
+          ToPort: 3306
+          CidrIp: 10.0.0.0/16  # Adjust for your VPC
+
+Outputs:
+  DBEndpoint:
+    Description: RDS Endpoint
+    Value: !GetAtt ComplianceDB.Endpoint.Address

@@ -8,9 +8,8 @@ import Fallback from "../components/generic/Fallback";
 
 // Publicly available
 import Contact from "../components/generic/Contact";
-import PublicEntityFlowChart from "../components/generic/PublicEntityFlowChart";
+import PublicEntityNavigator from "../components/generic/PublicEntityNavigator";
 // Testing pdf email
-import TestPdfEmail from "../components/generic/TestPdfEmail";
 import PTRSolution from "../components/generic/PTRSolution";
 
 // Users
@@ -76,11 +75,7 @@ export default function AppRouter() {
         },
         {
           path: "entity-navigator",
-          Component: PublicEntityFlowChart,
-        },
-        {
-          path: "test-pdf-email",
-          Component: TestPdfEmail,
+          Component: PublicEntityNavigator,
         },
         {
           path: "contact",

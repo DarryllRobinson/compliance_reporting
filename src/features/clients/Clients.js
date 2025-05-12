@@ -102,7 +102,7 @@ export default function Clients() {
         </Typography>
         <Button
           variant="contained"
-          color="primary" // Reverted to US English
+          color="primary"
           onClick={() => navigate("/clients/register")} // Navigate to register page
           sx={{ mb: 2 }}
         >
@@ -115,7 +115,7 @@ export default function Clients() {
               sx={{ borderBottom: `1px solid ${theme.palette.divider}` }}
             >
               <ListItemText
-                primary={client.clientName}
+                primary={client.businessName}
                 secondary={`Email: ${client.contactEmail} | Phone: ${client.contactPhone}`}
               />
             </ListItem>

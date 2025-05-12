@@ -18,6 +18,7 @@ import {
   LinearProgress,
   TextField,
   useTheme,
+  CircularProgress,
 } from "@mui/material";
 import jsPDF from "jspdf";
 import { entityService, userService } from "../../services";
@@ -33,6 +34,7 @@ const steps = [
   "Revenue Threshold",
   "Controlled by Reporting Entity",
   "Summary",
+  "Contact Details", // Added Contact Details as the final step
 ];
 
 const flowQuestions = [
@@ -99,31 +101,30 @@ const flowQuestions = [
     options: ["Yes", "No"],
     help: "Controlled entities are included in the parent entity's report.",
   },
+  {
+    key: "contactDetails",
+    question: "Please provide your contact details",
+    type: "form",
+    fields: [
+      { name: "name", label: "Your Name", required: true },
+      { name: "email", label: "Your Email", required: true },
+      { name: "companyName", label: "Company Name", required: true },
+      { name: "position", label: "Your Position", required: true },
+    ],
+    help: "We'll use these details to send you a summary and follow up if needed.",
+  },
 ];
 
-// Add Contact Details step after Summary
-flowQuestions.push({
-  key: "contactDetails",
-  question: "Please provide your contact details",
-  type: "form",
-  fields: [
-    { name: "name", label: "Your Name", required: true },
-    { name: "email", label: "Your Email", required: true },
-    { name: "companyName", label: "Company Name", required: true },
-    { name: "position", label: "Your Position", required: true },
-  ],
-  help: "We'll use these details to send you a summary and follow up if needed.",
-});
-
-export default function PublicEntityFlowChart() {
+export default function PublicEntityNavigator() {
   const theme = useTheme();
   const [activeStep, setActiveStep] = useState(0);
   const [answers, setAnswers] = useState({});
   const [formSubmitted, setFormSubmitted] = useState(false); // Track if the form has been submitted
+  const [loading, setLoading] = useState(false); // Track loading state for Submit button
   const navigate = useNavigate();
   const { sendAlert } = useAlert();
 
-  const current = flowQuestions[activeStep];
+  const current = flowQuestions[activeStep] || {}; // Safeguard to ensure current is always defined
 
   const handlePDF = async (recordId) => {
     const doc = new jsPDF({ unit: "mm", format: "a4" });
@@ -221,7 +222,7 @@ export default function PublicEntityFlowChart() {
     y += wrappedIntro.length * lineHeight + 5;
 
     // Report reference and navigator outcome with reason
-    doc.text(`Record ID: ${recordId}`, marginLeft, y);
+    doc.text(`Reference: ${recordId}`, marginLeft, y);
     y += 6;
     doc.text(
       `PTR Submission Required: ${result.required ? "Yes" : "No"}`,
@@ -230,9 +231,13 @@ export default function PublicEntityFlowChart() {
     );
     y += 6;
     doc.setTextColor("#4d4d4d");
-    doc.text(`Reason: ${result.reason}`, marginLeft, y);
+    const wrappedReason = doc.splitTextToSize(
+      result.reason,
+      pageWidth - marginLeft * 2
+    ); // Wrap text within margins
+    doc.text(wrappedReason, marginLeft, y);
     doc.setTextColor(0, 0, 0);
-    y += 10;
+    y += wrappedReason.length * lineHeight + 5;
 
     // Section: Summary Table
     doc.setFontSize(11);
@@ -250,7 +255,24 @@ export default function PublicEntityFlowChart() {
         q.key === "entityDetails" ? "Entity details provided" : q.question;
       let answer = "No answer";
 
-      if (Array.isArray(answers[q.key])) {
+      if (q.key === "contactDetails") {
+        // Map full field names for Contact Details
+        const contactDetails = answers.contactDetails || {};
+        answer = Object.entries(contactDetails)
+          .map(([key, value]) => {
+            const field = q.fields.find((f) => f.name === key);
+            return `${field?.label || key}: ${value || "—"}`;
+          })
+          .join(", ");
+      } // Map field label for entityName and ABN
+      else if (q.key === "entityDetails") {
+        answer = Object.entries(answers.entityDetails || {})
+          .map(([key, value]) => {
+            const field = q.fields.find((f) => f.name === key);
+            return `${field?.label || key}: ${value || "—"}`;
+          })
+          .join(", ");
+      } else if (Array.isArray(answers[q.key])) {
         answer = answers[q.key].join(", ");
       } else if (
         typeof answers[q.key] === "object" &&
@@ -288,7 +310,7 @@ export default function PublicEntityFlowChart() {
 
     // CTA
     const ctaText =
-      "For a full assessment and to receive tailored reporting guidance, please contact our compliance team at hello@monochromecompliance.au or visit monochromecompliance.au.";
+      "For a full assessment and to receive tailored reporting guidance, please contact our team at ptrs@monochrome-compliance.com.";
     const wrappedCTA = doc.splitTextToSize(ctaText, pageWidth - marginLeft * 2);
     doc.setFontSize(10);
     doc.setTextColor("#4d4d4d");
@@ -335,219 +357,21 @@ export default function PublicEntityFlowChart() {
     });
   }
 
-  const previewPDF = async (recordId) => {
-    const doc = new jsPDF({ unit: "mm", format: "a4" });
-    const pageWidth = doc.internal.pageSize.width;
-    const pageHeight = doc.internal.pageSize.height;
-    const marginLeft = 20;
-    const marginTop = 20;
-    const lineHeight = 7;
-    let y = marginTop;
-
-    const date = new Date().toLocaleString();
-    const companyName = "Monochrome Compliance";
-    const subtitle =
-      "Entity Navigator Summary — Payment Times Reporting Scheme (PTRS)";
-    const logoPath = "/images/logos/logo-light.png";
-
-    const determineReportingRequirement = (answers) => {
-      if (answers.charity === "Yes") {
-        return {
-          required: false,
-          reason:
-            "The entity is a registered charity and is excluded under Section 6(1)(e) of the Payment Times Reporting Act 2020.",
-        };
-      }
-      if (answers.section7 !== "Yes") {
-        return {
-          required: false,
-          reason:
-            "The entity has not been assessed under Section 7 of the Payment Times Reporting Act 2020.",
-        };
-      }
-      if (
-        !answers.connectionToAustralia ||
-        answers.connectionToAustralia.includes("None of the above")
-      ) {
-        return {
-          required: false,
-          reason:
-            "The entity does not appear to have a sufficient connection to Australia.",
-        };
-      }
-      if (answers.controlled === "Yes") {
-        return {
-          required: false,
-          reason:
-            "The entity is controlled by another reporting entity and should be included in their report.",
-        };
-      }
-      if (answers.cce === "Yes" && answers.revenue === "Yes") {
-        return {
-          required: true,
-          reason:
-            "The entity is a CCE with revenue over A$100M. PTRS reporting is required.",
-        };
-      }
-      return {
-        required: false,
-        reason: "Based on your responses, PTRS reporting is not required.",
-      };
-    };
-
-    const result = determineReportingRequirement(answers);
-
-    // Background
-    doc.setFillColor("#eceff1");
-    doc.rect(0, 0, pageWidth, pageHeight, "F");
-
-    // Header: logo + title
-    try {
-      const logo = await loadImage(logoPath);
-      doc.addImage(logo, "PNG", marginLeft, y, 25, 25);
-    } catch (e) {
-      doc.setFontSize(14);
-      doc.setTextColor("#4d4d4d");
-      doc.text("[Logo]", marginLeft, y + 10);
-    }
-
-    doc.setFontSize(18);
-    doc.setTextColor("#141414");
-    doc.text(companyName, marginLeft + 30, y + 8);
-    doc.setFontSize(12);
-    doc.text(subtitle, marginLeft + 30, y + 16);
-    y += 30;
-
-    // Intro context
-    doc.setFontSize(10);
-    doc.setTextColor("#4d4d4d");
-    const introText =
-      "This document provides a summary of the answers submitted through the Entity Navigator tool on our website. It is intended to assist you in determining your organisation’s obligations under the Payment Times Reporting Scheme (PTRS).";
-    const wrappedIntro = doc.splitTextToSize(
-      introText,
-      pageWidth - marginLeft * 2
-    );
-    doc.text(wrappedIntro, marginLeft, y);
-    y += wrappedIntro.length * lineHeight + 5;
-
-    // Report reference and navigator outcome with reason
-    doc.text(`Record ID: ${recordId}`, marginLeft, y);
-    y += 6;
-    doc.text(
-      `PTR Submission Required: ${result.required ? "Yes" : "No"}`,
-      marginLeft,
-      y
-    );
-    y += 6;
-    doc.setTextColor("#4d4d4d");
-    doc.text(`Reason: ${result.reason}`, marginLeft, y);
-    doc.setTextColor(0, 0, 0);
-    y += 10;
-
-    // Section: Summary Table
-    doc.setFontSize(11);
-    doc.setTextColor("#141414");
-    doc.text("Summary of Responses", marginLeft, y);
-    y += 6;
-
-    doc.setDrawColor("#141414");
-    doc.line(marginLeft, y, pageWidth - marginLeft, y);
-    y += 4;
-
-    doc.setFontSize(10);
-    for (const q of flowQuestions) {
-      const question =
-        q.key === "entityDetails" ? "Entity details provided" : q.question;
-      let answer = "No answer";
-
-      if (Array.isArray(answers[q.key])) {
-        answer = answers[q.key].join(", ");
-      } else if (
-        typeof answers[q.key] === "object" &&
-        answers[q.key] !== null
-      ) {
-        answer = Object.entries(answers[q.key])
-          .map(([k, v]) => `${k}: ${v || "—"}`)
-          .join(", ");
-      } else {
-        answer = answers[q.key] || "No answer";
-      }
-
-      if (y + lineHeight > pageHeight - marginTop) {
-        doc.addPage();
-        doc.setFillColor("#eceff1");
-        doc.rect(0, 0, pageWidth, pageHeight, "F");
-        y = marginTop;
-      }
-
-      doc.setTextColor("#4d4d4d");
-      doc.text(`• ${question}`, marginLeft, y);
-      y += lineHeight;
-      doc.setTextColor("#141414");
-      const wrappedAnswer = doc.splitTextToSize(
-        answer,
-        pageWidth - marginLeft * 2
-      );
-      doc.text(wrappedAnswer, marginLeft + 4, y);
-      y += wrappedAnswer.length * lineHeight + 2;
-
-      doc.setDrawColor(200);
-      doc.line(marginLeft, y, pageWidth - marginLeft, y);
-      y += 5;
-    }
-
-    // CTA
-    const ctaText =
-      "For a full assessment and to receive tailored reporting guidance, please contact our compliance team at hello@monochromecompliance.au or visit monochromecompliance.au.";
-    const wrappedCTA = doc.splitTextToSize(ctaText, pageWidth - marginLeft * 2);
-    doc.setFontSize(10);
-    doc.setTextColor("#4d4d4d");
-    doc.text(wrappedCTA, marginLeft, y);
-    y += wrappedCTA.length * lineHeight + 3;
-
-    // Disclaimer
-    const disclaimer =
-      "This report is informational only and does not constitute legal advice. Final determination of reporting obligations should be made in consultation with your legal or compliance team.";
-    const wrappedDisclaimer = doc.splitTextToSize(
-      disclaimer,
-      pageWidth - marginLeft * 2
-    );
-    doc.setFontSize(8);
-    doc.setTextColor("#4d4d4d");
-    doc.text(wrappedDisclaimer, marginLeft, y);
-
-    // Footer on all pages
-    const pageCount = doc.internal.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-      doc.setPage(i);
-      doc.setFontSize(9);
-      doc.setTextColor("#4d4d4d");
-      doc.text(date, marginLeft, pageHeight - 10);
-      doc.text(
-        `Page ${i} of ${pageCount}`,
-        pageWidth - marginLeft - 30,
-        pageHeight - 10
-      );
-    }
-
-    // Open PDF
-    const pdfBlob = doc.output("blob");
-    const pdfURL = URL.createObjectURL(pdfBlob);
-    window.open(pdfURL, "_blank");
-  };
-
   const confirmSubmission = async () => {
+    setLoading(true); // Set loading to true when submission starts
     const contact = answers.contactDetails || {};
     if (
-      !contact.name ||
-      !contact.email ||
-      !contact.companyName ||
-      !contact.position
+      activeStep === steps.length - 1 && // Ensure this check only happens on the contact details step
+      (!contact.name ||
+        !contact.email ||
+        !contact.companyName ||
+        !contact.position)
     ) {
       sendAlert(
         "error",
         "Please complete all contact details before submitting."
       );
+      setLoading(false); // Reset loading state on error
       return;
     }
 
@@ -586,6 +410,8 @@ export default function PublicEntityFlowChart() {
     } catch (error) {
       console.error("Failed to complete submission", error);
       sendAlert("error", "Failed to complete submission. Please try again.");
+    } finally {
+      setLoading(false); // Reset loading state after submission
     }
   };
 
@@ -607,7 +433,7 @@ export default function PublicEntityFlowChart() {
         `<p>Hi ${name},</p>
         <p>Thank you for using the PTRS Navigator. Attached is your summary.</p>
         <p><strong>Company:</strong> ${companyName}<br/><strong>Position:</strong> ${position}</p>
-        <p><strong>Record ID:</strong> ${recordId}</p>`
+        <p><strong>Reference:</strong> ${recordId}</p>`
       );
       formData.append("attachment", pdfBlob, "entity-report-summary.pdf"); // Append the Blob
 
@@ -622,8 +448,8 @@ export default function PublicEntityFlowChart() {
   const handleNext = async () => {
     if (activeStep < steps.length - 1) {
       setActiveStep((prev) => prev + 1);
-    } else {
-      await confirmSubmission();
+    } else if (activeStep === steps.length - 1) {
+      await confirmSubmission(); // Submit on the final step
     }
   };
 
@@ -632,9 +458,20 @@ export default function PublicEntityFlowChart() {
   };
 
   const handleInputChange = (key) => (e) => {
+    const { name, value } = e.target;
+
+    // Prevent non-numeric input for the entityABN field
+    if (
+      key === "entityDetails" &&
+      name === "entityABN" &&
+      !/^[0-9]*$/.test(value)
+    ) {
+      return;
+    }
+
     setAnswers({
       ...answers,
-      [key]: { ...answers[key], [e.target.name]: e.target.value },
+      [key]: { ...answers[key], [name]: value },
     });
   };
 
@@ -652,9 +489,15 @@ export default function PublicEntityFlowChart() {
     return val && (Array.isArray(val) ? val.length > 0 : true);
   };
 
-  const isEntityABNValid = () => {
-    const abn = answers.entityDetails?.entityABN || "";
-    return abn === "" || abn.length === 11; // Valid if empty or exactly 11 digits
+  const isEntityDetailsValid = () => {
+    const entityDetails = answers.entityDetails || {};
+    const entityABN = entityDetails.entityABN || ""; // Safeguard to ensure entityABN is always a string
+    return (
+      entityDetails.entityName &&
+      entityDetails.entityName.trim() !== "" && // Ensure Entity Name is mandatory
+      /^[0-9]*$/.test(entityABN) && // Ensure ABN contains only numbers
+      (entityABN === "" || entityABN.length === 11) // ABN must be empty or exactly 11 digits
+    );
   };
 
   const handleStepClick = (step) => {
@@ -730,11 +573,8 @@ export default function PublicEntityFlowChart() {
 
   return (
     <Box sx={{ p: 4 }} onKeyUp={handleKeyUp}>
-      <Button variant="contained" color="primary" onClick={() => previewPDF(1)}>
-        PDF
-      </Button>
       <Typography variant="h5" gutterBottom>
-        PTRS Navigator Eligibility Flow
+        PTRS Eligibility Navigator
       </Typography>
 
       <Box sx={{ mb: 2 }}>
@@ -779,7 +619,7 @@ export default function PublicEntityFlowChart() {
         }}
       >
         <CardContent>
-          {activeStep === steps.length - 2 ? (
+          {activeStep === steps.length - 2 ? ( // Show Summary of Responses on the second-to-last step
             <>
               <Typography variant="h6" gutterBottom>
                 Summary of Responses
@@ -829,13 +669,13 @@ export default function PublicEntityFlowChart() {
                 </Button>
               </Box>
             </>
-          ) : activeStep === steps.length - 1 ? (
+          ) : activeStep === steps.length - 1 ? ( // Show Contact Details on the final step
             <>
               <Typography variant="h6" gutterBottom>
-                {current.question}
+                {current.question || "Contact Details"}
               </Typography>
               <Typography variant="body2" color="text.secondary" gutterBottom>
-                {current.help}
+                {current.help || "Please provide your contact details."}
               </Typography>
               <Box
                 sx={{
@@ -845,36 +685,50 @@ export default function PublicEntityFlowChart() {
                   mb: 2,
                 }}
               >
-                {current.fields.map((field) => (
-                  <TextField
-                    key={field.name}
-                    name={field.name}
-                    label={field.label}
-                    value={answers[current.key]?.[field.name] || ""}
-                    onChange={handleInputChange(current.key)}
-                    required={field.required}
-                    error={
-                      formSubmitted && // Only show errors after form submission
-                      field.required &&
-                      !!answers[current.key] &&
-                      (!answers[current.key][field.name] ||
-                        answers[current.key][field.name].trim() === "")
-                    }
-                    helperText={
-                      formSubmitted && // Only show helper text after form submission
-                      field.required &&
-                      !!answers[current.key] &&
-                      (!answers[current.key][field.name] ||
-                        answers[current.key][field.name].trim() === "")
-                        ? "Required"
-                        : field.name === "entityABN" &&
-                            answers[current.key]?.[field.name]?.length > 0 &&
-                            answers[current.key]?.[field.name]?.length !== 11
-                          ? "ABN must be exactly 11 digits"
-                          : ""
-                    }
-                  />
-                ))}
+                {flowQuestions
+                  .find((q) => q.key === "contactDetails")
+                  ?.fields.map((field) => (
+                    <TextField
+                      key={field.name}
+                      name={field.name}
+                      label={field.label}
+                      value={answers.contactDetails?.[field.name] || ""}
+                      onChange={(e) =>
+                        setAnswers({
+                          ...answers,
+                          contactDetails: {
+                            ...answers.contactDetails,
+                            [field.name]: e.target.value,
+                          },
+                        })
+                      }
+                      required={field.required}
+                      error={
+                        formSubmitted &&
+                        field.required &&
+                        (!answers.contactDetails?.[field.name] ||
+                          answers.contactDetails[field.name].trim() === "" ||
+                          (field.name === "email" &&
+                            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+                              answers.contactDetails[field.name]
+                            )))
+                      }
+                      helperText={
+                        formSubmitted &&
+                        field.required &&
+                        (!answers.contactDetails?.[field.name] ||
+                          answers.contactDetails[field.name].trim() === "")
+                          ? "Required"
+                          : field.name === "email" &&
+                              answers.contactDetails?.[field.name] &&
+                              !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+                                answers.contactDetails[field.name]
+                              )
+                            ? "Invalid email address"
+                            : ""
+                      }
+                    />
+                  ))}
               </Box>
               <Box
                 sx={{ display: "flex", justifyContent: "space-between", mt: 3 }}
@@ -882,30 +736,32 @@ export default function PublicEntityFlowChart() {
                 <Button
                   variant="outlined"
                   onClick={handleBack}
-                  disabled={activeStep === 0}
+                  disabled={activeStep === 0 || loading} // Disable Back button while loading
                 >
                   Back
                 </Button>
                 <Button
                   variant="contained"
-                  onClick={
-                    activeStep === steps.length - 1
-                      ? confirmSubmission
-                      : handleNext
-                  }
+                  onClick={handleNext}
                   disabled={
-                    activeStep === steps.length - 1 &&
-                    (!answers.contactDetails ||
-                      !answers.contactDetails.name ||
-                      !answers.contactDetails.email ||
-                      !answers.contactDetails.companyName ||
-                      !answers.contactDetails.position ||
-                      Object.values(answers.contactDetails).some(
-                        (v) => !v || v.trim() === ""
-                      ))
+                    loading || // Disable Submit button while loading
+                    !answers.contactDetails ||
+                    flowQuestions
+                      .find((q) => q.key === "contactDetails")
+                      ?.fields.some((field) => {
+                        const value = answers.contactDetails?.[field.name];
+                        if (!value || value.trim() === "") return true; // Ensure all fields are filled
+                        if (
+                          field.name === "email" &&
+                          !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+                        )
+                          return true; // Validate email format
+                        return false;
+                      })
                   }
+                  startIcon={loading ? <CircularProgress size={20} /> : null} // Show spinner when loading
                 >
-                  {activeStep === steps.length - 1 ? "Submit" : "Next"}
+                  {loading ? "Submitting..." : "Submit"}
                 </Button>
               </Box>
             </>
@@ -1034,7 +890,7 @@ export default function PublicEntityFlowChart() {
                   variant="contained"
                   onClick={handleNext}
                   disabled={
-                    (activeStep === 0 && !isEntityABNValid()) ||
+                    (activeStep === 0 && !isEntityDetailsValid()) || // Ensure both Entity Name and ABN validation
                     (current.type === "checkbox"
                       ? !(answers[current.key]?.length > 0)
                       : !answers[current.key])
