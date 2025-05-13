@@ -96,7 +96,7 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
             >
               Contact
             </Button>
-            {/* <Button
+            <Button
               color="inherit"
               component={Link}
               to="/user/dashboard"
@@ -130,7 +130,7 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
               sx={{ color: theme.palette.text.primary }}
             >
               Logout
-            </Button> */}
+            </Button>
           </Box>
         ) : (
           <Box sx={{ display: { xs: "none", md: "flex" } }}>

@@ -30,7 +30,7 @@ export async function dashboardLoader() {
   }
 
   try {
-    const reports = await reportService.getAllByClientId({
+    const reports = await reportService.getAll({
       clientId: user.clientId,
     });
     return { reports };

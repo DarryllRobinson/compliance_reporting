@@ -5,7 +5,6 @@ const baseUrl = `${config.apiUrl}/reports`;
 
 export const reportService = {
   getAll,
-  getAllByClientId,
   getById,
   create,
   update,
@@ -14,11 +13,6 @@ export const reportService = {
 
 async function getAll() {
   return await fetchWrapper.get(baseUrl);
-}
-
-async function getAllByClientId(params) {
-  const { clientId } = params;
-  return await fetchWrapper.get(`${baseUrl}/${clientId}`);
 }
 
 async function getById(id) {

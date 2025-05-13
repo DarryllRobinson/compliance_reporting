@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Form, redirect } from "react-router";
 import {
   Box,
@@ -12,8 +12,10 @@ import {
   MenuItem,
   Paper,
   Grid,
+  FormControlLabel,
+  Checkbox,
 } from "@mui/material";
-import { clientService } from "../../services";
+import { clientService, userService } from "../../services";
 
 export async function clientRegisterAction({ request, context }) {
   const { alertContext } = context;
@@ -30,12 +32,28 @@ export async function clientRegisterAction({ request, context }) {
     alertContext.sendAlert("error", "ABN must be exactly 11 digits");
     return;
   }
-
-  clientDetails = { ...clientDetails, active: true };
+  clientDetails = {
+    ...clientDetails,
+    active: true,
+    createdBy: userService.userValue.id,
+  };
 
   try {
     await clientService.create(clientDetails);
-    // TODO: Open user creation form after client creation below
+
+    // Store relevant fields in localStorage
+    localStorage.setItem(
+      "clientDetails",
+      JSON.stringify({
+        businessName: clientDetails.businessName,
+        contactFirst: clientDetails.contactFirst,
+        contactLast: clientDetails.contactLast,
+        contactEmail: clientDetails.contactEmail,
+        contactPhone: clientDetails.contactPhone,
+        contactPosition: clientDetails.contactPosition,
+      })
+    );
+
     return redirect("/users/create");
   } catch (error) {
     alertContext.sendAlert("error", error || "Error creating client");
@@ -44,6 +62,62 @@ export async function clientRegisterAction({ request, context }) {
 
 export default function ClientRegister() {
   const theme = useTheme();
+  const [sameAsAddress, setSameAsAddress] = useState(false);
+  const [formValues, setFormValues] = useState({
+    businessName: "",
+    addressline1: "",
+    addressline2: "",
+    addressline3: "",
+    city: "",
+    state: "",
+    postcode: "",
+    country: "Australia",
+    postaladdressline1: "",
+    postaladdressline2: "",
+    postaladdressline3: "",
+    postalcity: "",
+    postalstate: "",
+    postalpostcode: "",
+    postalcountry: "Australia",
+    // ... add any others as needed
+  });
+
+  const handleCheckboxChange = (event) => {
+    const checked = event.target.checked;
+
+    if (!checked) {
+      const confirmClear = window.confirm(
+        "Are you sure you want to clear the postal address fields?"
+      );
+      if (!confirmClear) return;
+    }
+
+    setSameAsAddress(checked);
+
+    if (checked) {
+      setFormValues((prev) => ({
+        ...prev,
+        postaladdressline1: prev.addressline1,
+        postaladdressline2: prev.addressline2,
+        postaladdressline3: prev.addressline3,
+        postalcity: prev.city,
+        postalstate: prev.state,
+        postalpostcode: prev.postcode,
+        postalcountry: prev.country,
+      }));
+    } else {
+      setFormValues((prev) => ({
+        ...prev,
+        postaladdressline1: "",
+        postaladdressline2: "",
+        postaladdressline3: "",
+        postalcity: "",
+        postalstate: "",
+        postalpostcode: "",
+        postalcountry: "",
+      }));
+    }
+  };
 
   return (
     <Box
@@ -71,7 +145,6 @@ export default function ClientRegister() {
         <Form
           method="post"
           id="register-client-form"
-          // onSubmit={handleSubmit}
           style={{ display: "flex", flexDirection: "column", gap: 2 }}
         >
           <Grid container spacing={2}>
@@ -81,7 +154,14 @@ export default function ClientRegister() {
                 name="businessName"
                 type="string"
                 fullWidth
-                // required
+                required
+                value={formValues.businessName}
+                onChange={(e) =>
+                  setFormValues((prev) => ({
+                    ...prev,
+                    businessName: e.target.value,
+                  }))
+                }
               />
             </Grid>
             <Grid item xs={6}>
@@ -90,7 +170,7 @@ export default function ClientRegister() {
                 name="abn"
                 type="string"
                 fullWidth
-                // required
+                required
               />
             </Grid>
             <Grid item xs={6}>
@@ -99,7 +179,7 @@ export default function ClientRegister() {
                 name="acn"
                 type="string"
                 fullWidth
-                // required
+                required
               />
             </Grid>
             <Grid item xs={12}>
@@ -108,7 +188,7 @@ export default function ClientRegister() {
                 name="addressline1"
                 type="string"
                 fullWidth
-                // required
+                required
               />
             </Grid>
             <Grid item xs={6}>
@@ -117,6 +197,13 @@ export default function ClientRegister() {
                 name="addressline2"
                 type="string"
                 fullWidth
+                value={formValues.addressline2}
+                onChange={(e) =>
+                  setFormValues((prev) => ({
+                    ...prev,
+                    addressline2: e.target.value,
+                  }))
+                }
               />
             </Grid>
             <Grid item xs={6}>
@@ -125,6 +212,13 @@ export default function ClientRegister() {
                 name="addressline3"
                 type="string"
                 fullWidth
+                value={formValues.addressline3}
+                onChange={(e) =>
+                  setFormValues((prev) => ({
+                    ...prev,
+                    addressline3: e.target.value,
+                  }))
+                }
               />
             </Grid>
             <Grid item xs={6}>
@@ -133,17 +227,41 @@ export default function ClientRegister() {
                 name="city"
                 type="string"
                 fullWidth
-                // required
+                required
+                value={formValues.city}
+                onChange={(e) =>
+                  setFormValues((prev) => ({ ...prev, city: e.target.value }))
+                }
               />
             </Grid>
             <Grid item xs={3}>
-              <TextField
-                label="State"
-                name="state"
-                type="string"
-                fullWidth
-                // required
-              />
+              <FormControl fullWidth>
+                <InputLabel id="state-select-label">State</InputLabel>
+                <Select
+                  labelId="state-select-label"
+                  name="state"
+                  id="state-select"
+                  label="State"
+                  defaultValue=""
+                  required
+                  value={formValues.state}
+                  onChange={(e) =>
+                    setFormValues((prev) => ({
+                      ...prev,
+                      state: e.target.value,
+                    }))
+                  }
+                >
+                  <MenuItem value="ACT">ACT</MenuItem>
+                  <MenuItem value="NT">NT</MenuItem>
+                  <MenuItem value="NSW">NSW</MenuItem>
+                  <MenuItem value="QLD">QLD</MenuItem>
+                  <MenuItem value="SA">SA</MenuItem>
+                  <MenuItem value="TAS">TAS</MenuItem>
+                  <MenuItem value="VIC">VIC</MenuItem>
+                  <MenuItem value="WA">WA</MenuItem>
+                </Select>
+              </FormControl>
             </Grid>
             <Grid item xs={3}>
               <TextField
@@ -151,7 +269,14 @@ export default function ClientRegister() {
                 name="postcode"
                 type="string"
                 fullWidth
-                // required
+                required
+                value={formValues.postcode}
+                onChange={(e) =>
+                  setFormValues((prev) => ({
+                    ...prev,
+                    postcode: e.target.value,
+                  }))
+                }
               />
             </Grid>
             <Grid item xs={6}>
@@ -160,7 +285,26 @@ export default function ClientRegister() {
                 name="country"
                 type="string"
                 fullWidth
-                // required
+                required
+                value={formValues.country}
+                onChange={(e) =>
+                  setFormValues((prev) => ({
+                    ...prev,
+                    country: e.target.value,
+                  }))
+                }
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={sameAsAddress}
+                    onChange={handleCheckboxChange}
+                    name="sameAsAddress"
+                  />
+                }
+                label="Postal address is the same as the address above"
               />
             </Grid>
             <Grid item xs={12}>
@@ -169,7 +313,14 @@ export default function ClientRegister() {
                 name="postaladdressline1"
                 type="string"
                 fullWidth
-                // required
+                required
+                value={formValues.postaladdressline1}
+                onChange={(e) =>
+                  setFormValues((prev) => ({
+                    ...prev,
+                    postaladdressline1: e.target.value,
+                  }))
+                }
               />
             </Grid>
             <Grid item xs={6}>
@@ -178,6 +329,13 @@ export default function ClientRegister() {
                 name="postaladdressline2"
                 type="string"
                 fullWidth
+                value={formValues.postaladdressline2}
+                onChange={(e) =>
+                  setFormValues((prev) => ({
+                    ...prev,
+                    postaladdressline2: e.target.value,
+                  }))
+                }
               />
             </Grid>
             <Grid item xs={6}>
@@ -186,6 +344,13 @@ export default function ClientRegister() {
                 name="postaladdressline3"
                 type="string"
                 fullWidth
+                value={formValues.postaladdressline3}
+                onChange={(e) =>
+                  setFormValues((prev) => ({
+                    ...prev,
+                    postaladdressline3: e.target.value,
+                  }))
+                }
               />
             </Grid>
             <Grid item xs={6}>
@@ -194,17 +359,46 @@ export default function ClientRegister() {
                 name="postalcity"
                 type="string"
                 fullWidth
-                // required
+                required
+                value={formValues.postalcity}
+                onChange={(e) =>
+                  setFormValues((prev) => ({
+                    ...prev,
+                    postalcity: e.target.value,
+                  }))
+                }
               />
             </Grid>
             <Grid item xs={3}>
-              <TextField
-                label="Postal State"
-                name="postalstate"
-                type="string"
-                fullWidth
-                // required
-              />
+              <FormControl fullWidth>
+                <InputLabel id="postalstate-select-label">
+                  Postal State
+                </InputLabel>
+                <Select
+                  labelId="postalstate-select-label"
+                  name="postalstate"
+                  id="postalstate-select"
+                  label="Postal State"
+                  defaultValue=""
+                  required
+                  value={formValues.postalstate}
+                  onChange={(e) =>
+                    setFormValues((prev) => ({
+                      ...prev,
+                      postalstate: e.target.value,
+                    }))
+                  }
+                >
+                  <MenuItem value="ACT">ACT</MenuItem>
+                  <MenuItem value="NT">NT</MenuItem>
+                  <MenuItem value="NSW">NSW</MenuItem>
+                  <MenuItem value="QLD">QLD</MenuItem>
+                  <MenuItem value="SA">SA</MenuItem>
+                  <MenuItem value="TAS">TAS</MenuItem>
+                  <MenuItem value="VIC">VIC</MenuItem>
+                  <MenuItem value="WA">WA</MenuItem>
+                </Select>
+              </FormControl>
             </Grid>
             <Grid item xs={3}>
               <TextField
@@ -212,7 +406,14 @@ export default function ClientRegister() {
                 name="postalpostcode"
                 type="string"
                 fullWidth
-                // required
+                required
+                value={formValues.postalpostcode}
+                onChange={(e) =>
+                  setFormValues((prev) => ({
+                    ...prev,
+                    postalpostcode: e.target.value,
+                  }))
+                }
               />
             </Grid>
             <Grid item xs={6}>
@@ -221,27 +422,24 @@ export default function ClientRegister() {
                 name="postalcountry"
                 type="string"
                 fullWidth
-                // required
+                required
+                value={formValues.postalcountry}
+                onChange={(e) =>
+                  setFormValues((prev) => ({
+                    ...prev,
+                    postalcountry: e.target.value,
+                  }))
+                }
               />
             </Grid>
             <Grid item xs={6}>
-              <FormControl fullWidth>
-                <InputLabel id="industry-code-select-label">
-                  Industry Code
-                </InputLabel>
-                <Select
-                  labelId="industry-code-select-label"
-                  name="industryCode"
-                  id="industry-code-select"
-                  label="Industry Code"
-                  defaultValue=""
-                  // required
-                >
-                  <MenuItem value="111">111</MenuItem>
-                  <MenuItem value="222">222</MenuItem>
-                  <MenuItem value="333">333</MenuItem>
-                </Select>
-              </FormControl>
+              <TextField
+                label="Industry Code"
+                name="industryCode"
+                type="string"
+                fullWidth
+                required
+              />
             </Grid>
             <Grid item xs={6}>
               <TextField
@@ -249,7 +447,7 @@ export default function ClientRegister() {
                 name="contactFirst"
                 type="string"
                 fullWidth
-                // required
+                required
               />
             </Grid>
             <Grid item xs={6}>
@@ -258,7 +456,7 @@ export default function ClientRegister() {
                 name="contactLast"
                 type="string"
                 fullWidth
-                // required
+                required
               />
             </Grid>
             <Grid item xs={6}>
@@ -267,7 +465,7 @@ export default function ClientRegister() {
                 name="contactPosition"
                 type="string"
                 fullWidth
-                // required
+                required
               />
             </Grid>
             <Grid item xs={6}>
@@ -276,7 +474,7 @@ export default function ClientRegister() {
                 name="contactEmail"
                 type="email"
                 fullWidth
-                // required
+                required
               />
             </Grid>
             <Grid item xs={6}>
@@ -285,7 +483,7 @@ export default function ClientRegister() {
                 name="contactPhone"
                 type="string"
                 fullWidth
-                // required
+                required
               />
             </Grid>
             <Grid item xs={12}>

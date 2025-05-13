@@ -1,5 +1,5 @@
-import React from "react";
-import { Form, redirect, useLoaderData } from "react-router";
+import React, { useEffect, useState } from "react";
+import { Form, redirect, useLoaderData, useSearchParams } from "react-router";
 import {
   Box,
   Typography,
@@ -41,6 +41,27 @@ export async function createUserAction({ request, context }) {
 export default function UserCreate() {
   const theme = useTheme();
   const { clients } = useLoaderData();
+  const [storedClientDetails, setStoredClientDetails] = useState({});
+  const [selectedRole, setSelectedRole] = useState("Admin"); // Controlled state for role
+  const [selectedClient, setSelectedClient] = useState(""); // Controlled state for client
+
+  useEffect(() => {
+    // Retrieve client details from localStorage
+    const clientDetails =
+      JSON.parse(localStorage.getItem("clientDetails")) || {};
+    setStoredClientDetails(clientDetails);
+
+    // Set initial client selection if available
+    const initialClient = clients.find(
+      (client) => client.businessName === clientDetails.businessName
+    );
+    if (initialClient) {
+      setSelectedClient(initialClient.id);
+    }
+
+    // Clear localStorage after retrieving the details
+    localStorage.removeItem("clientDetails");
+  }, [clients]);
 
   return (
     <Box
@@ -82,7 +103,7 @@ export default function UserCreate() {
                 type="string"
                 fullWidth
                 required
-                defaultValue="Homer"
+                defaultValue={storedClientDetails.contactFirst || ""}
               />
             </Grid>
             <Grid item xs={6}>
@@ -92,7 +113,7 @@ export default function UserCreate() {
                 type="string"
                 fullWidth
                 required
-                defaultValue="Simpson"
+                defaultValue={storedClientDetails.contactLast || ""}
               />
             </Grid>
             <Grid item xs={12}>
@@ -102,7 +123,7 @@ export default function UserCreate() {
                 type="string"
                 fullWidth
                 required
-                defaultValue="darryllrobinson@icloud.com"
+                defaultValue={storedClientDetails.contactEmail || ""}
               />
             </Grid>
             <Grid item xs={6}>
@@ -112,7 +133,7 @@ export default function UserCreate() {
                 type="string"
                 fullWidth
                 required
-                defaultValue="0412345678"
+                defaultValue={storedClientDetails.contactPhone || ""}
               />
             </Grid>
             <Grid item xs={6}>
@@ -122,7 +143,7 @@ export default function UserCreate() {
                 type="string"
                 fullWidth
                 required
-                defaultValue="Manager"
+                defaultValue={storedClientDetails.contactPosition || ""}
               />
             </Grid>
             <Grid item xs={6}>
@@ -153,7 +174,8 @@ export default function UserCreate() {
                   name="role"
                   id="role"
                   label="List of Roles"
-                  defaultValue="Admin"
+                  value={selectedRole} // Controlled value
+                  onChange={(e) => setSelectedRole(e.target.value)} // Update state
                   required
                 >
                   <MenuItem value="Submitter">Submitter</MenuItem>
@@ -173,7 +195,8 @@ export default function UserCreate() {
                   name="clientId"
                   id="clientId"
                   label="List of Clients"
-                  defaultValue="3"
+                  value={selectedClient} // Controlled value
+                  onChange={(e) => setSelectedClient(e.target.value)} // Update state
                   required
                 >
                   {clients.map((client) => (
