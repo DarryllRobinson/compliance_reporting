@@ -54,6 +54,8 @@ export async function createReportAction({ request, context, params }) {
     clientId: userService.userValue.clientId,
   };
 
+  // console.log("createReport reportDetails:", reportDetails);
+
   // Save the report details to the database
   try {
     const report = await reportService.create(reportDetails);

@@ -51,7 +51,7 @@ export default function Login() {
             label="Email address"
             name="email"
             type="email"
-            defaultValue="darryll@stillproud.com"
+            defaultValue="darryllrobinson@icloud.com"
             fullWidth
             required
           />
@@ -59,7 +59,7 @@ export default function Login() {
             label="Password"
             name="password"
             type="password"
-            defaultValue="nnnhhh"
+            defaultValue="newpassss"
             fullWidth
             required
           />
