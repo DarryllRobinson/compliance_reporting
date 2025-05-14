@@ -15,6 +15,7 @@ export const tcpService = {
   delete: _delete,
   getIncompleteSmallBusinessFlags,
   submitFinalReport,
+  downloadSummaryReport,
 };
 
 async function getAll() {
@@ -59,4 +60,8 @@ async function getIncompleteSmallBusinessFlags() {
 
 async function submitFinalReport() {
   return await fetchWrapper.put(`${baseUrl}/submit-final`);
+}
+
+async function downloadSummaryReport() {
+  return await fetchWrapper.get(`${baseUrl}/download-summary`, null, "blob");
 }

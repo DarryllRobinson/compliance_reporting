@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import {
+  Alert,
   Box,
   Paper,
   Table,
@@ -59,7 +60,14 @@ const calculatePartialPaymentsForBatch = (records) => {
   });
 };
 
-export default function Step2({ savedRecords = [], onNext, onBack, reportId }) {
+export default function Step2({
+  savedRecords = [],
+  onNext,
+  onBack,
+  reportId,
+  reportStatus,
+}) {
+  const isLocked = reportStatus === "Submitted";
   const { sendAlert } = useAlert();
   const navigate = useNavigate();
   // console.log("Saved records:", savedRecords);
@@ -319,6 +327,11 @@ export default function Step2({ savedRecords = [], onNext, onBack, reportId }) {
 
   return (
     <Box sx={{ padding: 2 }}>
+      {isLocked && (
+        <Alert severity="info" sx={{ mb: 2 }}>
+          This report has already been submitted and cannot be edited.
+        </Alert>
+      )}
       <Typography variant="h5" sx={{ marginBottom: 2 }}>
         Step 2: Capture Additional Details
       </Typography>
@@ -327,6 +340,7 @@ export default function Step2({ savedRecords = [], onNext, onBack, reportId }) {
         color="primary"
         onClick={togglePartialPaymentsFilter}
         sx={{ marginBottom: 2 }}
+        disabled={isLocked}
       >
         {showPartialPaymentsOnly
           ? "Show All Payments"
@@ -339,6 +353,7 @@ export default function Step2({ savedRecords = [], onNext, onBack, reportId }) {
         value={searchTerm}
         onChange={handleSearch}
         sx={{ marginBottom: 2 }}
+        disabled={isLocked}
       />
       <TableContainer component={Paper} sx={{ maxHeight: 500 }}>
         <Table stickyHeader>
@@ -420,6 +435,7 @@ export default function Step2({ savedRecords = [], onNext, onBack, reportId }) {
                         e.target.checked
                       )
                     }
+                    disabled={isLocked}
                   />
                 </TableCell>
                 <TableCell>
@@ -428,12 +444,15 @@ export default function Step2({ savedRecords = [], onNext, onBack, reportId }) {
                     onChange={(e) =>
                       handleFieldChange(record.id, "rcti", e.target.checked)
                     }
+                    disabled={isLocked}
                   />
                 </TableCell>
                 <TableCell>
                   <Checkbox
                     checked={fields[record.id]?.creditCardPayment || false}
-                    disabled={!!fields[record.id]?.creditCardNumber.trim()} // Disable if creditCardNumber has a value
+                    disabled={
+                      isLocked || !!fields[record.id]?.creditCardNumber.trim()
+                    } // Disable if locked or creditCardNumber has a value
                     onChange={(e) =>
                       handleFieldChange(
                         record.id,
@@ -460,6 +479,7 @@ export default function Step2({ savedRecords = [], onNext, onBack, reportId }) {
                         e.target.value
                       )
                     }
+                    disabled={isLocked}
                   />
                 </TableCell>
                 <TableCell>
@@ -472,6 +492,7 @@ export default function Step2({ savedRecords = [], onNext, onBack, reportId }) {
                         e.target.checked
                       )
                     }
+                    disabled={isLocked}
                   />
                 </TableCell>
                 <TableCell>
@@ -490,6 +511,7 @@ export default function Step2({ savedRecords = [], onNext, onBack, reportId }) {
                         parseInt(e.target.value, 10) || 0
                       )
                     }
+                    disabled={isLocked}
                   />
                 </TableCell>
                 <TableCell>
@@ -502,6 +524,7 @@ export default function Step2({ savedRecords = [], onNext, onBack, reportId }) {
                         e.target.checked
                       )
                     }
+                    disabled={isLocked}
                   />
                 </TableCell>
                 <TableCell>
@@ -515,6 +538,7 @@ export default function Step2({ savedRecords = [], onNext, onBack, reportId }) {
                     onChange={(e) =>
                       handleFieldChange(record.id, "notes", e.target.value)
                     }
+                    disabled={isLocked}
                   />
                 </TableCell>
               </TableRow>
@@ -537,6 +561,7 @@ export default function Step2({ savedRecords = [], onNext, onBack, reportId }) {
           color="primary"
           onClick={saveChangedRows}
           sx={{ marginRight: 2 }}
+          disabled={isLocked}
         >
           Save All Changes
         </Button>
@@ -551,6 +576,7 @@ export default function Step2({ savedRecords = [], onNext, onBack, reportId }) {
               navigate(`/reports/ptrs/step3/${reportId}`);
             }
           }}
+          disabled={isLocked}
         >
           Next: Step 3
         </Button>

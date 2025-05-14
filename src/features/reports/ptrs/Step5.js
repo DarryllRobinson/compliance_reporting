@@ -10,14 +10,34 @@ import {
   TableRow,
   TextField,
   Typography,
+  Alert,
 } from "@mui/material";
 import { calculateFinalMetrics } from "../../../calculations/ptrs";
 import { tcpService } from "../../../services";
 import { CheckBox } from "@mui/icons-material";
 
-export default function Step5({ savedRecords = [], onNext, onBack, reportId }) {
+export default function Step5({
+  savedRecords = [],
+  onNext,
+  onBack,
+  reportId,
+  reportStatus,
+  setStepData,
+}) {
   // Compute metrics from savedRecords if present, otherwise use empty/default
   const metrics = calculateFinalMetrics(savedRecords ?? []);
+  const isLocked = reportStatus === "Submitted";
+
+  React.useEffect(() => {
+    if (setStepData && savedRecords.length > 0) {
+      const hasAllFlags = savedRecords.every(
+        (rec) => rec.isSb !== null && rec.isSb !== undefined
+      );
+      if (hasAllFlags) {
+        setStepData((prev) => ({ ...prev, step5: savedRecords }));
+      }
+    }
+  }, [setStepData, savedRecords]);
 
   const sections = [
     {
@@ -242,6 +262,11 @@ export default function Step5({ savedRecords = [], onNext, onBack, reportId }) {
       <Typography variant="h5" sx={{ marginBottom: 2 }}>
         Step 5: Final Report Summary
       </Typography>
+      {isLocked && (
+        <Alert severity="info" sx={{ mb: 2 }}>
+          This report has already been submitted and cannot be edited.
+        </Alert>
+      )}
       {sections.map((section, sectionIndex) => (
         <TableContainer
           component={Paper}

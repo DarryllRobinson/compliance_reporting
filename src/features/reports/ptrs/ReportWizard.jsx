@@ -59,6 +59,8 @@ export default function ReportWizard() {
   const [currentStep, setCurrentStep] = useState(0);
   const [stepData, setStepData] = useState({});
   const [reportStatus, setReportStatus] = useState("");
+  // Track validation errors for each step (array of step indices with errors)
+  const [stepErrors, setStepErrors] = useState([]);
 
   const { Component } = steps[currentStep];
 
@@ -79,7 +81,54 @@ export default function ReportWizard() {
   }, [reportId]);
 
   const goToNext = () => {
-    setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1));
+    const currentStepIndex = currentStep;
+
+    let hasErrors = false;
+
+    if (currentStepIndex === 0) {
+      const data = stepData["step1"];
+      hasErrors = !data || data.length === 0;
+    }
+
+    if (currentStepIndex === 1) {
+      const data = stepData["step2"];
+      hasErrors = !data || data.some((record) => record.payeeEntityAbn == null);
+    }
+
+    if (currentStepIndex === 2) {
+      const data = stepData["step3"];
+      hasErrors = !data || data.abnListExported !== true;
+    }
+
+    if (currentStepIndex === 3) {
+      const data = stepData["step4"];
+      hasErrors = !data || data.sbiUploaded !== true;
+    }
+
+    if (currentStepIndex === 4) {
+      const data = stepData["step5"];
+      hasErrors =
+        !data ||
+        data.length === 0 ||
+        data.some((rec) => rec.isSb === null || rec.isSb === undefined);
+    }
+
+    if (currentStepIndex === 5) {
+      const data = stepData["step6"];
+      hasErrors = !data || data.readyToSubmit !== true;
+    }
+
+    setStepErrors((prev) => {
+      const withoutCurrent = prev.filter((idx) => idx !== currentStepIndex);
+      return hasErrors ? [...withoutCurrent, currentStepIndex] : withoutCurrent;
+    });
+
+    if (hasErrors) return;
+
+    setCurrentStep((prev) => {
+      if (prev < steps.length - 1) return prev + 1;
+      return prev;
+    });
   };
 
   const goToBack = () => {
@@ -114,76 +163,75 @@ export default function ReportWizard() {
   }
 
   return (
-    <Box sx={{ display: "flex", height: "100%" }}>
-      {/* Sidebar */}
-      <Box
-        sx={{
-          width: "250px",
-          borderRight: "1px solid #ddd",
-          padding: 2,
-          backgroundColor: "background.paper",
-        }}
-      >
-        <Typography variant="h6" gutterBottom>
-          PTRS Steps
-        </Typography>
-        <Stepper activeStep={currentStep} orientation="vertical">
-          {steps.map((step, index) => (
-            <Step key={index}>
-              <StepLabel
-                onClick={() => {
-                  if (index <= currentStep) setCurrentStep(index);
-                }}
-                sx={{ cursor: index <= currentStep ? "pointer" : "default" }}
-              >
-                {step.label}
-              </StepLabel>
-            </Step>
-          ))}
-        </Stepper>
-      </Box>
-
+    <Box sx={{ padding: 4 }}>
       {/* Main content */}
-      <Box sx={{ flexGrow: 1, padding: 4 }}>
-        {reportStatus && (
-          <Box sx={{ mb: 2 }}>
-            <Typography variant="subtitle2" color="textSecondary">
-              Report Status:{" "}
-              <strong style={{ textTransform: "uppercase" }}>
-                {reportStatus}
-              </strong>
-            </Typography>
-          </Box>
-        )}
-        <Typography variant="h4" gutterBottom>
-          PTRS Report Wizard
-        </Typography>
-
-        {renderGuidance()}
-        <Component
-          data={stepData[`step${currentStep + 1}`]}
-          onNext={goToNext}
-          onBack={goToBack}
-          reportStatus={reportStatus}
-        />
-
-        <Box sx={{ display: "flex", justifyContent: "space-between", mt: 4 }}>
-          <Button
-            disabled={currentStep === 0}
-            onClick={goToBack}
-            variant="outlined"
-          >
-            Back
-          </Button>
-          <Button
-            onClick={goToNext}
-            variant="contained"
-            color="primary"
-            disabled={currentStep === steps.length - 1}
-          >
-            {currentStep === steps.length - 2 ? "Finish" : "Next"}
-          </Button>
+      <Typography variant="subtitle1" sx={{ mb: 1, color: "text.secondary" }}>
+        Step {currentStep + 1} of {steps.length}
+      </Typography>
+      <Stepper activeStep={currentStep} alternativeLabel sx={{ mb: 4 }}>
+        {steps.map((step, index) => (
+          <Step key={step.label} completed={index < currentStep}>
+            <Tooltip title={step.label} arrow>
+              <StepLabel
+                icon={
+                  index < currentStep
+                    ? stepErrors.includes(index)
+                      ? "⚠️"
+                      : "✓"
+                    : undefined
+                }
+                onClick={() => {
+                  if (index < currentStep) setCurrentStep(index);
+                }}
+                sx={{
+                  cursor: index < currentStep ? "pointer" : "default",
+                  px: 1,
+                }}
+              >
+                {step.label.replace(/^Step \d+: /, "")}
+              </StepLabel>
+            </Tooltip>
+          </Step>
+        ))}
+      </Stepper>
+      {reportStatus && (
+        <Box sx={{ mb: 2 }}>
+          <Typography variant="subtitle2" color="textSecondary">
+            Report Status:{" "}
+            <strong style={{ textTransform: "uppercase" }}>
+              {reportStatus}
+            </strong>
+          </Typography>
         </Box>
+      )}
+      <Typography variant="h4" gutterBottom>
+        PTRS Report Wizard
+      </Typography>
+
+      {renderGuidance()}
+      <Component
+        data={stepData[`step${currentStep + 1}`]}
+        onNext={goToNext}
+        onBack={goToBack}
+        reportStatus={reportStatus}
+      />
+
+      <Box sx={{ display: "flex", justifyContent: "space-between", mt: 4 }}>
+        <Button
+          disabled={currentStep === 0}
+          onClick={goToBack}
+          variant="outlined"
+        >
+          Back
+        </Button>
+        <Button
+          onClick={goToNext}
+          variant="contained"
+          color="primary"
+          disabled={currentStep === steps.length - 1}
+        >
+          {currentStep === steps.length - 2 ? "Finish" : "Next"}
+        </Button>
       </Box>
     </Box>
   );

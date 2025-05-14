@@ -14,6 +14,7 @@ import {
   TextField,
   TablePagination,
   useTheme,
+  Alert,
 } from "@mui/material";
 import { useAlert } from "../../../context";
 import { fieldMapping } from "./fieldMapping"; // Import fieldMapping
@@ -21,10 +22,16 @@ import { useNavigate } from "react-router"; // Import useNavigate
 import { tcpService, userService } from "../../../services";
 import { getRowHighlightColor } from "../../../utils/highlightRow";
 
-export default function Step1({ savedRecords = [], onNext, reportId }) {
+export default function Step1({
+  savedRecords = [],
+  onNext,
+  reportId,
+  reportStatus,
+}) {
   const theme = useTheme();
   const { sendAlert } = useAlert();
   const navigate = useNavigate();
+  const isLocked = reportStatus === "Submitted";
   const [records, setRecords] = useState(savedRecords);
   const [filteredRecords, setFilteredRecords] = useState(savedRecords);
   const [searchTerm, setSearchTerm] = useState("");
@@ -215,6 +222,7 @@ export default function Step1({ savedRecords = [], onNext, reportId }) {
         <Checkbox
           checked={!!tcpStatus[record.id]}
           onChange={() => handleTcpToggle(record.id)}
+          disabled={isLocked}
         />
       </TableCell>
       <TableCell sx={{ width: "300px" }}>
@@ -225,6 +233,7 @@ export default function Step1({ savedRecords = [], onNext, reportId }) {
           multiline
           value={tcpExclusions[record.id] || ""}
           onChange={(e) => handleTcpExclusionChange(record.id, e.target.value)}
+          disabled={isLocked}
         />
       </TableCell>
     </TableRow>
@@ -238,6 +247,11 @@ export default function Step1({ savedRecords = [], onNext, reportId }) {
 
   return (
     <Box sx={{ padding: 2 }}>
+      {isLocked && (
+        <Alert severity="info" sx={{ mb: 2 }}>
+          This report has already been submitted and cannot be edited.
+        </Alert>
+      )}
       <Typography variant="h5" sx={{ marginBottom: 2 }}>
         Review Records
       </Typography>
@@ -248,6 +262,7 @@ export default function Step1({ savedRecords = [], onNext, reportId }) {
         value={searchTerm}
         onChange={handleSearch} // Use the updated search handler
         sx={{ marginBottom: 2 }}
+        disabled={isLocked}
       />
       <TableContainer component={Paper} sx={{ maxHeight: 500 }}>
         <Table stickyHeader>
@@ -284,6 +299,7 @@ export default function Step1({ savedRecords = [], onNext, reportId }) {
           color="primary"
           onClick={handleSaveAll}
           sx={{ marginRight: 2 }}
+          disabled={isLocked}
         >
           Save All Changes
         </Button>
@@ -298,6 +314,7 @@ export default function Step1({ savedRecords = [], onNext, reportId }) {
               navigate(`/reports/ptrs/step2/${reportId}`);
             }
           }}
+          disabled={isLocked}
         >
           Next: Add Additional Details
         </Button>

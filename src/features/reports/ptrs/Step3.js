@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Box, Typography, Button, Paper } from "@mui/material";
+import { Box, Typography, Button, Paper, Alert } from "@mui/material";
 import { useNavigate } from "react-router";
 import { tcpService } from "../../../services";
 import { useAlert } from "../../../context";
@@ -11,6 +11,7 @@ export default function Step3({
   onNext,
   onBack,
   reportId,
+  reportStatus,
 }) {
   const navigate = useNavigate();
   const { sendAlert } = useAlert();
@@ -20,6 +21,8 @@ export default function Step3({
   const [uploadedFile, setUploadedFile] = useState(null);
   const [downloadedFile, setDownloadedFile] = useState(false);
   const [isFileUploaded, setIsFileUploaded] = useState(false); // Track successful upload
+
+  const isLocked = reportStatus === "Submitted";
 
   const handleDownload = async () => {
     // Extract only the payerEntityAbn field
@@ -141,6 +144,11 @@ export default function Step3({
 
   return (
     <Box sx={{ padding: 3 }}>
+      {isLocked && (
+        <Alert severity="info" sx={{ mb: 2 }}>
+          This report has already been submitted and cannot be edited.
+        </Alert>
+      )}
       <Typography variant="h5" sx={{ marginBottom: 2 }}>
         Step 3: Upload Comparison File
       </Typography>
@@ -161,6 +169,7 @@ export default function Step3({
           color="primary"
           onClick={handleDownload}
           startIcon={<Download />}
+          disabled={isLocked}
         >
           Download TCP Dataset
         </Button>
@@ -171,7 +180,7 @@ export default function Step3({
             window.open("https://portal.paymenttimes.gov.au/", "_blank")
           }
           sx={{ marginLeft: 2 }}
-          disabled={!downloadedFile}
+          disabled={!downloadedFile || isLocked}
           endIcon={<OpenInNew />}
         >
           PTRS Portal
@@ -186,9 +195,16 @@ export default function Step3({
           component="label"
           sx={{ marginBottom: 2 }}
           startIcon={<Upload />}
+          disabled={isLocked}
         >
           Upload SBI File
-          <input type="file" hidden accept=".csv" onChange={handleFileUpload} />
+          <input
+            type="file"
+            hidden
+            accept=".csv"
+            onChange={handleFileUpload}
+            disabled={isLocked}
+          />
         </Button>
         {uploadedFile && (
           <Typography variant="body2" sx={{ marginBottom: 2 }}>
@@ -199,7 +215,7 @@ export default function Step3({
           variant="contained"
           color="secondary"
           onClick={handleSubmit}
-          disabled={!uploadedFile}
+          disabled={!uploadedFile || isLocked}
         >
           Submit
         </Button>
@@ -213,7 +229,7 @@ export default function Step3({
               navigate(`/reports/ptrs/step4/${reportId}`);
             }
           }}
-          disabled={!isFileUploaded} // Disable until file is successfully uploaded
+          disabled={!isFileUploaded || isLocked} // Disable until file is successfully uploaded or locked
         >
           Next: Step 4
         </Button>

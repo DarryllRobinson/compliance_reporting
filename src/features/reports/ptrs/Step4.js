@@ -12,6 +12,7 @@ import {
   Button,
   TextField,
   TablePagination,
+  Alert,
 } from "@mui/material";
 import { useAlert } from "../../../context";
 import { useNavigate } from "react-router";
@@ -25,7 +26,14 @@ export default function Step4({
   onNext,
   onBack,
   reportId,
+  reportStatus,
+  setStepData,
 }) {
+  React.useEffect(() => {
+    if (reportStatus !== "Submitted" && setStepData) {
+      setStepData((prev) => ({ ...prev, step4: { sbiUploaded: true } }));
+    }
+  }, [reportStatus, setStepData]);
   const { sendAlert } = useAlert();
   const navigate = useNavigate();
   // Use savedRecords or tcpDataset as appropriate for the dataset
@@ -40,6 +48,8 @@ export default function Step4({
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  const isLocked = reportStatus === "Submitted";
 
   const handleSearch = (event) => {
     const lowerCaseSearchTerm = event.target.value.toLowerCase();
@@ -119,6 +129,11 @@ export default function Step4({
       <Typography variant="h5" sx={{ marginBottom: 2 }}>
         Step 4: Review and Update TCP Records
       </Typography>
+      {isLocked && (
+        <Alert severity="info" sx={{ mb: 2 }}>
+          This report has already been submitted and cannot be edited.
+        </Alert>
+      )}
       <TextField
         label="Search"
         variant="outlined"
@@ -126,6 +141,7 @@ export default function Step4({
         value={searchTerm}
         onChange={handleSearch}
         sx={{ marginBottom: 2 }}
+        disabled={isLocked}
       />
       <TableContainer component={Paper} sx={{ maxHeight: 500 }}>
         <Table stickyHeader>
@@ -194,6 +210,7 @@ export default function Step4({
               navigate(`/reports/ptrs/step5/${reportId}`);
             }
           }}
+          disabled={isLocked}
         >
           Next: Step 5
         </Button>
