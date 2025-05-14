@@ -11,32 +11,13 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { useLoaderData } from "react-router";
 import { calculateFinalMetrics } from "../../../calculations/ptrs";
 import { tcpService } from "../../../services";
 import { CheckBox } from "@mui/icons-material";
 
-export async function step5Loader({ params }) {
-  const { reportId } = params;
-
-  try {
-    // Fetch the dataset for Step5
-    const dataset = await tcpService.getTcpByReportId(reportId);
-    // console.log("Step5 dataset:", dataset); // Debug log to check the structure of the dataset
-
-    // Calculate metrics
-    const metrics = calculateFinalMetrics(dataset);
-    console.log("Step5 metrics:", metrics); // Debug log to check the calculated metrics
-
-    return { dataset, metrics };
-  } catch (error) {
-    console.error("Error fetching dataset for Step5:", error);
-    throw new Response("Failed to fetch dataset for Step5", { status: 500 });
-  }
-}
-
-export default function Step5() {
-  const { metrics } = useLoaderData();
+export default function Step5({ savedRecords = [], onNext, onBack, reportId }) {
+  // Compute metrics from savedRecords if present, otherwise use empty/default
+  const metrics = calculateFinalMetrics(savedRecords ?? []);
 
   const sections = [
     {

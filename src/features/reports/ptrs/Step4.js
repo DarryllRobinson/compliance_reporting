@@ -14,42 +14,25 @@ import {
   TablePagination,
 } from "@mui/material";
 import { useAlert } from "../../../context";
-import { useLoaderData, useNavigate, useParams } from "react-router";
+import { useNavigate } from "react-router";
 import { tcpService } from "../../../services";
 import { getRowHighlightColor } from "../../../utils/highlightRow";
 import { calculatePaymentTime } from "../../../calculations/ptrs";
 
-export async function step4Loader({ params }) {
-  const { reportId } = params;
-
-  try {
-    // Fetch TCP dataset for Step4
-    const tcpDataset = await tcpService.getTcpByReportId(reportId);
-
-    // Calculate paymentTime for each record
-    const updatedDataset = tcpDataset.map((record) => ({
-      ...record,
-      paymentTime: calculatePaymentTime(record),
-    }));
-
-    // Save updated records with paymentTime to the backend
-    await tcpService.bulkUpdate(updatedDataset);
-
-    return { tcpDataset: updatedDataset };
-  } catch (error) {
-    console.error("Error fetching or saving TCP dataset:", error);
-    throw new Response("Failed to fetch or save TCP dataset", { status: 500 });
-  }
-}
-
-export default function Step4() {
-  const params = useParams();
-  const { reportId } = params; // Extract reportId from route params
+export default function Step4({
+  savedRecords = [],
+  tcpDataset = [],
+  onNext,
+  onBack,
+  reportId,
+}) {
   const { sendAlert } = useAlert();
   const navigate = useNavigate();
-  const { tcpDataset } = useLoaderData();
+  // Use savedRecords or tcpDataset as appropriate for the dataset
+  const dataset =
+    tcpDataset && tcpDataset.length > 0 ? tcpDataset : savedRecords;
   const [records, setRecords] = useState(
-    tcpDataset.map((record) => ({
+    dataset.map((record) => ({
       ...record,
       paymentTime: calculatePaymentTime(record), // Add calculated paymentTime field
     }))
@@ -204,7 +187,13 @@ export default function Step4() {
         <Button
           variant="contained"
           color="secondary"
-          onClick={() => navigate(`/reports/ptrs/step5/${reportId}`)}
+          onClick={() => {
+            if (onNext) {
+              onNext();
+            } else {
+              navigate(`/reports/ptrs/step5/${reportId}`);
+            }
+          }}
         >
           Next: Step 5
         </Button>

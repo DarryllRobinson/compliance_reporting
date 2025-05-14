@@ -15,7 +15,7 @@ import {
   TablePagination,
 } from "@mui/material";
 import { useAlert } from "../../../context";
-import { useLoaderData, useNavigate, useParams } from "react-router";
+import { useNavigate } from "react-router";
 import { tcpService, userService } from "../../../services";
 import {
   calculatePartialPayment,
@@ -59,83 +59,9 @@ const calculatePartialPaymentsForBatch = (records) => {
   });
 };
 
-export async function step2Loader({ params, location }) {
-  const { reportId } = params;
-  const passedRecords = location?.state?.records;
-
-  const savePartialPaymentRecords = async (records) => {
-    // Changing to be able to save all records
-    // const partialPaymentRecords = records.filter(
-    //   (record) => record.partialPayment
-    // );
-
-    if (records.length > 0) {
-      try {
-        // console.log("Saving partial payment records:", records);
-        records.map((record) => ({
-          ...records,
-          id: record.id,
-          partialPayment: record.partialPayment,
-          updatedBy: userService.userValue.id,
-        }));
-        await tcpService.bulkUpdate(records);
-      } catch (error) {
-        console.error("Error saving partial payment records:", error);
-        throw new Response("Failed to save partial payment records", {
-          status: 500,
-        });
-      }
-    }
-  };
-
-  if (passedRecords) {
-    // Update paymentTerm and partialPayment for the batch of records
-    const updatedRecords = calculatePartialPaymentsForBatch(
-      passedRecords.map((record) => ({
-        ...record,
-        paymentTerm: calculatePaymentTerm({
-          contractPoPaymentTerms: record.contractPoPaymentTerms,
-          invoicePaymentTerms: record.invoicePaymentTerms,
-          invoiceIssueDate: record.invoiceIssueDate,
-          invoiceDueDate: record.invoiceDueDate,
-        }),
-      }))
-    );
-
-    await savePartialPaymentRecords(updatedRecords);
-    return { records: updatedRecords };
-  }
-
-  try {
-    const fetchedRecords = await tcpService.getAllByReportId(reportId);
-
-    // Update paymentTerm and partialPayment for the batch of records
-    const updatedRecords = calculatePartialPaymentsForBatch(
-      fetchedRecords.map((record) => ({
-        ...record,
-        paymentTerm: calculatePaymentTerm({
-          contractPoPaymentTerms: record.contractPoPaymentTerms,
-          invoicePaymentTerms: record.invoicePaymentTerms,
-          invoiceIssueDate: record.invoiceIssueDate,
-          invoiceDueDate: record.invoiceDueDate,
-        }),
-      }))
-    );
-
-    await savePartialPaymentRecords(updatedRecords);
-    return { records: updatedRecords || [] };
-  } catch (error) {
-    console.error("Error fetching records:", error);
-    throw new Response("Failed to fetch records", { status: 500 });
-  }
-}
-
-export default function Step2() {
-  const params = useParams();
-  const { reportId } = params; // Extract reportId from route params
+export default function Step2({ savedRecords = [], onNext, onBack, reportId }) {
   const { sendAlert } = useAlert();
   const navigate = useNavigate();
-  const { records: savedRecords } = useLoaderData();
   // console.log("Saved records:", savedRecords);
   const [filteredRecords, setFilteredRecords] = useState(
     savedRecords.filter((record) => record.isTcp) // Filter records with isTcp = true
@@ -619,7 +545,11 @@ export default function Step2() {
           color="secondary"
           onClick={async () => {
             await saveChangedRows();
-            navigate(`/reports/ptrs/step3/${reportId}`);
+            if (onNext) {
+              onNext();
+            } else {
+              navigate(`/reports/ptrs/step3/${reportId}`);
+            }
           }}
         >
           Next: Step 3

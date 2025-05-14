@@ -1,34 +1,22 @@
 import React, { useState } from "react";
 import { Box, Typography, Button, Paper } from "@mui/material";
-import { useLoaderData, useNavigate, useParams } from "react-router";
+import { useNavigate } from "react-router";
 import { tcpService } from "../../../services";
 import { useAlert } from "../../../context";
 import { Download, Upload, OpenInNew } from "@mui/icons-material";
 
-export async function step3Loader({ params }) {
-  const { reportId } = params;
-
-  try {
-    // Fetch TCP dataset where excludedTcp = false and isTcp = true
-    // Filtered at the backend too just to make sure
-    const tcpDataset = await tcpService.getTcpByReportId(reportId);
-    const filteredDataset = tcpDataset.filter(
-      (record) => record.isTcp && !record.excludedTcp
-    );
-
-    return { tcpDataset: filteredDataset };
-  } catch (error) {
-    console.error("Error fetching TCP dataset:", error);
-    throw new Response("Failed to fetch TCP dataset", { status: 500 });
-  }
-}
-
-export default function Step3() {
+export default function Step3({
+  savedRecords = [],
+  tcpDataset = [],
+  onNext,
+  onBack,
+  reportId,
+}) {
   const navigate = useNavigate();
-  const params = useParams();
   const { sendAlert } = useAlert();
-  const { reportId } = params; // Extract reportId from route params
-  const { tcpDataset } = useLoaderData();
+  // Use savedRecords or tcpDataset as appropriate for the dataset
+  const dataset =
+    tcpDataset && tcpDataset.length > 0 ? tcpDataset : savedRecords;
   const [uploadedFile, setUploadedFile] = useState(null);
   const [downloadedFile, setDownloadedFile] = useState(false);
   const [isFileUploaded, setIsFileUploaded] = useState(false); // Track successful upload
@@ -36,7 +24,7 @@ export default function Step3() {
   const handleDownload = async () => {
     // Extract only the payerEntityAbn field
     const csvHeaders = "Payee Entity ABN";
-    const csvRows = tcpDataset.map((record) => `"${record.payeeEntityAbn}"`);
+    const csvRows = dataset.map((record) => `"${record.payeeEntityAbn}"`);
     const csvContent = [csvHeaders, ...csvRows].join("\n");
 
     // Create and download the CSV file
@@ -219,7 +207,11 @@ export default function Step3() {
           variant="contained"
           color="secondary"
           onClick={async () => {
-            navigate(`/reports/ptrs/step4/${reportId}`);
+            if (onNext) {
+              onNext();
+            } else {
+              navigate(`/reports/ptrs/step4/${reportId}`);
+            }
           }}
           disabled={!isFileUploaded} // Disable until file is successfully uploaded
         >

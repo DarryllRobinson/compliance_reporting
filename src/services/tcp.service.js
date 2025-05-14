@@ -13,6 +13,8 @@ export const tcpService = {
   bulkCreate,
   bulkUpdate,
   delete: _delete,
+  getIncompleteSmallBusinessFlags,
+  submitFinalReport,
 };
 
 async function getAll() {
@@ -49,4 +51,12 @@ async function bulkUpdate(params) {
 
 async function _delete(id) {
   return await fetchWrapper.delete(`${baseUrl}/${id}`);
+}
+
+async function getIncompleteSmallBusinessFlags() {
+  return await fetchWrapper.get(`${baseUrl}/missing-isSb`);
+}
+
+async function submitFinalReport() {
+  return await fetchWrapper.put(`${baseUrl}/submit-final`);
 }

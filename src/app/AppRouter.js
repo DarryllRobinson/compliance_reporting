@@ -45,17 +45,18 @@ import ReportsLayout, {
 } from "../features/reports/ReportsLayout";
 
 // PTRS
+import ReportWizard from "../features/reports/ptrs/ReportWizard";
 // import EntityFlowChart from "../features/reports/ptrs/EntityFlowChart";
 import CreateReport, {
   createReportAction,
 } from "../features/reports/ptrs/CreateReport";
 import ConnectExternalSystems from "../features/reports/ptrs/ConnectExternalSystems";
 import StepsOverview from "../features/reports/ptrs/StepsOverview";
-import Step1, { step1Loader } from "../features/reports/ptrs/Step1";
-import Step2, { step2Loader } from "../features/reports/ptrs/Step2";
-import Step3, { step3Loader } from "../features/reports/ptrs/Step3";
-import Step4, { step4Loader } from "../features/reports/ptrs/Step4";
-import Step5, { step5Loader } from "../features/reports/ptrs/Step5";
+// import Step1, { step1Loader } from "../features/reports/ptrs/Step1";
+// import Step2, { step2Loader } from "../features/reports/ptrs/Step2";
+// import Step3, { step3Loader } from "../features/reports/ptrs/Step3";
+// import Step4, { step4Loader } from "../features/reports/ptrs/Step4";
+// import Step5, { step5Loader } from "../features/reports/ptrs/Step5";
 
 // TODO: Optimise the whole thing: https://reactrouter.com/tutorials/address-book
 
@@ -209,59 +210,13 @@ export default function AppRouter() {
                     }),
                 },
                 {
+                  path: ":code/report/:reportId",
+                  Component: ReportWizard,
+                },
+                {
                   // Connect to external data source
                   path: ":code/:reportId/connect",
                   Component: ConnectExternalSystems,
-                },
-                {
-                  // Step 1: TCP Dataset
-                  path: ":code/step1/:reportId",
-                  Component: Step1,
-                  loader: (args) =>
-                    step1Loader({
-                      ...args,
-                      context: { alertContext, reportContext },
-                    }),
-                },
-                {
-                  // Step 2: Capture additional required details for each TCP (Peppol enabled eInvoice, RCTI, Credit Card Payment, Credit Card Number, Partial Payment, Payment Term, Excluded TCPs
-                  path: ":code/step2/:reportId",
-                  Component: Step2,
-                  loader: (args) =>
-                    step2Loader({
-                      ...args,
-                      context: { alertContext, reportContext },
-                    }),
-                },
-                {
-                  // Step 3: Run TCP extract against SBI tool and upload SBI results to highlight Small Business TCPs
-                  path: ":code/step3/:reportId",
-                  Component: Step3,
-                  loader: (args) =>
-                    step3Loader({
-                      ...args,
-                      context: { alertContext, reportContext },
-                    }),
-                },
-                {
-                  // Step 4:
-                  path: ":code/step4/:reportId",
-                  Component: Step4,
-                  loader: (args) =>
-                    step4Loader({
-                      ...args,
-                      context: { alertContext, reportContext },
-                    }),
-                },
-                {
-                  // Step 5:
-                  path: ":code/step5/:reportId",
-                  Component: Step5,
-                  loader: (args) =>
-                    step5Loader({
-                      ...args,
-                      context: { alertContext, reportContext },
-                    }),
                 },
                 { path: "steps", Component: StepsOverview },
               ],

@@ -19,7 +19,7 @@ export const ptrsGuidance = [
     name: "Credit Card Payment",
     description:
       "A credit card payment is a transaction made using a credit card to settle an invoice.",
-    guidanceMaterial: "P",
+    guidanceMaterial: "Paragraphs 151-153, 168-169",
     requirement:
       "The reporting entity needs to record whether the payment was made using a credit card, and if so, record the details of said card. (This is to clearly identify thoe cards that are subject to a relevant internal policy - which may allow for the payment to be excluded from the dataset).",
   },
@@ -30,6 +30,14 @@ export const ptrsGuidance = [
     guidanceMaterial: "Paragraphs 135-137, 164-165, Example 37",
     requirement:
       "The reporting entity needs to record whether the TCP was a partial payment.",
+  },
+  {
+    name: "Small Business Identification (SBI)",
+    description:
+      "To determine whether a payment was made to a small business, the reporting entity must submit the relevant ABNs to the Payment Times Small Business Identification Tool.",
+    guidanceMaterial: "Section 13(5)",
+    requirement:
+      "The reporting entity must extract the ABNs from the TCP dataset, upload them to the SBI Tool (external), and upload the resulting list of ABNs that are NOT small businesses. The platform will then flag all other ABNs as small business payments.",
   },
   {
     name: "Payment Term",

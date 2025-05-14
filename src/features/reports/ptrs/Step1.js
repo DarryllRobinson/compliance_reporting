@@ -17,29 +17,14 @@ import {
 } from "@mui/material";
 import { useAlert } from "../../../context";
 import { fieldMapping } from "./fieldMapping"; // Import fieldMapping
-import { useLoaderData, useNavigate, useParams } from "react-router"; // Import useNavigate
+import { useNavigate } from "react-router"; // Import useNavigate
 import { tcpService, userService } from "../../../services";
 import { getRowHighlightColor } from "../../../utils/highlightRow";
 
-export async function step1Loader({ params }) {
-  const { reportId } = params; // Extract reportId from route params
-  try {
-    const savedRecords = await tcpService.getAllByReportId(reportId); // Fetch records by reportId
-    // console.log("Fetched records:", savedRecords); // Debug log to check the structure of savedRecords
-    return { savedRecords: savedRecords || [] }; // Return saved records or an empty array
-  } catch (error) {
-    console.error("Error fetching records:", error);
-    throw new Response("Failed to fetch records", { status: 500 });
-  }
-}
-
-export default function Step1() {
-  const params = useParams();
-  const { reportId } = params; // Extract reportId from route params
+export default function Step1({ savedRecords = [], onNext, reportId }) {
   const theme = useTheme();
   const { sendAlert } = useAlert();
   const navigate = useNavigate();
-  const { savedRecords } = useLoaderData();
   const [records, setRecords] = useState(savedRecords);
   const [filteredRecords, setFilteredRecords] = useState(savedRecords);
   const [searchTerm, setSearchTerm] = useState("");
@@ -307,7 +292,11 @@ export default function Step1() {
           color="secondary"
           onClick={async () => {
             await saveChangedRows();
-            navigate(`/reports/ptrs/step2/${reportId}`);
+            if (onNext) {
+              onNext();
+            } else {
+              navigate(`/reports/ptrs/step2/${reportId}`);
+            }
           }}
         >
           Next: Add Additional Details
