@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { tcpService, userService, xeroService } from "../../../services";
 import { Box, TextField, Button, Typography } from "@mui/material";
 import {} from "../../../services/user.service";
@@ -30,9 +30,7 @@ export default function ConnectExternalSystems() {
         const mappedRecords = mapRecordKeys(fetchedData); // Map the record keys
 
         // Save the mapped records to the backend
-        const saveResponse = await tcpService.bulkCreate({
-          records: mappedRecords,
-        });
+        const saveResponse = await tcpService.bulkCreate(mappedRecords);
         if (saveResponse.success) {
           sendAlert("success", "Records saved successfully.");
         } else {

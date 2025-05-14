@@ -209,8 +209,9 @@ export default function AppRouter() {
                       context: { alertContext, reportContext },
                     }),
                 },
+                // PTRS Wizard uses step-based route pattern: /reports/ptrs/stepX/:reportId
                 {
-                  path: ":code/report/:reportId",
+                  path: ":code/step1/:reportId",
                   Component: ReportWizard,
                 },
                 {

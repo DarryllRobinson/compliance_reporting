@@ -17,8 +17,6 @@ import {
 import { useTheme } from "@mui/material/styles";
 import { redirect, useLoaderData, useNavigate } from "react-router";
 import { reportService, userService } from "../../services";
-import { useReportContext } from "../../context/ReportContext";
-import { tcpService } from "../../services";
 import ProtectedRoutes from "../../utils/ProtectedRoutes";
 
 export async function dashboardLoader() {
@@ -42,7 +40,6 @@ export async function dashboardLoader() {
 
 export default function Dashboard() {
   const { reports } = useLoaderData();
-  const reportContext = useReportContext();
   const user = userService.userValue; // Get the current user
   const navigate = useNavigate();
   const theme = useTheme(); // Access the theme
@@ -61,16 +58,10 @@ export default function Dashboard() {
 
   async function continueReport(report) {
     try {
-      const savedRecords = await tcpService.getAllByReportId(report.id); // Fetch saved PTRS records
-      if (savedRecords) {
-        navigate(`/reports/ptrs/step1/${report.id}`, {
-          state: { savedRecords },
-        }); // Navigate to the report page with saved records
-      } else {
-        console.warn("No saved records found for report ID:", report.id);
-      }
+      // No need to fetch savedRecords or pass state; wizard loads from main route
+      navigate(`/reports/ptrs/step1/${report.id}`);
     } catch (error) {
-      console.error("Error fetching saved records:", error);
+      console.error("Error continuing report:", error);
     }
   }
 
