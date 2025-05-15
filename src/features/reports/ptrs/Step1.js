@@ -1,30 +1,9 @@
-import React, { useState, useMemo, useEffect, useCallback } from "react";
-import {
-  Box,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Checkbox,
-  Typography,
-  Button,
-  TextField,
-  TablePagination,
-  useTheme,
-  Alert,
-} from "@mui/material";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
-import IconButton from "@mui/material/IconButton";
+import React, { useState, useEffect, useCallback } from "react";
+import { Typography, useTheme } from "@mui/material";
 import { useAlert } from "../../../context";
 import { fieldMapping } from "./fieldMapping"; // Import fieldMapping
-import { useNavigate } from "react-router"; // Import useNavigate
 import { tcpService, userService } from "../../../services";
-import { formatDateForMySQL, formatCurrency } from "../../../utils/formatters";
-import { getRowHighlightColor } from "../../../utils/highlightRow";
+import CollapsibleTable from "./CollapsibleTable";
 
 export default function Step1({
   savedRecords = [],
@@ -35,11 +14,9 @@ export default function Step1({
   const currentStep = 1;
   const theme = useTheme();
   const { sendAlert } = useAlert();
-  const navigate = useNavigate();
   const isLocked = reportStatus === "Submitted";
   const [records, setRecords] = useState(savedRecords);
   const [filteredRecords, setFilteredRecords] = useState(savedRecords);
-  const [searchTerm, setSearchTerm] = useState("");
   const [tcpStatus, setTcpStatus] = useState(() =>
     savedRecords.reduce((acc, record) => {
       acc[record.id] = record.isTcp !== false;
@@ -47,63 +24,17 @@ export default function Step1({
     }, {})
   );
 
-  // Collapsible groups state and logic
-  const [collapsedGroups, setCollapsedGroups] = useState({});
-  const toggleGroup = useCallback(
-    (group) =>
-      setCollapsedGroups((prev) => ({ ...prev, [group]: !prev[group] })),
-    []
-  );
-
-  // Derive visible fields grouped by group name
-  const groupedVisibleFields = useMemo(() => {
-    const filtered = fieldMapping.filter(
-      (field) =>
-        !field.requiredAtStep || field.requiredAtStep.includes(currentStep)
-    );
-
-    const groups = {};
-    for (const field of filtered) {
-      const group = field.group || "other";
-      if (!groups[group]) groups[group] = [];
-      groups[group].push(field);
-    }
-
-    return groups;
-  }, [currentStep]);
-
   useEffect(() => {
-    setRecords(savedRecords);
-    setFilteredRecords(savedRecords);
-  }, [savedRecords]);
-
-  const [tcpExclusions, setTcpExclusions] = useState(() =>
-    savedRecords.reduce((acc, record) => {
-      acc[record.id] = record.tcpExclusion || "";
-      return acc;
-    }, {})
-  );
-
-  const handleTcpExclusionChange = (id, value) => {
-    setTcpExclusions((prev) => {
-      const updatedExclusions = {
-        ...prev,
-        [id]: value,
-      };
-
-      // Check if the value matches the original value from savedRecords
-      const originalValue =
-        savedRecords.find((record) => record.id === id)?.tcpExclusion || "";
-      const isReverted = updatedExclusions[id] === originalValue;
-
-      setChangedRows((prev) => ({
-        ...prev,
-        [id]: isReverted ? false : "unsaved", // Remove orange highlight if reverted
-      }));
-
-      return updatedExclusions;
+    setRecords((prev) => {
+      if (prev !== savedRecords) return savedRecords;
+      return prev;
     });
-  };
+
+    setFilteredRecords((prev) => {
+      if (prev !== savedRecords) return savedRecords;
+      return prev;
+    });
+  }, [savedRecords]);
 
   const [changedRows, setChangedRows] = useState(() =>
     savedRecords.reduce((acc, record) => {
@@ -123,9 +54,6 @@ export default function Step1({
       return acc;
     }, {})
   );
-
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const saveChangedRows = async () => {
     // Utility to get only updated fields
@@ -227,60 +155,6 @@ export default function Step1({
     }
   };
 
-  const handleSaveAll = async () => {
-    await saveChangedRows(); // Save only unsaved rows when the user clicks the save button
-  };
-
-  const handleChangePage = async (event, newPage) => {
-    await saveChangedRows(); // Save only unsaved rows before navigating
-    setPage(newPage);
-  };
-
-  const handleTcpToggle = (id) => {
-    setTcpStatus((prev) => {
-      const updatedStatus = {
-        ...prev,
-        [id]: !prev[id],
-      };
-
-      const originalValue = !!savedRecords.find((record) => record.id === id)
-        ?.isTcp;
-      const isReverted = updatedStatus[id] === originalValue;
-
-      setChangedRows((prev) => ({
-        ...prev,
-        [id]: isReverted ? false : "unsaved",
-      }));
-
-      return updatedStatus;
-    });
-  };
-
-  const handleSearch = (event) => {
-    const lowerCaseSearchTerm = event.target.value.toLowerCase();
-    setSearchTerm(lowerCaseSearchTerm);
-
-    // Filter records based on the search term
-    setFilteredRecords(
-      records.filter(
-        (record) =>
-          Object.values(record)
-            .join(" ") // Combine all record values into a single string
-            .toLowerCase()
-            .includes(lowerCaseSearchTerm) // Check if the search term is included
-      )
-    );
-  };
-
-  const displayedRecords = useMemo(
-    () =>
-      filteredRecords.slice(
-        page * rowsPerPage,
-        page * rowsPerPage + rowsPerPage
-      ),
-    [filteredRecords, page, rowsPerPage]
-  );
-
   if (records.length === 0) {
     return (
       <Typography variant="h6">No records available to display.</Typography>
@@ -288,190 +162,18 @@ export default function Step1({
   }
 
   return (
-    <Box sx={{ padding: 2 }}>
-      {isLocked && (
-        <Alert severity="info" sx={{ mb: 2 }}>
-          This report has already been submitted and cannot be edited.
-        </Alert>
-      )}
-      <Typography variant="h5" sx={{ marginBottom: 2 }}>
-        Review Records
-      </Typography>
-      <TextField
-        label="Search"
-        variant="outlined"
-        fullWidth
-        value={searchTerm}
-        onChange={handleSearch} // Use the updated search handler
-        sx={{ marginBottom: 2 }}
-        disabled={isLocked}
-      />
-      {/* Show All Columns button and warning */}
-      <Box sx={{ textAlign: "center", mb: 2 }}>
-        <Button
-          variant="contained"
-          size="small"
-          onClick={() => setCollapsedGroups({})}
-          color="primary"
-        >
-          Show All Columns
-        </Button>
-        {Object.values(collapsedGroups).filter(Boolean).length ===
-          Object.keys(groupedVisibleFields).length && (
-          <Typography variant="body2" sx={{ mt: 1 }}>
-            All column groups are hidden. Use "Show All Columns" to reset.
-          </Typography>
-        )}
-      </Box>
-      <TableContainer component={Paper} sx={{ maxHeight: 500 }}>
-        <Table stickyHeader>
-          <TableHead>
-            <TableRow>
-              {Object.entries(groupedVisibleFields).map(([group, fields]) => (
-                <TableCell
-                  key={group}
-                  align="center"
-                  colSpan={collapsedGroups[group] ? 1 : fields.length}
-                  sx={{
-                    backgroundColor: theme.palette.background.paper,
-                    fontWeight: "bold",
-                    borderBottom: `1px solid ${theme.palette.divider}`,
-                    cursor: "pointer",
-                  }}
-                  onClick={() => toggleGroup(group)}
-                >
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    {group.toUpperCase()}
-                    <IconButton size="small" sx={{ ml: 1, color: "inherit" }}>
-                      {collapsedGroups[group] ? (
-                        <KeyboardArrowRightIcon fontSize="inherit" />
-                      ) : (
-                        <KeyboardArrowDownIcon fontSize="inherit" />
-                      )}
-                    </IconButton>
-                  </Box>
-                </TableCell>
-              ))}
-            </TableRow>
-            <TableRow>
-              {Object.entries(groupedVisibleFields).flatMap(
-                ([group, fields]) =>
-                  collapsedGroups[group]
-                    ? [<TableCell key={`${group}-collapsed`} />]
-                    : fields.map((field) => (
-                        <TableCell key={field.name}>{field.label}</TableCell>
-                      ))
-              )}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {displayedRecords.map((record) => (
-              <TableRow
-                key={record.id}
-                sx={{
-                  backgroundColor: getRowHighlightColor(record, changedRows),
-                }}
-              >
-                {Object.entries(groupedVisibleFields).flatMap(
-                  ([group, fields]) =>
-                    collapsedGroups[group]
-                      ? [<TableCell key={`${group}-collapsed`} />]
-                      : fields.map((field) => (
-                          <TableCell key={`${record.id}-${field.name}`}>
-                            {field.type === "amount" ? (
-                              formatCurrency(record[field.name])
-                            ) : field.type === "date" ? (
-                              formatDateForMySQL(record[field.name])
-                            ) : field.name === "isTcp" ? (
-                              <Checkbox
-                                checked={!!tcpStatus[record.id]}
-                                onChange={() => handleTcpToggle(record.id)}
-                                disabled={isLocked}
-                              />
-                            ) : field.name === "tcpExclusionComment" ? (
-                              <TextField
-                                variant="outlined"
-                                size="small"
-                                fullWidth
-                                multiline
-                                value={tcpExclusionComments[record.id] || ""}
-                                onChange={(e) =>
-                                  setTcpExclusionComments((prev) => {
-                                    const updated = {
-                                      ...prev,
-                                      [record.id]: e.target.value,
-                                    };
-                                    const originalValue =
-                                      savedRecords.find(
-                                        (r) => r.id === record.id
-                                      )?.tcpExclusionComment || "";
-                                    const isReverted =
-                                      updated[record.id] === originalValue;
-                                    setChangedRows((prevChanged) => ({
-                                      ...prevChanged,
-                                      [record.id]: isReverted
-                                        ? false
-                                        : "unsaved",
-                                    }));
-                                    return updated;
-                                  })
-                                }
-                                disabled={isLocked}
-                              />
-                            ) : (
-                              record[field.name] || "-"
-                            )}
-                          </TableCell>
-                        ))
-                )}
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <TablePagination
-        component="div"
-        count={filteredRecords.length}
-        page={page}
-        onPageChange={handleChangePage}
-        rowsPerPage={rowsPerPage}
-        onRowsPerPageChange={(event) =>
-          setRowsPerPage(parseInt(event.target.value, 10))
-        }
-        rowsPerPageOptions={[5, 10, 25]}
-      />
-      <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleSaveAll}
-          sx={{ marginRight: 2 }}
-          disabled={isLocked}
-        >
-          Save All Changes
-        </Button>
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={async () => {
-            await saveChangedRows();
-            if (onNext) {
-              onNext();
-            } else {
-              navigate(`/reports/ptrs/step2/${reportId}`);
-            }
-          }}
-          disabled={isLocked}
-        >
-          Next: Add Additional Details
-        </Button>
-      </Box>
-    </Box>
+    <CollapsibleTable
+      records={records}
+      savedRecords={savedRecords}
+      changedRows={changedRows}
+      setChangedRows={setChangedRows}
+      tcpStatus={tcpStatus}
+      setTcpStatus={setTcpStatus}
+      tcpExclusionComments={tcpExclusionComments}
+      setTcpExclusionComments={setTcpExclusionComments}
+      isLocked={isLocked}
+      currentStep={currentStep}
+      theme={theme}
+    />
   );
 }

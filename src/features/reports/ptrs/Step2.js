@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import CollapsibleTable from "./CollapsibleTable";
+import { useTheme } from "@mui/material/styles";
 import {
   Alert,
   Box,
@@ -71,6 +73,7 @@ export default function Step2({
   const isLocked = reportStatus === "Submitted";
   const { sendAlert } = useAlert();
   const navigate = useNavigate();
+  const theme = useTheme();
   // console.log("Saved records:", savedRecords);
   const [filteredRecords, setFilteredRecords] = useState(
     savedRecords.filter((record) => record.isTcp) // Filter records with isTcp = true
@@ -401,205 +404,17 @@ export default function Step2({
         sx={{ marginBottom: 2 }}
         disabled={isLocked}
       />
-      <TableContainer component={Paper} sx={{ maxHeight: 500 }}>
-        <Table stickyHeader>
-          <TableHead>
-            <TableRow>
-              {[
-                "Payer Entity Name",
-                "Payer Entity ABN",
-                "Payer Entity ACN/ARBN",
-                "Payee Entity Name",
-                "Payee Entity ABN",
-                "Payee Entity ACN/ARBN",
-                "Payment Amount",
-                "Description",
-                "Supply Date",
-                "Payment Date",
-                "Contract PO Reference Number",
-                "Contract PO Payment Terms",
-                "Notice for Payment Issue Date",
-                "Notice for Payment Terms",
-                "Invoice Reference Number",
-                "Invoice Issue Date",
-                "Invoice Receipt Date",
-                "Invoice Amount",
-                "Invoice Payment Terms",
-                "Invoice Due Date",
-                "Peppol eInvoice Enabled",
-                "RCTI",
-                "Credit Card Payment",
-                "Credit Card Number",
-                "Partial Payment",
-                "Payment Term",
-                "Excluded TCP", // Add Excluded TCP to the table header
-                "Notes",
-              ].map((label, index) => (
-                <TableCell key={index}>{label}</TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {displayedRecords.map((record) => (
-              <TableRow
-                key={record.id}
-                sx={{
-                  backgroundColor: getRowHighlightColor(
-                    record,
-                    changedRows,
-                    showPartialPaymentsOnly // Ensure the filter state is passed to highlight partial payments in blue
-                  ),
-                }}
-              >
-                <TableCell>{record.payerEntityName || "-"}</TableCell>
-                <TableCell>{record.payerEntityAbn || "-"}</TableCell>
-                <TableCell>{record.payerEntityAcnArbn || "-"}</TableCell>
-                <TableCell>{record.payeeEntityName || "-"}</TableCell>
-                <TableCell>{record.payeeEntityAbn || "-"}</TableCell>
-                <TableCell>{record.payeeEntityAcnArbn || "-"}</TableCell>
-                <TableCell>{record.paymentAmount || "-"}</TableCell>
-                <TableCell>{record.description || "-"}</TableCell>
-                <TableCell>{record.supplyDate || "-"}</TableCell>
-                <TableCell>{record.paymentDate || "-"}</TableCell>
-                <TableCell>{record.contractPoReferenceNumber || "-"}</TableCell>
-                <TableCell>{record.contractPoPaymentTerms || "-"}</TableCell>
-                <TableCell>{record.noticeForPaymentIssueDate || "-"}</TableCell>
-                <TableCell>{record.noticeForPaymentTerms || "-"}</TableCell>
-                <TableCell>{record.invoiceReferenceNumber || "-"}</TableCell>
-                <TableCell>{record.invoiceIssueDate || "-"}</TableCell>
-                <TableCell>{record.invoiceReceiptDate || "-"}</TableCell>
-                <TableCell>{record.invoiceAmount || "-"}</TableCell>
-                <TableCell>{record.invoicePaymentTerms || "-"}</TableCell>
-                <TableCell>{record.invoiceDueDate || "-"}</TableCell>
-                <TableCell>
-                  <Checkbox
-                    checked={fields[record.id]?.peppolEnabled || false}
-                    onChange={(e) =>
-                      handleFieldChange(
-                        record.id,
-                        "peppolEnabled",
-                        e.target.checked
-                      )
-                    }
-                    disabled={isLocked}
-                  />
-                </TableCell>
-                <TableCell>
-                  <Checkbox
-                    checked={fields[record.id]?.rcti || false}
-                    onChange={(e) =>
-                      handleFieldChange(record.id, "rcti", e.target.checked)
-                    }
-                    disabled={isLocked}
-                  />
-                </TableCell>
-                <TableCell>
-                  <Checkbox
-                    checked={fields[record.id]?.creditCardPayment || false}
-                    disabled={
-                      isLocked || !!fields[record.id]?.creditCardNumber.trim()
-                    } // Disable if locked or creditCardNumber has a value
-                    onChange={(e) =>
-                      handleFieldChange(
-                        record.id,
-                        "creditCardPayment",
-                        e.target.checked
-                      )
-                    }
-                  />
-                </TableCell>
-                <TableCell>
-                  <TextField
-                    variant="outlined"
-                    size="small"
-                    fullWidth
-                    inputProps={{ maxLength: 16 }} // Restrict input to 16 characters
-                    sx={{ width: "250px" }} // Make the field wide enough for 16 digits
-                    error={!!validationErrors[record.id]}
-                    helperText={validationErrors[record.id] || ""}
-                    value={fields[record.id]?.creditCardNumber || ""}
-                    onChange={(e) =>
-                      handleFieldChange(
-                        record.id,
-                        "creditCardNumber",
-                        e.target.value
-                      )
-                    }
-                    disabled={isLocked}
-                  />
-                </TableCell>
-                <TableCell>
-                  <Checkbox
-                    checked={fields[record.id]?.partialPayment || false}
-                    onChange={(e) =>
-                      handleFieldChange(
-                        record.id,
-                        "partialPayment",
-                        e.target.checked
-                      )
-                    }
-                    disabled={isLocked}
-                  />
-                </TableCell>
-                <TableCell>
-                  <TextField
-                    variant="outlined"
-                    size="small"
-                    type="number"
-                    fullWidth
-                    sx={{ width: "70px" }} // Make the field wide enough for 3 digits
-                    inputProps={{ maxLength: 3, min: 0, max: 999 }}
-                    value={fields[record.id]?.paymentTerm || 0}
-                    onChange={(e) =>
-                      handleFieldChange(
-                        record.id,
-                        "paymentTerm",
-                        parseInt(e.target.value, 10) || 0
-                      )
-                    }
-                    disabled={isLocked}
-                  />
-                </TableCell>
-                <TableCell>
-                  <Checkbox
-                    checked={fields[record.id]?.excludedTcp || false}
-                    onChange={(e) =>
-                      handleFieldChange(
-                        record.id,
-                        "excludedTcp",
-                        e.target.checked
-                      )
-                    }
-                    disabled={isLocked}
-                  />
-                </TableCell>
-                <TableCell>
-                  <TextField
-                    variant="outlined"
-                    size="small"
-                    fullWidth
-                    multiline
-                    sx={{ width: "400px" }} // Make the notes field wider
-                    value={fields[record.id]?.notes || ""}
-                    onChange={(e) =>
-                      handleFieldChange(record.id, "notes", e.target.value)
-                    }
-                    disabled={isLocked}
-                  />
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <TablePagination
-        component="div"
-        count={filteredRecordsToDisplay.length}
-        page={page}
-        onPageChange={handleChangePage}
-        rowsPerPage={rowsPerPage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-        rowsPerPageOptions={[5, 10, 25]}
+      <CollapsibleTable
+        records={displayedRecords}
+        fields={fields}
+        setFields={setFields}
+        changedRows={changedRows}
+        setChangedRows={setChangedRows}
+        validationErrors={validationErrors}
+        handleFieldChange={handleFieldChange}
+        getRowHighlightColor={getRowHighlightColor}
+        isLocked={isLocked}
+        theme={theme}
       />
       <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
         <Button

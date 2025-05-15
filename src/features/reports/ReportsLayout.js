@@ -11,7 +11,7 @@ import {
   ListItemText,
   IconButton,
 } from "@mui/material";
-import MenuIcon from "@mui/icons-material/Menu";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import CloseIcon from "@mui/icons-material/Close";
 import { Outlet, redirect } from "react-router";
 import ProtectedRoutes from "../../utils/ProtectedRoutes";
@@ -41,19 +41,19 @@ export default function ReportsLayout() {
         sx={{
           width: isDrawerOpen ? `calc(100% - ${drawerWidth}px)` : "100%",
           ml: isDrawerOpen ? `${drawerWidth}px` : 0,
-          mt: "64px", // Add top margin to account for the navbar height
+          mt: "72px", // Add top margin to account for the navbar height
           transition: "width 0.3s ease, margin-left 0.3s ease", // Smooth transition
           zIndex: (theme) => theme.zIndex.drawer - 1, // Ensure AppBar is below the navbar
         }}
       >
-        <Toolbar>
+        <Toolbar variant="dense">
           <IconButton
             color="inherit"
             edge="start"
             onClick={toggleDrawer}
             sx={{ mr: 2 }}
           >
-            {isDrawerOpen ? <CloseIcon /> : <MenuIcon />}
+            {isDrawerOpen ? <CloseIcon /> : <ChevronRightIcon />}
           </IconButton>
           <Typography variant="h6" noWrap component="div">
             PTRS Process Flow
@@ -91,13 +91,12 @@ export default function ReportsLayout() {
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
-          mt: "64px", // Add top margin to account for the navbar height
+          p: 2,
+          mt: "72px", // Add top margin to account for the navbar height
           width: isDrawerOpen ? `calc(100% - ${drawerWidth}px)` : "100%",
           transition: "width 0.3s ease", // Smooth transition
         }}
       >
-        <Toolbar />
         <Outlet />
       </Box>
     </Box>

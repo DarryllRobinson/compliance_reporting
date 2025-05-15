@@ -1,5 +1,15 @@
 export const ptrsGuidance = [
   {
+    step: 1,
+    name: "Step 1",
+    description: "Review TCP status",
+    requirement:
+      "Review each payment record and untick the TCP checkbox if the record should not be treated as a TCP. If unticked, a comment must be provided to explain the reason.",
+  },
+];
+
+export const _ptrsGuidance = [
+  {
     name: "Peppol enabled eInvoice",
     description:
       "A Peppol enabled eInvoice is an electronic invoice that is compliant with the Peppol standard. It allows for seamless exchange of invoices between businesses and government entities.",

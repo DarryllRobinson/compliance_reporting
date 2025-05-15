@@ -39,7 +39,7 @@ export default function ConnectExternalSystems() {
         }
 
         // Navigate to ReviewRecords with the fetched records
-        navigate(`/reports/ptrs/step1/${reportDetails.reportId}`, {
+        navigate(`/reports/ptrs/${reportDetails.reportId}`, {
           state: { savedRecords: mappedRecords },
         });
       } else {

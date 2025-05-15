@@ -59,7 +59,7 @@ export default function Dashboard() {
   async function continueReport(report) {
     try {
       // No need to fetch savedRecords or pass state; wizard loads from main route
-      navigate(`/reports/ptrs/step1/${report.id}`);
+      navigate(`/reports/ptrs/${report.id}`);
     } catch (error) {
       console.error("Error continuing report:", error);
     }

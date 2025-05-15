@@ -24,7 +24,7 @@ import { ptrsGuidance } from "../../../data/ptrsGuidance";
 import { glossary } from "../../../data/glossary";
 
 const steps = [
-  { label: "Step 1: Review & Clean Records", Component: Step1View },
+  { label: "Step 1: Confirm TCPs", Component: Step1View },
   { label: "Step 2: Finalise TCP Dataset", Component: Step2View },
   { label: "Step 3: Export ABNs for SBI", Component: Step3View },
   { label: "Step 4: Upload SBI Results", Component: Step4View },
@@ -163,12 +163,12 @@ export default function ReportWizard() {
   }
 
   return (
-    <Box sx={{ padding: 4 }}>
+    <Box sx={{ pt: 2, px: 3 }}>
       {/* Main content */}
-      <Typography variant="subtitle1" sx={{ mb: 1, color: "text.secondary" }}>
+      <Typography variant="subtitle1" sx={{ mb: 0.5, color: "text.secondary" }}>
         Step {currentStep + 1} of {steps.length}
       </Typography>
-      <Stepper activeStep={currentStep} alternativeLabel sx={{ mb: 4 }}>
+      <Stepper activeStep={currentStep} alternativeLabel sx={{ mb: 2.5 }}>
         {steps.map((step, index) => (
           <Step key={step.label} completed={index < currentStep}>
             <Tooltip title={step.label} arrow>
@@ -204,9 +204,7 @@ export default function ReportWizard() {
           </Typography>
         </Box>
       )}
-      <Typography variant="h4" gutterBottom>
-        PTRS Report Wizard
-      </Typography>
+      {/* Removed PTRS Report Wizard heading */}
 
       {renderGuidance()}
       <Component
