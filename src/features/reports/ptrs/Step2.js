@@ -22,7 +22,7 @@ import {
   calculatePartialPayment,
   calculatePaymentTerm,
 } from "../../../calculations/ptrs"; // Import the function
-import { formatDateForMySQL } from "../../../utils/formatDate";
+import { formatDateForMySQL } from "../../../utils/formatters";
 import { getRowHighlightColor } from "../../../utils/highlightRow";
 import { inputValidationRules } from "../../../utils/inputValidation";
 

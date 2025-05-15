@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import {
   Box,
   Paper,
@@ -16,11 +16,14 @@ import {
   useTheme,
   Alert,
 } from "@mui/material";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
+import IconButton from "@mui/material/IconButton";
 import { useAlert } from "../../../context";
 import { fieldMapping } from "./fieldMapping"; // Import fieldMapping
 import { useNavigate } from "react-router"; // Import useNavigate
 import { tcpService, userService } from "../../../services";
-import { formatDateForMySQL } from "../../../utils/formatDate";
+import { formatDateForMySQL, formatCurrency } from "../../../utils/formatters";
 import { getRowHighlightColor } from "../../../utils/highlightRow";
 
 export default function Step1({
@@ -29,6 +32,7 @@ export default function Step1({
   reportId,
   reportStatus,
 }) {
+  const currentStep = 1;
   const theme = useTheme();
   const { sendAlert } = useAlert();
   const navigate = useNavigate();
@@ -42,6 +46,31 @@ export default function Step1({
       return acc;
     }, {})
   );
+
+  // Collapsible groups state and logic
+  const [collapsedGroups, setCollapsedGroups] = useState({});
+  const toggleGroup = useCallback(
+    (group) =>
+      setCollapsedGroups((prev) => ({ ...prev, [group]: !prev[group] })),
+    []
+  );
+
+  // Derive visible fields grouped by group name
+  const groupedVisibleFields = useMemo(() => {
+    const filtered = fieldMapping.filter(
+      (field) =>
+        !field.requiredAtStep || field.requiredAtStep.includes(currentStep)
+    );
+
+    const groups = {};
+    for (const field of filtered) {
+      const group = field.group || "other";
+      if (!groups[group]) groups[group] = [];
+      groups[group].push(field);
+    }
+
+    return groups;
+  }, [currentStep]);
 
   useEffect(() => {
     setRecords(savedRecords);
@@ -277,15 +306,68 @@ export default function Step1({
         sx={{ marginBottom: 2 }}
         disabled={isLocked}
       />
+      {/* Show All Columns button and warning */}
+      <Box sx={{ textAlign: "center", mb: 2 }}>
+        <Button
+          variant="contained"
+          size="small"
+          onClick={() => setCollapsedGroups({})}
+          color="primary"
+        >
+          Show All Columns
+        </Button>
+        {Object.values(collapsedGroups).filter(Boolean).length ===
+          Object.keys(groupedVisibleFields).length && (
+          <Typography variant="body2" sx={{ mt: 1 }}>
+            All column groups are hidden. Use "Show All Columns" to reset.
+          </Typography>
+        )}
+      </Box>
       <TableContainer component={Paper} sx={{ maxHeight: 500 }}>
         <Table stickyHeader>
           <TableHead>
             <TableRow>
-              {fieldMapping.map((field, index) => (
-                <TableCell key={index}>{field.label}</TableCell>
+              {Object.entries(groupedVisibleFields).map(([group, fields]) => (
+                <TableCell
+                  key={group}
+                  align="center"
+                  colSpan={collapsedGroups[group] ? 1 : fields.length}
+                  sx={{
+                    backgroundColor: theme.palette.background.paper,
+                    fontWeight: "bold",
+                    borderBottom: `1px solid ${theme.palette.divider}`,
+                    cursor: "pointer",
+                  }}
+                  onClick={() => toggleGroup(group)}
+                >
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {group.toUpperCase()}
+                    <IconButton size="small" sx={{ ml: 1, color: "inherit" }}>
+                      {collapsedGroups[group] ? (
+                        <KeyboardArrowRightIcon fontSize="inherit" />
+                      ) : (
+                        <KeyboardArrowDownIcon fontSize="inherit" />
+                      )}
+                    </IconButton>
+                  </Box>
+                </TableCell>
               ))}
-              <TableCell>Mark as TCP</TableCell>
-              <TableCell>Exclusion Reason</TableCell>
+            </TableRow>
+            <TableRow>
+              {Object.entries(groupedVisibleFields).flatMap(
+                ([group, fields]) =>
+                  collapsedGroups[group]
+                    ? [<TableCell key={`${group}-collapsed`} />]
+                    : fields.map((field) => (
+                        <TableCell key={field.name}>{field.label}</TableCell>
+                      ))
+              )}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -296,29 +378,58 @@ export default function Step1({
                   backgroundColor: getRowHighlightColor(record, changedRows),
                 }}
               >
-                {fieldMapping.map((field, fieldIndex) => (
-                  <TableCell key={fieldIndex}>
-                    {record[field.name] || "-"}
-                  </TableCell>
-                ))}
-                <TableCell>
-                  <Checkbox
-                    checked={!!tcpStatus[record.id]}
-                    onChange={() => handleTcpToggle(record.id)}
-                  />
-                </TableCell>
-                <TableCell sx={{ width: "300px" }}>
-                  <TextField
-                    variant="outlined"
-                    size="small"
-                    fullWidth
-                    multiline
-                    value={tcpExclusions[record.id] || ""}
-                    onChange={(e) =>
-                      handleTcpExclusionChange(record.id, e.target.value)
-                    }
-                  />
-                </TableCell>
+                {Object.entries(groupedVisibleFields).flatMap(
+                  ([group, fields]) =>
+                    collapsedGroups[group]
+                      ? [<TableCell key={`${group}-collapsed`} />]
+                      : fields.map((field) => (
+                          <TableCell key={`${record.id}-${field.name}`}>
+                            {field.type === "amount" ? (
+                              formatCurrency(record[field.name])
+                            ) : field.type === "date" ? (
+                              formatDateForMySQL(record[field.name])
+                            ) : field.name === "isTcp" ? (
+                              <Checkbox
+                                checked={!!tcpStatus[record.id]}
+                                onChange={() => handleTcpToggle(record.id)}
+                                disabled={isLocked}
+                              />
+                            ) : field.name === "tcpExclusionComment" ? (
+                              <TextField
+                                variant="outlined"
+                                size="small"
+                                fullWidth
+                                multiline
+                                value={tcpExclusionComments[record.id] || ""}
+                                onChange={(e) =>
+                                  setTcpExclusionComments((prev) => {
+                                    const updated = {
+                                      ...prev,
+                                      [record.id]: e.target.value,
+                                    };
+                                    const originalValue =
+                                      savedRecords.find(
+                                        (r) => r.id === record.id
+                                      )?.tcpExclusionComment || "";
+                                    const isReverted =
+                                      updated[record.id] === originalValue;
+                                    setChangedRows((prevChanged) => ({
+                                      ...prevChanged,
+                                      [record.id]: isReverted
+                                        ? false
+                                        : "unsaved",
+                                    }));
+                                    return updated;
+                                  })
+                                }
+                                disabled={isLocked}
+                              />
+                            ) : (
+                              record[field.name] || "-"
+                            )}
+                          </TableCell>
+                        ))
+                )}
               </TableRow>
             ))}
           </TableBody>

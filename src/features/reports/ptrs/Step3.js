@@ -4,7 +4,7 @@ import { useNavigate } from "react-router";
 import { tcpService } from "../../../services";
 import { useAlert } from "../../../context";
 import { Download, Upload, OpenInNew } from "@mui/icons-material";
-import { formatDateForMySQL } from "../../../utils/formatDate";
+import { formatDateForMySQL } from "../../../utils/formatters";
 
 export default function Step3({
   savedRecords = [],

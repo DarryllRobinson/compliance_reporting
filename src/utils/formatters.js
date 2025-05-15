@@ -16,3 +16,11 @@ export function formatDateForMySQL(dateStr) {
     pad(date.getSeconds())
   );
 }
+
+export function formatCurrency(amount) {
+  if (amount == null || isNaN(amount)) return "-";
+  return `$${Number(amount).toLocaleString("en-AU", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+}
