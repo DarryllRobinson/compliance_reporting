@@ -22,6 +22,33 @@ import { useNavigate } from "react-router"; // Import useNavigate
 import { tcpService, userService } from "../../../services";
 import { formatDateForMySQL } from "../../../utils/formatDate";
 import { getRowHighlightColor } from "../../../utils/highlightRow";
+// Editable comment field for TCP Exclusion
+const TcpCommentField = ({ id, initialValue, onSave, disabled }) => {
+  const [value, setValue] = useState(initialValue || "");
+
+  useEffect(() => {
+    setValue(initialValue || "");
+  }, [initialValue]);
+
+  const handleBlur = () => {
+    if (value !== initialValue) {
+      onSave(id, value);
+    }
+  };
+
+  return (
+    <TextField
+      variant="outlined"
+      size="small"
+      fullWidth
+      multiline
+      value={value}
+      onChange={(e) => setValue(e.target.value)}
+      onBlur={handleBlur}
+      disabled={disabled}
+    />
+  );
+};
 
 export default function Step1({
   savedRecords = [],
@@ -87,14 +114,7 @@ export default function Step1({
         const currentVal = current[key];
         const originalVal = original[key];
 
-        const isDifferent =
-          currentVal !== undefined &&
-          currentVal !== originalVal &&
-          !(
-            typeof currentVal === "string" &&
-            typeof originalVal === "string" &&
-            currentVal.trim() === originalVal?.trim()
-          );
+        const isDifferent = (currentVal ?? null) !== (originalVal ?? null); // nullish-aware comparison
 
         if (isDifferent) {
           updates[key] = currentVal;
@@ -115,11 +135,7 @@ export default function Step1({
         const patch = getUpdatedFields(original, {
           ...cleanRecord,
           isTcp: !!tcpStatus[record.id],
-          tcpExclusionComment:
-            typeof tcpExclusionComments[record.id] === "string" &&
-            tcpExclusionComments[record.id].trim() === ""
-              ? null
-              : tcpExclusionComments[record.id],
+          tcpExclusionComment: tcpExclusionComments[record.id]?.trim() || null,
           paymentDate: formatDateForMySQL(record.paymentDate),
         });
 
@@ -162,6 +178,14 @@ export default function Step1({
           );
         });
 
+        setTcpExclusionComments((prev) => {
+          const updated = { ...prev };
+          updatedRecords.forEach((rec) => {
+            updated[rec.id] = rec.tcpExclusionComment || "";
+          });
+          return updated;
+        });
+
         // Mark saved rows as successfully saved
         setChangedRows((prev) =>
           rowsToSave.reduce(
@@ -172,10 +196,41 @@ export default function Step1({
             { ...prev }
           )
         );
+        // Reload records from server after saving
+        await reloadRecords();
       } catch (error) {
         console.error("Error saving changed records:", error);
         sendAlert("error", "An error occurred while saving changed records.");
       }
+    }
+  };
+
+  // Reload records from server and update state
+  const reloadRecords = async () => {
+    try {
+      const response = await tcpService.getAllByReportId(reportId);
+      setRecords(response);
+      setFilteredRecords(response);
+
+      setTcpExclusionComments(() =>
+        response.reduce((acc, record) => {
+          acc[record.id] = record.tcpExclusionComment || "";
+          return acc;
+        }, {})
+      );
+
+      setChangedRows(() =>
+        response.reduce((acc, record) => {
+          acc[record.id] =
+            new Date(record.updatedAt) > new Date(record.createdAt)
+              ? "saved"
+              : false;
+          return acc;
+        }, {})
+      );
+    } catch (error) {
+      console.error("Error reloading records:", error);
+      sendAlert("error", "Failed to reload updated records.");
     }
   };
   // Handler for tcpExclusionComment changes
@@ -262,18 +317,12 @@ export default function Step1({
     >
       {fieldMapping.map((field, fieldIndex) => {
         if (field.name === "tcpExclusionComment") {
-          // Render editable cell for tcpExclusionComment
           return (
             <TableCell key={fieldIndex} sx={{ width: "300px" }}>
-              <TextField
-                variant="outlined"
-                size="small"
-                fullWidth
-                multiline
-                value={tcpExclusionComments[record.id] || ""}
-                onChange={(e) =>
-                  handleTcpExclusionCommentChange(record.id, e.target.value)
-                }
+              <TcpCommentField
+                id={record.id}
+                initialValue={tcpExclusionComments[record.id]}
+                onSave={handleTcpExclusionCommentChange}
                 disabled={isLocked}
               />
             </TableCell>
