@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Box,
   Paper,
@@ -14,68 +14,47 @@ import {
   TextField,
   TablePagination,
   useTheme,
-  Alert,
 } from "@mui/material";
 import { useAlert } from "../../../context";
 import { fieldMapping } from "./fieldMapping"; // Import fieldMapping
-import { useNavigate } from "react-router"; // Import useNavigate
+import { useLoaderData, useNavigate, useParams } from "react-router"; // Import useNavigate
 import { tcpService, userService } from "../../../services";
-import { formatDateForMySQL } from "../../../utils/formatDate";
 import { getRowHighlightColor } from "../../../utils/highlightRow";
 
-export default function Step1({
-  savedRecords = [],
-  onNext,
-  reportId,
-  reportStatus,
-}) {
+export async function step1Loader({ params }) {
+  const { reportId } = params; // Extract reportId from route params
+  try {
+    const savedRecords = await tcpService.getAllByReportId(reportId); // Fetch records by reportId
+    // console.log("Fetched records:", savedRecords); // Debug log to check the structure of savedRecords
+    return { savedRecords: savedRecords || [] }; // Return saved records or an empty array
+  } catch (error) {
+    console.error("Error fetching records:", error);
+    throw new Response("Failed to fetch records", { status: 500 });
+  }
+}
+
+export default function Step1() {
+  const params = useParams();
+  const { reportId } = params; // Extract reportId from route params
   const theme = useTheme();
   const { sendAlert } = useAlert();
   const navigate = useNavigate();
-  const isLocked = reportStatus === "Submitted";
+  const { savedRecords } = useLoaderData();
   const [records, setRecords] = useState(savedRecords);
   const [filteredRecords, setFilteredRecords] = useState(savedRecords);
   const [searchTerm, setSearchTerm] = useState("");
   const [tcpStatus, setTcpStatus] = useState(() =>
     savedRecords.reduce((acc, record) => {
-      acc[record.id] = record.isTcp !== false;
+      acc[record.id] = record.isTcp || false;
       return acc;
     }, {})
   );
-
-  useEffect(() => {
-    setRecords(savedRecords);
-    setFilteredRecords(savedRecords);
-  }, [savedRecords]);
-
   const [tcpExclusions, setTcpExclusions] = useState(() =>
     savedRecords.reduce((acc, record) => {
       acc[record.id] = record.tcpExclusion || "";
       return acc;
     }, {})
   );
-
-  const handleTcpExclusionChange = (id, value) => {
-    setTcpExclusions((prev) => {
-      const updatedExclusions = {
-        ...prev,
-        [id]: value,
-      };
-
-      // Check if the value matches the original value from savedRecords
-      const originalValue =
-        savedRecords.find((record) => record.id === id)?.tcpExclusion || "";
-      const isReverted = updatedExclusions[id] === originalValue;
-
-      setChangedRows((prev) => ({
-        ...prev,
-        [id]: isReverted ? false : "unsaved", // Remove orange highlight if reverted
-      }));
-
-      return updatedExclusions;
-    });
-  };
-
   const [changedRows, setChangedRows] = useState(() =>
     savedRecords.reduce((acc, record) => {
       if (new Date(record.updatedAt) > new Date(record.createdAt)) {
@@ -86,68 +65,38 @@ export default function Step1({
       return acc;
     }, {})
   );
-
-  // State for tcpExclusionComment field per record
-  const [tcpExclusionComments, setTcpExclusionComments] = useState(() =>
+  const [fields, setFields] = useState(() =>
     savedRecords.reduce((acc, record) => {
-      acc[record.id] = record.tcpExclusionComment || "";
+      acc[record.id] = {
+        paymentTerm: record.paymentTerm || 0,
+      };
       return acc;
     }, {})
   );
-
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const saveChangedRows = async () => {
-    // Utility to get only updated fields
-    function getUpdatedFields(original, current) {
-      const updates = {};
-      for (const key in current) {
-        const currentVal = current[key];
-        const originalVal = original[key];
-
-        const isDifferent = (currentVal ?? null) !== (originalVal ?? null); // nullish-aware comparison
-
-        if (isDifferent) {
-          updates[key] = currentVal;
-        }
-      }
-      return updates;
-    }
-
     // Filter records that are marked as "unsaved"
     const rowsToSave = records.filter(
       (record) => changedRows[record.id] === "unsaved"
     );
     if (rowsToSave.length > 0) {
-      const updatedRecords = rowsToSave.map((record) => {
-        const { createdAt, updatedAt, ...cleanRecord } = record;
-        const original = savedRecords.find((r) => r.id === record.id) || {};
-
-        const patch = getUpdatedFields(original, {
-          ...cleanRecord,
-          isTcp: !!tcpStatus[record.id],
-          tcpExclusionComment: tcpExclusionComments[record.id]?.trim() || null,
-          // paymentDate: formatDateForMySQL(record.paymentDate),
-        });
-
-        return {
-          id: record.id,
-          ...patch,
-          updatedBy: userService.userValue.id,
-        };
-      });
+      const updatedRecords = rowsToSave.map((record) => ({
+        id: record.id,
+        ...record,
+        isTcp: !!tcpStatus[record.id],
+        tcpExclusion: tcpExclusions[record.id] || "",
+        updatedBy: userService.userValue.id,
+      }));
 
       try {
-        const response = await Promise.all(
-          updatedRecords.map((record) =>
-            tcpService.patchRecord(record.id, record)
-          )
-        );
-        if (response[0].success) {
+        console.log("Saving changed records:", updatedRecords);
+        const response = await tcpService.bulkUpdate(updatedRecords);
+        if (response.success) {
           sendAlert("success", "Changed records saved successfully.");
 
-          // Update only the changed rows in the `records` and `filteredRecords` states
+          // Update only the changed rows in the records and filteredRecords states
           setRecords((prev) => {
             const updatedRecordsMap = new Map(
               updatedRecords.map((row) => [row.id, row])
@@ -168,14 +117,6 @@ export default function Step1({
                 ? { ...record, ...updatedRecordsMap.get(record.id) }
                 : record
             );
-          });
-
-          setTcpExclusionComments((prev) => {
-            const updated = { ...prev };
-            updatedRecords.forEach((rec) => {
-              updated[rec.id] = rec.tcpExclusionComment || "";
-            });
-            return updated;
           });
 
           // Mark saved rows as successfully saved
@@ -214,16 +155,39 @@ export default function Step1({
         [id]: !prev[id],
       };
 
-      const originalValue = !!savedRecords.find((record) => record.id === id)
-        ?.isTcp;
+      // Check if the value matches the original value from savedRecords
+      const originalValue = savedRecords.find(
+        (record) => record.id === id
+      )?.isTcp;
       const isReverted = updatedStatus[id] === originalValue;
 
       setChangedRows((prev) => ({
         ...prev,
-        [id]: isReverted ? false : "unsaved",
+        [id]: isReverted ? false : "unsaved", // Remove orange highlight if reverted
       }));
 
       return updatedStatus;
+    });
+  };
+
+  const handleTcpExclusionChange = (id, value) => {
+    setTcpExclusions((prev) => {
+      const updatedExclusions = {
+        ...prev,
+        [id]: value,
+      };
+
+      // Check if the value matches the original value from savedRecords
+      const originalValue =
+        savedRecords.find((record) => record.id === id)?.tcpExclusion || "";
+      const isReverted = updatedExclusions[id] === originalValue;
+
+      setChangedRows((prev) => ({
+        ...prev,
+        [id]: isReverted ? false : "unsaved", // Remove orange highlight if reverted
+      }));
+
+      return updatedExclusions;
     });
   };
 
@@ -243,13 +207,9 @@ export default function Step1({
     );
   };
 
-  const displayedRecords = useMemo(
-    () =>
-      filteredRecords.slice(
-        page * rowsPerPage,
-        page * rowsPerPage + rowsPerPage
-      ),
-    [filteredRecords, page, rowsPerPage]
+  const displayedRecords = filteredRecords.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
   );
 
   if (records.length === 0) {
@@ -260,11 +220,6 @@ export default function Step1({
 
   return (
     <Box sx={{ padding: 2 }}>
-      {isLocked && (
-        <Alert severity="info" sx={{ mb: 2 }}>
-          This report has already been submitted and cannot be edited.
-        </Alert>
-      )}
       <Typography variant="h5" sx={{ marginBottom: 2 }}>
         Review Records
       </Typography>
@@ -275,7 +230,6 @@ export default function Step1({
         value={searchTerm}
         onChange={handleSearch} // Use the updated search handler
         sx={{ marginBottom: 2 }}
-        disabled={isLocked}
       />
       <TableContainer component={Paper} sx={{ maxHeight: 500 }}>
         <Table stickyHeader>
@@ -341,7 +295,6 @@ export default function Step1({
           color="primary"
           onClick={handleSaveAll}
           sx={{ marginRight: 2 }}
-          disabled={isLocked}
         >
           Save All Changes
         </Button>
@@ -350,13 +303,8 @@ export default function Step1({
           color="secondary"
           onClick={async () => {
             await saveChangedRows();
-            if (onNext) {
-              onNext();
-            } else {
-              navigate(`/reports/ptrs/step2/${reportId}`);
-            }
+            navigate(/reports/ptrs/step2/${reportId});
           }}
-          disabled={isLocked}
         >
           Next: Add Additional Details
         </Button>
