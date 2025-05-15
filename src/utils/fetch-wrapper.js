@@ -7,6 +7,7 @@ export const fetchWrapper = {
   post,
   postEmail,
   put,
+  patch,
   delete: _delete,
 };
 
@@ -108,6 +109,25 @@ async function _put(url, body) {
     body: JSON.stringify(body),
   };
   return fetch(url, requestOptions).then(handleResponse);
+}
+
+async function patch(url, body) {
+  return await handleRequestWithRetry(_patch, [url, body]);
+}
+
+async function _patch(url, body) {
+  const headers = {
+    "Content-Type": "application/json",
+    ...authHeader(url),
+  };
+  const requestOptions = {
+    method: "PATCH",
+    headers,
+    credentials: "include",
+    body: JSON.stringify(body),
+  };
+  const response = await fetch(url, requestOptions);
+  return handleResponse(response);
 }
 
 async function _delete(url) {

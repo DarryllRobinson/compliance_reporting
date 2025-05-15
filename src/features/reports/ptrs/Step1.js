@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   Box,
   Paper,
@@ -20,6 +20,7 @@ import { useAlert } from "../../../context";
 import { fieldMapping } from "./fieldMapping"; // Import fieldMapping
 import { useNavigate } from "react-router"; // Import useNavigate
 import { tcpService, userService } from "../../../services";
+import { formatDateForMySQL } from "../../../utils/formatDate";
 import { getRowHighlightColor } from "../../../utils/highlightRow";
 
 export default function Step1({
@@ -41,12 +42,12 @@ export default function Step1({
       return acc;
     }, {})
   );
-  const [tcpExclusions, setTcpExclusions] = useState(() =>
-    savedRecords.reduce((acc, record) => {
-      acc[record.id] = record.tcpExclusion || "";
-      return acc;
-    }, {})
-  );
+
+  useEffect(() => {
+    setRecords(savedRecords);
+    setFilteredRecords(savedRecords);
+  }, [savedRecords]);
+
   const [changedRows, setChangedRows] = useState(() =>
     savedRecords.reduce((acc, record) => {
       if (new Date(record.updatedAt) > new Date(record.createdAt)) {
@@ -57,6 +58,15 @@ export default function Step1({
       return acc;
     }, {})
   );
+
+  // State for tcpExclusionComment field per record
+  const [tcpExclusionComments, setTcpExclusionComments] = useState(() =>
+    savedRecords.reduce((acc, record) => {
+      acc[record.id] = record.tcpExclusionComment || "";
+      return acc;
+    }, {})
+  );
+
   const [fields, setFields] = useState(() =>
     savedRecords.reduce((acc, record) => {
       acc[record.id] = {
@@ -65,70 +75,126 @@ export default function Step1({
       return acc;
     }, {})
   );
+
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const saveChangedRows = async () => {
+    // Utility to get only updated fields
+    function getUpdatedFields(original, current) {
+      const updates = {};
+      for (const key in current) {
+        const currentVal = current[key];
+        const originalVal = original[key];
+
+        const isDifferent =
+          currentVal !== undefined &&
+          currentVal !== originalVal &&
+          !(
+            typeof currentVal === "string" &&
+            typeof originalVal === "string" &&
+            currentVal.trim() === originalVal?.trim()
+          );
+
+        if (isDifferent) {
+          updates[key] = currentVal;
+        }
+      }
+      return updates;
+    }
+
     // Filter records that are marked as "unsaved"
     const rowsToSave = records.filter(
       (record) => changedRows[record.id] === "unsaved"
     );
     if (rowsToSave.length > 0) {
-      const updatedRecords = rowsToSave.map((record) => ({
-        id: record.id,
-        ...record,
-        isTcp: !!tcpStatus[record.id],
-        tcpExclusion: tcpExclusions[record.id] || "",
-        updatedBy: userService.userValue.id,
-      }));
+      const updatedRecords = rowsToSave.map((record) => {
+        const { createdAt, updatedAt, ...cleanRecord } = record;
+        const original = savedRecords.find((r) => r.id === record.id) || {};
+
+        const patch = getUpdatedFields(original, {
+          ...cleanRecord,
+          isTcp: !!tcpStatus[record.id],
+          tcpExclusionComment:
+            typeof tcpExclusionComments[record.id] === "string" &&
+            tcpExclusionComments[record.id].trim() === ""
+              ? null
+              : tcpExclusionComments[record.id],
+          paymentDate: formatDateForMySQL(record.paymentDate),
+        });
+
+        return {
+          id: record.id,
+          ...patch,
+          updatedBy: userService.userValue.id,
+        };
+      });
 
       try {
         console.log("Saving changed records:", updatedRecords);
-        const response = await tcpService.bulkUpdate(updatedRecords);
-        if (response.success) {
-          sendAlert("success", "Changed records saved successfully.");
+        const results = await Promise.all(
+          updatedRecords.map((record) =>
+            tcpService.patchRecord(record.id, record)
+          )
+        );
+        sendAlert("success", "Changed records saved successfully.");
 
-          // Update only the changed rows in the `records` and `filteredRecords` states
-          setRecords((prev) => {
-            const updatedRecordsMap = new Map(
-              updatedRecords.map((row) => [row.id, row])
-            );
-            return prev.map((record) =>
-              updatedRecordsMap.has(record.id)
-                ? { ...record, ...updatedRecordsMap.get(record.id) }
-                : record
-            );
-          });
-
-          setFilteredRecords((prev) => {
-            const updatedRecordsMap = new Map(
-              updatedRecords.map((row) => [row.id, row])
-            );
-            return prev.map((record) =>
-              updatedRecordsMap.has(record.id)
-                ? { ...record, ...updatedRecordsMap.get(record.id) }
-                : record
-            );
-          });
-
-          // Mark saved rows as successfully saved
-          setChangedRows((prev) =>
-            rowsToSave.reduce(
-              (acc, row) => {
-                acc[row.id] = "saved";
-                return acc;
-              },
-              { ...prev }
-            )
+        // Update only the changed rows in the `records` and `filteredRecords` states
+        setRecords((prev) => {
+          const updatedRecordsMap = new Map(
+            updatedRecords.map((row) => [row.id, row])
           );
-        } else {
-          sendAlert("error", "Failed to save changed records.");
-        }
+          return prev.map((record) =>
+            updatedRecordsMap.has(record.id)
+              ? { ...record, ...updatedRecordsMap.get(record.id) }
+              : record
+          );
+        });
+
+        setFilteredRecords((prev) => {
+          const updatedRecordsMap = new Map(
+            updatedRecords.map((row) => [row.id, row])
+          );
+          return prev.map((record) =>
+            updatedRecordsMap.has(record.id)
+              ? { ...record, ...updatedRecordsMap.get(record.id) }
+              : record
+          );
+        });
+
+        // Mark saved rows as successfully saved
+        setChangedRows((prev) =>
+          rowsToSave.reduce(
+            (acc, row) => {
+              acc[row.id] = "saved";
+              return acc;
+            },
+            { ...prev }
+          )
+        );
       } catch (error) {
         console.error("Error saving changed records:", error);
         sendAlert("error", "An error occurred while saving changed records.");
       }
     }
+  };
+  // Handler for tcpExclusionComment changes
+  const handleTcpExclusionCommentChange = (id, value) => {
+    setTcpExclusionComments((prev) => {
+      const updated = { ...prev, [id]: value };
+
+      const originalValue =
+        savedRecords.find((record) => record.id === id)?.tcpExclusionComment ||
+        "";
+      const isReverted = updated[id] === originalValue;
+
+      setChangedRows((prevChanged) => ({
+        ...prevChanged,
+        [id]: isReverted ? false : "unsaved",
+      }));
+
+      return updated;
+    });
   };
 
   const handleSaveAll = async () => {
@@ -159,27 +225,6 @@ export default function Step1({
       }));
 
       return updatedStatus;
-    });
-  };
-
-  const handleTcpExclusionChange = (id, value) => {
-    setTcpExclusions((prev) => {
-      const updatedExclusions = {
-        ...prev,
-        [id]: value,
-      };
-
-      // Check if the value matches the original value from savedRecords
-      const originalValue =
-        savedRecords.find((record) => record.id === id)?.tcpExclusion || "";
-      const isReverted = updatedExclusions[id] === originalValue;
-
-      setChangedRows((prev) => ({
-        ...prev,
-        [id]: isReverted ? false : "unsaved", // Remove orange highlight if reverted
-      }));
-
-      return updatedExclusions;
     });
   };
 
@@ -215,24 +260,33 @@ export default function Step1({
         backgroundColor: getRowHighlightColor(record, changedRows),
       }}
     >
-      {fieldMapping.map((field, fieldIndex) => (
-        <TableCell key={fieldIndex}>{record[field.name] || "-"}</TableCell>
-      ))}
+      {fieldMapping.map((field, fieldIndex) => {
+        if (field.name === "tcpExclusionComment") {
+          // Render editable cell for tcpExclusionComment
+          return (
+            <TableCell key={fieldIndex} sx={{ width: "300px" }}>
+              <TextField
+                variant="outlined"
+                size="small"
+                fullWidth
+                multiline
+                value={tcpExclusionComments[record.id] || ""}
+                onChange={(e) =>
+                  handleTcpExclusionCommentChange(record.id, e.target.value)
+                }
+                disabled={isLocked}
+              />
+            </TableCell>
+          );
+        }
+        return (
+          <TableCell key={fieldIndex}>{record[field.name] || "-"}</TableCell>
+        );
+      })}
       <TableCell>
         <Checkbox
           checked={!!tcpStatus[record.id]}
           onChange={() => handleTcpToggle(record.id)}
-          disabled={isLocked}
-        />
-      </TableCell>
-      <TableCell sx={{ width: "300px" }}>
-        <TextField
-          variant="outlined"
-          size="small"
-          fullWidth
-          multiline
-          value={tcpExclusions[record.id] || ""}
-          onChange={(e) => handleTcpExclusionChange(record.id, e.target.value)}
           disabled={isLocked}
         />
       </TableCell>
@@ -272,7 +326,6 @@ export default function Step1({
                 <TableCell key={index}>{field.label}</TableCell>
               ))}
               <TableCell>Mark as TCP</TableCell>
-              <TableCell>Exclusion Reason</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>

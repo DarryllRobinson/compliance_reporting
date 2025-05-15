@@ -121,6 +121,12 @@ export const fieldMapping = [
     required: false,
   },
   {
+    name: "tcpExclusionComment",
+    label: "TCP Exclusion Comment",
+    type: "text",
+    required: false,
+  },
+  {
     name: "peppolEnabled",
     label: "Peppol eInvoice Enabled",
     type: "checkbox",
@@ -183,6 +189,12 @@ export const fieldMapping = [
   {
     name: "explanatoryComments2",
     label: "Explanatory Comments",
+    type: "textArea",
+    required: false,
+  },
+  {
+    name: "notes",
+    label: "Notes",
     type: "textArea",
     required: false,
   },

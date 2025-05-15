@@ -30,11 +30,6 @@ export default function ConnectExternalSystems() {
         const mappedRecords = mapRecordKeys(fetchedData); // Map the record keys
 
         // Save the mapped records to the backend
-        console.log(
-          "Check field types:",
-          Object.entries(mappedRecords[0]).map(([k, v]) => [k, typeof v])
-        );
-        console.log("Mapped TCP records being sent:", mappedRecords);
         const saveResponse = await tcpService.bulkCreate(mappedRecords);
         if (saveResponse.success) {
           sendAlert("success", "Records saved successfully.");

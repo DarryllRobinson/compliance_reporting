@@ -4,6 +4,7 @@ import { useNavigate } from "react-router";
 import { tcpService } from "../../../services";
 import { useAlert } from "../../../context";
 import { Download, Upload, OpenInNew } from "@mui/icons-material";
+import { formatDateForMySQL } from "../../../utils/formatDate";
 
 export default function Step3({
   savedRecords = [],
@@ -118,7 +119,10 @@ export default function Step3({
 
       const validRecords = rows.map((row) => {
         const payeeEntityAbn = row.trim(); // Extract the ABN
-        return { payeeEntityAbn }; // Create an object with the ABN
+        return {
+          payeeEntityAbn,
+          // Placeholder for future: e.g., paymentDate: formatDateForMySQL(record.paymentDate)
+        };
       });
 
       // Send valid records to the backend

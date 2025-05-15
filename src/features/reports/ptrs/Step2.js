@@ -22,6 +22,7 @@ import {
   calculatePartialPayment,
   calculatePaymentTerm,
 } from "../../../calculations/ptrs"; // Import the function
+import { formatDateForMySQL } from "../../../utils/formatDate";
 import { getRowHighlightColor } from "../../../utils/highlightRow";
 import { inputValidationRules } from "../../../utils/inputValidation";
 
@@ -120,6 +121,29 @@ export default function Step2({
   };
 
   const saveChangedRows = async () => {
+    // Utility to get only updated fields
+    function getUpdatedFields(original, current) {
+      const updates = {};
+      for (const key in current) {
+        const currentVal = current[key];
+        const originalVal = original[key];
+
+        const isDifferent =
+          currentVal !== undefined &&
+          currentVal !== originalVal &&
+          !(
+            typeof currentVal === "string" &&
+            typeof originalVal === "string" &&
+            currentVal.trim() === originalVal?.trim()
+          );
+
+        if (isDifferent) {
+          updates[key] = currentVal;
+        }
+      }
+      return updates;
+    }
+
     const rowsToSave = filteredRecords.filter(
       (record) => changedRows[record.id] === "unsaved"
     );
@@ -139,43 +163,65 @@ export default function Step2({
     }
 
     if (rowsToSave.length > 0) {
-      const updatedRecords = rowsToSave.map((record) => ({
-        id: record.id,
-        ...record,
-        ...fields[record.id], // Include excludedTcp in the save object
-        updatedBy: userService.userValue.id,
-      }));
+      const updatedRecords = rowsToSave.map((record) => {
+        const { createdAt, updatedAt, ...cleanRecord } = record;
+        const original = savedRecords.find((r) => r.id === record.id) || {};
+
+        const patch = getUpdatedFields(original, {
+          ...cleanRecord,
+          paymentDate: formatDateForMySQL(record.paymentDate),
+          supplyDate: formatDateForMySQL(record.supplyDate),
+          invoiceIssueDate: formatDateForMySQL(record.invoiceIssueDate),
+          invoiceReceiptDate: formatDateForMySQL(record.invoiceReceiptDate),
+          invoiceDueDate: formatDateForMySQL(record.invoiceDueDate),
+          noticeForPaymentIssueDate: formatDateForMySQL(
+            record.noticeForPaymentIssueDate
+          ),
+          tcpExclusionComment:
+            typeof record.tcpExclusionComment === "string" &&
+            record.tcpExclusionComment.trim() === ""
+              ? null
+              : record.tcpExclusionComment,
+          ...fields[record.id],
+        });
+
+        return {
+          id: record.id,
+          ...patch,
+          updatedBy: userService.userValue.id,
+        };
+      });
 
       try {
         console.log("Saving updated records:", updatedRecords);
-        const response = await tcpService.bulkUpdate(updatedRecords);
-        if (response.success) {
-          sendAlert("success", "Changed records saved successfully.");
-          setChangedRows((prev) =>
-            rowsToSave.reduce(
-              (acc, row) => {
-                acc[row.id] = "saved"; // Mark saved rows as successfully saved
-                return acc;
-              },
-              { ...prev }
-            )
-          );
-          setFields((prev) =>
-            rowsToSave.reduce(
-              (acc, row) => {
-                acc[row.id] = {
-                  ...prev[row.id],
-                  updatedAt: new Date().toISOString(), // Update the updatedAt timestamp
-                };
-                return acc;
-              },
-              { ...prev }
-            )
-          );
-          setValidationErrors({});
-        } else {
-          throw new Error("Save failed");
-        }
+        const results = await Promise.all(
+          updatedRecords.map((record) =>
+            tcpService.patchRecord(record.id, record)
+          )
+        );
+        sendAlert("success", "Changed records saved successfully.");
+        setChangedRows((prev) =>
+          rowsToSave.reduce(
+            (acc, row) => {
+              acc[row.id] = "saved"; // Mark saved rows as successfully saved
+              return acc;
+            },
+            { ...prev }
+          )
+        );
+        setFields((prev) =>
+          rowsToSave.reduce(
+            (acc, row) => {
+              acc[row.id] = {
+                ...prev[row.id],
+                updatedAt: new Date().toISOString(), // Update the updatedAt timestamp
+              };
+              return acc;
+            },
+            { ...prev }
+          )
+        );
+        setValidationErrors({});
       } catch (error) {
         console.error("Error saving changed records:", error);
         setChangedRows((prev) =>
