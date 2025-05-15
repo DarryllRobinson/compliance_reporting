@@ -30,6 +30,11 @@ export default function ConnectExternalSystems() {
         const mappedRecords = mapRecordKeys(fetchedData); // Map the record keys
 
         // Save the mapped records to the backend
+        console.log(
+          "Check field types:",
+          Object.entries(mappedRecords[0]).map(([k, v]) => [k, typeof v])
+        );
+        console.log("Mapped TCP records being sent:", mappedRecords);
         const saveResponse = await tcpService.bulkCreate(mappedRecords);
         if (saveResponse.success) {
           sendAlert("success", "Records saved successfully.");
@@ -85,13 +90,16 @@ export default function ConnectExternalSystems() {
           mappedRecord[newKey] = record[key];
         });
 
-        // Clean numeric fields
+        // Force numeric conversion for numeric fields
         numericFields.forEach((field) => {
-          if (mappedRecord[field] === "" || mappedRecord[field] === " ") {
-            mappedRecord[field] = null; // Convert blank strings to null
-          } else if (mappedRecord[field] !== null) {
-            mappedRecord[field] = parseInt(mappedRecord[field], 10); // Convert to integer
-          }
+          const raw = mappedRecord[field];
+          const cleaned =
+            typeof raw === "string"
+              ? parseInt(raw.trim().replace(/[^0-9]/g, ""), 10)
+              : typeof raw === "number"
+                ? raw
+                : null;
+          mappedRecord[field] = isNaN(cleaned) ? null : cleaned;
         });
 
         // Convert paymentAmount to a number

@@ -12,7 +12,8 @@ export async function loginAction({ request, context }) {
     await userService.login(userDetails);
     return redirect("/user/dashboard");
   } catch (error) {
-    alertContext.sendAlert("error", error || "Login failed");
+    const errorMessage = error?.message || "Login failed";
+    alertContext.sendAlert("error", errorMessage);
     return redirect("/user/login");
   }
 }
