@@ -54,6 +54,9 @@ import ConnectExternalSystems from "../features/reports/ptrs/ConnectExternalSyst
 import StepsOverview from "../features/reports/ptrs/StepsOverview";
 import GettingStartedPage from "../components/generic/GettingStarted";
 import FAQ from "../components/generic/FAQ";
+import Booking from "../components/generic/Booking";
+import ContactThankyou from "../components/generic/ContactThankyou";
+import BookingThankyou from "../components/generic/BookingThankyou";
 // import Step1, { step1Loader } from "../features/reports/ptrs/Step1";
 // import Step2, { step2Loader } from "../features/reports/ptrs/Step2";
 // import Step3, { step3Loader } from "../features/reports/ptrs/Step3";
@@ -85,6 +88,10 @@ export default function AppRouter() {
           Component: Contact,
         },
         {
+          path: "thankyou-contact",
+          Component: ContactThankyou,
+        },
+        {
           path: "ptr-solution",
           Component: PTRSolution,
         },
@@ -95,6 +102,14 @@ export default function AppRouter() {
         {
           path: "faq",
           Component: FAQ,
+        },
+        {
+          path: "booking",
+          Component: Booking,
+        },
+        {
+          path: "thankyou-booking",
+          Component: BookingThankyou,
         },
         // Users
         {

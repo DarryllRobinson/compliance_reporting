@@ -51,10 +51,11 @@ export default function LandingPage() {
           backgroundImage: `url(/images/backgrounds/monochromatic%20squares.jpg)`,
           backgroundSize: "cover",
           backgroundPosition: "center",
-          height: isSmallScreen ? 240 : 280,
+          height: isSmallScreen ? 240 : 300,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
+          py: isSmallScreen ? 4 : 6,
           textAlign: "center",
           px: 2,
         }}
@@ -65,21 +66,31 @@ export default function LandingPage() {
             p: isSmallScreen ? 2 : 4,
             borderRadius: 2,
             width: isSmallScreen ? "90%" : "60%",
+            maxWidth: 720,
           }}
         >
           <Typography
-            variant={isSmallScreen ? "h4" : "h2"}
+            variant={isSmallScreen ? "h5" : "h3"}
             sx={{
               color: "#fff",
               fontWeight: "bold",
               mb: 2,
             }}
           >
-            Handle your PTR obligations with confidence
+            Handle your PTR obligations
+            <br />
+            with confidence
           </Typography>
           <Typography
-            variant={isSmallScreen ? "body1" : "h5"}
-            sx={{ color: "#fff", mb: 3 }}
+            variant={isSmallScreen ? "body1" : "h6"}
+            sx={{
+              color: "#fff",
+              mb: 2,
+              fontWeight: 400,
+              lineHeight: 1.5,
+              maxWidth: isSmallScreen ? 320 : "100%",
+              mx: "auto",
+            }}
           >
             We'll walk you through the new requirements and help you complete
             your submission step-by-step.
@@ -97,7 +108,10 @@ export default function LandingPage() {
               mb: 1,
             }}
           >
-            <Typography variant="h5" sx={{ color: theme.palette.text.primary }}>
+            <Typography
+              variant={isSmallScreen ? "h6" : "h5"}
+              sx={{ color: theme.palette.text.primary }}
+            >
               PTR compliance doesn’t have to be overwhelming. Here’s how we make
               it easier.
             </Typography>

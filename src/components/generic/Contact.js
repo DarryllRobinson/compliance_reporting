@@ -10,15 +10,19 @@ import {
 } from "@mui/material";
 import { useAlert } from "../../context";
 import { publicService } from "../../services/public.services";
+import { useNavigate } from "react-router-dom";
 
 export default function Contact() {
   const theme = useTheme();
   const { sendAlert } = useAlert();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
+    name: "Homer Simpson",
+    email: "homer@simpson.com",
     subject: "Contact Us",
-    message: "",
+    message: "Hello there! I have a question.",
+    to: "darryllrobinson@icloud.com",
+    from: "darryllrobinson@icloud.com",
   });
 
   const handleChange = (e) => {
@@ -29,8 +33,10 @@ export default function Contact() {
   const sendContactEmail = async (data) => {
     try {
       const response = await publicService.sendEmail(data);
+      console.log("Email sent successfully:", response);
       if (response.success) {
         sendAlert("success", "Thank you for contacting us!");
+        navigate("/thankyou-contact");
       }
     } catch (error) {
       console.error("Error sending email:", error);

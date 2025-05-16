@@ -103,6 +103,22 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
           >
             Contact
           </Button>
+          <Button
+            color="inherit"
+            component={Link}
+            to="/faq"
+            sx={{ color: theme.palette.text.primary }}
+          >
+            FAQ
+          </Button>
+          <Button
+            color="inherit"
+            component={Link}
+            to="/booking"
+            sx={{ color: theme.palette.text.primary }}
+          >
+            Booking
+          </Button>
           {user && ( // Hiding for public site prep
             <Button
               color="inherit"
@@ -179,10 +195,26 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
             <MenuItem
               onClick={handleMenuClose}
               component={Link}
-              to="/contact" // Add Contact link to the menu
+              to="/contact"
               sx={{ color: theme.palette.text.primary }}
             >
               Contact
+            </MenuItem>
+            <MenuItem
+              onClick={handleMenuClose}
+              component={Link}
+              to="/faq"
+              sx={{ color: theme.palette.text.primary }}
+            >
+              FAQ
+            </MenuItem>
+            <MenuItem
+              onClick={handleMenuClose}
+              component={Link}
+              to="/booking"
+              sx={{ color: theme.palette.text.primary }}
+            >
+              Booking
             </MenuItem>
             {/* {user && (
               <MenuItem

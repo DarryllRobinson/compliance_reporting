@@ -54,5 +54,14 @@ export function AlertProvider({ children }) {
 }
 
 export function useAlert() {
-  return useContext(AlertContext);
+  const context = useContext(AlertContext);
+  console.log("useAlert resolved context:", context); // Add this
+  if (!context) {
+    throw new Error("useAlert must be used within an AlertProvider");
+  }
+  return context;
 }
+
+// export function useAlert() {
+//   return useContext(AlertContext);
+// }

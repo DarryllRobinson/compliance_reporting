@@ -5,3 +5,4 @@ export * from "./client.service";
 export * from "./tcp.service";
 // export * from "./tat.service";
 export * from "./entity.service";
+export * from "./booking.service";

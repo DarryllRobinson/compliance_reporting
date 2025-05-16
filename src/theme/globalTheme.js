@@ -108,6 +108,27 @@ const globalTheme = (mode) => {
                   : darkPalette.action.hoverOpacity, // Use hoverOpacity from the palette
             },
           },
+          outlined: {
+            borderColor:
+              mode === "light"
+                ? lightPalette.secondary.main
+                : darkPalette.secondary.main,
+            color:
+              mode === "light"
+                ? lightPalette.text.secondary
+                : darkPalette.text.secondary,
+            "&:hover": {
+              borderColor:
+                mode === "light"
+                  ? lightPalette.text.secondary
+                  : darkPalette.text.secondary,
+              backgroundColor: "transparent",
+              opacity:
+                mode === "light"
+                  ? lightPalette.action.hoverOpacity
+                  : darkPalette.action.hoverOpacity,
+            },
+          },
         },
       },
       MuiTextField: {
