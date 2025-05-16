@@ -115,7 +115,7 @@ const flowQuestions = [
   },
 ];
 
-export default function PublicEntityNavigator() {
+export default function PublicComplianceNavigator() {
   const theme = useTheme();
   const [activeStep, setActiveStep] = useState(0);
   const [answers, setAnswers] = useState({});

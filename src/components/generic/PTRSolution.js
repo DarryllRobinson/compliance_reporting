@@ -4,48 +4,74 @@ import {
   Typography,
   Grid,
   Card,
-  CardContent,
   Button,
   useTheme,
   useMediaQuery,
 } from "@mui/material";
 import { useNavigate } from "react-router";
+import LockIcon from "@mui/icons-material/Lock";
+import HistoryIcon from "@mui/icons-material/History";
+import DescriptionIcon from "@mui/icons-material/Description";
+import FunctionsIcon from "@mui/icons-material/Functions";
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
+import RouteIcon from "@mui/icons-material/Route";
 
 export default function PTRSolution() {
   const navigate = useNavigate();
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
-  const features = [
+  const groupedFeatures = [
     {
-      title: "Eligibility Navigator",
-      description:
-        "A guided flowchart that helps users determine if their entity is required to report under the Payment Times Reporting Act 2020.",
+      title: "Assess & Prepare",
+      items: [
+        {
+          title: "Compliance Navigator",
+          description:
+            "A guided flowchart that helps you determine if your entity is required to report under the revised requirements of the Payment Times Reporting Amendment Act 2024.",
+          iconComponent: RouteIcon,
+        },
+        {
+          title: "Integrated Guidance",
+          description:
+            "Step-by-step helper texts and tooltips based on government documentation, ensuring you're never left guessing what a field means.",
+          iconComponent: HelpOutlineIcon,
+        },
+      ],
     },
     {
-      title: "Automated Calculations",
-      description:
-        "Our system calculates key metrics such as average payment time, 80th/95th percentiles, and compliance thresholds based on your unique dataset.",
+      title: "Calculate & Report",
+      items: [
+        {
+          title: "Automated Calculations",
+          description:
+            "Our platform calculates all required metrics like average payment time, percentiles, and compliance thresholds based on your dataset.",
+          iconComponent: FunctionsIcon,
+        },
+        {
+          title: "PDF Reporting",
+          description:
+            "Generate and download professional summary reports, or have them sent directly to your inbox.",
+          iconComponent: DescriptionIcon,
+        },
+      ],
     },
     {
-      title: "Audit-Ready Tracking",
-      description:
-        "All user interactions are logged to ensure full auditability and traceability of actions.",
-    },
-    {
-      title: "Secure Multi-Tenant Architecture",
-      description:
-        "Data is isolated and secured at the database level, ensuring your organisation's records are never exposed to other users.",
-    },
-    {
-      title: "PDF Reporting",
-      description:
-        "Generate and download professional summary reports, or have them sent directly to your inbox for recordkeeping and compliance.",
-    },
-    {
-      title: "Integrated Guidance",
-      description:
-        "Step-by-step helper texts and tooltips based on government documentation, ensuring you're never left guessing what a field means.",
+      title: "Secure & Track",
+      items: [
+        {
+          title: "Audit Trail",
+          description:
+            "We take care of fullfiling your legislated requirements, including a complete audit trail and secure storage of your data and preparation for seven years.",
+          iconComponent: HistoryIcon,
+        },
+        {
+          title: "Secure Multi-Tenant Architecture",
+          description:
+            "Data is isolated and secured at the database level, ensuring your records are never exposed to other users.",
+          iconComponent: LockIcon,
+        },
+      ],
     },
   ];
 
@@ -53,12 +79,12 @@ export default function PTRSolution() {
     <Box
       sx={{
         px: { xs: theme.spacing(3), md: theme.spacing(8) },
-        py: theme.spacing(6),
+        py: theme.spacing(4),
         backgroundColor: theme.palette.background.default,
       }}
     >
       <Typography variant="h4" gutterBottom color={theme.palette.text.primary}>
-        Payment Times Reporting Compliance Platform
+        Everything You Need for PTR Compliance — In One Platform
       </Typography>
 
       <Typography
@@ -66,38 +92,60 @@ export default function PTRSolution() {
         color={theme.palette.text.secondary}
         sx={{ mb: theme.spacing(4) }}
       >
-        A complete compliance solution for Australian businesses with over A$100
-        million in annual turnover. Built to simplify your reporting
-        obligations, reduce risk, and give you confidence in your compliance
-        with the Payment Times Reporting Act 2020.
+        From eligibility checks to report generation, our platform simplifies
+        every step of the Payment Times Reporting process so you can focus on
+        running your business.
       </Typography>
 
-      <Grid container spacing={4}>
-        {features.map((feature, idx) => (
-          <Grid item xs={12} sm={6} md={4} key={idx}>
-            <Card
-              elevation={3}
-              sx={{
-                height: "100%",
-                backgroundColor: theme.palette.background.paper,
-                color: theme.palette.text.primary,
-              }}
-            >
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  {feature.title}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  color={theme.palette.text.secondary}
+      {groupedFeatures.map((group, i) => (
+        <Box key={i} sx={{ mb: theme.spacing(5) }}>
+          <Typography
+            variant="h6"
+            gutterBottom
+            color={theme.palette.text.primary}
+          >
+            {group.title}
+          </Typography>
+          <Grid container spacing={3}>
+            {group.items.map((item, j) => (
+              <Grid item xs={12} sm={6} key={j}>
+                <Card
+                  elevation={2}
+                  sx={{
+                    display: "flex",
+                    alignItems: "flex-start",
+                    padding: 2,
+                    height: "100%",
+                  }}
                 >
-                  {feature.description}
-                </Typography>
-              </CardContent>
-            </Card>
+                  <item.iconComponent
+                    sx={{
+                      fontSize: 40,
+                      color: theme.palette.primary.secondary,
+                      mr: 2,
+                    }}
+                  />
+                  <Box>
+                    <Typography
+                      variant="subtitle1"
+                      fontWeight="bold"
+                      gutterBottom
+                    >
+                      {item.title}
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      color={theme.palette.text.secondary}
+                    >
+                      {item.description}
+                    </Typography>
+                  </Box>
+                </Card>
+              </Grid>
+            ))}
           </Grid>
-        ))}
-      </Grid>
+        </Box>
+      ))}
 
       <Box sx={{ mt: theme.spacing(6), textAlign: "center" }}>
         <Typography
@@ -105,17 +153,35 @@ export default function PTRSolution() {
           gutterBottom
           color={theme.palette.text.primary}
         >
-          Ready to check your entity's reporting eligibility?
+          Ready to take the stress out of PTR reporting?
         </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          size="large"
-          onClick={() => navigate("/entity-navigator")}
-          sx={{ width: isSmallScreen ? "100%" : "auto" }}
+        <Box
+          sx={{
+            display: "flex",
+            gap: 2,
+            flexDirection: isSmallScreen ? "column" : "row",
+            justifyContent: "center",
+          }}
         >
-          Start Eligibility Check
-        </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            size="large"
+            onClick={() => navigate("/compliance-navigator")}
+            sx={{ width: isSmallScreen ? "100%" : "auto" }}
+          >
+            Launch the Compliance Navigator
+          </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            size="large"
+            onClick={() => navigate("/contact")}
+            sx={{ width: isSmallScreen ? "100%" : "auto" }}
+          >
+            Get in Touch
+          </Button>
+        </Box>
       </Box>
     </Box>
   );

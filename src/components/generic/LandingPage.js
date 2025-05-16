@@ -7,13 +7,41 @@ import {
   Container,
   useMediaQuery,
   useTheme,
+  Card,
+  CardContent,
 } from "@mui/material";
 import { useNavigate } from "react-router";
+import QuestionMarkIcon from "@mui/icons-material/QuestionMark";
+import FormatListNumberedIcon from "@mui/icons-material/FormatListNumbered";
+import SupportAgentIcon from "@mui/icons-material/SupportAgent";
 
 export default function LandingPage() {
   const theme = useTheme();
   const navigate = useNavigate();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+
+  const features = [
+    {
+      title: "Find out if you need to report",
+      description:
+        "Just enter a few details — no login needed. We'll instantly tell you if PTR applies to you.",
+      iconComponent: QuestionMarkIcon,
+      buttonLink: "/compliance-navigator",
+    },
+    {
+      title: "Step-by-step help to complete your report",
+      description:
+        "We break the PTR process down into simple steps so you’re never left wondering what’s next.",
+      iconComponent: FormatListNumberedIcon,
+      buttonLink: "/getting-started",
+    },
+    {
+      title: "Talk to real people if you get stuck",
+      description: "Need help? Our compliance experts are just a click away.",
+      iconComponent: SupportAgentIcon,
+      buttonLink: "/contact",
+    },
+  ];
 
   return (
     <Box sx={{ backgroundColor: theme.palette.background.default }}>
@@ -23,7 +51,7 @@ export default function LandingPage() {
           backgroundImage: `url(/images/backgrounds/monochromatic%20squares.jpg)`,
           backgroundSize: "cover",
           backgroundPosition: "center",
-          height: isSmallScreen ? 300 : 500,
+          height: isSmallScreen ? 240 : 280,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -47,62 +75,85 @@ export default function LandingPage() {
               mb: 2,
             }}
           >
-            Navigate PTR obligations with confidence
+            Handle your PTR obligations with confidence
           </Typography>
           <Typography
             variant={isSmallScreen ? "body1" : "h5"}
             sx={{ color: "#fff", mb: 3 }}
           >
-            Our smart tool helps determine which entities must report and what
-            to do next.
+            We'll walk you through the new requirements and help you complete
+            your submission step-by-step.
           </Typography>
-          <Button
-            variant="contained"
-            color="primary"
-            size="large"
-            onClick={() => navigate("/entity-navigator")}
-            sx={{ width: isSmallScreen ? "100%" : "auto" }}
-          >
-            Start Entity Navigator
-          </Button>
         </Box>
       </Box>
 
-      {/* Benefits (1 - 3) Features (4 - 6) */}
-      <Box sx={{ bgcolor: theme.palette.background.paper, py: 6 }}>
+      <Box sx={{ bgcolor: theme.palette.background.paper, py: 2 }}>
         <Container>
+          <Box
+            sx={{
+              textAlign: "center",
+              maxWidth: theme.breakpoints.values.md,
+              mx: "auto",
+              mb: 1,
+            }}
+          >
+            <Typography variant="h5" sx={{ color: theme.palette.text.primary }}>
+              PTR compliance doesn’t have to be overwhelming. Here’s how we make
+              it easier.
+            </Typography>
+          </Box>
           <Grid container spacing={4}>
-            {[
-              "No login required to start",
-              "Receive tailored summary",
-              "Come give it a try",
-            ].map((text, index) => (
-              <Grid item xs={12} sm={6} md={4} key={index}>
-                <Typography
-                  variant="h6"
-                  gutterBottom
-                  sx={{
-                    color: theme.palette.text.primary,
-                    textAlign: "center",
-                  }}
-                >
-                  {text}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    color: theme.palette.text.secondary,
-                    textAlign: "center",
-                  }}
-                >
-                  {text === "No login required to start"
-                    ? "Jump straight in and explore entity eligibility without creating an account."
-                    : text === "Come give it a try"
-                      ? "Our simple tool will help you, trust."
-                      : text === "Complete reporting flow"
-                        ? "Answer key questions step-by-step to facilitate reporting requirements."
-                        : "Receive a clear PDF report summarising the results and what actions to take next."}
-                </Typography>
+            {features.map((feature, index) => (
+              <Grid item xs={12} key={index}>
+                <Box sx={{ maxWidth: theme.breakpoints.values.md, mx: "auto" }}>
+                  <Card
+                    onClick={() => navigate(feature.buttonLink)}
+                    sx={{
+                      display: "flex",
+                      flexDirection: index % 2 === 1 ? "row-reverse" : "row",
+                      alignItems: "center",
+                      px: isSmallScreen ? 2 : 4,
+                      py: isSmallScreen ? 2 : 3,
+                      cursor: "pointer",
+                      transition: "box-shadow 0.3s",
+                      "&:hover": {
+                        boxShadow: 6,
+                      },
+                    }}
+                  >
+                    <CardContent
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        width: "100%",
+                        p: 0,
+                      }}
+                    >
+                      <feature.iconComponent
+                        sx={{
+                          fontSize: isSmallScreen ? 50 : 80,
+                          mx: 2,
+                          color: theme.palette.primary.secondary,
+                        }}
+                      />
+                      <Box sx={{ flex: 1 }}>
+                        <Typography
+                          variant="h6"
+                          gutterBottom
+                          sx={{ color: theme.palette.text.primary }}
+                        >
+                          {feature.title}
+                        </Typography>
+                        <Typography
+                          variant="body1"
+                          sx={{ color: theme.palette.text.secondary }}
+                        >
+                          {feature.description}
+                        </Typography>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </Box>
               </Grid>
             ))}
           </Grid>
@@ -113,19 +164,25 @@ export default function LandingPage() {
       <Box sx={{ py: 6, textAlign: "center", px: 2 }}>
         <Typography
           variant={isSmallScreen ? "h5" : "h4"}
-          sx={{ mb: 2, color: theme.palette.text.primary }}
+          sx={{ mb: 4, color: theme.palette.text.primary }}
         >
-          Take the guesswork out of PTR compliance
+          Get clarity in minutes — start now
         </Typography>
         <Button
           variant="contained"
           color="primary"
           size="large"
-          onClick={() => navigate("/entity-navigator")}
+          onClick={() => navigate("/compliance-navigator")}
           sx={{ width: isSmallScreen ? "100%" : "auto" }}
         >
-          Start Entity Navigator
+          Launch the Compliance Navigator
         </Button>
+        <Typography
+          variant="body2"
+          sx={{ mt: 1, color: theme.palette.text.secondary }}
+        >
+          No login. No risk. Just clear answers.
+        </Typography>
       </Box>
     </Box>
   );

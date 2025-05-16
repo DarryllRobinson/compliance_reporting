@@ -8,7 +8,7 @@ import Fallback from "../components/generic/Fallback";
 
 // Publicly available
 import Contact from "../components/generic/Contact";
-import PublicEntityNavigator from "../components/generic/PublicEntityNavigator";
+import PublicComplianceNavigator from "../components/generic/PublicComplianceNavigator";
 // Testing pdf email
 import PTRSolution from "../components/generic/PTRSolution";
 
@@ -46,13 +46,14 @@ import ReportsLayout, {
 
 // PTRS
 import ReportWizard from "../features/reports/ptrs/ReportWizard";
-// import EntityFlowChart from "../features/reports/ptrs/EntityFlowChart";
+// import ComplianceFlowChart from "../features/reports/ptrs/ComplianceFlowChart";
 import CreateReport, {
   createReportAction,
 } from "../features/reports/ptrs/CreateReport";
 import ConnectExternalSystems from "../features/reports/ptrs/ConnectExternalSystems";
 import StepsOverview from "../features/reports/ptrs/StepsOverview";
 import GettingStartedPage from "../components/generic/GettingStarted";
+import FAQ from "../components/generic/FAQ";
 // import Step1, { step1Loader } from "../features/reports/ptrs/Step1";
 // import Step2, { step2Loader } from "../features/reports/ptrs/Step2";
 // import Step3, { step3Loader } from "../features/reports/ptrs/Step3";
@@ -76,8 +77,8 @@ export default function AppRouter() {
           Component: LandingPage,
         },
         {
-          path: "entity-navigator",
-          Component: PublicEntityNavigator,
+          path: "compliance-navigator",
+          Component: PublicComplianceNavigator,
         },
         {
           path: "contact",
@@ -90,6 +91,10 @@ export default function AppRouter() {
         {
           path: "getting-started",
           Component: GettingStartedPage,
+        },
+        {
+          path: "faq",
+          Component: FAQ,
         },
         // Users
         {

@@ -103,7 +103,7 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
           >
             Contact
           </Button>
-          {!user && (
+          {user && ( // Hiding for public site prep
             <Button
               color="inherit"
               component={Link}
