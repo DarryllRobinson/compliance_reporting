@@ -78,80 +78,81 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
           ></Box> */}
           Placeholder Logo
         </Typography>
-        {user ? ( // Check if user exists
-          <Box sx={{ display: { xs: "none", md: "flex" } }}>
+        <Box sx={{ display: { xs: "none", md: "flex" } }}>
+          <Button
+            color="inherit"
+            component={Link}
+            to="/ptr-solution"
+            sx={{ color: theme.palette.text.primary }}
+          >
+            PTR Solution
+          </Button>
+          <Button
+            color="inherit"
+            component={Link}
+            to="/getting-started"
+            sx={{ color: theme.palette.text.primary }}
+          >
+            Getting Started
+          </Button>
+          <Button
+            color="inherit"
+            component={Link}
+            to="/contact"
+            sx={{ color: theme.palette.text.primary }}
+          >
+            Contact
+          </Button>
+          {!user && (
             <Button
-              color="inherit"
-              component={Link}
-              to="/ptr-solution"
-              sx={{ color: theme.palette.text.primary }}
-            >
-              PTR Solution
-            </Button>
-            <Button
-              color="inherit"
-              component={Link}
-              to="/contact" // Add Contact link
-              sx={{ color: theme.palette.text.primary }}
-            >
-              Contact
-            </Button>
-            <Button
-              color="inherit"
-              component={Link}
-              to="/user/dashboard"
-              sx={{ color: theme.palette.text.primary }}
-            >
-              Dashboard
-            </Button>
-            {user.role === "Admin" && (
-              <Button
-                color="inherit"
-                component={Link}
-                to="/clients"
-                sx={{ color: theme.palette.text.primary }}
-              >
-                Clients
-              </Button>
-            )}
-            {user.role === "Admin" && (
-              <Button
-                color="inherit"
-                component={Link}
-                to="/users"
-                sx={{ color: theme.palette.text.primary }}
-              >
-                Users
-              </Button>
-            )}
-            <Button
-              color="inherit"
-              onClick={handleLogout}
-              sx={{ color: theme.palette.text.primary }}
-            >
-              Logout
-            </Button>
-          </Box>
-        ) : (
-          <Box sx={{ display: { xs: "none", md: "flex" } }}>
-            {/* <Button
               color="inherit"
               component={Link}
               to="/user/login"
               sx={{ color: theme.palette.text.primary }}
             >
               Login
-            </Button> */}
-            <Button
-              color="inherit"
-              component={Link}
-              to="/contact" // Add Contact link for non-logged-in users
-              sx={{ color: theme.palette.text.primary }}
-            >
-              Contact
             </Button>
-          </Box>
-        )}
+          )}
+          {user && (
+            <Box>
+              <Button
+                color="inherit"
+                component={Link}
+                to="/user/dashboard"
+                sx={{ color: theme.palette.text.primary }}
+              >
+                Dashboard
+              </Button>
+              {user.role === "Admin" && (
+                <>
+                  <Button
+                    color="inherit"
+                    component={Link}
+                    to="/clients"
+                    sx={{ color: theme.palette.text.primary }}
+                  >
+                    Clients
+                  </Button>
+                  <Button
+                    color="inherit"
+                    component={Link}
+                    to="/users"
+                    sx={{ color: theme.palette.text.primary }}
+                  >
+                    Users
+                  </Button>
+                </>
+              )}
+              <Button
+                color="inherit"
+                onClick={handleLogout}
+                sx={{ color: theme.palette.text.primary }}
+              >
+                Logout
+              </Button>
+            </Box>
+          )}
+        </Box>
         <Box sx={{ display: { xs: "flex", md: "none" } }}>
           <IconButton
             color="inherit"

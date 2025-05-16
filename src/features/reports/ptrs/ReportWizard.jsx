@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router";
+import { useParams } from "react-router";
 import {
   Box,
   Stepper,
@@ -34,7 +34,7 @@ const steps = [
 
 function enhanceWithGlossary(text) {
   if (!text) return "";
-  const terms = glossary.map((entry) => entry.term);
+  // const terms = glossary.map((entry) => entry.term);
   const parts = text.split(/(\s+)/).map((word, index) => {
     const cleaned = word.replace(/[^a-zA-Z]/g, "").toLowerCase();
     const match = glossary.find(
@@ -55,7 +55,6 @@ function enhanceWithGlossary(text) {
 
 export default function ReportWizard() {
   const { reportId } = useParams();
-  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
   const [stepData, setStepData] = useState({});
   const [reportStatus, setReportStatus] = useState("");

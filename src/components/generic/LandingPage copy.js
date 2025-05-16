@@ -73,9 +73,12 @@ export default function LandingPage() {
         <Container>
           <Grid container spacing={4}>
             {[
+              "Australian regulation aligned",
+              "Secure & private",
               "No login required to start",
+              "Evaluate eligibility",
+              "Complete reporting flow",
               "Receive tailored summary",
-              "Come give it a try",
             ].map((text, index) => (
               <Grid item xs={12} sm={6} md={4} key={index}>
                 <Typography
@@ -95,13 +98,17 @@ export default function LandingPage() {
                     textAlign: "center",
                   }}
                 >
-                  {text === "No login required to start"
-                    ? "Jump straight in and explore entity eligibility without creating an account."
-                    : text === "Come give it a try"
-                      ? "Our simple tool will help you, trust."
-                      : text === "Complete reporting flow"
-                        ? "Answer key questions step-by-step to facilitate reporting requirements."
-                        : "Receive a clear PDF report summarising the results and what actions to take next."}
+                  {text === "Australian regulation aligned"
+                    ? "Built specifically to comply with the Payment Times Reporting Amendment Act 2024."
+                    : text === "Secure & private"
+                      ? "We don’t store sensitive data — your results remain confidential."
+                      : text === "No login required to start"
+                        ? "Jump straight in and explore entity eligibility without creating an account."
+                        : text === "Evaluate eligibility"
+                          ? "Determine your entity’s obligations through a guided flow aligned with current legislation."
+                          : text === "Complete reporting flow"
+                            ? "Answer key questions step-by-step to facilitate reporting requirements."
+                            : "Receive a clear PDF report summarising the results and what actions to take next."}
                 </Typography>
               </Grid>
             ))}

@@ -52,6 +52,7 @@ import CreateReport, {
 } from "../features/reports/ptrs/CreateReport";
 import ConnectExternalSystems from "../features/reports/ptrs/ConnectExternalSystems";
 import StepsOverview from "../features/reports/ptrs/StepsOverview";
+import GettingStartedPage from "../components/generic/GettingStarted";
 // import Step1, { step1Loader } from "../features/reports/ptrs/Step1";
 // import Step2, { step2Loader } from "../features/reports/ptrs/Step2";
 // import Step3, { step3Loader } from "../features/reports/ptrs/Step3";
@@ -85,6 +86,10 @@ export default function AppRouter() {
         {
           path: "ptr-solution",
           Component: PTRSolution,
+        },
+        {
+          path: "getting-started",
+          Component: GettingStartedPage,
         },
         // Users
         {

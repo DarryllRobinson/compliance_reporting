@@ -44,15 +44,25 @@ function login(params) {
 }
 
 function logout() {
-  // revoke token, stop refresh timer, publish null to user subscribers
-  fetchWrapper.post(`${baseUrl}/revoke-token`, {}).catch((error) => {
-    console.error(
-      "Failed to revoke token during logout:",
-      error.message || error
-    );
-  });
+  // Revoke the refresh token using the cookie
+  fetchWrapper
+    .post(`${baseUrl}/revoke-token`, {
+      refreshToken: getCookie("refreshToken"),
+    })
+    .catch((error) => {
+      console.error(
+        "Failed to revoke token during logout:",
+        error.message || error
+      );
+    });
   stopRefreshTokenTimer();
   userSubject.next(null);
+}
+
+// Helper to read a cookie by name
+function getCookie(name) {
+  const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
+  if (match) return match[2];
 }
 
 // Refresh the user's JWT token
