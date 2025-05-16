@@ -14,7 +14,7 @@ import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import { bookingService } from "../../services/booking.service";
 import { format, addDays } from "date-fns";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 
 const Booking = () => {
   const theme = useTheme();
@@ -22,7 +22,7 @@ const Booking = () => {
   const todayStr = format(new Date(), "yyyy-MM-dd");
   const [form, setForm] = useState({
     name: "John Doe",
-    email: "darryll@stillproud.com",
+    email: "darryllrobinson@icloud.com",
     date: todayStr,
     time: "10:00 AM",
     reason: "Test appointment booking",
@@ -30,6 +30,7 @@ const Booking = () => {
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
   const [booked, setBooked] = useState({});
+  const [loading, setLoading] = useState(false);
 
   const timeslots = [
     "09:00 AM",
@@ -96,22 +97,20 @@ const Booking = () => {
       return;
     }
     try {
+      setLoading(true);
       setError("");
       setSuccess("");
       const payload = {
         ...form,
       };
       await bookingService.create(payload);
-      // Send confirmation email to user and cc internal address
       await publicService.sendEmail({
         to: form.email,
         bcc: "darryllrobinson@icloud.com",
-        // cc: "team@monochrome.au",
         subject: "Booking Confirmation",
         message: `Hi ${form.name},\n\nYour booking for ${form.date} at ${form.time} has been confirmed.\n\nThank you,\nMonochrome Team`,
         from: "darryllrobinson@icloud.com",
       });
-      // Send internal notification
       await publicService.sendEmail({
         to: "darryllrobinson@icloud.com",
         subject: "New Booking Submitted",
@@ -124,6 +123,8 @@ const Booking = () => {
       navigate("/thankyou-booking");
     } catch (err) {
       setError("There was an error submitting your booking.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -257,10 +258,11 @@ const Booking = () => {
       <Button
         fullWidth
         variant="contained"
-        sx={{ mt: 2 }}
+        sx={{ mt: 2, mb: 2 }}
         onClick={handleSubmit}
+        disabled={loading}
       >
-        Submit Booking
+        {loading ? "Submitting..." : "Submit Booking"}
       </Button>
     </Box>
   );

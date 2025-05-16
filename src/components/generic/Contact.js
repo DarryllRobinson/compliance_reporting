@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import { useAlert } from "../../context";
 import { publicService } from "../../services/public.services";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router"; // Change from "react-router-dom" to "react-router"
 
 export default function Contact() {
   const theme = useTheme();
@@ -24,6 +24,7 @@ export default function Contact() {
     to: "darryllrobinson@icloud.com",
     from: "darryllrobinson@icloud.com",
   });
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -32,6 +33,7 @@ export default function Contact() {
 
   const sendContactEmail = async (data) => {
     try {
+      setLoading(true);
       const response = await publicService.sendEmail(data);
       console.log("Email sent successfully:", response);
       if (response.success) {
@@ -41,6 +43,8 @@ export default function Contact() {
     } catch (error) {
       console.error("Error sending email:", error);
       sendAlert("error", "Failed to send email.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -122,13 +126,14 @@ export default function Contact() {
             variant="contained"
             color="primary"
             fullWidth
+            disabled={loading}
             sx={{
               padding: theme.spacing(1.5),
               fontWeight: "bold",
               borderRadius: theme.shape.borderRadius,
             }}
           >
-            Submit
+            {loading ? "Submitting..." : "Submit"}
           </Button>
         </Box>
       </Paper>
