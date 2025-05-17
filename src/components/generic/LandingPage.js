@@ -39,7 +39,7 @@ export default function LandingPage() {
       title: "Talk to real people if you get stuck",
       description: "Need help? Our compliance experts are just a click away.",
       iconComponent: SupportAgentIcon,
-      buttonLink: "/contact",
+      buttonLink: "/booking",
     },
   ];
 

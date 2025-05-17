@@ -21,11 +21,11 @@ const Booking = () => {
   const navigate = useNavigate();
   const todayStr = format(new Date(), "yyyy-MM-dd");
   const [form, setForm] = useState({
-    name: "John Doe",
-    email: "darryllrobinson@icloud.com",
+    name: "",
+    email: "",
     date: todayStr,
-    time: "10:00 AM",
-    reason: "Test appointment booking",
+    time: "",
+    reason: "",
   });
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
