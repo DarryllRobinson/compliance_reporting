@@ -47,7 +47,7 @@ async function _get(url) {
     "Content-Type": "application/json",
     ...authHeader(url),
   };
-  const requestOptions = { method: "GET", headers };
+  const requestOptions = { method: "GET", headers, credentials: "include" };
   return fetch(url, requestOptions).then(handleResponse);
 }
 

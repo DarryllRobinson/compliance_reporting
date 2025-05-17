@@ -22,21 +22,17 @@ import { AlertProvider } from "./context/AlertContext";
 // });
 
 // attempt silent token refresh before startup
-if (userService.userValue) {
-  userService
-    .refreshToken()
-    .then(() => {
-      // console.log("Silent token refresh successful");
-    })
-    .catch((error) => {
-      console.warn("Silent token refresh failed:", error.message || error);
-      // userService.logout(); // Ensure user is logged out on failure
-      // redirect("/user/login"); // Redirect to login page
-    })
-    .finally(startApp);
-} else {
-  startApp();
-}
+userService
+  .refreshToken()
+  .then(() => {
+    // console.log("Silent token refresh successful");
+  })
+  .catch((error) => {
+    console.warn("Silent token refresh failed:", error.message || error);
+    // userService.logout(); // Ensure user is logged out on failure
+    // redirect("/user/login"); // Redirect to login page
+  })
+  .finally(startApp);
 
 // startApp();
 

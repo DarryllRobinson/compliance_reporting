@@ -37,6 +37,9 @@ function login(params) {
     if (!user || typeof user !== "object") {
       throw new Error("Email or password is incorrect");
     }
+    if (!user.jwtToken) {
+      throw new Error("JWT not included in response");
+    }
     userSubject.next(user);
     startRefreshTokenTimer();
     return user;
@@ -70,6 +73,9 @@ function refreshToken() {
   return fetchWrapper
     .post(`${baseUrl}/refresh-token`, {})
     .then((user) => {
+      if (!user.jwtToken) {
+        throw new Error("JWT not included in response");
+      }
       userSubject.next(user);
       startRefreshTokenTimer();
       return user;

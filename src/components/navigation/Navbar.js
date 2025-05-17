@@ -119,7 +119,7 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
           >
             Booking
           </Button>
-          {user && ( // Hiding for public site prep
+          {!user && ( // Hiding for public site prep
             <Button
               color="inherit"
               component={Link}
