@@ -10,35 +10,49 @@ import {
 } from "@mui/material";
 import { useAlert } from "../../context";
 import { publicService } from "../../services/public.services";
-import { useNavigate } from "react-router"; // Change from "react-router-dom" to "react-router"
+import { useNavigate } from "react-router";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 
 export default function Contact() {
   const theme = useTheme();
   const { sendAlert } = useAlert();
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    name: "Homer Simpson",
-    email: "homer@simpson.com",
-    subject: "Contact Us",
-    message: "Hello there! I have a question.",
-    to: "darryllrobinson@icloud.com",
-    from: "darryllrobinson@icloud.com",
+
+  const schema = yup.object().shape({
+    name: yup.string().required("Name is required"),
+    email: yup.string().email("Invalid email").required("Email is required"),
+    message: yup.string().required("Message is required"),
   });
+
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm({
+    resolver: yupResolver(schema),
+    defaultValues: {
+      name: "Homer Simpson",
+      email: "homer@simpson.com",
+      subject: "Contact Us",
+      message: "Hello there! I have a question.",
+      to: "darryllrobinson@icloud.com",
+      from: "darryllrobinson@icloud.com",
+    },
+  });
 
   const sendContactEmail = async (data) => {
     try {
       setLoading(true);
       const response = await publicService.sendEmail(data);
-      console.log("Email sent successfully:", response);
-      if (response.success) {
-        sendAlert("success", "Thank you for contacting us!");
+      if (response.status === 200) {
+        reset();
         navigate("/thankyou-contact");
+        return;
       }
     } catch (error) {
       console.error("Error sending email:", error);
@@ -46,13 +60,6 @@ export default function Contact() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // console.log("Form submitted:", formData);
-    sendContactEmail(formData);
-    setFormData({ name: "", email: "", message: "" });
   };
 
   return (
@@ -88,33 +95,33 @@ export default function Contact() {
           We'd love to hear from you! Please fill out the form below and we'll
           get back to you as soon as possible.
         </Typography>
-        <Box component="form" onSubmit={handleSubmit}>
+        <Box component="form" onSubmit={handleSubmit(sendContactEmail)}>
           <TextField
             label="Name"
-            name="name"
             type="text"
-            value={formData.name}
-            onChange={handleChange}
+            {...register("name")}
+            error={!!errors.name}
+            helperText={errors.name?.message}
             fullWidth
             required
             sx={{ mb: theme.spacing(2) }}
           />
           <TextField
             label="Email"
-            name="email"
             type="email"
-            value={formData.email}
-            onChange={handleChange}
+            {...register("email")}
+            error={!!errors.email}
+            helperText={errors.email?.message}
             fullWidth
             required
             sx={{ mb: theme.spacing(2) }}
           />
           <TextField
             label="Message"
-            name="message"
             type="text"
-            value={formData.message}
-            onChange={handleChange}
+            {...register("message")}
+            error={!!errors.message}
+            helperText={errors.message?.message}
             fullWidth
             multiline
             rows={4}

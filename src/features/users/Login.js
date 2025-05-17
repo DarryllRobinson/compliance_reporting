@@ -1,5 +1,4 @@
-import React from "react";
-import { Form, redirect } from "react-router";
+import { redirect } from "react-router";
 import { Box, Typography, Button, TextField, useTheme } from "@mui/material";
 import { userService } from "../../services";
 import { useForm } from "react-hook-form";
@@ -7,7 +6,6 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 
 export async function loginAction({ request, context }) {
-  console.log("loginAction");
   const { alertContext } = context;
   const formData = await request.formData();
   const userDetails = Object.fromEntries(formData);
@@ -41,6 +39,7 @@ export default function Login() {
   } = useForm({ resolver: yupResolver(schema) });
 
   const onSubmit = async (data) => {
+    console.log("Form data:", data);
     try {
       await userService.login(data);
       window.location.href = "/user/dashboard";
@@ -84,7 +83,7 @@ export default function Login() {
             type="email"
             fullWidth
             required
-            // defaultValue="darryllrobinson@icloud.com"
+            defaultValue="darryllrobinson@icloud.com"
             {...register("email")}
             error={!!errors.email}
             helperText={errors.email?.message}
@@ -94,7 +93,7 @@ export default function Login() {
             type="password"
             fullWidth
             required
-            // defaultValue="newpassss"
+            defaultValue="newpassss"
             {...register("password")}
             error={!!errors.password}
             helperText={errors.password?.message}

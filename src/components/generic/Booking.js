@@ -15,22 +15,77 @@ import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import { bookingService } from "../../services/booking.service";
 import { format, addDays } from "date-fns";
 import { useNavigate } from "react-router";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 
 const Booking = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const todayStr = format(new Date(), "yyyy-MM-dd");
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    date: todayStr,
-    time: "",
-    reason: "",
-  });
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
   const [booked, setBooked] = useState({});
   const [loading, setLoading] = useState(false);
+
+  const schema = yup.object().shape({
+    name: yup
+      .string()
+      .trim()
+      .min(5, "Please provide at least five characters")
+      .required("Name is required"),
+    email: yup
+      .string()
+      .trim()
+      .email("Please enter a valid email address")
+      .matches(
+        /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/,
+        "Please enter a valid email address"
+      )
+      .required("Email is required"),
+    reason: yup
+      .string()
+      .trim()
+      .min(10, "Please provide at least 10 characters")
+      .max(1000, "Message is too long (max 1000 characters)")
+      .required("Reason is required"),
+    date: yup
+      .string()
+      .required("Please select a slot above")
+      .test(
+        "valid-date",
+        "Please select a valid date",
+        (val) => !!val && /^\d{4}-\d{2}-\d{2}$/.test(val)
+      ),
+    time: yup
+      .string()
+      .required("Please select a time")
+      .test(
+        "valid-time",
+        "Please select a valid time",
+        (val) => !!val && /^(0[9]|1[0-1]|0[1-3]):00 (AM|PM)$/.test(val)
+      ),
+  });
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+    watch,
+  } = useForm({
+    resolver: yupResolver(schema),
+    defaultValues: {
+      name: "",
+      email: "",
+      reason: "",
+      date: "",
+      time: "",
+    },
+  });
+
+  const watchDate = watch("date");
+  const watchTime = watch("time");
 
   const timeslots = [
     "09:00 AM",
@@ -71,13 +126,15 @@ const Booking = () => {
         map[b.date].push(b.time);
       });
       setBooked(map);
-      const todayBookings = map[todayStr] || [];
-      const firstAvailable = timeslots.find(
-        (slot) => !todayBookings.includes(slot)
-      );
-      if (firstAvailable) {
-        setForm((f) => ({ ...f, date: todayStr, time: firstAvailable }));
-      }
+      // Remove pre-selection of date and time here:
+      // const todayBookings = map[todayStr] || [];
+      // const firstAvailable = timeslots.find(
+      //   (slot) => !todayBookings.includes(slot)
+      // );
+      // if (firstAvailable) {
+      //   setValue("date", todayStr);
+      //   setValue("time", firstAvailable);
+      // }
     } catch (err) {
       console.error("Failed to load bookings:", err);
     }
@@ -87,39 +144,28 @@ const Booking = () => {
     loadBookings();
   }, []);
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async () => {
-    if (!form.date || !form.time) {
-      setError("Please select an available time slot.");
-      return;
-    }
+  const onSubmit = async (data) => {
+    console.log("Form data:", data);
     try {
       setLoading(true);
       setError("");
       setSuccess("");
-      const payload = {
-        ...form,
-      };
-      await bookingService.create(payload);
+      await bookingService.create(data);
       await publicService.sendEmail({
-        to: form.email,
+        to: data.email,
         bcc: "darryllrobinson@icloud.com",
         subject: "Booking Confirmation",
-        message: `Hi ${form.name},\n\nYour booking for ${form.date} at ${form.time} has been confirmed.\n\nThank you,\nMonochrome Team`,
+        message: `Hi ${data.name},\n\nYour booking for ${data.date} at ${data.time} has been confirmed.\n\nThank you,\nMonochrome Team`,
         from: "darryllrobinson@icloud.com",
       });
       await publicService.sendEmail({
         to: "darryllrobinson@icloud.com",
         subject: "New Booking Submitted",
-        message: `New booking from ${form.name} (${form.email}) for ${form.date} at ${form.time}.\n\nReason: ${form.reason}`,
+        message: `New booking from ${data.name} (${data.email}) for ${data.date} at ${data.time}.\n\nReason: ${data.reason}`,
         from: "darryllrobinson@icloud.com",
       });
       await loadBookings();
       setSuccess("Booking submitted successfully.");
-      setForm({ name: "", email: "", date: "", time: "", reason: "" });
       navigate("/thankyou-booking");
     } catch (err) {
       setError("There was an error submitting your booking.");
@@ -129,7 +175,7 @@ const Booking = () => {
   };
 
   return (
-    <Box sx={{ maxWidth: 500, mx: "auto", mt: 4 }}>
+    <Box sx={{ maxWidth: 500, mx: "auto", mt: 4, px: 2 }}>
       <Typography variant="h5" gutterBottom>
         Book an Appointment
       </Typography>
@@ -187,7 +233,8 @@ const Booking = () => {
                   if (isPastSlot) return null;
                   const isUnavailable = booked[dateStr]?.includes(slot);
                   const isSelected =
-                    form.date === dateStr && form.time === slot;
+                    dateStr === (watchDate || todayStr) &&
+                    slot === (watchTime || "");
                   return (
                     <Button
                       key={slot}
@@ -201,9 +248,10 @@ const Booking = () => {
                           backgroundColor: theme.palette.secondary.main,
                         }),
                       }}
-                      onClick={() =>
-                        setForm((f) => ({ ...f, date: dateStr, time: slot }))
-                      }
+                      onClick={() => {
+                        setValue("date", dateStr);
+                        setValue("time", slot);
+                      }}
                     >
                       {slot}
                     </Button>
@@ -229,8 +277,9 @@ const Booking = () => {
         label="Full Name"
         name="name"
         required
-        value={form.name}
-        onChange={handleChange}
+        {...register("name")}
+        error={!!errors.name}
+        helperText={errors.name?.message}
         InputLabelProps={{ style: { color: theme.palette.text.primary } }}
       />
       <TextField
@@ -239,27 +288,84 @@ const Booking = () => {
         label="Email"
         name="email"
         required
-        value={form.email}
-        onChange={handleChange}
+        {...register("email")}
+        error={!!errors.email}
+        helperText={errors.email?.message}
         InputLabelProps={{ style: { color: theme.palette.text.primary } }}
       />
+      {/* Selected Date & Time display with button and validation message */}
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 1, mt: 1 }}>
+        <Box sx={{ display: "flex", alignItems: "flex-start", gap: 2 }}>
+          <TextField
+            label="Selected Date & Time"
+            value={
+              watchDate && watchTime
+                ? `${watchDate} at ${watchTime}`
+                : "No slot selected"
+            }
+            disabled
+            fullWidth
+            sx={{ flex: 1 }}
+          />
+          <Box sx={{ display: "flex", alignItems: "center", pt: 1 }}>
+            <Button
+              variant="contained"
+              color="secondary"
+              sx={{
+                height: 48,
+                minWidth: 110,
+                fontWeight: "bold",
+                boxShadow: 2,
+                ml: 1,
+              }}
+              onClick={() => {
+                // Find the first available slot from today onwards
+                for (const day of days) {
+                  const dateStr = format(day, "yyyy-MM-dd");
+                  const bookedSlots = booked[dateStr] || [];
+                  const firstAvailable = timeslots.find(
+                    (slot) => !bookedSlots.includes(slot)
+                  );
+                  if (firstAvailable) {
+                    setValue("date", dateStr);
+                    setValue("time", firstAvailable);
+                    break;
+                  }
+                }
+              }}
+            >
+              Earliest
+            </Button>
+          </Box>
+        </Box>
+        {(errors.date || errors.time) && (
+          <Typography
+            variant="caption"
+            color="error"
+            sx={{ pl: 1, mt: "-20px" }}
+          >
+            {errors.date?.message || errors.time?.message}
+          </Typography>
+        )}
+      </Box>
       <TextField
         fullWidth
         required
         margin="normal"
         label="Reason"
         name="reason"
-        value={form.reason}
-        onChange={handleChange}
         multiline
         rows={3}
+        {...register("reason")}
+        error={!!errors.reason}
+        helperText={errors.reason?.message}
         InputLabelProps={{ style: { color: theme.palette.text.primary } }}
       />
       <Button
         fullWidth
         variant="contained"
         sx={{ mt: 2, mb: 2 }}
-        onClick={handleSubmit}
+        onClick={handleSubmit(onSubmit)}
         disabled={loading}
       >
         {loading ? "Submitting..." : "Submit Booking"}

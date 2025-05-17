@@ -13,43 +13,30 @@ import PublicComplianceNavigator from "../components/generic/PublicComplianceNav
 import PTRSolution from "../components/generic/PTRSolution";
 
 // Users
-import Users, { usersLoader } from "../features/users/Users";
-import UsersLayout, { usersLayoutLoader } from "../features/users/UsersLayout";
-import CreateUser, {
-  createUserAction,
-  createUserLoader,
-} from "../features/users/CreateUser";
+import Users from "../features/users/Users";
+import UsersLayout from "../features/users/UsersLayout";
+import CreateUser from "../features/users/CreateUser";
 
 // User
-import Dashboard, { dashboardLoader } from "../features/users/Dashboard";
-import ForgotPassword, {
-  forgotPasswordAction,
-} from "../features/users/ForgotPassword";
+import Dashboard from "../features/users/Dashboard";
+import ForgotPassword from "../features/users/ForgotPassword";
 import ResetPassword from "../features/users/ResetPassword";
-import Login, { loginAction } from "../features/users/Login";
+import Login from "../features/users/Login";
 
 // Clients
-import Clients, { clientsLoader } from "../features/clients/Clients";
-import ClientsLayout, {
-  clientLayoutLoader,
-} from "../features/clients/ClientsLayout";
-import ClientRegister, {
-  clientRegisterAction,
-} from "../features/clients/ClientRegister";
+import Clients from "../features/clients/Clients";
+import ClientsLayout from "../features/clients/ClientsLayout";
+import ClientRegister from "../features/clients/ClientRegister";
 
 // Reports
 import ReportErrorBoundary from "../components/navigation/ReportErrorBoundary";
 import ReportsMain from "../features/reports/ReportsMain";
-import ReportsLayout, {
-  reportLayoutLoader,
-} from "../features/reports/ReportsLayout";
+import ReportsLayout from "../features/reports/ReportsLayout";
 
 // PTRS
 import ReportWizard from "../features/reports/ptrs/ReportWizard";
 // import ComplianceFlowChart from "../features/reports/ptrs/ComplianceFlowChart";
-import CreateReport, {
-  createReportAction,
-} from "../features/reports/ptrs/CreateReport";
+import CreateReport from "../features/reports/ptrs/CreateReport";
 import ConnectExternalSystems from "../features/reports/ptrs/ConnectExternalSystems";
 import StepsOverview from "../features/reports/ptrs/StepsOverview";
 import GettingStartedPage from "../components/generic/GettingStarted";
@@ -115,24 +102,13 @@ export default function AppRouter() {
         {
           path: "/users",
           children: [
-            { index: true, Component: Users, loader: usersLoader },
+            { index: true, Component: Users },
             {
               Component: UsersLayout,
-              loader: (args) =>
-                usersLayoutLoader({
-                  ...args,
-                  context: { alertContext },
-                }),
               children: [
                 {
                   path: "create",
                   Component: CreateUser,
-                  action: (args) =>
-                    createUserAction({
-                      ...args,
-                      context: { alertContext },
-                    }),
-                  loader: createUserLoader,
                 },
               ],
             },
@@ -149,20 +125,10 @@ export default function AppRouter() {
                 {
                   path: "dashboard",
                   Component: Dashboard,
-                  loader: (args) =>
-                    dashboardLoader({
-                      ...args,
-                      context: { reportContext },
-                    }),
                 },
                 {
                   path: "forgot-password",
                   Component: ForgotPassword,
-                  action: (args) =>
-                    forgotPasswordAction({
-                      ...args,
-                      context: { alertContext },
-                    }),
                 },
                 {
                   path: "reset-password",
@@ -178,11 +144,6 @@ export default function AppRouter() {
             {
               path: "login",
               Component: Login,
-              action: (args) =>
-                loginAction({
-                  ...args,
-                  context: { alertContext },
-                }),
             },
           ],
         },
@@ -193,21 +154,14 @@ export default function AppRouter() {
             {
               index: true,
               Component: Clients,
-              loader: clientsLoader,
             },
             {
               Component: ClientsLayout,
-              loader: clientLayoutLoader,
               children: [
                 // Register
                 {
                   path: "register",
                   Component: ClientRegister,
-                  action: (args) =>
-                    clientRegisterAction({
-                      ...args,
-                      context: { alertContext },
-                    }),
                 },
               ],
             },
@@ -221,18 +175,11 @@ export default function AppRouter() {
             {
               Component: ReportsLayout,
               ErrorBoundary: ReportErrorBoundary,
-              loader: (args) =>
-                reportLayoutLoader({ ...args, context: { alertContext } }),
               children: [
                 {
                   // Create PTRS Report
                   path: ":code/create",
                   Component: CreateReport,
-                  action: (args) =>
-                    createReportAction({
-                      ...args,
-                      context: { alertContext, reportContext },
-                    }),
                 },
                 // PTRS Wizard uses step-based route pattern: /reports/ptrs/stepX/:reportId
                 {
