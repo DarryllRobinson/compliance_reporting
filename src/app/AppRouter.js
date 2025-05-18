@@ -8,6 +8,10 @@ import Fallback from "../components/generic/Fallback";
 import Contact from "../components/generic/Contact";
 import PublicComplianceNavigator from "../components/generic/PublicComplianceNavigator";
 import PTRSolution from "../components/generic/PTRSolution";
+
+// Static page viewer
+import StaticPageViewer from "../components/StaticPageViewer";
+
 // Testing pdf email
 import TestPdfEmail from "../components/generic/TestPdfEmail";
 
@@ -56,6 +60,11 @@ export default function AppRouter() {
         {
           index: true,
           Component: LandingPage,
+        },
+        // Static page viewer
+        {
+          path: "/blog/:slug",
+          Component: StaticPageViewer,
         },
         {
           path: "compliance-navigator",
