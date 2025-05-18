@@ -7,7 +7,6 @@ export const entityService = {
   getAll,
   getById,
   create,
-  sendPdfEmail,
   update,
   delete: _delete,
 };
@@ -22,19 +21,6 @@ async function getById(id) {
 
 async function create(params) {
   return await fetchWrapper.post(baseUrl, params);
-}
-
-async function sendPdfEmail(formData, isFormData = false) {
-  try {
-    const response = await fetchWrapper.postEmail(
-      `${baseUrl}/send-email`,
-      formData
-    );
-    return response.data;
-  } catch (error) {
-    console.error("Failed to send email:", error);
-    throw error;
-  }
 }
 
 async function update(id, params) {

@@ -6,6 +6,7 @@ import {
   Typography,
   Alert,
   IconButton,
+  CircularProgress,
 } from "@mui/material";
 import { publicService } from "../../services/public.services";
 import Fade from "@mui/material/Fade";
@@ -367,6 +368,7 @@ const Booking = () => {
         sx={{ mt: 2, mb: 2 }}
         onClick={handleSubmit(onSubmit)}
         disabled={loading}
+        startIcon={loading ? <CircularProgress size={20} /> : null}
       >
         {loading ? "Submitting..." : "Submit Booking"}
       </Button>

@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Typography, useTheme } from "@mui/material";
-import { useAlert } from "../../../context";
+import { Typography, useTheme, Alert } from "@mui/material";
 import { fieldMapping } from "./fieldMapping"; // Import fieldMapping
 import { tcpService, userService } from "../../../services";
 import CollapsibleTable from "./CollapsibleTable";
@@ -13,7 +12,7 @@ export default function Step1({
 }) {
   const currentStep = 1;
   const theme = useTheme();
-  const { sendAlert } = useAlert();
+  const [alert, setAlert] = useState(null);
   const isLocked = reportStatus === "Submitted";
   const [records, setRecords] = useState(savedRecords);
   const [filteredRecords, setFilteredRecords] = useState(savedRecords);
@@ -102,7 +101,10 @@ export default function Step1({
           )
         );
         if (response[0].success) {
-          sendAlert("success", "Changed records saved successfully.");
+          setAlert({
+            type: "success",
+            message: "Changed records saved successfully.",
+          });
 
           // Update only the changed rows in the `records` and `filteredRecords` states
           setRecords((prev) => {
@@ -146,11 +148,17 @@ export default function Step1({
             )
           );
         } else {
-          sendAlert("error", "Failed to save changed records.");
+          setAlert({
+            type: "error",
+            message: "An error occurred while saving changed records.",
+          });
         }
       } catch (error) {
         console.error("Error saving changed records:", error);
-        sendAlert("error", "An error occurred while saving changed records.");
+        setAlert({
+          type: "error",
+          message: "An error occurred while saving changed records.",
+        });
       }
     }
   };
@@ -162,18 +170,25 @@ export default function Step1({
   }
 
   return (
-    <CollapsibleTable
-      records={records}
-      savedRecords={savedRecords}
-      changedRows={changedRows}
-      setChangedRows={setChangedRows}
-      tcpStatus={tcpStatus}
-      setTcpStatus={setTcpStatus}
-      tcpExclusionComments={tcpExclusionComments}
-      setTcpExclusionComments={setTcpExclusionComments}
-      isLocked={isLocked}
-      currentStep={currentStep}
-      theme={theme}
-    />
+    <>
+      {alert && (
+        <Alert severity={alert.type} sx={{ mb: 2 }}>
+          {alert.message}
+        </Alert>
+      )}
+      <CollapsibleTable
+        records={records}
+        savedRecords={savedRecords}
+        changedRows={changedRows}
+        setChangedRows={setChangedRows}
+        tcpStatus={tcpStatus}
+        setTcpStatus={setTcpStatus}
+        tcpExclusionComments={tcpExclusionComments}
+        setTcpExclusionComments={setTcpExclusionComments}
+        isLocked={isLocked}
+        currentStep={currentStep}
+        theme={theme}
+      />
+    </>
   );
 }

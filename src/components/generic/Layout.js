@@ -6,8 +6,7 @@ import Navbar from "../navigation/Navbar";
 import Footer from "../navigation/Footer";
 import ProcessFlow from "../../features/reports/ptrs/ProcessFlow";
 import { userService } from "../../services";
-import Alert from "./Alert";
-import { useAlert } from "../../context/AlertContext";
+import { Alert, Snackbar } from "@mui/material";
 import globalTheme from "../../theme/globalTheme"; // Ensure the import matches the export
 
 export async function layoutLoader({ request }) {
@@ -57,7 +56,9 @@ export default function Layout() {
     location.pathname.startsWith(path)
   );
 
-  const { alertOpen, severity, message, handleClose } = useAlert();
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertSeverity, setAlertSeverity] = useState("info");
 
   if (!isAuthorized) {
     // Fallback UI for unauthorized users
@@ -89,12 +90,20 @@ export default function Layout() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Alert
+      <Snackbar
         open={alertOpen}
-        onClose={handleClose}
-        severity={severity}
-        message={message}
-      />
+        autoHideDuration={6000}
+        onClose={() => setAlertOpen(false)}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setAlertOpen(false)}
+          severity={alertSeverity}
+          sx={{ width: "100%" }}
+        >
+          {alertMessage}
+        </Alert>
+      </Snackbar>
       <Box
         sx={{
           display: "flex",

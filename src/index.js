@@ -3,9 +3,7 @@ import ReactDOM from "react-dom/client";
 import AppRouter from "./app/AppRouter";
 import { HelmetProvider } from "react-helmet-async";
 // import { AuthProvider } from "./context/AuthContext";
-import { ReportProvider } from "./context/ReportContext"; // Import ReportProvider
 import { userService } from "./services";
-import { AlertProvider } from "./context/AlertContext";
 // import { redirect } from "react-router";
 
 // Sentry logging
@@ -39,11 +37,7 @@ userService
 function startApp() {
   ReactDOM.createRoot(document.getElementById("root")).render(
     <HelmetProvider>
-      <AlertProvider>
-        <ReportProvider>
-          <AppRouter />
-        </ReportProvider>
-      </AlertProvider>
+      <AppRouter />
     </HelmetProvider>
   );
 }

@@ -1,6 +1,4 @@
-import React from "react";
 import { createBrowserRouter, RouterProvider } from "react-router";
-import { useAlert, useReportContext } from "../context/";
 import Layout from "../components/generic/Layout";
 import LandingPage from "../components/generic/LandingPage";
 import RootErrorBoundary from "../components/navigation/RootErrorBoundary";
@@ -9,8 +7,9 @@ import Fallback from "../components/generic/Fallback";
 // Publicly available
 import Contact from "../components/generic/Contact";
 import PublicComplianceNavigator from "../components/generic/PublicComplianceNavigator";
-// Testing pdf email
 import PTRSolution from "../components/generic/PTRSolution";
+// Testing pdf email
+import TestPdfEmail from "../components/generic/TestPdfEmail";
 
 // Users
 import Users from "../features/users/Users";
@@ -35,7 +34,6 @@ import ReportsLayout from "../features/reports/ReportsLayout";
 
 // PTRS
 import ReportWizard from "../features/reports/ptrs/ReportWizard";
-// import ComplianceFlowChart from "../features/reports/ptrs/ComplianceFlowChart";
 import CreateReport from "../features/reports/ptrs/CreateReport";
 import ConnectExternalSystems from "../features/reports/ptrs/ConnectExternalSystems";
 import StepsOverview from "../features/reports/ptrs/StepsOverview";
@@ -44,17 +42,10 @@ import FAQ from "../components/generic/FAQ";
 import Booking from "../components/generic/Booking";
 import ContactThankyou from "../components/generic/ContactThankyou";
 import BookingThankyou from "../components/generic/BookingThankyou";
-// import Step1, { step1Loader } from "../features/reports/ptrs/Step1";
-// import Step2, { step2Loader } from "../features/reports/ptrs/Step2";
-// import Step3, { step3Loader } from "../features/reports/ptrs/Step3";
-// import Step4, { step4Loader } from "../features/reports/ptrs/Step4";
-// import Step5, { step5Loader } from "../features/reports/ptrs/Step5";
 
 // TODO: Optimise the whole thing: https://reactrouter.com/tutorials/address-book
 
 export default function AppRouter() {
-  const reportContext = useReportContext();
-  const alertContext = useAlert();
   const router = createBrowserRouter([
     {
       path: "",
@@ -81,6 +72,10 @@ export default function AppRouter() {
         {
           path: "ptr-solution",
           Component: PTRSolution,
+        },
+        {
+          path: "test-pdf-email",
+          Component: TestPdfEmail,
         },
         {
           path: "getting-started",

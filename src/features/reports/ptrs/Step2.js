@@ -17,7 +17,6 @@ import {
   TextField,
   TablePagination,
 } from "@mui/material";
-import { useAlert } from "../../../context";
 import { useNavigate } from "react-router";
 import { tcpService, userService } from "../../../services";
 import {
@@ -71,7 +70,7 @@ export default function Step2({
   reportStatus,
 }) {
   const isLocked = reportStatus === "Submitted";
-  const { sendAlert } = useAlert();
+  const [alert, setAlert] = useState(null);
   const navigate = useNavigate();
   const theme = useTheme();
   // console.log("Saved records:", savedRecords);
@@ -161,7 +160,10 @@ export default function Step2({
 
     if (Object.keys(errors).length > 0) {
       setValidationErrors(errors);
-      sendAlert("error", "Please fix validation errors before saving.");
+      setAlert({
+        type: "error",
+        message: "Please fix validation errors before saving.",
+      });
       return;
     }
 
@@ -202,7 +204,10 @@ export default function Step2({
             tcpService.patchRecord(record.id, record)
           )
         );
-        sendAlert("success", "Changed records saved successfully.");
+        setAlert({
+          type: "success",
+          message: "Changed records saved successfully.",
+        });
         setChangedRows((prev) =>
           rowsToSave.reduce(
             (acc, row) => {
@@ -236,7 +241,10 @@ export default function Step2({
             { ...prev }
           )
         );
-        sendAlert("error", "An error occurred while saving changed records.");
+        setAlert({
+          type: "error",
+          message: "An error occurred while saving changed records.",
+        });
       }
     }
   };
@@ -256,7 +264,10 @@ export default function Step2({
       if (validationRule) {
         const fieldName = validationRule.headerName || field; // Use headerName if available
         if (validationRule.type === "number" && isNaN(value)) {
-          sendAlert("error", `${fieldName} must be a number.`);
+          setAlert({
+            type: "error",
+            message: `${fieldName} must be a number.`,
+          });
           return prev; // Reject invalid input
         }
         if (
@@ -265,14 +276,17 @@ export default function Step2({
             value < validationRule.min ||
             value > validationRule.max)
         ) {
-          sendAlert(
-            "error",
-            `${fieldName} must be an integer between ${validationRule.min} and ${validationRule.max}.`
-          );
+          setAlert({
+            type: "error",
+            message: `${fieldName} must be an integer between ${validationRule.min} and ${validationRule.max}.`,
+          });
           return prev; // Reject invalid input
         }
         if (validationRule.pattern && !validationRule.pattern.test(value)) {
-          sendAlert("error", `${fieldName} contains invalid characters.`);
+          setAlert({
+            type: "error",
+            message: `${fieldName} contains invalid characters.`,
+          });
           return prev; // Reject invalid input
         }
       }
@@ -376,6 +390,11 @@ export default function Step2({
 
   return (
     <Box sx={{ padding: 2 }}>
+      {alert && (
+        <Alert severity={alert.type} sx={{ mb: 2 }}>
+          {alert.message}
+        </Alert>
+      )}
       {isLocked && (
         <Alert severity="info" sx={{ mb: 2 }}>
           This report has already been submitted and cannot be edited.

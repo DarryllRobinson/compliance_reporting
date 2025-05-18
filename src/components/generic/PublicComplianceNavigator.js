@@ -1,4 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useForm, Controller } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 import { useNavigate } from "react-router";
 import {
   Box,
@@ -20,9 +23,55 @@ import {
   useTheme,
   CircularProgress,
 } from "@mui/material";
-import jsPDF from "jspdf";
 import { entityService, userService } from "../../services";
-import { useAlert } from "../../context";
+import { Alert } from "@mui/material";
+import { handlePdf } from "../../utils/pdfUtils";
+import { sendSummaryByEmail } from "../../utils/emailUtils";
+
+// Yup validation schema for Entity Details
+const entitySchema = yup.object().shape({
+  entityName: yup
+    .string()
+    .trim()
+    .min(5, "Please provide at least five characters")
+    .required("Entity name is required"),
+  entityABN: yup
+    .string()
+    .matches(/^\d{11}$/, {
+      message: "ABN must be exactly 11 digits",
+      excludeEmptyString: true,
+    })
+    .nullable()
+    .transform((value) => (value === "" ? null : value)),
+});
+
+// Yup validation schema for Contact Details
+const contactSchema = yup.object().shape({
+  name: yup
+    .string()
+    .trim()
+    .min(5, "Please provide at least five characters")
+    .required("Name is required"),
+  email: yup
+    .string()
+    .trim()
+    .email("Please enter a valid email address")
+    .matches(
+      /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/,
+      "Please enter a valid email address"
+    )
+    .required("Email is required"),
+  companyName: yup
+    .string()
+    .trim()
+    .min(5, "Please provide at least five characters")
+    .required("Company name is required"),
+  position: yup
+    .string()
+    .trim()
+    .min(5, "Please provide at least five characters")
+    .required("Your position is required"),
+});
 
 const steps = [
   "Entity Details",
@@ -122,259 +171,50 @@ export default function PublicComplianceNavigator() {
   const [formSubmitted, setFormSubmitted] = useState(false); // Track if the form has been submitted
   const [loading, setLoading] = useState(false); // Track loading state for Submit button
   const navigate = useNavigate();
-  const { sendAlert } = useAlert();
+  const [alert, setAlert] = useState(null);
+
+  // Auto-clear alert after 4 seconds
+  useEffect(() => {
+    if (alert) {
+      const timeout = setTimeout(() => setAlert(null), 4000);
+      return () => clearTimeout(timeout);
+    }
+  }, [alert]);
+
+  // React-hook-form for Contact Details step
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+    reset: resetContactForm,
+  } = useForm({
+    resolver: yupResolver(contactSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      companyName: "",
+      position: "",
+    },
+  });
+
+  // React-hook-form for Entity Details step
+  const {
+    control: entityControl,
+    handleSubmit: handleEntitySubmit,
+    formState: { errors: entityErrors },
+  } = useForm({
+    resolver: yupResolver(entitySchema),
+    defaultValues: {
+      entityName: "",
+      entityABN: "",
+    },
+  });
 
   const current = flowQuestions[activeStep] || {}; // Safeguard to ensure current is always defined
 
-  const handlePDF = async (recordId) => {
-    const doc = new jsPDF({ unit: "mm", format: "a4" });
-    const pageWidth = doc.internal.pageSize.width;
-    const pageHeight = doc.internal.pageSize.height;
-    const marginLeft = 20;
-    const marginTop = 20;
-    const lineHeight = 7;
-    let y = marginTop;
-
-    const date = new Date().toLocaleString();
-    const companyName = "Monochrome Compliance";
-    const subtitle =
-      "Entity Navigator Summary — Payment Times Reporting Scheme (PTRS)";
-    const logoPath = "/images/logos/logo-light.png";
-
-    const determineReportingRequirement = (answers) => {
-      if (answers.charity === "Yes") {
-        return {
-          required: false,
-          reason:
-            "The entity is a registered charity and is excluded under Section 6(1)(e) of the Payment Times Reporting Act 2020.",
-        };
-      }
-      if (answers.section7 !== "Yes") {
-        return {
-          required: false,
-          reason:
-            "The entity has not been assessed under Section 7 of the Payment Times Reporting Act 2020.",
-        };
-      }
-      if (
-        !answers.connectionToAustralia ||
-        answers.connectionToAustralia.includes("None of the above")
-      ) {
-        return {
-          required: false,
-          reason:
-            "The entity does not appear to have a sufficient connection to Australia.",
-        };
-      }
-      if (answers.controlled === "Yes") {
-        return {
-          required: false,
-          reason:
-            "The entity is controlled by another reporting entity and should be included in their report.",
-        };
-      }
-      if (answers.cce === "Yes" && answers.revenue === "Yes") {
-        return {
-          required: true,
-          reason:
-            "The entity is a CCE with revenue over A$100M. PTRS reporting is required.",
-        };
-      }
-      return {
-        required: false,
-        reason: "Based on your responses, PTRS reporting is not required.",
-      };
-    };
-
-    const result = determineReportingRequirement(answers);
-
-    // Background
-    doc.setFillColor("#eceff1");
-    doc.rect(0, 0, pageWidth, pageHeight, "F");
-
-    // Header: logo + title
-    try {
-      const logo = await loadImage(logoPath);
-      doc.addImage(logo, "PNG", marginLeft, y, 25, 25);
-    } catch (e) {
-      doc.setFontSize(14);
-      doc.setTextColor("#4d4d4d");
-      doc.text("[Logo]", marginLeft, y + 10);
-    }
-
-    doc.setFontSize(18);
-    doc.setTextColor("#141414");
-    doc.text(companyName, marginLeft + 30, y + 8);
-    doc.setFontSize(12);
-    doc.text(subtitle, marginLeft + 30, y + 16);
-    y += 30;
-
-    // Intro context
-    doc.setFontSize(10);
-    doc.setTextColor("#4d4d4d");
-    const introText =
-      "This document provides a summary of the answers submitted through the Entity Navigator tool on our website. It is intended to assist you in determining your organisation’s obligations under the Payment Times Reporting Scheme (PTRS).";
-    const wrappedIntro = doc.splitTextToSize(
-      introText,
-      pageWidth - marginLeft * 2
-    );
-    doc.text(wrappedIntro, marginLeft, y);
-    y += wrappedIntro.length * lineHeight + 5;
-
-    // Report reference and navigator outcome with reason
-    doc.text(`Reference: ${recordId}`, marginLeft, y);
-    y += 6;
-    doc.text(
-      `PTR Submission Required: ${result.required ? "Yes" : "No"}`,
-      marginLeft,
-      y
-    );
-    y += 6;
-    doc.setTextColor("#4d4d4d");
-    const wrappedReason = doc.splitTextToSize(
-      result.reason,
-      pageWidth - marginLeft * 2
-    ); // Wrap text within margins
-    doc.text(wrappedReason, marginLeft, y);
-    doc.setTextColor(0, 0, 0);
-    y += wrappedReason.length * lineHeight + 5;
-
-    // Section: Summary Table
-    doc.setFontSize(11);
-    doc.setTextColor("#141414");
-    doc.text("Summary of Responses", marginLeft, y);
-    y += 6;
-
-    doc.setDrawColor("#141414");
-    doc.line(marginLeft, y, pageWidth - marginLeft, y);
-    y += 4;
-
-    doc.setFontSize(10);
-    for (const q of flowQuestions) {
-      const question =
-        q.key === "entityDetails" ? "Entity details provided" : q.question;
-      let answer = "No answer";
-
-      if (q.key === "contactDetails") {
-        // Map full field names for Contact Details
-        const contactDetails = answers.contactDetails || {};
-        answer = Object.entries(contactDetails)
-          .map(([key, value]) => {
-            const field = q.fields.find((f) => f.name === key);
-            return `${field?.label || key}: ${value || "—"}`;
-          })
-          .join(", ");
-      } // Map field label for entityName and ABN
-      else if (q.key === "entityDetails") {
-        answer = Object.entries(answers.entityDetails || {})
-          .map(([key, value]) => {
-            const field = q.fields.find((f) => f.name === key);
-            return `${field?.label || key}: ${value || "—"}`;
-          })
-          .join(", ");
-      } else if (Array.isArray(answers[q.key])) {
-        answer = answers[q.key].join(", ");
-      } else if (
-        typeof answers[q.key] === "object" &&
-        answers[q.key] !== null
-      ) {
-        answer = Object.entries(answers[q.key])
-          .map(([k, v]) => `${k}: ${v || "—"}`)
-          .join(", ");
-      } else {
-        answer = answers[q.key] || "No answer";
-      }
-
-      if (y + lineHeight > pageHeight - marginTop) {
-        doc.addPage();
-        doc.setFillColor("#eceff1");
-        doc.rect(0, 0, pageWidth, pageHeight, "F");
-        y = marginTop;
-      }
-
-      doc.setTextColor("#4d4d4d");
-      doc.text(`• ${question}`, marginLeft, y);
-      y += lineHeight;
-      doc.setTextColor("#141414");
-      const wrappedAnswer = doc.splitTextToSize(
-        answer,
-        pageWidth - marginLeft * 2
-      );
-      doc.text(wrappedAnswer, marginLeft + 4, y);
-      y += wrappedAnswer.length * lineHeight + 2;
-
-      doc.setDrawColor(200);
-      doc.line(marginLeft, y, pageWidth - marginLeft, y);
-      y += 5;
-    }
-
-    // CTA
-    const ctaText =
-      "For a full assessment and to receive tailored reporting guidance, please contact our team at ptrs@monochrome-compliance.com.";
-    const wrappedCTA = doc.splitTextToSize(ctaText, pageWidth - marginLeft * 2);
-    doc.setFontSize(10);
-    doc.setTextColor("#4d4d4d");
-    doc.text(wrappedCTA, marginLeft, y);
-    y += wrappedCTA.length * lineHeight + 3;
-
-    // Disclaimer
-    const disclaimer =
-      "This report is informational only and does not constitute legal advice. Final determination of reporting obligations should be made in consultation with your legal or compliance team.";
-    const wrappedDisclaimer = doc.splitTextToSize(
-      disclaimer,
-      pageWidth - marginLeft * 2
-    );
-    doc.setFontSize(8);
-    doc.setTextColor("#4d4d4d");
-    doc.text(wrappedDisclaimer, marginLeft, y);
-
-    // Footer on all pages
-    const pageCount = doc.internal.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-      doc.setPage(i);
-      doc.setFontSize(9);
-      doc.setTextColor("#4d4d4d");
-      doc.text(date, marginLeft, pageHeight - 10);
-      doc.text(
-        `Page ${i} of ${pageCount}`,
-        pageWidth - marginLeft - 30,
-        pageHeight - 10
-      );
-    }
-
-    const pdfBlob = doc.output("blob"); // Return a Blob instead of a File
-    return pdfBlob;
-  };
-
-  // Helper to load image
-  async function loadImage(url) {
-    const response = await fetch(url);
-    const blob = await response.blob();
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.readAsDataURL(blob);
-    });
-  }
-
-  const confirmSubmission = async () => {
-    setLoading(true); // Set loading to true when submission starts
-    const contact = answers.contactDetails || {};
-    if (
-      activeStep === steps.length - 1 && // Ensure this check only happens on the contact details step
-      (!contact.name ||
-        !contact.email ||
-        !contact.companyName ||
-        !contact.position)
-    ) {
-      sendAlert(
-        "error",
-        "Please complete all contact details before submitting."
-      );
-      setLoading(false); // Reset loading state on error
-      return;
-    }
-
+  // Submission handler for Contact Details with form validation
+  const confirmSubmission = async (contactData) => {
+    setLoading(true);
     try {
       // Structure the data for saving to the backend
       const dataToSave = {
@@ -385,14 +225,13 @@ export default function PublicComplianceNavigator() {
         cce: answers.cce || "",
         charity: answers.charity || "",
         connectionToAustralia: Array.isArray(answers.connectionToAustralia)
-          ? answers.connectionToAustralia.join(", ") // Convert to string if it's an array
-          : answers.connectionToAustralia || "", // Use as-is if already a string
+          ? answers.connectionToAustralia.join(", ")
+          : answers.connectionToAustralia || "",
         revenue: answers.revenue || "",
         controlled: answers.controlled || "",
-        contactDetails: answers.contactDetails || {},
+        contactDetails: contactData || {},
         completed: true,
         timestamp: new Date().toISOString(),
-        createdBy: userService.userValue.id,
       };
 
       // Create the record in the backend
@@ -400,56 +239,49 @@ export default function PublicComplianceNavigator() {
       const recordId = response.id;
 
       // Generate the PDF with the recordId
-      const pdfBlob = await handlePDF(recordId);
+      const pdfBlob = await handlePdf(recordId, answers, flowQuestions);
 
       // Send the PDF via email
-      await sendSummaryByEmail(pdfBlob, recordId);
+      await sendSummaryByEmail({
+        pdfBlob,
+        recordId,
+        contactData,
+        answers,
+        entityService,
+        setAlert,
+      });
+      setAlert({
+        type: "success",
+        message: "Email sent successfully! Please check your inbox.",
+      });
+      setTimeout(() => setAlert(null), 4000);
 
       // Navigate to the solution page
       navigate("/ptr-solution");
     } catch (error) {
       console.error("Failed to complete submission", error);
-      sendAlert("error", "Failed to complete submission. Please try again.");
+      setAlert({
+        type: "error",
+        message: "Failed to complete submission. Please try again.",
+      });
     } finally {
       setLoading(false); // Reset loading state after submission
     }
   };
 
-  const sendSummaryByEmail = async (pdfBlob, recordId) => {
-    try {
-      const contact = answers.contactDetails || {};
-      const to = contact.email || "";
-      const name = contact.name || "";
-      const companyName = contact.companyName || "";
-      const position = contact.position || "";
-
-      const formData = new FormData();
-      formData.append("to", to);
-      formData.append("name", name);
-      formData.append("from", "darryllrobinson@icloud.com");
-      formData.append("subject", "Your Entity Navigator Summary");
-      formData.append(
-        "html",
-        `<p>Hi ${name},</p>
-        <p>Thank you for using the PTRS Navigator. Attached is your summary.</p>
-        <p><strong>Company:</strong> ${companyName}<br/><strong>Position:</strong> ${position}</p>
-        <p><strong>Reference:</strong> ${recordId}</p>`
-      );
-      formData.append("attachment", pdfBlob, "entity-report-summary.pdf"); // Append the Blob
-
-      await entityService.sendPdfEmail(formData, true);
-      sendAlert("success", "Your summary should be in your inbox shortly.");
-    } catch (error) {
-      console.error("Failed to email summary", error);
-      sendAlert("error", "Failed to send email. Please try again.");
-    }
-  };
-
-  const handleNext = async () => {
+  const handleNext = async (contactFormData) => {
     if (activeStep < steps.length - 1) {
       setActiveStep((prev) => prev + 1);
     } else if (activeStep === steps.length - 1) {
-      await confirmSubmission(); // Submit on the final step
+      // Only submit via react-hook-form handler for Contact Details step
+      if (contactFormData) {
+        // Save to answers state for consistency
+        setAnswers((prev) => ({
+          ...prev,
+          contactDetails: contactFormData,
+        }));
+        await confirmSubmission(contactFormData);
+      }
     }
   };
 
@@ -487,17 +319,6 @@ export default function PublicComplianceNavigator() {
       );
     }
     return val && (Array.isArray(val) ? val.length > 0 : true);
-  };
-
-  const isEntityDetailsValid = () => {
-    const entityDetails = answers.entityDetails || {};
-    const entityABN = entityDetails.entityABN || ""; // Safeguard to ensure entityABN is always a string
-    return (
-      entityDetails.entityName &&
-      entityDetails.entityName.trim() !== "" && // Ensure Entity Name is mandatory
-      /^[0-9]*$/.test(entityABN) && // Ensure ABN contains only numbers
-      (entityABN === "" || entityABN.length === 11) // ABN must be empty or exactly 11 digits
-    );
   };
 
   const handleStepClick = (step) => {
@@ -562,9 +383,8 @@ export default function PublicComplianceNavigator() {
       e.preventDefault();
       if (activeStep < steps.length - 1) {
         handleNext();
-      } else if (activeStep === steps.length - 1) {
-        confirmSubmission();
       }
+      // On Contact Details, Enter is handled by react-hook-form's handleSubmit
     }
   };
 
@@ -608,6 +428,12 @@ export default function PublicComplianceNavigator() {
           );
         })}
       </Stepper>
+
+      {alert && (
+        <Alert severity={alert.type} sx={{ mb: 2 }}>
+          {alert.message}
+        </Alert>
+      )}
 
       <Card
         sx={{
@@ -676,93 +502,66 @@ export default function PublicComplianceNavigator() {
               <Typography variant="body2" color="text.secondary" gutterBottom>
                 {current.help || "Please provide your contact details."}
               </Typography>
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 2,
-                  mb: 2,
-                }}
+              <form
+                noValidate
+                onSubmit={handleSubmit(handleNext)}
+                autoComplete="off"
+                style={{ width: "100%" }}
               >
-                {flowQuestions
-                  .find((q) => q.key === "contactDetails")
-                  ?.fields.map((field) => (
-                    <TextField
-                      key={field.name}
-                      name={field.name}
-                      label={field.label}
-                      value={answers.contactDetails?.[field.name] || ""}
-                      onChange={(e) =>
-                        setAnswers({
-                          ...answers,
-                          contactDetails: {
-                            ...answers.contactDetails,
-                            [field.name]: e.target.value,
-                          },
-                        })
-                      }
-                      required={field.required}
-                      error={
-                        formSubmitted &&
-                        field.required &&
-                        (!answers.contactDetails?.[field.name] ||
-                          answers.contactDetails[field.name].trim() === "" ||
-                          (field.name === "email" &&
-                            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
-                              answers.contactDetails[field.name]
-                            )))
-                      }
-                      helperText={
-                        formSubmitted &&
-                        field.required &&
-                        (!answers.contactDetails?.[field.name] ||
-                          answers.contactDetails[field.name].trim() === "")
-                          ? "Required"
-                          : field.name === "email" &&
-                              answers.contactDetails?.[field.name] &&
-                              !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
-                                answers.contactDetails[field.name]
-                              )
-                            ? "Invalid email address"
-                            : ""
-                      }
-                    />
-                  ))}
-              </Box>
-              <Box
-                sx={{ display: "flex", justifyContent: "space-between", mt: 3 }}
-              >
-                <Button
-                  variant="outlined"
-                  onClick={handleBack}
-                  disabled={activeStep === 0 || loading} // Disable Back button while loading
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 2,
+                    mb: 2,
+                  }}
                 >
-                  Back
-                </Button>
-                <Button
-                  variant="contained"
-                  onClick={handleNext}
-                  disabled={
-                    loading || // Disable Submit button while loading
-                    !answers.contactDetails ||
-                    flowQuestions
-                      .find((q) => q.key === "contactDetails")
-                      ?.fields.some((field) => {
-                        const value = answers.contactDetails?.[field.name];
-                        if (!value || value.trim() === "") return true; // Ensure all fields are filled
-                        if (
-                          field.name === "email" &&
-                          !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
-                        )
-                          return true; // Validate email format
-                        return false;
-                      })
-                  }
-                  startIcon={loading ? <CircularProgress size={20} /> : null} // Show spinner when loading
+                  {flowQuestions
+                    .find((q) => q.key === "contactDetails")
+                    ?.fields.map((field) => (
+                      <Controller
+                        key={field.name}
+                        name={field.name}
+                        control={control}
+                        defaultValue={
+                          answers.contactDetails?.[field.name] || ""
+                        }
+                        render={({ field: controllerField }) => (
+                          <TextField
+                            {...controllerField}
+                            label={field.label}
+                            required={field.required}
+                            error={!!errors[field.name]}
+                            helperText={errors[field.name]?.message}
+                          />
+                        )}
+                      />
+                    ))}
+                </Box>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    mt: 3,
+                  }}
                 >
-                  {loading ? "Submitting..." : "Submit"}
-                </Button>
-              </Box>
+                  <Button
+                    variant="outlined"
+                    onClick={handleBack}
+                    disabled={activeStep === 0 || loading}
+                  >
+                    Back
+                  </Button>
+                  <Button
+                    variant="contained"
+                    type="submit"
+                    disabled={loading}
+                    startIcon={loading ? <CircularProgress size={20} /> : null}
+                  >
+                    {loading ? "Submitting..." : "Submit"}
+                  </Button>
+                </Box>
+              </form>
             </>
           ) : (
             <>
@@ -781,36 +580,38 @@ export default function PublicComplianceNavigator() {
                     mb: 2,
                   }}
                 >
-                  {current.fields.map((field) => (
-                    <TextField
-                      key={field.name}
-                      name={field.name}
-                      label={field.label}
-                      value={answers[current.key]?.[field.name] || ""}
-                      onChange={handleInputChange(current.key)}
-                      required={field.required}
-                      error={
-                        formSubmitted &&
-                        field.required &&
-                        !!answers[current.key] &&
-                        (!answers[current.key][field.name] ||
-                          answers[current.key][field.name].trim() === "")
-                      }
-                      helperText={
-                        formSubmitted &&
-                        field.required &&
-                        !!answers[current.key] &&
-                        (!answers[current.key][field.name] ||
-                          answers[current.key][field.name].trim() === "")
-                          ? "Required"
-                          : field.name === "entityABN" &&
-                              answers[current.key]?.[field.name]?.length > 0 &&
-                              answers[current.key]?.[field.name]?.length !== 11
-                            ? "ABN must be exactly 11 digits"
-                            : ""
-                      }
-                    />
-                  ))}
+                  {activeStep === 0
+                    ? current.fields.map((field) => (
+                        <Controller
+                          key={field.name}
+                          name={field.name}
+                          control={entityControl}
+                          defaultValue={
+                            answers[current.key]?.[field.name] || ""
+                          }
+                          render={({ field: controllerField }) => (
+                            <TextField
+                              {...controllerField}
+                              label={field.label}
+                              required={field.required}
+                              error={!!entityErrors[field.name]}
+                              helperText={entityErrors[field.name]?.message}
+                            />
+                          )}
+                        />
+                      ))
+                    : current.fields.map((field) => (
+                        <TextField
+                          key={field.name}
+                          name={field.name}
+                          label={field.label}
+                          value={answers[current.key]?.[field.name] || ""}
+                          onChange={handleInputChange(current.key)}
+                          required={field.required}
+                          error={false}
+                          helperText=""
+                        />
+                      ))}
                 </Box>
               ) : current.type === "checkbox" ? (
                 <FormGroup>
@@ -885,18 +686,32 @@ export default function PublicComplianceNavigator() {
                 >
                   Back
                 </Button>
-                <Button
-                  variant="contained"
-                  onClick={handleNext}
-                  disabled={
-                    (activeStep === 0 && !isEntityDetailsValid()) || // Ensure both Entity Name and ABN validation
-                    (current.type === "checkbox"
-                      ? !(answers[current.key]?.length > 0)
-                      : !answers[current.key])
-                  }
-                >
-                  Next
-                </Button>
+                {activeStep === 0 ? (
+                  <Button
+                    variant="contained"
+                    onClick={handleEntitySubmit((data) => {
+                      setAnswers((prev) => ({
+                        ...prev,
+                        entityDetails: data,
+                      }));
+                      handleNext();
+                    })}
+                  >
+                    Next
+                  </Button>
+                ) : (
+                  <Button
+                    variant="contained"
+                    onClick={handleNext}
+                    disabled={
+                      current.type === "checkbox"
+                        ? !(answers[current.key]?.length > 0)
+                        : !answers[current.key]
+                    }
+                  >
+                    Next
+                  </Button>
+                )}
               </Box>
             </>
           )}

@@ -86,13 +86,30 @@ async function _post(url, body) {
 }
 
 async function postEmail(url, formData) {
-  const headers = authHeader(url); // Do not set Content-Type manually for FormData
+  const headers = authHeader(url); // Don't set Content-Type explicitly for FormData
+
+  // Re-append file using Blob to ensure buffer is available in multer
+  const file = formData.get("attachment");
+  if (file instanceof File) {
+    formData.delete("attachment");
+    formData.append(
+      "attachment",
+      new Blob([await file.arrayBuffer()], { type: file.type }),
+      file.name
+    );
+  }
+
   const requestOptions = {
     method: "POST",
-    headers, // Only include Authorization header
+    headers,
     credentials: "include",
-    body: formData, // Pass FormData directly
+    body: formData,
   };
+
+  console.log("[fetch-wrapper] FormData entries:");
+  for (let pair of formData.entries()) {
+    console.log(pair[0], pair[1]);
+  }
 
   const response = await fetch(url, requestOptions);
   return handleResponse(response);

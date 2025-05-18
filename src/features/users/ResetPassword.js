@@ -9,15 +9,14 @@ import {
   useTheme,
   Paper,
   Grid,
+  Alert,
 } from "@mui/material";
 import { userService } from "../../services";
 import { useNavigate } from "react-router";
-import { useAlert } from "../../context";
 
 export default function ResetPassword() {
   const theme = useTheme();
   const navigate = useNavigate(); // Use react-router's navigate hook
-  const { sendAlert } = useAlert(); // Call useAlert at the top level
   const TokenStatus = {
     Validating: "Validating",
     Valid: "Valid",
@@ -30,6 +29,7 @@ export default function ResetPassword() {
   const [passwordError, setPasswordError] = useState(null);
   const [confirmPassword, setConfirmPassword] = useState(null);
   const [confirmPasswordError, setConfirmPasswordError] = useState(null);
+  const [alert, setAlert] = useState(null);
 
   useEffect(() => {
     const { token } = queryString.parse(window.location.search);
@@ -92,14 +92,18 @@ export default function ResetPassword() {
       userService
         .resetPassword({ token, password, confirmPassword })
         .then(() => {
-          sendAlert(
-            "success",
-            "Password reset successfully - redirecting you to the login page"
-          );
+          setAlert({
+            type: "success",
+            message:
+              "Password reset successfully - redirecting you to the login page",
+          });
           navigate("/user/login"); // Use navigate instead of redirect
         })
         .catch((error) => {
-          sendAlert("error", error || "Error resetting your password");
+          setAlert({
+            type: "error",
+            message: error || "Error resetting your password",
+          });
         });
     }
   }
@@ -202,6 +206,11 @@ export default function ResetPassword() {
         <Typography variant="h4" gutterBottom align="center">
           Reset Password
         </Typography>
+        {alert && (
+          <Alert severity={alert.type} sx={{ mb: 2 }}>
+            {alert.message}
+          </Alert>
+        )}
         {getBody()}
       </Paper>
     </Box>

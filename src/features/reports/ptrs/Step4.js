@@ -14,7 +14,6 @@ import {
   TablePagination,
   Alert,
 } from "@mui/material";
-import { useAlert } from "../../../context";
 import { useNavigate } from "react-router";
 import { tcpService } from "../../../services";
 import { getRowHighlightColor } from "../../../utils/highlightRow";
@@ -34,7 +33,6 @@ export default function Step4({
       setStepData((prev) => ({ ...prev, step4: { sbiUploaded: true } }));
     }
   }, [reportStatus, setStepData]);
-  const { sendAlert } = useAlert();
   const navigate = useNavigate();
   // Use savedRecords or tcpDataset as appropriate for the dataset
   const dataset =

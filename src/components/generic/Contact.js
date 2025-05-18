@@ -7,8 +7,9 @@ import {
   Button,
   Paper,
   useTheme,
+  CircularProgress,
+  Alert,
 } from "@mui/material";
-import { useAlert } from "../../context";
 import { publicService } from "../../services/public.services";
 import { useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
@@ -17,8 +18,9 @@ import * as yup from "yup";
 
 export default function Contact() {
   const theme = useTheme();
-  const { sendAlert } = useAlert();
   const navigate = useNavigate();
+
+  const [alert, setAlert] = useState(null);
 
   const schema = yup.object().shape({
     name: yup.string().required("Name is required"),
@@ -56,7 +58,7 @@ export default function Contact() {
       }
     } catch (error) {
       console.error("Error sending email:", error);
-      sendAlert("error", "Failed to send email.");
+      setAlert({ type: "error", message: "Failed to send email." });
     } finally {
       setLoading(false);
     }
@@ -80,6 +82,11 @@ export default function Contact() {
           color: theme.palette.text.primary,
         }}
       >
+        {alert && (
+          <Alert severity={alert.type} sx={{ mb: 2 }}>
+            {alert.message}
+          </Alert>
+        )}
         <Typography
           variant="h4"
           gutterBottom
@@ -134,6 +141,7 @@ export default function Contact() {
             color="primary"
             fullWidth
             disabled={loading}
+            startIcon={loading ? <CircularProgress size={20} /> : null}
             sx={{
               padding: theme.spacing(1.5),
               fontWeight: "bold",

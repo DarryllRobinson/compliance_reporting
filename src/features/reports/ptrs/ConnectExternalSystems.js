@@ -1,14 +1,16 @@
-import React, { useState, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { tcpService, userService, xeroService } from "../../../services";
-import { Box, TextField, Button, Typography } from "@mui/material";
+import { Box, TextField, Button, Typography, Alert } from "@mui/material";
 import {} from "../../../services/user.service";
-import { useAlert, useReportContext } from "../../../context";
 import { fieldMapping } from "./fieldMapping"; // Import the field mapping
 import { useNavigate } from "react-router"; // Import useNavigate
 
+import { useLocation } from "react-router";
+
 export default function ConnectExternalSystems() {
-  const { reportDetails } = useReportContext();
-  const { sendAlert } = useAlert();
+  const { state } = useLocation();
+  const reportDetails = state?.reportDetails || {};
+  const [alert, setAlert] = useState(null);
   const navigate = useNavigate(); // Initialize navigate
   const [credentials, setCredentials] = useState({
     clientId: "",
@@ -32,9 +34,12 @@ export default function ConnectExternalSystems() {
         // Save the mapped records to the backend
         const saveResponse = await tcpService.bulkCreate(mappedRecords);
         if (saveResponse.success) {
-          sendAlert("success", "Records saved successfully.");
+          setAlert({ type: "success", message: "Records saved successfully." });
         } else {
-          sendAlert("error", "Failed to save records to the backend.");
+          setAlert({
+            type: "error",
+            message: "Failed to save records to the backend.",
+          });
           return;
         }
 
@@ -43,11 +48,14 @@ export default function ConnectExternalSystems() {
           state: { savedRecords: mappedRecords },
         });
       } else {
-        sendAlert("error", "Failed to connect to Xero.");
+        setAlert({ type: "error", message: "Failed to connect to Xero." });
       }
     } catch (error) {
       console.error("Error connecting to Xero or saving data:", error);
-      sendAlert("error", "An error occurred while connecting or saving data.");
+      setAlert({
+        type: "error",
+        message: "An error occurred while connecting or saving data.",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -153,6 +161,11 @@ export default function ConnectExternalSystems() {
         onChange={handleInputChange}
         sx={{ marginBottom: 2 }}
       />
+      {alert && (
+        <Alert severity={alert.type} sx={{ mb: 2 }}>
+          {alert.message}
+        </Alert>
+      )}
       <Button
         variant="contained"
         color="primary"

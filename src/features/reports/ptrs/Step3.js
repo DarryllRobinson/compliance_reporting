@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Box, Typography, Button, Paper, Alert } from "@mui/material";
 import { useNavigate } from "react-router";
 import { tcpService } from "../../../services";
-import { useAlert } from "../../../context";
 import { Download, Upload, OpenInNew } from "@mui/icons-material";
 import { formatDateForMySQL } from "../../../utils/formatters";
 
@@ -15,7 +14,7 @@ export default function Step3({
   reportStatus,
 }) {
   const navigate = useNavigate();
-  const { sendAlert } = useAlert();
+  const [alert, setAlert] = useState(null);
   // Use savedRecords or tcpDataset as appropriate for the dataset
   const dataset =
     tcpDataset && tcpDataset.length > 0 ? tcpDataset : savedRecords;
@@ -100,14 +99,17 @@ export default function Step3({
 
   const handleSubmit = async () => {
     if (!uploadedFile) {
-      sendAlert("warning", "Please upload a file.");
+      setAlert({ type: "warning", message: "Please upload a file." });
       return;
     }
 
     try {
       const errors = await validateCsvFile(uploadedFile);
       if (errors.length > 0) {
-        sendAlert("error", `Validation failed:\n${errors.join("\n")}`);
+        setAlert({
+          type: "error",
+          message: `Validation failed:\n${errors.join("\n")}`,
+        });
         return;
       }
 
@@ -128,21 +130,24 @@ export default function Step3({
       // Send valid records to the backend
       try {
         await tcpService.sbiUpdate(reportId, validRecords);
-        sendAlert(
-          "success",
-          `File uploaded successfully! ${validRecords.length} records were uploaded and processed.`
-        );
+        setAlert({
+          type: "success",
+          message: `File uploaded successfully! ${validRecords.length} records were uploaded and processed.`,
+        });
         setIsFileUploaded(true); // Mark file as successfully uploaded
       } catch (error) {
         console.error("Error updating backend:", error);
-        sendAlert(
-          "error",
-          "Failed to update the backend with the uploaded records."
-        );
+        setAlert({
+          type: "error",
+          message: "Failed to update the backend with the uploaded records.",
+        });
       }
     } catch (error) {
       console.error("Error validating file:", error);
-      sendAlert("error", "An unexpected error occurred during validation.");
+      setAlert({
+        type: "error",
+        message: "An unexpected error occurred during validation.",
+      });
     }
   };
 
@@ -151,6 +156,11 @@ export default function Step3({
       {isLocked && (
         <Alert severity="info" sx={{ mb: 2 }}>
           This report has already been submitted and cannot be edited.
+        </Alert>
+      )}
+      {alert && (
+        <Alert severity={alert.type} sx={{ mb: 2 }}>
+          {alert.message}
         </Alert>
       )}
       <Typography variant="h5" sx={{ marginBottom: 2 }}>
