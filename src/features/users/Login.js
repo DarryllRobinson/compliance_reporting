@@ -4,6 +4,7 @@ import { userService } from "../../services";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
+import { useState } from "react";
 
 export async function loginAction({ request, context }) {
   const { alertContext } = context;
@@ -22,6 +23,7 @@ export async function loginAction({ request, context }) {
 
 export default function Login() {
   const theme = useTheme();
+  const [loading, setLoading] = useState(false);
 
   const schema = yup.object().shape({
     email: yup.string().email("Invalid email").required("Email is required"),
@@ -39,7 +41,9 @@ export default function Login() {
   } = useForm({ resolver: yupResolver(schema) });
 
   const onSubmit = async (data) => {
-    console.log("Form data:", data);
+    data.email = data.email.trim();
+    data.password = data.password.trim();
+    setLoading(true);
     try {
       await userService.login(data);
       window.location.href = "/user/dashboard";
@@ -48,6 +52,8 @@ export default function Login() {
         type: "manual",
         message: error?.message || "Login failed",
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -81,6 +87,7 @@ export default function Login() {
           <TextField
             label="Email address"
             type="email"
+            autoComplete="off"
             fullWidth
             required
             defaultValue="darryllrobinson@icloud.com"
@@ -91,6 +98,7 @@ export default function Login() {
           <TextField
             label="Password"
             type="password"
+            autoComplete="new-password"
             fullWidth
             required
             defaultValue="newpassss"
@@ -98,8 +106,14 @@ export default function Login() {
             error={!!errors.password}
             helperText={errors.password?.message}
           />
-          <Button variant="contained" color="primary" type="submit" fullWidth>
-            Login
+          <Button
+            variant="contained"
+            color="primary"
+            type="submit"
+            fullWidth
+            disabled={loading}
+          >
+            {loading ? "Logging in..." : "Login"}
           </Button>
         </Box>
       </form>

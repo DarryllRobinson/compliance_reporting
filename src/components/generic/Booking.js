@@ -278,6 +278,7 @@ const Booking = () => {
         label="Full Name"
         name="name"
         required
+        autoComplete="off"
         {...register("name")}
         error={!!errors.name}
         helperText={errors.name?.message}
@@ -289,6 +290,7 @@ const Booking = () => {
         label="Email"
         name="email"
         required
+        autoComplete="off"
         {...register("email")}
         error={!!errors.email}
         helperText={errors.email?.message}
@@ -357,6 +359,7 @@ const Booking = () => {
         name="reason"
         multiline
         rows={3}
+        autoComplete="off"
         {...register("reason")}
         error={!!errors.reason}
         helperText={errors.reason?.message}

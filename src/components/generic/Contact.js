@@ -48,12 +48,19 @@ export default function Contact() {
   });
 
   const sendContactEmail = async (data) => {
+    // Trim whitespace from input fields
+    data.name = data.name.trim();
+    data.email = data.email.trim();
+    data.message = data.message.trim();
     try {
       setLoading(true);
       const response = await publicService.sendEmail(data);
       if (response.status === 200) {
         reset();
-        navigate("/thankyou-contact");
+        setAlert({ type: "success", message: "Message sent successfully!" });
+        setTimeout(() => {
+          navigate("/thankyou-contact");
+        }, 1500);
         return;
       }
     } catch (error) {
@@ -109,6 +116,7 @@ export default function Contact() {
             {...register("name")}
             error={!!errors.name}
             helperText={errors.name?.message}
+            autoComplete="off"
             fullWidth
             required
             sx={{ mb: theme.spacing(2) }}
@@ -119,6 +127,7 @@ export default function Contact() {
             {...register("email")}
             error={!!errors.email}
             helperText={errors.email?.message}
+            autoComplete="off"
             fullWidth
             required
             sx={{ mb: theme.spacing(2) }}
@@ -129,6 +138,7 @@ export default function Contact() {
             {...register("message")}
             error={!!errors.message}
             helperText={errors.message?.message}
+            autoComplete="off"
             fullWidth
             multiline
             rows={4}

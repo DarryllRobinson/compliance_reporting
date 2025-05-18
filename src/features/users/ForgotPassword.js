@@ -1,5 +1,5 @@
 import React from "react";
-import { Form, redirect } from "react-router";
+import { Form, redirect, useNavigate } from "react-router";
 import {
   Box,
   Typography,
@@ -37,6 +37,7 @@ export async function forgotPasswordAction({ request, context }) {
 
 export default function ForgotPassword() {
   const theme = useTheme();
+  const navigate = useNavigate();
 
   return (
     <Box
@@ -71,7 +72,8 @@ export default function ForgotPassword() {
               <TextField
                 label="Email"
                 name="email"
-                type="string"
+                type="email"
+                autoComplete="off"
                 fullWidth
                 required
                 defaultValue="darryllrobinson@icloud.com"
@@ -94,7 +96,7 @@ export default function ForgotPassword() {
             <Button
               variant="contained"
               color="primary"
-              onClick={() => redirect("/user/login")}
+              onClick={() => navigate("/user/login")}
               size="large"
             >
               Login

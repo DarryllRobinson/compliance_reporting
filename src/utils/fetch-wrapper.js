@@ -46,6 +46,7 @@ async function _get(url) {
   const headers = {
     "Content-Type": "application/json",
     ...authHeader(url),
+    "X-CSRF-Token": sessionStorage.getItem("csrfToken") || "",
   };
   const requestOptions = { method: "GET", headers, credentials: "include" };
   return fetch(url, requestOptions).then(handleResponse);
@@ -74,6 +75,7 @@ async function _post(url, body) {
   const headers = {
     "Content-Type": "application/json",
     ...authHeader(url),
+    "X-CSRF-Token": sessionStorage.getItem("csrfToken") || "",
   };
   const requestOptions = {
     method: "POST",
@@ -120,9 +122,14 @@ async function put(url, body) {
 }
 
 async function _put(url, body) {
+  const headers = {
+    "Content-Type": "application/json",
+    ...authHeader(url),
+    "X-CSRF-Token": sessionStorage.getItem("csrfToken") || "",
+  };
   const requestOptions = {
     method: "PUT",
-    headers: { "Content-Type": "application/json", ...authHeader(url) },
+    headers,
     body: JSON.stringify(body),
   };
   return fetch(url, requestOptions).then(handleResponse);
@@ -136,6 +143,7 @@ async function _patch(url, body) {
   const headers = {
     "Content-Type": "application/json",
     ...authHeader(url),
+    "X-CSRF-Token": sessionStorage.getItem("csrfToken") || "",
   };
   const requestOptions = {
     method: "PATCH",
@@ -152,9 +160,13 @@ async function _delete(url) {
 }
 
 async function _deleteRequest(url) {
+  const headers = {
+    ...authHeader(url),
+    "X-CSRF-Token": sessionStorage.getItem("csrfToken") || "",
+  };
   const requestOptions = {
     method: "DELETE",
-    headers: authHeader(url),
+    headers,
   };
   return fetch(url, requestOptions).then(handleResponse);
 }

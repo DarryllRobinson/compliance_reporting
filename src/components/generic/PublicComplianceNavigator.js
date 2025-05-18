@@ -214,6 +214,11 @@ export default function PublicComplianceNavigator() {
 
   // Submission handler for Contact Details with form validation
   const confirmSubmission = async (contactData) => {
+    // Defensive trim of contact input before processing
+    contactData.name = contactData.name.trim();
+    contactData.email = contactData.email.trim();
+    contactData.companyName = contactData.companyName.trim();
+    contactData.position = contactData.position.trim();
     setLoading(true);
     try {
       // Structure the data for saving to the backend

@@ -59,24 +59,35 @@ export default function SignUp() {
   const handleSubmit = (event) => {
     event.preventDefault();
 
+    // Sanitize input
+    const cleanedFormData = {
+      ...formData,
+      firstName: formData.firstName.trim(),
+      lastName: formData.lastName.trim(),
+      email: formData.email.trim(),
+    };
+
     // Input validation
-    if (!formData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+    if (
+      !cleanedFormData.email ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanedFormData.email)
+    ) {
       console.error("Invalid email address");
       return;
     }
 
-    if (formData.password.length < 8) {
+    if (cleanedFormData.password.length < 8) {
       console.error("Password must be at least 8 characters long");
       return;
     }
 
-    if (formData.password !== formData.confirmPassword) {
+    if (cleanedFormData.password !== cleanedFormData.confirmPassword) {
       console.error("Passwords do not match");
       return;
     }
 
     userService
-      .register(formData)
+      .register(cleanedFormData)
       .then(() => {
         navigate("/user/signin");
       })
@@ -139,7 +150,7 @@ export default function SignUp() {
                 id="email"
                 label="Email Address"
                 name="email"
-                autoComplete="email"
+                autoComplete="off"
                 defaultValue={formData.email}
                 onChange={handleInputChange}
               />
@@ -165,7 +176,7 @@ export default function SignUp() {
                 label="Confirm Password"
                 type="password"
                 id="confirmPassword"
-                autoComplete="confirm-password"
+                autoComplete="new-password"
                 defaultValue={formData.confirmPassword}
                 onChange={handleInputChange}
               />
