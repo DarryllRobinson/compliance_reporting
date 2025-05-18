@@ -1,0 +1,28 @@
+const chokidar = require("chokidar");
+const path = require("path");
+const { generateBlogIndex } = require("./generateBlogIndex");
+
+const blogDir = path.join(__dirname, "../public/static-content/blog");
+
+console.log("👀 Watching blog directory for changes...");
+
+const watcher = chokidar.watch(blogDir, {
+  ignored: /(^|[/\\])\../, // ignore dotfiles
+  persistent: true,
+  depth: 0,
+});
+
+const triggerUpdate = () => {
+  try {
+    generateBlogIndex();
+  } catch (err) {
+    console.error("⚠️ Error regenerating blog index:", err);
+  }
+};
+
+watcher
+  .on("add", triggerUpdate)
+  .on("unlink", triggerUpdate)
+  .on("ready", () => {
+    console.log("✅ Watcher is running.");
+  });

@@ -46,6 +46,7 @@ import FAQ from "../components/generic/FAQ";
 import Booking from "../components/generic/Booking";
 import ContactThankyou from "../components/generic/ContactThankyou";
 import BookingThankyou from "../components/generic/BookingThankyou";
+import BlogIndex from "../routes/BlogIndex";
 
 // TODO: Optimise the whole thing: https://reactrouter.com/tutorials/address-book
 
@@ -61,7 +62,11 @@ export default function AppRouter() {
           index: true,
           Component: LandingPage,
         },
-        // Static page viewer
+        // Static page viewer and blog index
+        {
+          path: "/blog",
+          Component: BlogIndex,
+        },
         {
           path: "/blog/:slug",
           Component: StaticPageViewer,

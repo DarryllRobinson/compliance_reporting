@@ -1,49 +1,73 @@
+---
+title: How to Submit a PTR Report
+author: Monochrome Compliance Team
+date: 2025-05-18
+slug: how-to-submit-ptr-report
+description: A step-by-step guide to preparing, validating and lodging your Payment Times Reporting (PTR) submission using Monochrome Compliance.
+tags: [PTR, compliance, submission, how-to, reporting]
+---
+
+<!-- Render using default Monochrome theme -->
+
 # How to Submit a PTR Report
+
+_Published: 18 May 2025 • Author: Monochrome Compliance Team_
 
 ## Summary
 
-Submitting a Payment Times Reporting (PTR) report is a mandatory process for qualifying large businesses in Australia. This guide walks you through it step-by-step.
+Submitting a Payment Times Reporting (PTR) report is a regulatory requirement for large businesses in Australia. This step-by-step guide walks you through how to prepare, validate, and submit your report correctly — and with confidence.
 
 ## Who Needs This?
 
-Businesses with over $100 million in annual revenue are required to submit PTR reports every six months.
+This article is for reporting entities with over $100 million in total annual income that are required to submit PTR reports twice yearly. It is particularly relevant for financial controllers, reporting officers, governance leads and compliance managers tasked with PTR reporting.
 
 ## Step-by-Step Submission Guide
 
 ### Step 1: Prepare Your Data
 
-- Gather invoice and payment records for the reporting period.
-- Ensure all supplier ABNs are included.
-- Use the Monochrome Compliance CSV template for easy formatting.
+Gather invoice and payment data for all suppliers across the reporting period. You’ll need:
 
-### Step 2: Check Small Business Status
+- Payment dates
+- Invoice dates
+- Supplier ABNs
+- Contract terms (if applicable)
 
-- Upload your ABN list to the SBI tool.
-- Re-import the flagged list into Monochrome Compliance.
+Ensure the data aligns with the reporting window (either Jan–Jun or Jul–Dec) and reflects payments made during the period.
 
-### Step 3: Submit the Report
+### Step 2: Identify Small Business Suppliers
 
-- Validate your data in Monochrome Compliance.
-- Export the submission file.
-- Lodge the report with the Regulator via their portal.
+Export all supplier ABNs and upload them to the Regulator’s Small Business Identification (SBI) Tool. The tool returns a list of ABNs that are **not** small businesses. Import that result into Monochrome Compliance to flag small business payments accordingly.
 
-## Common Questions
+### Step 3: Format the PTR Report
 
-**What if I miss the deadline?**  
-You may face penalties and be listed publicly for non-compliance.
+Using Monochrome Compliance, import your data into the validated CSV format. The system checks for:
 
-**Can I edit a submitted report?**  
-Yes — but only within a limited time frame and with approval from the Regulator.
+- Missing or invalid fields
+- Small business flag consistency
+- Payment term compliance
 
-## Tips
+Correct any issues and regenerate the output CSV.
 
-- Always validate your CSV before submission.
-- Schedule internal reminders for April and October deadlines.
+### Step 4: Lodge the Report
 
-## Related Resources
+Log into the Regulator’s portal and upload your validated CSV. You’ll also complete a summary form and submit the PTR declaration electronically.
 
-- [PTR CSV Template](#)
-- [Payment Times Reporting Regulator](https://paymenttimes.gov.au)
+We recommend downloading a PDF of your final submission for internal records.
+
+## Frequently Asked Questions
+
+**Can I use my own template?**  
+No — you must use the Regulator’s approved CSV layout. Monochrome Compliance outputs this format for you automatically.
+
+**What if I discover errors after submission?**  
+Contact the Regulator immediately. You may be able to submit a corrected version within the reporting period.
+
+**Do I need to identify small businesses manually?**  
+You must upload ABNs to the SBI Tool and process the results. This is the only compliant method.
+
+## Legal Disclaimer
+
+This article provides general information only and is not legal or financial advice. Please consult with the Payment Times Reporting Regulator or a legal advisor to ensure compliance with your organisation's obligations.
 
 ## Need Help?
 
