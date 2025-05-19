@@ -74,19 +74,6 @@ const StaticPageViewer = () => {
         backgroundColor: theme.palette.background.default,
       }}
     >
-      {meta.title && (
-        <Typography variant="h4" component="h1" gutterBottom>
-          {meta.title}
-        </Typography>
-      )}
-      {(meta.date || meta.author) && (
-        <Typography variant="subtitle2" color="textSecondary" gutterBottom>
-          {meta.date &&
-            `Published: ${new Date(meta.date).toLocaleDateString()}`}
-          {meta.date && meta.author && " • "}
-          {meta.author && `Author: ${meta.author}`}
-        </Typography>
-      )}
       <ReactMarkdown
         components={{
           h1: ({ node, ...props }) => (
@@ -135,10 +122,19 @@ const StaticPageViewer = () => {
             <Typography
               component="a"
               href={props.href}
+              target="_blank"
+              rel="noopener noreferrer"
               sx={{
-                color: theme.palette.primary.main,
-                textDecoration: "underline",
-                "&:hover": { textDecoration: "none" },
+                display: "inline-block",
+                mt: 1,
+                px: 0.5,
+                borderRadius: 1,
+                color: theme.palette.text.primary,
+                textDecoration: "none",
+                transition: "background-color 0.2s ease",
+                "&:hover": {
+                  backgroundColor: theme.palette.action.hover,
+                },
               }}
               {...props}
             />

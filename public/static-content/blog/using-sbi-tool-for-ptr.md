@@ -7,47 +7,59 @@ description: Learn how to identify which suppliers are small businesses using th
 tags: [PTR, SBI Tool, small business, supplier flagging]
 ---
 
-<!-- Render using default Monochrome theme -->
-
 # How to Use the SBI Tool to Flag Small Business Payments
 
 _Published: 18 May 2025 • Author: Monochrome Compliance Team_
 
 ## Summary
 
-One of the most important parts of Payment Times Reporting is determining whether your suppliers are small businesses. The Small Business Identification (SBI) Tool — provided by the Regulator — helps you do exactly that. Here's how to use it effectively and avoid common errors.
+Correctly identifying small business suppliers is a key part of Payment Times Reporting (PTR). The Regulator provides a purpose-built Small Business Identification (SBI) Tool to ensure consistent and accurate classification of suppliers based on ABNs. This guide walks through how the tool works, why it's mandatory, and how Monochrome Compliance integrates it into your workflow.
 
 ## What Is the SBI Tool?
 
-The SBI Tool is a government-provided service that allows reporting entities to upload a list of supplier ABNs and receive a validated output showing which are not considered small businesses.
+The SBI Tool is an online utility provided by the Payment Times Reporting Regulator. It allows entities to submit a list of supplier ABNs and returns a validated output that distinguishes which suppliers are _not_ classified as small businesses.
 
-Only the Regulator’s tool may be used for this classification — manual determination or internal guesswork is not acceptable under the legislation.
+Under PTR legislation, this tool is the only approved method for making small business determinations. You cannot rely on internal knowledge, size estimates, or assumptions — doing so risks submitting a non-compliant report.
+
+## Why Is This Important?
+
+PTR obligations require entities to report how quickly they pay small businesses. If your submission fails to accurately flag these suppliers, you could understate or misrepresent your payment practices. This affects compliance outcomes and may damage your standing with regulators and the public.
+
+Using the SBI Tool ensures:
+
+- Consistency across reporting entities
+- Confidence that your flagged data meets legal standards
+- Traceable, auditable compliance history
 
 ## Step-by-Step Process
 
-### 1. Prepare Your ABN List
+### 1. Prepare Your Supplier ABN List
 
-Export a list of all supplier ABNs associated with payments made in the reporting period. Make sure:
+Export a complete list of ABNs from your accounts payable records for the current reporting period. This list should:
 
-- ABNs are correctly formatted (11 digits, no dashes or spaces)
-- Duplicates are removed
+- Be limited to suppliers who were paid during the period
+- Exclude non-ABN payees (such as individuals or foreign entities without ABNs)
+- Remove duplicates and validate ABN formatting (11 digits, no spaces)
 
-### 2. Upload to the SBI Tool
+### 2. Use the Regulator’s SBI Tool
 
-- Access the SBI Tool from the Regulator’s website
-- Upload your CSV or paste in the ABNs as per instructions
-- Download the resulting output, which shows ABNs that are _not_ small businesses
+- Access the tool via the PTR Regulator’s website
+- Upload your CSV or paste in the ABNs according to the tool’s guidance
+- Submit the request and wait for the response file
 
-### 3. Import into Your PTR Platform
+The output will contain only the ABNs that are _not_ small businesses. All others should be considered small businesses for reporting purposes.
 
-In Monochrome Compliance, upload the SBI Tool output to match and flag payments automatically. This step ensures your submission accurately distinguishes small business transactions.
+### 3. Upload Results into Monochrome Compliance
 
-## Tips and Gotchas
+With Monochrome Compliance, you can directly import the SBI Tool output. The platform will automatically match each ABN to your payment records and apply the appropriate small business flag.
 
-- Always use the latest version of the SBI Tool
-- Double-check that your ABNs haven’t been corrupted or truncated in Excel
-- Don’t manually flag suppliers — it must come from the tool
-- Run the check as close to submission time as practical for accuracy
+This process eliminates manual matching and reduces the chance of error — giving you a clean, compliant PTR file.
+
+## Additional Tips
+
+- Run the SBI check as late as practical in the reporting cycle to ensure accuracy (e.g. ABNs may change status).
+- Always double-check that your ABN data hasn’t been modified or truncated in Excel or other editors.
+- Archive both your submitted ABN list and the SBI Tool output for auditing purposes.
 
 ## Legal Disclaimer
 

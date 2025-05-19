@@ -7,63 +7,64 @@ description: A step-by-step guide to preparing, validating and lodging your Paym
 tags: [PTR, compliance, submission, how-to, reporting]
 ---
 
-<!-- Render using default Monochrome theme -->
-
 # How to Submit a PTR Report
 
 _Published: 18 May 2025 • Author: Monochrome Compliance Team_
 
 ## Summary
 
-Submitting a Payment Times Reporting (PTR) report is a regulatory requirement for large businesses in Australia. This step-by-step guide walks you through how to prepare, validate, and submit your report correctly — and with confidence.
+Submitting a Payment Times Reporting (PTR) report is a regulatory requirement for large businesses in Australia. This guide outlines each step of the process — from data preparation and small business identification to CSV formatting and final submission — using Monochrome Compliance to simplify and streamline the workflow.
 
 ## Who Needs This?
 
-This article is for reporting entities with over $100 million in total annual income that are required to submit PTR reports twice yearly. It is particularly relevant for financial controllers, reporting officers, governance leads and compliance managers tasked with PTR reporting.
+This article is designed for individuals responsible for meeting PTR obligations, such as finance leads, governance managers, and compliance teams. If your organisation has over $100 million in annual income or is part of a group that exceeds this threshold, you are legally required to report twice yearly.
 
 ## Step-by-Step Submission Guide
 
 ### Step 1: Prepare Your Data
 
-Gather invoice and payment data for all suppliers across the reporting period. You’ll need:
+Start by gathering supplier invoice and payment data for the current reporting period:
 
-- Payment dates
-- Invoice dates
 - Supplier ABNs
-- Contract terms (if applicable)
+- Invoice issue and payment dates
+- Payment amounts
+- Contract payment terms (where available)
 
-Ensure the data aligns with the reporting window (either Jan–Jun or Jul–Dec) and reflects payments made during the period.
+Ensure all transactions fall within the correct reporting window: either 1 January–30 June or 1 July–31 December. Data accuracy at this stage is critical.
 
 ### Step 2: Identify Small Business Suppliers
 
-Export all supplier ABNs and upload them to the Regulator’s Small Business Identification (SBI) Tool. The tool returns a list of ABNs that are **not** small businesses. Import that result into Monochrome Compliance to flag small business payments accordingly.
+Export a list of all supplier ABNs and upload them to the Regulator’s Small Business Identification (SBI) Tool. The tool will return a list of ABNs that are _not_ considered small businesses. This step must be completed for each reporting cycle — you cannot rely on past results.
+
+Once the SBI Tool output is received, upload it into Monochrome Compliance. The system will automatically flag small business transactions based on the validated ABNs.
 
 ### Step 3: Format the PTR Report
 
-Using Monochrome Compliance, import your data into the validated CSV format. The system checks for:
+Import your cleaned and flagged dataset into Monochrome Compliance. The platform checks for:
 
-- Missing or invalid fields
-- Small business flag consistency
-- Payment term compliance
+- Missing or incorrectly formatted fields
+- Inconsistencies between reported dates and payment terms
+- Small business flag accuracy
+- Payment practices that fall outside acceptable ranges
 
-Correct any issues and regenerate the output CSV.
+Any detected issues are flagged for review and correction before the final CSV output is generated.
 
 ### Step 4: Lodge the Report
 
-Log into the Regulator’s portal and upload your validated CSV. You’ll also complete a summary form and submit the PTR declaration electronically.
+Log in to the Regulator’s PTR Portal and upload the validated CSV file. You will also be prompted to complete a summary declaration and provide additional reporting information.
 
-We recommend downloading a PDF of your final submission for internal records.
+We strongly recommend exporting a PDF copy of your submission from the portal or taking a screenshot for internal audit purposes.
 
 ## Frequently Asked Questions
 
 **Can I use my own template?**  
-No — you must use the Regulator’s approved CSV layout. Monochrome Compliance outputs this format for you automatically.
+No — the Regulator mandates a specific CSV format. Monochrome Compliance automatically generates this format for you.
 
 **What if I discover errors after submission?**  
-Contact the Regulator immediately. You may be able to submit a corrected version within the reporting period.
+Contact the Regulator as soon as possible. If it’s within the reporting window, you may be allowed to submit a corrected report.
 
 **Do I need to identify small businesses manually?**  
-You must upload ABNs to the SBI Tool and process the results. This is the only compliant method.
+No. You must use the SBI Tool and upload the results to your system. Manual classification is not compliant.
 
 ## Legal Disclaimer
 

@@ -7,45 +7,60 @@ description: A summary of key legislative changes to the Payment Times Reporting
 tags: [PTR, legislation, 2025 changes, compliance updates]
 ---
 
-<!-- Render using default Monochrome theme -->
-
 # What’s Changed in PTR Legislation in 2025?
 
 _Published: 18 May 2025 • Author: Monochrome Compliance Team_
 
 ## Summary
 
-The Payment Times Reporting Scheme (PTRS) has seen a number of regulatory changes in 2025. These adjustments clarify definitions, improve transparency, and strengthen enforcement. If you're responsible for compliance reporting, understanding these updates is essential.
+The Payment Times Reporting Scheme (PTRS) underwent several important updates in 2025. These legislative refinements aim to increase clarity, strengthen compliance, and ensure that large businesses meet their obligations to pay small suppliers on time. This article outlines the key changes and what they mean for your reporting processes.
+
+## Why the Changes Were Introduced
+
+The PTR Regulator identified gaps in reporting consistency, classification accuracy, and enforcement strength during the first few years of the scheme’s operation. The 2025 amendments were introduced to ensure better alignment between legislative intent and practical implementation — and to improve supplier outcomes.
 
 ## Key Legislative Changes
 
 ### 1. Updated Definition of Small Business
 
-The Regulator has aligned the definition of a "small business" with the Australian Bureau of Statistics classification, refining eligibility criteria for supplier classification. The SBI Tool must still be used to validate ABNs.
+The definition of a “small business” has been aligned with the Australian Bureau of Statistics (ABS) classification standards. This change standardises who qualifies for protection under the scheme.
+
+> You must continue to use the Regulator’s official SBI Tool to verify small business status. Internal estimates or subjective classifications are not compliant.
 
 ### 2. Reporting Thresholds Clarified
 
-Legislation now explicitly confirms that entities earning **exactly** $100 million in annual income are captured under the scheme — closing a previous interpretation gap.
+Legislation now confirms that entities earning **exactly** $100 million in annual income are subject to PTR obligations. Previously, there was ambiguity about whether the threshold was exclusive or inclusive.
 
-### 3. Increased Penalties for Late or False Reporting
+This change eliminates uncertainty and ensures consistent treatment of borderline cases.
 
-Non-compliance penalties have increased significantly, including:
+### 3. Increased Penalties for Non-Compliance
+
+Penalties for both late and inaccurate reporting have been significantly increased. These now include:
 
 - Higher monetary fines
-- Reputational exposure on the Regulator’s public register
-- Potential disqualification for government tenders
+- Public visibility of infractions on the PTR register
+- Potential exclusion from government procurement opportunities
 
-### 4. Changes to Reporting Timeframes
+> If your entity relies on government contracts, this change makes timely and accurate reporting even more critical.
 
-Reporting deadlines remain biannual, but extensions are now subject to stricter criteria. Late submissions require a formal justification and may be subject to regulatory review.
+### 4. Tighter Criteria for Reporting Extensions
 
-## How This Affects You
+While the biannual submission schedule remains unchanged, criteria for obtaining deadline extensions have been narrowed. Entities must now demonstrate exceptional circumstances and provide supporting documentation.
 
-Compliance teams and finance leads should review internal processes to ensure:
+Late submissions without approval are likely to result in public censure and financial penalties.
 
-- Data is prepared earlier in the reporting cycle
-- Supplier ABNs are regularly reviewed
-- Governance controls are in place to support the new enforcement standards
+## What This Means for Your Organisation
+
+To meet the new expectations, reporting entities should:
+
+- Begin data gathering and SBI validation earlier in the cycle
+- Review ABN accuracy more frequently
+- Assign clear internal responsibility for PTR submissions
+- Use purpose-built tools like Monochrome Compliance to ensure alignment with the latest formats and rules
+
+## Moving Forward
+
+These changes reflect the Regulator’s intention to increase transparency and strengthen accountability. By proactively updating your processes now, you’ll avoid compliance issues later — and demonstrate your organisation’s commitment to ethical supplier practices.
 
 ## Legal Disclaimer
 

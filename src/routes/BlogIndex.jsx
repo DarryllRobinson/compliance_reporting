@@ -1,16 +1,20 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Typography,
-  Link,
   CircularProgress,
   Pagination,
   MenuItem,
   Select,
   FormControl,
   InputLabel,
+  Card,
+  CardContent,
+  useMediaQuery,
+  Grid,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
+import { Link as RouterLink, useNavigate } from "react-router";
 
 const POSTS_PER_PAGE = 5;
 
@@ -35,6 +39,8 @@ const BlogIndex = () => {
   const [page, setPage] = useState(1);
   const [tag, setTag] = useState("all");
   const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+  const navigate = useNavigate();
 
   useEffect(() => {
     const loadPosts = async () => {
@@ -102,32 +108,49 @@ const BlogIndex = () => {
         </FormControl>
       </Box>
 
-      {displayedPosts.map((post) => (
-        <Box key={post.slug} sx={{ mb: 4 }}>
-          <Typography variant="h6" component="h2" gutterBottom>
-            <Link
-              href={`/blog/${post.slug}`}
+      <Grid container spacing={4}>
+        {displayedPosts.map((post) => (
+          <Grid item xs={12} key={post.slug}>
+            <Card
+              key={post.slug}
+              onClick={() => navigate(`/blog/${post.slug}`)}
               sx={{
-                color: theme.palette.primary.main,
-                textDecoration: "none",
+                display: "flex",
+                alignItems: "center",
+                px: isSmallScreen ? 2 : 4,
+                py: isSmallScreen ? 2 : 3,
+                cursor: "pointer",
+                transition: "box-shadow 0.3s",
                 "&:hover": {
-                  textDecoration: "underline",
+                  boxShadow: 6,
                 },
               }}
             >
-              {post.title}
-            </Link>
-          </Typography>
-          <Typography variant="body2" color="text.secondary" gutterBottom>
-            {post.date && !isNaN(new Date(post.date))
-              ? new Date(post.date).toLocaleDateString()
-              : "No date available"}
-          </Typography>
-          <Typography variant="body1" color="text.primary">
-            {post.description}
-          </Typography>
-        </Box>
-      ))}
+              <CardContent sx={{ p: 0 }}>
+                <Typography
+                  variant="h6"
+                  component="h2"
+                  gutterBottom
+                  sx={{ color: theme.palette.text.primary }}
+                >
+                  {post.title}
+                </Typography>
+                <Typography variant="body2" color="text.secondary" gutterBottom>
+                  {post.date && !isNaN(new Date(post.date))
+                    ? new Date(post.date).toLocaleDateString()
+                    : "No date available"}
+                </Typography>
+                <Typography
+                  variant="body1"
+                  sx={{ color: theme.palette.text.primary }}
+                >
+                  {post.description}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
 
       {totalPages > 1 && (
         <Pagination
