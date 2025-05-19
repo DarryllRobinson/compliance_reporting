@@ -17,6 +17,8 @@ import MenuIcon from "@mui/icons-material/Menu";
 import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty";
+import Tooltip from "@mui/material/Tooltip";
 import { Link, useNavigate } from "react-router";
 import { useTheme } from "@mui/material/styles";
 import { userService } from "../../services";
@@ -26,6 +28,10 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
   const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState(null);
   const [gettingStartedAnchor, setGettingStartedAnchor] = useState(null);
+  const [solutionsAnchor, setSolutionsAnchor] = useState(null);
+  const handleSolutionsOpen = (event) =>
+    setSolutionsAnchor(event.currentTarget);
+  const handleSolutionsClose = () => setSolutionsAnchor(null);
   const navigate = useNavigate();
 
   const handleMenuOpen = (event) => {
@@ -91,12 +97,100 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
         <Box sx={{ display: { xs: "none", md: "flex" } }}>
           <Button
             color="inherit"
-            component={Link}
-            to="/ptr-solution"
-            sx={{ color: theme.palette.text.primary }}
+            onClick={handleSolutionsOpen}
+            sx={{
+              color: theme.palette.text.primary,
+              display: "flex",
+              alignItems: "center",
+            }}
+            endIcon={<ExpandMoreIcon />}
           >
-            PTR Solution
+            Solutions
           </Button>
+          <Menu
+            anchorEl={solutionsAnchor}
+            open={Boolean(solutionsAnchor)}
+            onClose={handleSolutionsClose}
+            sx={{ mt: 1 }}
+          >
+            <MenuItem
+              onClick={handleSolutionsClose}
+              component={Link}
+              to="/ptr-solution"
+            >
+              <InfoIcon sx={{ fontSize: 20, mr: 1 }} />
+              PTR Solution
+            </MenuItem>
+            <Divider />
+            <Tooltip
+              title="Coming soon"
+              placement="bottom"
+              arrow
+              enterDelay={300}
+              leaveDelay={100}
+              PopperProps={{
+                modifiers: [
+                  {
+                    name: "offset",
+                    options: {
+                      offset: [0, -20],
+                    },
+                  },
+                ],
+              }}
+            >
+              <Box
+                component="li"
+                sx={{
+                  listStyle: "none",
+                  display: "flex",
+                  alignItems: "center",
+                  px: 2,
+                  py: 1.5,
+                  opacity: 0.5,
+                  cursor: "default",
+                  pointerEvents: "auto",
+                }}
+              >
+                <HourglassEmptyIcon sx={{ fontSize: 20, mr: 1 }} />
+                <Typography variant="body2">Data Cleanser</Typography>
+              </Box>
+            </Tooltip>
+            <Tooltip
+              title="Coming soon"
+              placement="bottom"
+              arrow
+              enterDelay={300}
+              leaveDelay={10}
+              PopperProps={{
+                modifiers: [
+                  {
+                    name: "offset",
+                    options: {
+                      offset: [0, -20],
+                    },
+                  },
+                ],
+              }}
+            >
+              <Box
+                component="li"
+                sx={{
+                  listStyle: "none",
+                  display: "flex",
+                  alignItems: "center",
+                  px: 2,
+                  py: 1.5,
+                  opacity: 0.5,
+                  cursor: "default",
+                  pointerEvents: "auto",
+                }}
+              >
+                <HourglassEmptyIcon sx={{ fontSize: 20, mr: 1 }} />
+                <Typography variant="body2">Sustainability Report</Typography>
+              </Box>
+            </Tooltip>
+          </Menu>
           <Button
             color="inherit"
             onClick={handleGettingStartedOpen}

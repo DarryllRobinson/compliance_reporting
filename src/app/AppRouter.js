@@ -9,6 +9,7 @@ import Contact from "../components/generic/Contact";
 import PublicComplianceNavigator from "../components/generic/PublicComplianceNavigator";
 import PTRSolution from "../components/generic/PTRSolution";
 import ResourcePage from "../components/public/ResourcePage";
+import { SubmissionChecklistViewer } from "../components/public/SubmissionChecklistViewer";
 
 // Static page viewer
 import StaticPageViewer from "../components/StaticPageViewer";
@@ -107,6 +108,10 @@ export default function AppRouter() {
         {
           path: "resources",
           Component: ResourcePage,
+        },
+        {
+          path: "resources/submission-checklist",
+          Component: SubmissionChecklistViewer,
         },
         {
           path: "thankyou-booking",

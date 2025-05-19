@@ -9,7 +9,7 @@ tags: [PTR, deadlines, reporting calendar, compliance]
 
 # PTR Reporting Deadlines: What You Need to Know
 
-_Published: 18 May 2025 • Author: Monochrome Compliance Team_
+<div style="font-size: 0.875rem"><em>Published: 18 May 2025 • Author: Monochrome Compliance Team</em></div>
 
 ## Summary
 

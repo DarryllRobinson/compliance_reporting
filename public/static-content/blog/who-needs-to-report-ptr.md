@@ -7,8 +7,6 @@ description: Find out which businesses and corporate structures are required to 
 tags: [PTR, eligibility, reporting obligations, compliance]
 ---
 
-<!-- Render using default Monochrome theme -->
-
 # Who Needs to Report Under the Payment Times Reporting Scheme?
 
 _Published: 18 May 2025 • Author: Monochrome Compliance Team_

@@ -7,7 +7,7 @@ function generateBlogIndex() {
 
   const files = fs.readdirSync(blogDir);
   const posts = files
-    .filter((file) => file.endsWith(".md"))
+    .filter((file) => file.endsWith(".md") && file !== "blog-template.md")
     .map((file) => ({
       slug: path.basename(file, ".md"),
     }));

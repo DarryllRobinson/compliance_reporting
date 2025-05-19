@@ -181,14 +181,30 @@ const StaticPageViewer = () => {
                 {...props}
               />
             ),
-            p: ({ node, ...props }) => (
-              <Typography
-                variant="body1"
-                paragraph
-                sx={{ color: theme.palette.text.primary }}
-                {...props}
-              />
-            ),
+            p: ({ node, children, ...props }) => {
+              const text = children?.[0]?.toString().trim().toLowerCase();
+
+              const isMeta =
+                text?.startsWith("published:") && text.includes("author:");
+              const isLegal = text?.startsWith(
+                "this article provides general information only"
+              );
+              const isHelp = text?.startsWith("contact us");
+
+              return (
+                <Typography
+                  variant={isMeta || isLegal || isHelp ? "body2" : "body1"}
+                  paragraph
+                  sx={{
+                    color: theme.palette.text.primary,
+                    fontStyle: isLegal ? "italic" : "normal",
+                  }}
+                  {...props}
+                >
+                  {children}
+                </Typography>
+              );
+            },
             li: ({ node, ...props }) => (
               <li>
                 <Typography

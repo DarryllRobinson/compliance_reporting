@@ -62,29 +62,40 @@ export default function LandingPage() {
           justifyContent: "center",
           py: isSmallScreen ? 4 : 6,
           textAlign: "center",
-          px: 2,
+          px: isSmallScreen ? 2 : 6,
         }}
       >
         <Box
-          sx={{
-            // bgcolor: "rgba(0, 0, 0, 0.6)",
-            p: isSmallScreen ? 2 : 4,
-            borderRadius: 2,
-            width: isSmallScreen ? "90%" : "60%",
-            maxWidth: 720,
-          }}
+          sx={
+            {
+              // bgcolor: "rgba(0, 0, 0, 0.6)",
+              // p: isSmallScreen ? 2 : 4,
+              // borderRadius: 2,
+              // width: isSmallScreen ? "90%" : "75%",
+              // maxWidth: 720,
+            }
+          }
         >
           <Typography
-            variant={isSmallScreen ? "h5" : "h3"}
+            variant={isSmallScreen ? "h6" : "h3"}
+            sx={{
+              color: "#fff",
+              fontWeight: "bold",
+              lineHeight: 1.2,
+            }}
+          >
+            Handle your Payment Times Reporting
+          </Typography>
+          <Typography
+            variant={isSmallScreen ? "h6" : "h3"}
             sx={{
               color: "#fff",
               fontWeight: "bold",
               mb: 2,
+              lineHeight: 1.2,
             }}
           >
-            Handle your PTR obligations
-            <br />
-            with confidence
+            obligations with confidence
           </Typography>
           <Typography
             variant={isSmallScreen ? "body1" : "h6"}

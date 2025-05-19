@@ -1,8 +1,27 @@
 import { Link as RouterLink } from "react-router";
 import { Box, Link, Typography, useTheme } from "@mui/material";
+import { useEffect, useState } from "react";
+
+const fadeSlideIn = {
+  "@keyframes fadeSlideIn": {
+    from: { opacity: 0, transform: "translateY(20px)" },
+    to: { opacity: 1, transform: "translateY(0)" },
+  },
+};
 
 function Footer(props) {
   const theme = useTheme();
+
+  const [showScrollButton, setShowScrollButton] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollButton(window.scrollY > 300);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
     <Box
@@ -73,16 +92,44 @@ function Footer(props) {
           Terms
         </Link>
       </Box>
-      <Box sx={{ mt: 2 }}>
-        <Link
-          href="#top"
-          color="inherit"
-          underline="hover"
-          sx={{ fontSize: "0.875rem" }}
+      {showScrollButton && (
+        <Box
+          sx={{
+            position: "fixed",
+            bottom: 32,
+            right: 32,
+            backgroundColor: theme.palette.background.paper,
+            border: `1px solid ${theme.palette.divider}`,
+            borderRadius: "4px",
+            boxShadow: 3,
+            p: 1,
+            zIndex: 1000,
+            animation: showScrollButton
+              ? "fadeSlideIn 0.4s ease-out forwards"
+              : "none",
+            "@keyframes fadeSlideIn": {
+              from: { opacity: 0, transform: "translateY(20px)" },
+              to: { opacity: 1, transform: "translateY(0)" },
+            },
+          }}
         >
-          Back to top ↑
-        </Link>
-      </Box>
+          <Box
+            component="button"
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            style={{
+              background: "none",
+              border: "none",
+              padding: 0,
+              margin: 0,
+              color: "inherit",
+              cursor: "pointer",
+              fontSize: "0.875rem",
+            }}
+          >
+            Back to top ↑
+          </Box>
+        </Box>
+      )}
     </Box>
   );
 }

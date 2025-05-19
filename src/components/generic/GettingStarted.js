@@ -32,7 +32,7 @@ export default function GettingStartedPage() {
           Use our{" "}
           <Tooltip title="Open the Entity Navigator in a new tab">
             <Link
-              href="/navigator"
+              href="/compliance-navigator"
               underline="hover"
               target="_blank"
               rel="noopener"
@@ -137,7 +137,7 @@ export default function GettingStartedPage() {
           Follow our step-by-step{" "}
           <Tooltip title="Follow checklist before submitting">
             <Link
-              href="/help/submission-checklist"
+              href="/resource/submission-checklist"
               underline="hover"
               target="_blank"
               rel="noopener"
@@ -154,22 +154,29 @@ export default function GettingStartedPage() {
       title: "7. Need Help?",
       icon: <HelpIcon sx={{ color: theme.palette.text.primary }} />,
       items: [
-        "Visit our Help Centre or email support@ptrsplatform.au.",
-        "Browse FAQs, watch video tutorials, or book a support call.",
         <>
-          Still stuck?{" "}
-          <Tooltip title="Get support and guidance">
+          Browse our{" "}
+          <Tooltip title="Frequently Asked Questions">
+            <Link href="/faq" underline="hover" target="_blank" rel="noopener">
+              FAQs
+              <OpenInNewIcon sx={{ fontSize: 14, ml: 0.5 }} />
+            </Link>
+          </Tooltip>
+          .
+        </>,
+        <>
+          <Tooltip title="Frequently Asked Questions">
             <Link
-              href="/getting-help"
+              href="/booking"
               underline="hover"
               target="_blank"
               rel="noopener"
             >
-              Start here
+              Book
               <OpenInNewIcon sx={{ fontSize: 14, ml: 0.5 }} />
             </Link>
-          </Tooltip>{" "}
-          for tailored onboarding support.
+          </Tooltip>
+          {" a session with us to discuss your needs."}
         </>,
       ],
     },
