@@ -8,6 +8,7 @@ import Fallback from "../components/generic/Fallback";
 import Contact from "../components/generic/Contact";
 import PublicComplianceNavigator from "../components/generic/PublicComplianceNavigator";
 import PTRSolution from "../components/generic/PTRSolution";
+import ResourcePage from "../components/public/ResourcePage";
 
 // Static page viewer
 import StaticPageViewer from "../components/StaticPageViewer";
@@ -102,6 +103,10 @@ export default function AppRouter() {
         {
           path: "booking",
           Component: Booking,
+        },
+        {
+          path: "resources",
+          Component: ResourcePage,
         },
         {
           path: "thankyou-booking",

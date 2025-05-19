@@ -9,9 +9,14 @@ import {
   Menu,
   MenuItem,
 } from "@mui/material";
+import InfoIcon from "@mui/icons-material/Info";
+import FolderIcon from "@mui/icons-material/Folder";
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
+import Divider from "@mui/material/Divider";
 import MenuIcon from "@mui/icons-material/Menu";
 import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Link, useNavigate } from "react-router";
 import { useTheme } from "@mui/material/styles";
 import { userService } from "../../services";
@@ -20,6 +25,7 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
   const user = userService.userValue; // Get the current user
   const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState(null);
+  const [gettingStartedAnchor, setGettingStartedAnchor] = useState(null);
   const navigate = useNavigate();
 
   const handleMenuOpen = (event) => {
@@ -29,6 +35,10 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
   const handleMenuClose = () => {
     setAnchorEl(null);
   };
+
+  const handleGettingStartedOpen = (event) =>
+    setGettingStartedAnchor(event.currentTarget);
+  const handleGettingStartedClose = () => setGettingStartedAnchor(null);
 
   const handleLogout = async () => {
     try {
@@ -89,12 +99,48 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
           </Button>
           <Button
             color="inherit"
-            component={Link}
-            to="/getting-started"
-            sx={{ color: theme.palette.text.primary }}
+            onClick={handleGettingStartedOpen}
+            sx={{
+              color: theme.palette.text.primary,
+              display: "flex",
+              alignItems: "center",
+            }}
+            endIcon={<ExpandMoreIcon />}
           >
             Getting Started
           </Button>
+          <Menu
+            anchorEl={gettingStartedAnchor}
+            open={Boolean(gettingStartedAnchor)}
+            onClose={handleGettingStartedClose}
+            sx={{ mt: 1 }}
+          >
+            <MenuItem
+              onClick={handleGettingStartedClose}
+              component={Link}
+              to="/getting-started"
+            >
+              <InfoIcon sx={{ fontSize: 20, mr: 1 }} />
+              Overview
+            </MenuItem>
+            <Divider />
+            <MenuItem
+              onClick={handleGettingStartedClose}
+              component={Link}
+              to="/resources"
+            >
+              <FolderIcon sx={{ fontSize: 20, mr: 1 }} />
+              Resources
+            </MenuItem>
+            <MenuItem
+              onClick={handleGettingStartedClose}
+              component={Link}
+              to="/faq"
+            >
+              <HelpOutlineIcon sx={{ fontSize: 20, mr: 1 }} />
+              FAQ
+            </MenuItem>
+          </Menu>
           <Button
             color="inherit"
             component={Link}
@@ -106,18 +152,18 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
           <Button
             color="inherit"
             component={Link}
-            to="/faq"
-            sx={{ color: theme.palette.text.primary }}
-          >
-            FAQ
-          </Button>
-          <Button
-            color="inherit"
-            component={Link}
             to="/booking"
             sx={{ color: theme.palette.text.primary }}
           >
             Booking
+          </Button>
+          <Button
+            color="inherit"
+            component={Link}
+            to="/blog"
+            sx={{ color: theme.palette.text.primary }}
+          >
+            Blog
           </Button>
           {!user && ( // Hiding for public site prep
             <Button
@@ -195,10 +241,18 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
             <MenuItem
               onClick={handleMenuClose}
               component={Link}
-              to="/contact"
+              to="/getting-started"
               sx={{ color: theme.palette.text.primary }}
             >
-              Contact
+              Getting Started
+            </MenuItem>
+            <MenuItem
+              onClick={handleMenuClose}
+              component={Link}
+              to="/resources"
+              sx={{ color: theme.palette.text.primary }}
+            >
+              Resources
             </MenuItem>
             <MenuItem
               onClick={handleMenuClose}
@@ -211,62 +265,27 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
             <MenuItem
               onClick={handleMenuClose}
               component={Link}
+              to="/contact"
+              sx={{ color: theme.palette.text.primary }}
+            >
+              Contact
+            </MenuItem>
+            <MenuItem
+              onClick={handleMenuClose}
+              component={Link}
               to="/booking"
               sx={{ color: theme.palette.text.primary }}
             >
               Booking
             </MenuItem>
-            {/* {user && (
-              <MenuItem
-                onClick={handleMenuClose}
-                component={Link}
-                to="/user/dashboard"
-                sx={{ color: theme.palette.text.primary }}
-              >
-                Dashboard
-              </MenuItem>
-            )}
-            {user?.role === "Admin" && (
-              <MenuItem
-                onClick={handleMenuClose}
-                component={Link}
-                to="/clients"
-                sx={{ color: theme.palette.text.primary }}
-              >
-                Clients
-              </MenuItem>
-            )}
-            {user?.role === "Admin" && (
-              <MenuItem
-                onClick={handleMenuClose}
-                component={Link}
-                to="/users"
-                sx={{ color: theme.palette.text.primary }}
-              >
-                Users
-              </MenuItem>
-            )}
-            {user
-              ? [
-                  <MenuItem
-                    key="logout"
-                    onClick={handleLogout}
-                    sx={{ color: theme.palette.text.primary }}
-                  >
-                    Logout
-                  </MenuItem>,
-                ]
-              : [
-                  <MenuItem
-                    key="login"
-                    onClick={handleMenuClose}
-                    component={Link}
-                    to="/user/login"
-                    sx={{ color: theme.palette.text.primary }}
-                  >
-                    Login
-                  </MenuItem>,
-                ]} */}
+            <MenuItem
+              onClick={handleMenuClose}
+              component={Link}
+              to="/blog"
+              sx={{ color: theme.palette.text.primary }}
+            >
+              Blog
+            </MenuItem>
           </Menu>
         </Box>
         <IconButton

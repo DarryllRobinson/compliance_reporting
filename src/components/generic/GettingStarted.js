@@ -54,7 +54,7 @@ export default function GettingStartedPage() {
       items: [
         "Prepare a CSV file of all payments made during the reporting period.",
         "Include supplier ABNs, invoice details, and payment dates.",
-        "This will form your TCP dataset, the basis of your report .",
+        "This will form your TCP dataset, the basis of your report.",
       ],
     },
     {

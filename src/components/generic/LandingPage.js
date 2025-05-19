@@ -14,6 +14,11 @@ import { useNavigate } from "react-router";
 import QuestionMarkIcon from "@mui/icons-material/QuestionMark";
 import FormatListNumberedIcon from "@mui/icons-material/FormatListNumbered";
 import SupportAgentIcon from "@mui/icons-material/SupportAgent";
+import Security from "@mui/icons-material/Security";
+import AccessTime from "@mui/icons-material/AccessTime";
+import SearchIcon from "@mui/icons-material/Search";
+import FileDownloadIcon from "@mui/icons-material/FileDownload";
+import SendIcon from "@mui/icons-material/Send";
 
 export default function LandingPage() {
   const theme = useTheme();
@@ -98,7 +103,7 @@ export default function LandingPage() {
         </Box>
       </Box>
 
-      <Box sx={{ bgcolor: theme.palette.background.paper, py: 2 }}>
+      <Box sx={{ bgcolor: theme.palette.primary.main, py: 2 }}>
         <Container>
           <Box
             sx={{
@@ -172,6 +177,75 @@ export default function LandingPage() {
             ))}
           </Grid>
         </Container>
+      </Box>
+
+      <Box
+        sx={{
+          py: 6,
+          bgcolor: theme.palette.secondary.main,
+          textAlign: "center",
+          color: theme.palette.text.primary,
+        }}
+      >
+        <Typography variant={isSmallScreen ? "h5" : "h4"} gutterBottom>
+          How It Works
+        </Typography>
+        <Grid container spacing={4} justifyContent="center" sx={{ mt: 2 }}>
+          <Grid item xs={12} md={4}>
+            <SearchIcon sx={{ fontSize: 40, mb: 1 }} />
+            <Typography variant="h6" gutterBottom>
+              1. Check Your Obligation
+            </Typography>
+            <Typography variant="body2">
+              Use our Navigator to confirm if PTR applies to you.
+            </Typography>
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <FileDownloadIcon sx={{ fontSize: 40, mb: 1 }} />
+            <Typography variant="h6" gutterBottom>
+              2. Prepare Your Data
+            </Typography>
+            <Typography variant="body2">
+              Download our CSV template to compile your payments data.
+            </Typography>
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <SendIcon sx={{ fontSize: 40, mb: 1 }} />
+            <Typography variant="h6" gutterBottom>
+              3. Submit to Regulator
+            </Typography>
+            <Typography variant="body2">
+              Generate a complete submission file for the regulator’s portal.
+            </Typography>
+          </Grid>
+        </Grid>
+      </Box>
+
+      <Box
+        sx={{
+          py: 6,
+          bgcolor: theme.palette.secondary.main,
+          textAlign: "center",
+          color: theme.palette.text.primary,
+        }}
+      >
+        <Typography variant="h5" gutterBottom>
+          Why Choose Monochrome Compliance?
+        </Typography>
+        <Grid container spacing={4} justifyContent="center" sx={{ mt: 2 }}>
+          <Grid item xs={12} md={4}>
+            <Security sx={{ fontSize: 48, mb: 1 }} />
+            <Typography variant="body1">Your data is secure</Typography>
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <AccessTime sx={{ fontSize: 48, mb: 1 }} />
+            <Typography variant="body1">Save hours of work</Typography>
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <SupportAgentIcon sx={{ fontSize: 48, mb: 1 }} />
+            <Typography variant="body1">Local expert support</Typography>
+          </Grid>
+        </Grid>
       </Box>
 
       {/* CTA */}

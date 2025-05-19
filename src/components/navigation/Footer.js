@@ -31,7 +31,18 @@ function Footer(props) {
         {new Date().getFullYear()}
         {"."}
       </Typography>
-      <Box sx={{ display: "flex", justifyContent: "center", gap: 2, mt: 1 }}>
+      <Typography variant="subtitle2" sx={{ mb: 0.5, fontWeight: 600 }}>
+        Legal & Policies
+      </Typography>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          gap: 1.5,
+          mt: 0.5,
+        }}
+      >
         <Link
           component={RouterLink}
           to="/legal"
@@ -41,6 +52,7 @@ function Footer(props) {
         >
           Legal
         </Link>
+        <span style={{ color: theme.palette.text.disabled }}>•</span>
         <Link
           component={RouterLink}
           to="/privacy"
@@ -50,6 +62,7 @@ function Footer(props) {
         >
           Privacy
         </Link>
+        <span style={{ color: theme.palette.text.disabled }}>•</span>
         <Link
           component={RouterLink}
           to="/terms"
@@ -58,6 +71,16 @@ function Footer(props) {
           sx={{ fontSize: "0.875rem" }}
         >
           Terms
+        </Link>
+      </Box>
+      <Box sx={{ mt: 2 }}>
+        <Link
+          href="#top"
+          color="inherit"
+          underline="hover"
+          sx={{ fontSize: "0.875rem" }}
+        >
+          Back to top ↑
         </Link>
       </Box>
     </Box>
