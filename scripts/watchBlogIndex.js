@@ -1,3 +1,4 @@
+const { generateSitemap } = require("./generateSitemap");
 const chokidar = require("chokidar");
 const path = require("path");
 const { generateBlogIndex } = require("./generateBlogIndex");
@@ -15,8 +16,9 @@ const watcher = chokidar.watch(blogDir, {
 const triggerUpdate = () => {
   try {
     generateBlogIndex();
+    generateSitemap();
   } catch (err) {
-    console.error("⚠️ Error regenerating blog index:", err);
+    console.error("⚠️ Error during blog index/sitemap update:", err);
   }
 };
 

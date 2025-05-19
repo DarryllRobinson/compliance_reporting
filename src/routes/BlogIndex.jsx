@@ -65,7 +65,16 @@ const BlogIndex = () => {
   const filteredPosts =
     tag === "all"
       ? allPosts
-      : allPosts.filter((post) => post.tags?.includes(tag));
+      : allPosts.filter((post) => {
+          const tags =
+            typeof post.tags === "string"
+              ? post.tags
+                  .replace(/[\[\]"]/g, "")
+                  .split(",")
+                  .map((t) => t.trim())
+              : (post.tags || []).map((t) => t.trim());
+          return tags.includes(tag);
+        });
 
   const totalPages = Math.ceil(filteredPosts.length / POSTS_PER_PAGE);
   const displayedPosts = filteredPosts.slice(
@@ -99,57 +108,104 @@ const BlogIndex = () => {
             sx={{ minWidth: 160 }}
           >
             <MenuItem value="all">All</MenuItem>
-            {[...new Set(allPosts.flatMap((p) => p.tags || []))].map((t) => (
-              <MenuItem key={t} value={t}>
-                {t}
-              </MenuItem>
-            ))}
+            {Object.entries(
+              allPosts.reduce((acc, post) => {
+                const tags =
+                  typeof post.tags === "string"
+                    ? post.tags
+                        .replace(/[\[\]"]/g, "")
+                        .split(",")
+                        .map((t) => t.trim())
+                    : (post.tags || []).map((t) => t.trim());
+
+                for (const tag of tags) {
+                  if (!acc[tag]) acc[tag] = new Set();
+                  acc[tag].add(post.slug);
+                }
+
+                return acc;
+              }, {})
+            )
+              .sort(([a], [b]) => a.localeCompare(b))
+              .map(([tag, slugSet]) => (
+                <MenuItem key={tag} value={tag}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      width: "100%",
+                    }}
+                  >
+                    <span>{tag}</span>
+                    <Typography variant="caption" sx={{ fontStyle: "italic" }}>
+                      {slugSet.size}
+                    </Typography>
+                  </Box>
+                </MenuItem>
+              ))}
           </Select>
         </FormControl>
       </Box>
 
       <Grid container spacing={4}>
-        {displayedPosts.map((post) => (
-          <Grid item xs={12} key={post.slug}>
-            <Card
-              key={post.slug}
-              onClick={() => navigate(`/blog/${post.slug}`)}
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                px: isSmallScreen ? 2 : 4,
-                py: isSmallScreen ? 2 : 3,
-                cursor: "pointer",
-                transition: "box-shadow 0.3s",
-                "&:hover": {
-                  boxShadow: 6,
-                },
-              }}
-            >
-              <CardContent sx={{ p: 0 }}>
-                <Typography
-                  variant="h6"
-                  component="h2"
-                  gutterBottom
-                  sx={{ color: theme.palette.text.primary }}
-                >
-                  {post.title}
-                </Typography>
-                <Typography variant="body2" color="text.secondary" gutterBottom>
-                  {post.date && !isNaN(new Date(post.date))
-                    ? new Date(post.date).toLocaleDateString()
-                    : "No date available"}
-                </Typography>
-                <Typography
-                  variant="body1"
-                  sx={{ color: theme.palette.text.primary }}
-                >
-                  {post.description}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
+        {displayedPosts.map((post) => {
+          // Calculate reading time
+          const wordCount = (post.description || "").split(/\s+/).length;
+          const readingTime = Math.ceil(wordCount / 200); // ~200 wpm
+          return (
+            <Grid item xs={12} key={post.slug}>
+              <Card
+                key={post.slug}
+                onClick={() => navigate(`/blog/${post.slug}`)}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  px: isSmallScreen ? 2 : 3,
+                  py: isSmallScreen ? 1 : 2,
+                  cursor: "pointer",
+                  transition: "box-shadow 0.3s",
+                  "&:hover": {
+                    boxShadow: 6,
+                  },
+                }}
+              >
+                <CardContent sx={{ p: 0, pb: 1 }}>
+                  <Typography
+                    variant="h6"
+                    component="h2"
+                    gutterBottom
+                    sx={{ color: theme.palette.text.primary }}
+                  >
+                    {post.title}
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    gutterBottom
+                    sx={{ fontStyle: "italic", display: "block" }}
+                  >
+                    {post.date && !isNaN(new Date(post.date))
+                      ? new Date(post.date).toLocaleDateString()
+                      : "No date available"}
+                  </Typography>
+                  <Typography
+                    variant="body1"
+                    sx={{ color: theme.palette.text.primary }}
+                  >
+                    {post.description}
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ fontStyle: "italic", mt: 2, display: "block" }}
+                  >
+                    {`${readingTime} min read`}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          );
+        })}
       </Grid>
 
       {totalPages > 1 && (
