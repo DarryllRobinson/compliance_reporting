@@ -11,6 +11,10 @@ import PTRSolution from "../components/common/PTRSolution";
 import ResourcePage from "../components/common/ResourcePage";
 import { SubmissionChecklistViewer } from "../components/common/SubmissionChecklistViewer";
 
+// Policy documents
+import ClientServiceAgreement from "../components/policies/ClientServiceAgreement";
+import PrivacyPolicy from "../components/policies/PrivacyPolicy";
+
 // Static page viewer
 import StaticPageViewer from "../components/StaticPageViewer";
 
@@ -49,6 +53,7 @@ import Booking from "../components/common/Booking";
 import ContactThankyou from "../components/common/ContactThankyou";
 import BookingThankyou from "../components/common/BookingThankyou";
 import BlogIndex from "../routes/BlogIndex";
+import LegalDisclaimer from "../components/policies/LegalDisclaimer";
 
 // TODO: Optimise the whole thing: https://reactrouter.com/tutorials/address-book
 
@@ -116,6 +121,19 @@ export default function AppRouter() {
         {
           path: "thankyou-booking",
           Component: BookingThankyou,
+        },
+        // Policy documents
+        {
+          path: "policy-documents/client-service-agreement",
+          Component: ClientServiceAgreement,
+        },
+        {
+          path: "policy-documents/privacy-policy",
+          Component: PrivacyPolicy,
+        },
+        {
+          path: "policy-documents/legal",
+          Component: LegalDisclaimer,
         },
         // Users
         {

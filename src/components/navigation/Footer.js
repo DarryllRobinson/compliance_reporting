@@ -64,7 +64,7 @@ function Footer(props) {
       >
         <Link
           component={RouterLink}
-          to="/legal"
+          to="/policy-documents/legal"
           color="inherit"
           underline="hover"
           sx={{ fontSize: "0.875rem" }}
@@ -74,7 +74,7 @@ function Footer(props) {
         <span style={{ color: theme.palette.text.disabled }}>•</span>
         <Link
           component={RouterLink}
-          to="/privacy"
+          to="/policy-documents/privacy"
           color="inherit"
           underline="hover"
           sx={{ fontSize: "0.875rem" }}
@@ -84,12 +84,12 @@ function Footer(props) {
         <span style={{ color: theme.palette.text.disabled }}>•</span>
         <Link
           component={RouterLink}
-          to="/terms"
+          to="/policy-documents/client-service-agreement"
           color="inherit"
           underline="hover"
           sx={{ fontSize: "0.875rem" }}
         >
-          Terms
+          Terms of Service
         </Link>
       </Box>
       {showScrollButton && (

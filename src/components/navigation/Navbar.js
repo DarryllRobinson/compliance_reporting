@@ -64,6 +64,7 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
         backgroundColor: theme.palette.background.navbar,
         color: theme.palette.text.primary,
         backgroundImage: "none", // Explicitly remove the gradient
+        width: "100%",
       }}
     >
       <Toolbar>
