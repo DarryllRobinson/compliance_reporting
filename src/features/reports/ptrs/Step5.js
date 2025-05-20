@@ -12,8 +12,7 @@ import {
   Typography,
   Alert,
 } from "@mui/material";
-import { calculateFinalMetrics } from "../../../calculations/ptrs";
-import { tcpService } from "../../../services";
+import { calculateFinalMetrics } from "../../../lib/calculations/ptrs";
 import { CheckBox } from "@mui/icons-material";
 
 export default function Step5({

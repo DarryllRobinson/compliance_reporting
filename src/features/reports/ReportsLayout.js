@@ -14,7 +14,7 @@ import {
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import CloseIcon from "@mui/icons-material/Close";
 import { Outlet, redirect } from "react-router";
-import ProtectedRoutes from "../../utils/ProtectedRoutes";
+import ProtectedRoutes from "../../lib/utils/ProtectedRoutes";
 import StepsOverview from "./ptrs/StepsOverview"; // Import StepsOverview
 
 const drawerWidth = 240;

@@ -1,21 +1,21 @@
 import { createBrowserRouter, RouterProvider } from "react-router";
-import Layout from "../components/generic/Layout";
-import LandingPage from "../components/generic/LandingPage";
+import Layout from "../components/layout/Layout";
+import LandingPage from "../components/common/LandingPage";
 import RootErrorBoundary from "../components/navigation/RootErrorBoundary";
-import Fallback from "../components/generic/Fallback";
+import Fallback from "../components/common/Fallback";
 
 // Publicly available
-import Contact from "../components/generic/Contact";
-import PublicComplianceNavigator from "../components/generic/PublicComplianceNavigator";
-import PTRSolution from "../components/generic/PTRSolution";
-import ResourcePage from "../components/public/ResourcePage";
-import { SubmissionChecklistViewer } from "../components/public/SubmissionChecklistViewer";
+import Contact from "../components/common/Contact";
+import PublicComplianceNavigator from "../components/common/PublicComplianceNavigator";
+import PTRSolution from "../components/common/PTRSolution";
+import ResourcePage from "../components/common/ResourcePage";
+import { SubmissionChecklistViewer } from "../components/common/SubmissionChecklistViewer";
 
 // Static page viewer
 import StaticPageViewer from "../components/StaticPageViewer";
 
 // Testing pdf email
-import TestPdfEmail from "../components/generic/TestPdfEmail";
+import TestPdfEmail from "../components/common/TestPdfEmail";
 
 // Users
 import Users from "../features/users/Users";
@@ -43,11 +43,11 @@ import ReportWizard from "../features/reports/ptrs/ReportWizard";
 import CreateReport from "../features/reports/ptrs/CreateReport";
 import ConnectExternalSystems from "../features/reports/ptrs/ConnectExternalSystems";
 import StepsOverview from "../features/reports/ptrs/StepsOverview";
-import GettingStartedPage from "../components/generic/GettingStarted";
-import FAQ from "../components/generic/FAQ";
-import Booking from "../components/generic/Booking";
-import ContactThankyou from "../components/generic/ContactThankyou";
-import BookingThankyou from "../components/generic/BookingThankyou";
+import GettingStartedPage from "../components/common/GettingStarted";
+import FAQ from "../components/common/FAQ";
+import Booking from "../components/common/Booking";
+import ContactThankyou from "../components/common/ContactThankyou";
+import BookingThankyou from "../components/common/BookingThankyou";
 import BlogIndex from "../routes/BlogIndex";
 
 // TODO: Optimise the whole thing: https://reactrouter.com/tutorials/address-book

@@ -8,12 +8,11 @@ import {
   IconButton,
   CircularProgress,
 } from "@mui/material";
-import { publicService } from "../../services/public.services";
+import { bookingService, publicService } from "../../services";
 import Fade from "@mui/material/Fade";
 import { useTheme } from "@mui/material/styles";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-import { bookingService } from "../../services/booking.service";
 import { format, addDays } from "date-fns";
 import { useNavigate } from "react-router";
 import { useForm } from "react-hook-form";

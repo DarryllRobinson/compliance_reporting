@@ -1,4 +1,3 @@
-import React from "react";
 import { redirect, useNavigate } from "react-router"; // Import useNavigate
 import { userService } from "../../services";
 import { useLoaderData } from "react-router";
@@ -12,7 +11,7 @@ import {
   ListItemText,
   Button,
 } from "@mui/material";
-import ProtectedRoutes from "../../utils/ProtectedRoutes";
+import ProtectedRoutes from "../../lib/utils/ProtectedRoutes";
 
 export async function usersLoader() {
   const user = userService.userValue; // Get the current user

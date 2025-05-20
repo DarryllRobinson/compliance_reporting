@@ -78,21 +78,22 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
             cursor: "pointer", // Indicate it's clickable
           }}
         >
-          {/* <Box
+          <Box
+            component="img"
+            src={
+              isDarkTheme
+                ? "/images/logos/logo-dark-thin.png"
+                : "/images/logos/logo-light-thin.png"
+            }
+            alt="Compliance Reporting Logo"
             sx={{
-              backgroundImage: `url(/images/backgrounds/darkest_logo.png)`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              height: 70,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              textAlign: "center",
-              px: 2,
-              mb: 2,
+              height: 48,
+              objectFit: "contain",
+              mt: 1.5,
+              mb: 0.5,
+              ml: -1.5,
             }}
-          ></Box> */}
-          Placeholder Logo
+          />
         </Typography>
         <Box sx={{ display: { xs: "none", md: "flex" } }}>
           <Button

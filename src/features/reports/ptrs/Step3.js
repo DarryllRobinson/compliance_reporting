@@ -1,9 +1,8 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Box, Typography, Button, Paper, Alert } from "@mui/material";
 import { useNavigate } from "react-router";
 import { tcpService } from "../../../services";
 import { Download, Upload, OpenInNew } from "@mui/icons-material";
-import { formatDateForMySQL } from "../../../utils/formatters";
 
 export default function Step3({
   savedRecords = [],

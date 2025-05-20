@@ -3,7 +3,7 @@ const chokidar = require("chokidar");
 const path = require("path");
 const { generateBlogIndex } = require("./generateBlogIndex");
 
-const blogDir = path.join(__dirname, "../public/static-content/blog");
+const blogDir = path.join(__dirname, "../public/blog");
 
 console.log("👀 Watching blog directory for changes...");
 

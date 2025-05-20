@@ -15,9 +15,8 @@ import {
   Alert,
 } from "@mui/material";
 import { useNavigate } from "react-router";
-import { tcpService } from "../../../services";
-import { getRowHighlightColor } from "../../../utils/highlightRow";
-import { calculatePaymentTime } from "../../../calculations/ptrs";
+import { getRowHighlightColor } from "../../../lib/utils/";
+import { calculatePaymentTime } from "../../../lib/calculations/ptrs";
 
 export default function Step4({
   savedRecords = [],

@@ -1,5 +1,5 @@
-import config from "../utils/config";
-import { fetchWrapper } from "../utils/fetch-wrapper";
+import config from "../../lib/utils/config";
+import { fetchWrapper } from "../../lib/utils/";
 
 const baseUrl = `${config.apiUrl}/public`;
 

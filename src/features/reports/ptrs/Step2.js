@@ -1,31 +1,15 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import CollapsibleTable from "./CollapsibleTable";
 import { useTheme } from "@mui/material/styles";
-import {
-  Alert,
-  Box,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Checkbox,
-  Typography,
-  Button,
-  TextField,
-  TablePagination,
-} from "@mui/material";
+import { Alert, Box, Button, TextField, Typography } from "@mui/material";
 import { useNavigate } from "react-router";
 import { tcpService, userService } from "../../../services";
+import { calculatePartialPayment } from "../../../lib/calculations/ptrs"; // Import the function
 import {
-  calculatePartialPayment,
-  calculatePaymentTerm,
-} from "../../../calculations/ptrs"; // Import the function
-import { formatDateForMySQL } from "../../../utils/formatters";
-import { getRowHighlightColor } from "../../../utils/highlightRow";
-import { inputValidationRules } from "../../../utils/inputValidation";
+  formatDateForMySQL,
+  getRowHighlightColor,
+  inputValidationRules,
+} from "../../../lib/utils";
 
 const calculatePartialPaymentsForBatch = (records) => {
   // Group payments by invoiceReferenceNumber

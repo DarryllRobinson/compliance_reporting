@@ -3,10 +3,7 @@ const path = require("path");
 
 function generateSitemap() {
   const baseUrl = "https://monochrome-compliance.com";
-  const indexPath = path.join(
-    __dirname,
-    "../public/static-content/blog/index.json"
-  );
+  const indexPath = path.join(__dirname, "../public/blog/index.json");
   const outputPath = path.join(__dirname, "../public/sitemap.xml");
 
   let blogPaths = [];

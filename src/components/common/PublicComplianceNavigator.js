@@ -23,10 +23,9 @@ import {
   useTheme,
   CircularProgress,
 } from "@mui/material";
-import { entityService, userService } from "../../services";
+import { entityService } from "../../services";
 import { Alert } from "@mui/material";
-import { handlePdf } from "../../utils/pdfUtils";
-import { sendSummaryByEmail } from "../../utils/emailUtils";
+import { handlePdf, sendSummaryByEmail } from "../../lib/utils";
 
 // Yup validation schema for Entity Details
 const entitySchema = yup.object().shape({

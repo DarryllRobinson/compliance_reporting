@@ -5,3 +5,4 @@ export * from "./clients/client";
 export * from "./tcp/tcp";
 export * from "./entity/entity";
 export * from "./booking/booking";
+export * from "./public/public";

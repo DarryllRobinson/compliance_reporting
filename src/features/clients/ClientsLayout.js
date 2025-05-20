@@ -1,6 +1,6 @@
 import { Box } from "@mui/material";
 import { Outlet, redirect } from "react-router";
-import ProtectedRoutes from "../../utils/ProtectedRoutes";
+import ProtectedRoutes from "../../lib/utils/ProtectedRoutes";
 
 export function clientLayoutLoader({ context }) {
   const { alertContext } = context;

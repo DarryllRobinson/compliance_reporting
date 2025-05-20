@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 
 function generateBlogIndex() {
-  const blogDir = path.join(__dirname, "../public/static-content/blog");
+  const blogDir = path.join(__dirname, "../public/blog");
   const outputPath = path.join(blogDir, "index.json");
 
   const files = fs.readdirSync(blogDir);

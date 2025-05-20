@@ -6,9 +6,7 @@ import {
   Paper,
   CircularProgress,
 } from "@mui/material";
-import { handlePdf } from "../../utils/pdfUtils";
-import { downloadFile } from "../../utils/downloadUtils";
-import { sendSummaryByEmail } from "../../utils/emailUtils";
+import { downloadFile, handlePdf, sendSummaryByEmail } from "../../lib/utils";
 
 export default function TestPdfEmail() {
   const [loading, setLoading] = useState(false);

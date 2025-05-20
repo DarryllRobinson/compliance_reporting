@@ -17,7 +17,7 @@ import {
 import { useTheme } from "@mui/material/styles";
 import { redirect, useLoaderData, useNavigate } from "react-router";
 import { reportService, userService } from "../../services";
-import ProtectedRoutes from "../../utils/ProtectedRoutes";
+import ProtectedRoutes from "../../lib/utils/ProtectedRoutes";
 
 export async function dashboardLoader() {
   const user = userService.userValue; // Get the current user

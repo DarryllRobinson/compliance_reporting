@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router";
 import {
   Box,
@@ -20,8 +20,7 @@ import Step6View from "./steps/Step6View";
 
 // Example data loader (replace with actual context or API call if needed)
 import { tcpService } from "../../../services";
-import { ptrsGuidance } from "../../../data/ptrsGuidance";
-import { glossary } from "../../../data/glossary";
+import { glossary, ptrsGuidance } from "../../../constants/";
 
 const steps = [
   { label: "Step 1: Confirm TCPs", Component: Step1View },
