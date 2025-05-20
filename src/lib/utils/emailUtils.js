@@ -1,4 +1,4 @@
-import { publicService } from "../services/public.services";
+import { publicService } from "../../services/public.services";
 
 export async function sendSummaryByEmail({
   pdfBlob,

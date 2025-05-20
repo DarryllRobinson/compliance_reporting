@@ -1,4 +1,4 @@
-import { userService } from "../services";
+import { userService } from "../../services";
 
 export default function ProtectedRoutes(role) {
   const user = userService.userValue; // Get the current user

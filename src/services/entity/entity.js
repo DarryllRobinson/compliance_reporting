@@ -1,9 +1,9 @@
-import config from "../utils/config";
-import { fetchWrapper } from "../utils/fetch-wrapper";
+import config from "../../lib/utils/config";
+import { fetchWrapper } from "../../lib/utils/fetch-wrapper";
 
-const baseUrl = `${config.apiUrl}/booking`;
+const baseUrl = `${config.apiUrl}/entities`;
 
-export const bookingService = {
+export const entityService = {
   getAll,
   getById,
   create,

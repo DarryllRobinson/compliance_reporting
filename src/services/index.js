@@ -1,8 +1,7 @@
-export * from "./xero.service";
-export * from "./user.service";
-export * from "./report.service";
-export * from "./client.service";
-export * from "./tcp.service";
-// export * from "./tat.service";
-export * from "./entity.service";
-export * from "./booking.service";
+export * from "./xero/xero";
+export * from "./auth/user";
+export * from "./reports/report";
+export * from "./clients/client";
+export * from "./tcp/tcp";
+export * from "./entity/entity";
+export * from "./booking/booking";
