@@ -14,7 +14,7 @@ import {
   Grid,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { Link as RouterLink, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 
 const POSTS_PER_PAGE = 5;
 
@@ -44,12 +44,12 @@ const BlogIndex = () => {
 
   useEffect(() => {
     const loadPosts = async () => {
-      const indexRes = await fetch("/static-content/blog/index.json");
+      const indexRes = await fetch("/blog/index.json");
       const index = await indexRes.json();
 
       const loaded = await Promise.all(
         index.map(async ({ slug }) => {
-          const res = await fetch(`/static-content/blog/${slug}.md`);
+          const res = await fetch(`/blog/${slug}.md`);
           const raw = await res.text();
           const { title, description, date, tags = [] } = parseFrontMatter(raw);
           return { slug, title, description, date, tags };
