@@ -1,4 +1,3 @@
-import React from "react";
 import { Box, Typography, List, ListItem, ListItemText } from "@mui/material";
 
 // Submission Checklist – A step-by-step guide to double-check your data before submitting

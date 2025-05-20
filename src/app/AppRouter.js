@@ -39,7 +39,6 @@ import ClientRegister from "../features/clients/ClientRegister";
 
 // Reports
 import ReportErrorBoundary from "../components/navigation/ReportErrorBoundary";
-import ReportsMain from "../features/reports/ReportsMain";
 import ReportsLayout from "../features/reports/ReportsLayout";
 
 // PTRS
@@ -208,7 +207,6 @@ export default function AppRouter() {
         {
           path: "reports",
           children: [
-            { index: true, Component: ReportsMain },
             {
               Component: ReportsLayout,
               ErrorBoundary: ReportErrorBoundary,

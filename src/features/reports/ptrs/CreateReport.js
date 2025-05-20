@@ -1,55 +1,54 @@
 import React from "react";
 import { Box, Paper, TextField, Button, Grid, useTheme } from "@mui/material";
-import { Form, redirect } from "react-router";
+import { Alert } from "@mui/material";
+import { useNavigate, useParams } from "react-router";
 import { reportService, userService } from "../../../services";
-
-export async function createReportAction({ request, context, params }) {
-  const { alertContext, reportContext } = context;
-  const formData = await request.formData();
-  let reportDetails = Object.fromEntries(formData);
-
-  // Removed date validation logic
-
-  reportDetails = {
-    ...reportDetails,
-    code: params.code,
-    reportName: "Payment Times Reporting Scheme",
-    reportStatus: "Created",
-    createdBy: userService.userValue.id,
-    clientId: userService.userValue.clientId,
-  };
-
-  // console.log("createReport reportDetails:", reportDetails);
-
-  // Save the report details to the database
-  try {
-    const report = await reportService.create(reportDetails);
-    if (!report) alertContext.sendAlert("error", "Report not created");
-
-    // Update the ReportContext with the new report details
-    reportDetails = {
-      ...reportDetails,
-      reportId: report.id,
-    };
-    if (reportContext && reportContext.setReportDetails) {
-      reportContext.setReportDetails(reportDetails);
-    }
-    // console.log("Final createReport reportDetails:", reportDetails);
-
-    // Alert the user about the successful creation
-    alertContext.sendAlert("success", "Report created successfully");
-    // Redirect to the external data source connection page
-    return redirect(`/reports/${params.code}/${report.id}/connect`, {
-      state: { reportDetails },
-    });
-  } catch (error) {
-    alertContext.sendAlert("error", error || "Error creating report");
-    console.error("Error creating report:", error);
-  }
-}
 
 export default function CreateReport() {
   const theme = useTheme();
+  const { code } = useParams();
+  const navigate = useNavigate();
+
+  const [alert, setAlert] = React.useState(null);
+  const [reportDetails, setReportDetails] = React.useState(null);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    let newReportDetails = Object.fromEntries(formData);
+
+    newReportDetails = {
+      ...newReportDetails,
+      code: code,
+      reportName: "Payment Times Reporting Scheme",
+      reportStatus: "Created",
+      createdBy: userService.userValue.id,
+      clientId: userService.userValue.clientId,
+    };
+
+    try {
+      const report = await reportService.create(newReportDetails);
+      if (!report) {
+        setAlert({ type: "error", message: "Report not created" });
+        return;
+      }
+
+      const updatedReportDetails = { ...newReportDetails, reportId: report.id };
+
+      setReportDetails(updatedReportDetails);
+
+      setAlert({ type: "success", message: "Report created successfully" });
+      navigate(`/reports/${code}/${report.id}/connect`, {
+        state: { reportDetails: updatedReportDetails },
+      });
+    } catch (error) {
+      setAlert({
+        type: "error",
+        message: error.message || "Error creating report",
+      });
+      console.error("Error creating report:", error);
+    }
+  };
 
   return (
     <Box
@@ -71,7 +70,12 @@ export default function CreateReport() {
           backgroundColor: theme.palette.background.paper,
         }}
       >
-        <Form method="post">
+        {alert && (
+          <Alert severity={alert.type} sx={{ mb: 2 }}>
+            {alert.message}
+          </Alert>
+        )}
+        <form onSubmit={handleSubmit}>
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <TextField
@@ -103,7 +107,7 @@ export default function CreateReport() {
               </Button>
             </Grid>
           </Grid>
-        </Form>
+        </form>
       </Paper>
     </Box>
   );

@@ -1,5 +1,5 @@
-import React from "react";
-import { Form, redirect, useNavigate } from "react-router";
+import React, { useState } from "react";
+import { useNavigate } from "react-router";
 import {
   Box,
   Typography,
@@ -9,35 +9,40 @@ import {
   Paper,
   Grid,
   ButtonGroup,
+  Alert,
 } from "@mui/material";
 import { userService } from "../../services";
-
-export async function forgotPasswordAction({ request, context }) {
-  const { alertContext } = context;
-  const formData = await request.formData();
-  const email = formData.get("email").trim();
-
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    alertContext.sendAlert("error", "Invalid email address");
-    return;
-  }
-
-  try {
-    const response = await userService.forgotPassword(email);
-    alertContext.sendAlert(
-      "success",
-      response.message ||
-        "Password reset successfully - please check your email"
-    );
-  } catch (error) {
-    alertContext.sendAlert("error", error || "Error resetting password");
-    console.error("Error creating user:", error);
-  }
-}
 
 export default function ForgotPassword() {
   const theme = useTheme();
   const navigate = useNavigate();
+  const [alert, setAlert] = useState(null);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get("email").trim();
+
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setAlert({ type: "error", message: "Invalid email address" });
+      return;
+    }
+
+    try {
+      const response = await userService.forgotPassword(email);
+      setAlert({
+        type: "success",
+        message:
+          response.message ||
+          "Password reset successfully. Please check your email.",
+      });
+    } catch (error) {
+      setAlert({
+        type: "error",
+        message: error.message || "Error resetting password",
+      });
+    }
+  };
 
   return (
     <Box
@@ -62,8 +67,13 @@ export default function ForgotPassword() {
         <Typography variant="h4" gutterBottom align="center">
           Reset Password
         </Typography>
-        <Form
-          method="post"
+        {alert && (
+          <Alert severity={alert.type} sx={{ mb: 2 }}>
+            {alert.message}
+          </Alert>
+        )}
+        <form
+          onSubmit={handleSubmit}
           id="forgot-password-form"
           style={{ display: "flex", flexDirection: "column", gap: 2 }}
         >
@@ -102,7 +112,7 @@ export default function ForgotPassword() {
               Login
             </Button>
           </ButtonGroup>
-        </Form>
+        </form>
       </Paper>
     </Box>
   );

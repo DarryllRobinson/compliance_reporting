@@ -12,10 +12,12 @@ import {
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useTheme, useMediaQuery } from "@mui/material";
+import { userService } from "../../services";
 
 const drawerWidth = 240;
 
-const PolicyDocument = ({ title, lastUpdated, isLoggedIn, sections }) => {
+const PolicyDocument = ({ title, lastUpdated, sections }) => {
+  const user = userService.userValue;
   const [searchTerm, setSearchTerm] = useState("");
   const [mobileOpen, setMobileOpen] = useState(false);
   const theme = useTheme();
@@ -118,7 +120,7 @@ const PolicyDocument = ({ title, lastUpdated, isLoggedIn, sections }) => {
           Last Updated: {lastUpdated}
         </Typography>
 
-        {isLoggedIn && (
+        {user && (
           <Box sx={{ mb: 2 }}>
             <Button variant="contained" color="primary">
               Download PDF

@@ -1,29 +1,21 @@
-import { redirect } from "react-router";
-import { Box, Typography, Button, TextField, useTheme } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Button,
+  TextField,
+  useTheme,
+  Alert,
+} from "@mui/material";
 import { userService } from "../../services";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useState } from "react";
 
-export async function loginAction({ request, context }) {
-  const { alertContext } = context;
-  const formData = await request.formData();
-  const userDetails = Object.fromEntries(formData);
-
-  try {
-    await userService.login(userDetails);
-    return redirect("/user/dashboard");
-  } catch (error) {
-    const errorMessage = error?.message || "Login failed";
-    alertContext.sendAlert("error", errorMessage);
-    return redirect("/user/login");
-  }
-}
-
 export default function Login() {
   const theme = useTheme();
   const [loading, setLoading] = useState(false);
+  const [alert, setAlert] = useState(null);
 
   const schema = yup.object().shape({
     email: yup.string().email("Invalid email").required("Email is required"),
@@ -52,6 +44,7 @@ export default function Login() {
         type: "manual",
         message: error?.message || "Login failed",
       });
+      setAlert({ type: "error", message: error?.message || "Login failed" });
     } finally {
       setLoading(false);
     }
@@ -72,6 +65,11 @@ export default function Login() {
       <Typography variant="h4" gutterBottom>
         Login
       </Typography>
+      {alert && (
+        <Alert severity={alert.type} sx={{ mb: 2 }}>
+          {alert.message}
+        </Alert>
+      )}
       <form
         id="signin-form"
         onSubmit={handleSubmit(onSubmit)}

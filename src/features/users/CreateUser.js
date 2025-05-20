@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Form, redirect, useLoaderData, useSearchParams } from "react-router";
+import React, { useEffect, useState, useContext } from "react";
+import { useNavigate } from "react-router";
 import {
   Box,
   Typography,
@@ -14,36 +14,30 @@ import {
   Grid,
 } from "@mui/material";
 import { clientService, userService } from "../../services";
-
-export async function createUserLoader() {
-  const clients = await clientService.getAll();
-  if (!clients) {
-    throw new Response("userCreateLoader clients problem", { status: 500 });
-  }
-  return { clients };
-}
-
-export async function createUserAction({ request, context }) {
-  const { alertContext } = context;
-  const formData = await request.formData();
-  let userDetails = Object.fromEntries(formData);
-  userDetails = { ...userDetails, active: true };
-  try {
-    await userService.register(userDetails);
-    alertContext.sendAlert("success", "User created successfully.");
-    return redirect("/users");
-  } catch (error) {
-    alertContext.sendAlert("error", error || "Error creating user.");
-    console.error("Error creating user:", error);
-  }
-}
+import { Alert } from "@mui/material";
 
 export default function UserCreate() {
   const theme = useTheme();
-  const { clients } = useLoaderData();
+  const [clients, setClients] = useState([]);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
+  const [alert, setAlert] = useState(null);
   const [storedClientDetails, setStoredClientDetails] = useState({});
   const [selectedRole, setSelectedRole] = useState("Admin"); // Controlled state for role
   const [selectedClient, setSelectedClient] = useState(""); // Controlled state for client
+
+  useEffect(() => {
+    async function fetchClients() {
+      try {
+        const result = await clientService.getAll();
+        setClients(result || []);
+      } catch (err) {
+        console.error("Failed to fetch clients:", err);
+        setError("Unable to load client list.");
+      }
+    }
+    fetchClients();
+  }, []);
 
   useEffect(() => {
     // Retrieve client details from localStorage
@@ -62,6 +56,25 @@ export default function UserCreate() {
     // Clear localStorage after retrieving the details
     localStorage.removeItem("clientDetails");
   }, [clients]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    let userDetails = Object.fromEntries(formData);
+    userDetails = { ...userDetails, active: true };
+
+    try {
+      await userService.register(userDetails);
+      setAlert({ type: "success", message: "User created successfully." });
+      navigate("/users");
+    } catch (error) {
+      setAlert({
+        type: "error",
+        message: error.message || "Error creating user.",
+      });
+      console.error("Error creating user:", error);
+    }
+  };
 
   return (
     <Box
@@ -86,8 +99,18 @@ export default function UserCreate() {
         <Typography variant="h4" gutterBottom align="center">
           Create a New User
         </Typography>
-        <Form
-          method="post"
+        {error && (
+          <Typography color="error" sx={{ mb: 2 }}>
+            {error}
+          </Typography>
+        )}
+        {alert && (
+          <Alert severity={alert.type} sx={{ mb: 2 }}>
+            {alert.message}
+          </Alert>
+        )}
+        <form
+          onSubmit={handleSubmit}
           id="create-user-form"
           style={{
             display: "flex",
@@ -217,7 +240,7 @@ export default function UserCreate() {
           >
             Create User
           </Button>
-        </Form>
+        </form>
       </Paper>
     </Box>
   );

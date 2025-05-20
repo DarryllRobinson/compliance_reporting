@@ -13,17 +13,10 @@ import {
 } from "@mui/material";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import CloseIcon from "@mui/icons-material/Close";
-import { Outlet, redirect } from "react-router";
-import ProtectedRoutes from "../../lib/utils/ProtectedRoutes";
+import { Outlet } from "react-router";
 import StepsOverview from "./ptrs/StepsOverview"; // Import StepsOverview
 
 const drawerWidth = 240;
-
-export function reportLayoutLoader() {
-  if (!ProtectedRoutes()) {
-    return redirect("/user/dashboard");
-  }
-}
 
 export default function ReportsLayout() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);

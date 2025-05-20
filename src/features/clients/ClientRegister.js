@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Form, redirect } from "react-router";
+import React, { useState, useContext } from "react";
+import { useNavigate } from "react-router";
 import {
   Box,
   Typography,
@@ -16,52 +16,12 @@ import {
   Checkbox,
 } from "@mui/material";
 import { clientService, userService } from "../../services";
-
-export async function clientRegisterAction({ request, context }) {
-  const { alertContext } = context;
-  const formData = await request.formData();
-  let clientDetails = Object.fromEntries(formData);
-
-  // Input validation
-  if (!clientDetails.businessName || clientDetails.businessName.trim() === "") {
-    alertContext.sendAlert("error", "Business Name is required");
-    return;
-  }
-
-  if (!clientDetails.abn || !/^\d{11}$/.test(clientDetails.abn)) {
-    alertContext.sendAlert("error", "ABN must be exactly 11 digits");
-    return;
-  }
-  clientDetails = {
-    ...clientDetails,
-    active: true,
-    createdBy: userService.userValue.id,
-  };
-
-  try {
-    await clientService.create(clientDetails);
-
-    // Store relevant fields in localStorage
-    localStorage.setItem(
-      "clientDetails",
-      JSON.stringify({
-        businessName: clientDetails.businessName,
-        contactFirst: clientDetails.contactFirst,
-        contactLast: clientDetails.contactLast,
-        contactEmail: clientDetails.contactEmail,
-        contactPhone: clientDetails.contactPhone,
-        contactPosition: clientDetails.contactPosition,
-      })
-    );
-
-    return redirect("/users/create");
-  } catch (error) {
-    alertContext.sendAlert("error", error || "Error creating client");
-  }
-}
+import { Alert } from "@mui/material";
 
 export default function ClientRegister() {
   const theme = useTheme();
+  const [alert, setAlert] = useState(null);
+  const navigate = useNavigate();
   const [sameAsAddress, setSameAsAddress] = useState(false);
   const [formValues, setFormValues] = useState({
     businessName: "",
@@ -119,6 +79,53 @@ export default function ClientRegister() {
     }
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    let clientDetails = Object.fromEntries(formData);
+
+    if (
+      !clientDetails.businessName ||
+      clientDetails.businessName.trim() === ""
+    ) {
+      setAlert({ type: "error", message: "Business Name is required" });
+      return;
+    }
+
+    if (!clientDetails.abn || !/^\d{11}$/.test(clientDetails.abn)) {
+      setAlert({ type: "error", message: "ABN must be exactly 11 digits" });
+      return;
+    }
+
+    clientDetails = {
+      ...clientDetails,
+      active: true,
+      createdBy: userService.userValue.id,
+    };
+
+    try {
+      await clientService.create(clientDetails);
+      localStorage.setItem(
+        "clientDetails",
+        JSON.stringify({
+          businessName: clientDetails.businessName,
+          contactFirst: clientDetails.contactFirst,
+          contactLast: clientDetails.contactLast,
+          contactEmail: clientDetails.contactEmail,
+          contactPhone: clientDetails.contactPhone,
+          contactPosition: clientDetails.contactPosition,
+        })
+      );
+      navigate("/users/create");
+    } catch (error) {
+      setAlert({
+        type: "error",
+        message: error.message || "Error creating client",
+      });
+      console.error("Error creating client:", error);
+    }
+  };
+
   return (
     <Box
       sx={{
@@ -142,8 +149,13 @@ export default function ClientRegister() {
         <Typography variant="h4" gutterBottom align="center">
           Register a New Client
         </Typography>
-        <Form
-          method="post"
+        {alert && (
+          <Alert severity={alert.type} sx={{ mb: 2 }}>
+            {alert.message}
+          </Alert>
+        )}
+        <form
+          onSubmit={handleSubmit}
           id="register-client-form"
           style={{ display: "flex", flexDirection: "column", gap: 2 }}
         >
@@ -544,7 +556,7 @@ export default function ClientRegister() {
           >
             Register Client
           </Button>
-        </Form>
+        </form>
       </Paper>
     </Box>
   );

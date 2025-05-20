@@ -1,6 +1,6 @@
-import { redirect, useNavigate } from "react-router"; // Import useNavigate
+import { useNavigate } from "react-router"; // Import useNavigate
 import { clientService } from "../../services";
-import { useLoaderData } from "react-router";
+import React, { useEffect, useState } from "react";
 import {
   useTheme,
   Box,
@@ -13,34 +13,56 @@ import {
 } from "@mui/material";
 import ProtectedRoutes from "../../lib/utils/ProtectedRoutes";
 
-export async function clientsLoader() {
-  if (!ProtectedRoutes("Admin")) {
-    return redirect("/user/dashboard");
-  }
-
-  // const user = userService.userValue; // Get the current user
-  // const user = await userService.refreshToken();
-  // if (!user) {
-  //   throw new Response("clientsLoader user problem", { status: 500 });
-  // }
-  //   const user = userService.userValue; // Get the current user
-  const clients = await clientService.getAll();
-  if (!clients) {
-    throw new Response("clientsLoader clients problem", { status: 500 });
-  }
-  return { clients };
-}
-
 export default function Clients() {
-  // const [user, setUser] = React.useState({});
-
-  // useEffect(() => {
-  //   const subscription = userService.user.subscribe((x) => setUser(x));
-  //   return () => subscription.unsubscribe();
-  // }, []);
-  const { clients } = useLoaderData();
+  const [clients, setClients] = useState([]);
+  const [error, setError] = useState(null);
   const theme = useTheme();
   const navigate = useNavigate(); // Initialize navigate
+
+  useEffect(() => {
+    if (!ProtectedRoutes("Admin")) {
+      navigate("/user/dashboard");
+      return;
+    }
+
+    async function fetchClients() {
+      try {
+        const response = await clientService.getAll();
+        setClients(response || []);
+      } catch (err) {
+        console.error("Error loading clients:", err);
+        setError("Failed to load clients.");
+      }
+    }
+
+    fetchClients();
+  }, []);
+
+  if (error) {
+    return (
+      <Box
+        sx={{
+          padding: 3,
+          backgroundColor: theme.palette.background.default,
+          minHeight: "100vh",
+        }}
+      >
+        <Paper
+          elevation={3}
+          sx={{
+            padding: 3,
+            maxWidth: 800,
+            margin: "0 auto",
+            backgroundColor: theme.palette.background.paper,
+          }}
+        >
+          <Typography variant="h4" gutterBottom color="error">
+            {error}
+          </Typography>
+        </Paper>
+      </Box>
+    );
+  }
 
   if (!clients || clients.length === 0) {
     return (

@@ -15,7 +15,8 @@ import {
   Paper,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { redirect, useLoaderData, useNavigate } from "react-router";
+import { redirect, useNavigate } from "react-router";
+import { useEffect, useState } from "react";
 import { reportService, userService } from "../../services";
 import ProtectedRoutes from "../../lib/utils/ProtectedRoutes";
 
@@ -39,10 +40,34 @@ export async function dashboardLoader() {
 }
 
 export default function Dashboard() {
-  const { reports } = useLoaderData();
   const user = userService.userValue; // Get the current user
   const navigate = useNavigate();
   const theme = useTheme(); // Access the theme
+  const [reports, setReports] = useState([]);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    async function fetchReports() {
+      const user = userService.userValue;
+      if (!ProtectedRoutes()) {
+        redirect("/user/login");
+        return;
+      }
+
+      try {
+        const response = await reportService.getAll({
+          clientId: user.clientId,
+        });
+        setReports(response || []);
+      } catch (err) {
+        console.error("Error fetching reports:", err);
+        setError("Failed to fetch reports");
+        setReports([]);
+      }
+    }
+
+    fetchReports();
+  }, []);
 
   const reportList = [
     {
@@ -120,6 +145,12 @@ export default function Dashboard() {
         Here you can manage your reports and track their progress
       </Typography>
 
+      {error && (
+        <Typography color="error" sx={{ mt: 2 }}>
+          We couldn’t load your reports at this time. Please try again later or
+          contact support.
+        </Typography>
+      )}
       <Grid container spacing={3} sx={{ marginTop: theme.spacing(2) }}>
         {reportList.map((report, index) => {
           // Ensure reports is an array before filtering

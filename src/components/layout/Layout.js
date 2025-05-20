@@ -9,22 +9,6 @@ import { userService } from "../../services";
 import { Alert, Snackbar } from "@mui/material";
 import globalTheme from "../../theme/globalTheme"; // Ensure the import matches the export
 
-export async function layoutLoader({ request }) {
-  const user = userService.userValue;
-  if (!user) {
-    console.error("Unauthorized access attempt detected."); // Avoid exposing sensitive details
-    throw new Response("Unauthorized access", { status: 401 });
-  }
-
-  // Scroll to the top of the screen
-  if (typeof window !== "undefined") {
-    window.scrollTo(0, 0);
-  }
-
-  // If page not found
-  // throw new Response("Page not found", { status: 404 });
-}
-
 export default function Layout() {
   const [isDarkTheme, setIsDarkTheme] = useState(false);
   const location = useLocation();

@@ -1,6 +1,6 @@
+import { useEffect, useState } from "react";
 import { redirect, useNavigate } from "react-router"; // Import useNavigate
 import { userService } from "../../services";
-import { useLoaderData } from "react-router";
 import {
   useTheme,
   Box,
@@ -13,28 +13,56 @@ import {
 } from "@mui/material";
 import ProtectedRoutes from "../../lib/utils/ProtectedRoutes";
 
-export async function usersLoader() {
-  const user = userService.userValue; // Get the current user
-  // const user = await userService.refreshToken();
-
-  if (!ProtectedRoutes("Admin")) {
-    return redirect("/user/dashboard");
-  }
-
-  if (!user) {
-    throw new Response("usersLoader refreshToken problem", { status: 500 });
-  }
-  const users = await userService.getAll();
-  if (!users) {
-    throw new Response("usersLoader getAll problem", { status: 500 });
-  }
-  return { users };
-}
-
 export default function Users() {
-  const { users } = useLoaderData();
+  const [users, setUsers] = useState([]);
+  const [error, setError] = useState(null);
   const theme = useTheme(); // Access the theme
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!ProtectedRoutes("Admin")) {
+      navigate("/user/dashboard");
+      return;
+    }
+
+    async function fetchUsers() {
+      try {
+        const result = await userService.getAll();
+        setUsers(result || []);
+      } catch (err) {
+        console.error("Error loading users:", err);
+        setError("Failed to load users.");
+      }
+    }
+
+    fetchUsers();
+  }, []);
+
+  if (error) {
+    return (
+      <Box
+        sx={{
+          padding: theme.spacing(3),
+          backgroundColor: theme.palette.background.default,
+          minHeight: "100vh",
+        }}
+      >
+        <Paper
+          elevation={3}
+          sx={{
+            padding: theme.spacing(3),
+            maxWidth: 800,
+            margin: "0 auto",
+            backgroundColor: theme.palette.background.paper,
+          }}
+        >
+          <Typography variant="h4" gutterBottom color="error">
+            {error}
+          </Typography>
+        </Paper>
+      </Box>
+    );
+  }
 
   if (!users || users.length === 0) {
     return (
