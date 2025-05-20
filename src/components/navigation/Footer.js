@@ -2,13 +2,6 @@ import { Link as RouterLink } from "react-router";
 import { Box, Link, Typography, useTheme } from "@mui/material";
 import { useEffect, useState } from "react";
 
-const fadeSlideIn = {
-  "@keyframes fadeSlideIn": {
-    from: { opacity: 0, transform: "translateY(20px)" },
-    to: { opacity: 1, transform: "translateY(0)" },
-  },
-};
-
 function Footer(props) {
   const theme = useTheme();
 
@@ -27,17 +20,32 @@ function Footer(props) {
     <Box
       component="footer"
       sx={{
-        backgroundColor: theme.palette.background.paper,
+        backgroundColor: theme.palette.background.navbar,
         color: theme.palette.text.secondary,
-        py: 3,
+        py: 2,
         px: 2,
         textAlign: "center",
         borderTop: `1px solid ${theme.palette.divider}`,
+        mt: 6,
+        width: "100%",
       }}
       {...props}
     >
-      <Typography variant="body2" sx={{ mb: 1 }}>
-        {"Copyright © "}
+      <Typography
+        variant="body2"
+        sx={{
+          fontSize: "0.75rem",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          gap: 1,
+          flexWrap: "wrap",
+          flexDirection: "row",
+          textAlign: "center",
+          mt: 0.5,
+        }}
+      >
+        © {new Date().getFullYear()}{" "}
         <Link
           component={RouterLink}
           to="/"
@@ -46,38 +54,22 @@ function Footer(props) {
           sx={{ fontWeight: "bold" }}
         >
           Monochrome Compliance
-        </Link>{" "}
-        {new Date().getFullYear()}
-        {"."}
-      </Typography>
-      <Typography variant="subtitle2" sx={{ mb: 0.5, fontWeight: 600 }}>
-        Legal & Policies
-      </Typography>
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          gap: 1.5,
-          mt: 0.5,
-        }}
-      >
+        </Link>
+        <span style={{ color: theme.palette.text.disabled }}>•</span>
         <Link
           component={RouterLink}
           to="/policy-documents/legal"
           color="inherit"
           underline="hover"
-          sx={{ fontSize: "0.875rem" }}
         >
           Legal
         </Link>
         <span style={{ color: theme.palette.text.disabled }}>•</span>
         <Link
           component={RouterLink}
-          to="/policy-documents/privacy"
+          to="/policy-documents/privacy-policy"
           color="inherit"
           underline="hover"
-          sx={{ fontSize: "0.875rem" }}
         >
           Privacy
         </Link>
@@ -87,11 +79,11 @@ function Footer(props) {
           to="/policy-documents/client-service-agreement"
           color="inherit"
           underline="hover"
-          sx={{ fontSize: "0.875rem" }}
         >
           Terms of Service
         </Link>
-      </Box>
+      </Typography>
+
       {showScrollButton && (
         <Box
           sx={{
@@ -104,9 +96,7 @@ function Footer(props) {
             boxShadow: 3,
             p: 1,
             zIndex: 1000,
-            animation: showScrollButton
-              ? "fadeSlideIn 0.4s ease-out forwards"
-              : "none",
+            animation: "fadeSlideIn 0.4s ease-out forwards",
             "@keyframes fadeSlideIn": {
               from: { opacity: 0, transform: "translateY(20px)" },
               to: { opacity: 1, transform: "translateY(0)" },
