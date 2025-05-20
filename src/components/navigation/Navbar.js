@@ -85,7 +85,7 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
                 ? "/images/logos/logo-dark-thin.png"
                 : "/images/logos/logo-light-thin.png"
             }
-            alt="Compliance Reporting Logo"
+            alt="Monochrome Compliance Logo"
             sx={{
               height: 48,
               objectFit: "contain",
