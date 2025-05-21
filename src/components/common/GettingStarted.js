@@ -65,7 +65,7 @@ export default function GettingStartedPage() {
           Download our{" "}
           <Tooltip title="Download CSV template">
             <Link
-              href="/static-content/resources/ptr_template.csv"
+              href="/templates/ptr_template.csv"
               underline="hover"
               target="_blank"
               rel="noopener"

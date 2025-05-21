@@ -38,12 +38,12 @@ export default function Contact() {
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
-      name: "Homer Simpson",
-      email: "homer@simpson.com",
+      name: "",
+      email: "",
       subject: "Contact Us",
       message: "Hello there! I have a question.",
       to: "darryllrobinson@icloud.com",
-      from: "darryllrobinson@icloud.com",
+      from: "",
     },
   });
 
