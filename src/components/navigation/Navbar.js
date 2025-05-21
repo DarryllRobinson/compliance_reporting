@@ -70,13 +70,9 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
       <Toolbar>
         <Typography
           variant="h6"
-          component={Link} // Use Link component for navigation
-          to="/" // Navigate to the root route
           sx={{
             flexGrow: 1,
             color: theme.palette.text.primary,
-            textDecoration: "none", // Remove underline from the link
-            cursor: "pointer", // Indicate it's clickable
           }}
         >
           <Box
@@ -89,11 +85,12 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
             alt="Monochrome Compliance Logo"
             sx={{
               height: 48,
-              objectFit: "contain",
               mt: 1.5,
               mb: 0.5,
               ml: -1.5,
+              cursor: "pointer",
             }}
+            onClick={() => navigate("/")}
           />
         </Typography>
         <Box sx={{ display: { xs: "none", md: "flex" } }}>
