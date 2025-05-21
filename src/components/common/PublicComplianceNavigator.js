@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, useWatch } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useNavigate } from "react-router";
@@ -167,7 +167,6 @@ export default function PublicComplianceNavigator() {
   const theme = useTheme();
   const [activeStep, setActiveStep] = useState(0);
   const [answers, setAnswers] = useState({});
-  const [formSubmitted, setFormSubmitted] = useState(false); // Track if the form has been submitted
   const [loading, setLoading] = useState(false); // Track loading state for Submit button
   const navigate = useNavigate();
   const [alert, setAlert] = useState(null);
@@ -207,6 +206,18 @@ export default function PublicComplianceNavigator() {
       entityName: "",
       entityABN: "",
     },
+  });
+
+  // Use useWatch to get live value of entityName and entityABN
+  const watchedEntityName = useWatch({
+    control: entityControl,
+    name: "entityName",
+    defaultValue: "",
+  });
+  const watchedEntityABN = useWatch({
+    control: entityControl,
+    name: "entityABN",
+    defaultValue: "",
   });
 
   const current = flowQuestions[activeStep] || {}; // Safeguard to ensure current is always defined
@@ -700,6 +711,10 @@ export default function PublicComplianceNavigator() {
                       }));
                       handleNext();
                     })}
+                    disabled={Boolean(
+                      watchedEntityName.trim().length < 5 ||
+                        (watchedEntityABN && !/^\d{11}$/.test(watchedEntityABN))
+                    )}
                   >
                     Next
                   </Button>
