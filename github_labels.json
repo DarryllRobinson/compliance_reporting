@@ -1,0 +1,72 @@
+[
+  {
+    "name": "todo",
+    "description": "Not started yet",
+    "color": "cccccc"
+  },
+  {
+    "name": "in progress",
+    "description": "Actively being worked on",
+    "color": "ffcc00"
+  },
+  {
+    "name": "blocked",
+    "description": "Waiting on something or someone",
+    "color": "ff6666"
+  },
+  {
+    "name": "done",
+    "description": "Completed work",
+    "color": "33cc99"
+  },
+  {
+    "name": "bug",
+    "description": "A defect or broken functionality",
+    "color": "d73a4a"
+  },
+  {
+    "name": "enhancement",
+    "description": "Improvements or polish",
+    "color": "a2eeef"
+  },
+  {
+    "name": "feature",
+    "description": "New functionality",
+    "color": "0e8a16"
+  },
+  {
+    "name": "testing",
+    "description": "Unit tests, QA, manual checks",
+    "color": "e4e669"
+  },
+  {
+    "name": "infra",
+    "description": "Deployment, CI/CD, dev tooling",
+    "color": "5319e7"
+  },
+  {
+    "name": "frontend",
+    "description": "UI/UX or React-based work",
+    "color": "fbca04"
+  },
+  {
+    "name": "backend",
+    "description": "Node.js, routes, or DB-related tasks",
+    "color": "0052cc"
+  },
+  {
+    "name": "compliance",
+    "description": "Related to PTRS compliance logic",
+    "color": "b60205"
+  },
+  {
+    "name": "SEO",
+    "description": "Anything related to meta tags, indexing",
+    "color": "ff9966"
+  },
+  {
+    "name": "SBI",
+    "description": "Work involving the SBI tool integration",
+    "color": "009999"
+  }
+]

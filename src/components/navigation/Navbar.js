@@ -299,6 +299,22 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
                   >
                     Users
                   </Button>
+                  <Button
+                    color="inherit"
+                    component={Link}
+                    to="/admin"
+                    sx={{ color: theme.palette.text.primary }}
+                  >
+                    Edit Content
+                  </Button>
+                  <Button
+                    color="inherit"
+                    component={Link}
+                    to="/admin/edit-faq"
+                    sx={{ color: theme.palette.text.primary }}
+                  >
+                    Edit FAQ
+                  </Button>
                 </>
               )}
               <Button

@@ -18,6 +18,8 @@
     "@sentry/tracing": "^7.120.3",
     "@testing-library/react": "^16.2.0",
     "@testing-library/user-event": "^13.5.0",
+    "@uiw/react-md-editor": "^4.0.6",
+    "axios": "^1.9.0",
     "csv-parser": "^3.2.0",
     "date-fns": "^4.1.0",
     "html-entities": "^2.6.0",
@@ -29,6 +31,7 @@
     "react-helmet-async": "^2.0.5",
     "react-hook-form": "^7.56.4",
     "react-markdown": "^10.1.0",
+    "react-md-editor": "^0.2.2",
     "react-router": "^7.5.2",
     "react-scripts": "5.0.1",
     "rxjs": "^7.8.2",
@@ -42,7 +45,9 @@
     "eject": "react-scripts eject",
     "postbuild": "node scripts/generateBlogIndex.js",
     "watch:blog": "node scripts/watchBlogIndex.js",
-    "dev": "concurrently \"npm run watch:blog\" \"react-scripts start\""
+    "watch:faq": "node scripts/watchFaq.js",
+    "dev": "concurrently \"npm run watch:blog\" \"npm run watch:faq\" \"react-scripts start\"",
+    "test:all": "npm test && npx jest backend_route_tests/"
   },
   "eslintConfig": {
     "extends": [

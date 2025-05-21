@@ -47,12 +47,16 @@ import CreateReport from "../features/reports/ptrs/CreateReport";
 import ConnectExternalSystems from "../features/reports/ptrs/ConnectExternalSystems";
 import StepsOverview from "../features/reports/ptrs/StepsOverview";
 import GettingStartedPage from "../components/common/GettingStarted";
-import FAQ from "../components/common/FAQ";
 import Booking from "../components/common/Booking";
 import ContactThankyou from "../components/common/ContactThankyou";
 import BookingThankyou from "../components/common/BookingThankyou";
 import BlogIndex from "../routes/BlogIndex";
 import LegalDisclaimer from "../components/policies/LegalDisclaimer";
+
+// Admin components
+import ContentList from "../features/admin/ContentList";
+import EditFaq from "../features/admin/EditFaq";
+import EditBlog from "../features/admin/EditBlog";
 
 // TODO: Optimise the whole thing: https://reactrouter.com/tutorials/address-book
 
@@ -103,7 +107,7 @@ export default function AppRouter() {
         },
         {
           path: "faq",
-          Component: FAQ,
+          Component: StaticPageViewer,
         },
         {
           path: "booking",
@@ -201,6 +205,15 @@ export default function AppRouter() {
                 },
               ],
             },
+          ],
+        },
+        // Admin
+        {
+          path: "/admin",
+          children: [
+            { index: true, Component: ContentList },
+            { path: "edit-faq", Component: EditFaq },
+            { path: "edit-blog/:slug", Component: EditBlog },
           ],
         },
         // Reports
