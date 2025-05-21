@@ -1,7 +1,7 @@
-import { render, screen } from '@testing-library/react';
-import Contact from '../../src/components/common/Contact';
+import { render, screen } from "./test-utils";
+import Contact from "../../src/components/common/Contact";
 
-test('renders contact form fields', () => {
+test("renders contact form fields", () => {
   render(<Contact />);
-  expect(screen.getByLabelText(/your name/i)).toBeInTheDocument();
+  expect(screen.getByRole("textbox", { name: /name/i })).toBeInTheDocument();
 });

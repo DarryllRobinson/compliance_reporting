@@ -1,7 +1,7 @@
-import { render, screen } from '@testing-library/react';
-import BookingThankyou from '../../src/components/common/BookingThankyou';
+import { render, screen } from "./test-utils";
+import BookingThankyou from "../../src/components/common/BookingThankyou";
 
-test('renders booking confirmation message', () => {
+test("renders booking confirmation message", () => {
   render(<BookingThankyou />);
-  expect(screen.getByText(/thank you/i)).toBeInTheDocument();
+  expect(screen.getByText(/your booking is confirmed/i)).toBeInTheDocument();
 });

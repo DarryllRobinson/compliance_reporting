@@ -1,7 +1,23 @@
-import { render, screen } from '@testing-library/react';
-import Booking from '../../src/components/common/Booking';
+import "@testing-library/jest-dom";
+import { render, screen } from "./test-utils";
+import Booking from "../components/common/Booking";
 
-test('renders booking form fields', () => {
+jest.spyOn(console, "error").mockImplementation(() => {});
+
+global.fetch = jest.fn((url) => {
+  if (url === "/api/bookings") {
+    return Promise.resolve({
+      ok: true,
+      json: () => Promise.resolve([]),
+    });
+  }
+  return Promise.resolve({
+    ok: true,
+    json: () => Promise.resolve({}),
+  });
+});
+
+test("renders booking form", () => {
   render(<Booking />);
-  expect(screen.getByLabelText(/business name/i)).toBeInTheDocument();
+  expect(screen.getByText(/book an appointment/i)).toBeInTheDocument();
 });

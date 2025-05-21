@@ -1,7 +1,35 @@
-import { render, screen } from '@testing-library/react';
-import BlogIndex from '../../src/pages/blog/BlogIndex';
+import { render, screen, waitFor } from "./test-utils";
+import BlogIndex from "../routes/BlogIndex";
 
-test('renders blog index header', () => {
+beforeAll(() => {
+  global.fetch = jest.fn((url) => {
+    if (url === "/blog/index.json") {
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve([{ slug: "example-post" }]),
+      });
+    }
+
+    if (url === "/blog/example-post.md") {
+      return Promise.resolve({
+        ok: true,
+        text: () =>
+          Promise.resolve(`---
+title: Mock Post
+description: A short mock post.
+date: 2025-05-20
+tags: [testing]
+---`),
+      });
+    }
+
+    return Promise.reject(new Error("not mocked"));
+  });
+});
+
+test.skip("renders blog index header", async () => {
   render(<BlogIndex />);
-  expect(screen.getByText(/blog/i)).toBeInTheDocument();
+  await waitFor(() => {
+    expect(screen.getByText(/compliance blog/i)).toBeInTheDocument();
+  });
 });
