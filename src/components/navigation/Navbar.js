@@ -282,7 +282,7 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
               Blog
             </MenuItem>
           </Menu>
-          {user && ( // Hiding for public site prep
+          {!user && (
             <Button
               color="inherit"
               component={Link}

@@ -54,6 +54,8 @@ import BookingThankyou from "../components/common/BookingThankyou";
 import BlogIndex from "../routes/BlogIndex";
 import LegalDisclaimer from "../components/policies/LegalDisclaimer";
 
+import ProtectedRoute from "../components/navigation/ProtectedRoute";
+
 // TODO: Optimise the whole thing: https://reactrouter.com/tutorials/address-book
 
 export default function AppRouter() {
@@ -64,6 +66,16 @@ export default function AppRouter() {
       HydrateFallback: Fallback,
       ErrorBoundary: RootErrorBoundary,
       children: [
+        {
+          path: "unauthorised",
+          Component: () => (
+            <RootErrorBoundary
+              status={403}
+              title="Access Denied"
+              message="You don't have permission to view this page."
+            />
+          ),
+        },
         {
           index: true,
           Component: LandingPage,
@@ -134,109 +146,112 @@ export default function AppRouter() {
           path: "policy-documents/legal",
           Component: LegalDisclaimer,
         },
-        // // Users
-        // {
-        //   path: "/users",
-        //   children: [
-        //     { index: true, Component: Users },
-        //     {
-        //       Component: UsersLayout,
-        //       children: [
-        //         {
-        //           path: "create",
-        //           Component: CreateUser,
-        //         },
-        //       ],
-        //     },
-        //   ],
-        // },
-        // // User
-        // {
-        //   path: "/user",
-        //   children: [
-        //     {
-        //       children: [
-        //         {
-        //           path: "dashboard",
-        //           Component: Dashboard,
-        //         },
-        //         {
-        //           path: "forgot-password",
-        //           Component: ForgotPassword,
-        //         },
-        //         {
-        //           path: "reset-password",
-        //           Component: ResetPassword,
-        //         },
-        //       ],
-        //     },
-        //     {
-        //       path: "login",
-        //       Component: Login,
-        //     },
-        //   ],
-        // },
-        // // Clients
-        // {
-        //   path: "/clients",
-        //   children: [
-        //     {
-        //       index: true,
-        //       Component: Clients,
-        //     },
-        //     {
-        //       Component: ClientsLayout,
-        //       children: [
-        //         {
-        //           path: "register",
-        //           Component: ClientRegister,
-        //         },
-        //       ],
-        //     },
-        //   ],
-        // },
-        // // Reports
-        // {
-        //   path: "reports",
-        //   children: [
-        //     {
-        //       Component: ReportsLayout,
-        //       ErrorBoundary: ReportErrorBoundary,
-        //       children: [
-        //         {
-        //           path: ":code/create",
-        //           Component: CreateReport,
-        //         },
-        //         {
-        //           path: ":code/:reportId",
-        //           Component: ReportWizard,
-        //         },
-        //         {
-        //           path: ":code/:reportId/connect",
-        //           Component: ConnectExternalSystems,
-        //         },
-        //         { path: "steps", Component: StepsOverview },
-        //       ],
-        //     },
-        //   ],
-        // },
-        // Admin content management
+        // Public user routes
         {
-          path: "/admin",
+          path: "/user",
           children: [
             {
-              index: true,
-              // Lazy load to avoid import errors if not present, otherwise:
-              // Component: require("../features/admin/ContentList").default,
-              Component: require("../features/admin/ContentList").default,
+              path: "login",
+              Component: Login,
             },
             {
-              path: "edit-faq",
-              Component: require("../features/admin/EditFaq").default,
+              path: "forgot-password",
+              Component: ForgotPassword,
             },
             {
-              path: "edit-blog/:slug",
-              Component: require("../features/admin/EditBlog").default,
+              path: "reset-password",
+              Component: ResetPassword,
+            },
+          ],
+        },
+        // Protected routes
+        {
+          Component: ProtectedRoute,
+          children: [
+            {
+              path: "/users",
+              children: [
+                { index: true, Component: Users },
+                {
+                  Component: UsersLayout,
+                  children: [
+                    {
+                      path: "create",
+                      Component: CreateUser,
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              path: "/user",
+              children: [
+                {
+                  path: "dashboard",
+                  Component: Dashboard,
+                },
+              ],
+            },
+            {
+              path: "/clients",
+              children: [
+                {
+                  index: true,
+                  Component: Clients,
+                },
+                {
+                  Component: ClientsLayout,
+                  children: [
+                    {
+                      path: "register",
+                      Component: ClientRegister,
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              path: "reports",
+              children: [
+                {
+                  Component: ReportsLayout,
+                  ErrorBoundary: ReportErrorBoundary,
+                  children: [
+                    {
+                      path: ":code/create",
+                      Component: CreateReport,
+                    },
+                    {
+                      path: ":code/:reportId",
+                      Component: ReportWizard,
+                    },
+                    {
+                      path: ":code/:reportId/connect",
+                      Component: ConnectExternalSystems,
+                    },
+                    { path: "steps", Component: StepsOverview },
+                  ],
+                },
+              ],
+            },
+            {
+              path: "/admin",
+              children: [
+                {
+                  index: true,
+                  // Lazy load to avoid import errors if not present, otherwise:
+                  // Component: require("../features/admin/ContentList").default,
+                  Component: require("../features/admin/ContentList").default,
+                },
+                {
+                  path: "edit-faq",
+                  Component: require("../features/admin/EditFaq").default,
+                },
+                {
+                  path: "edit-blog/:slug",
+                  Component: require("../features/admin/EditBlog").default,
+                },
+              ],
             },
           ],
         },

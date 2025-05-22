@@ -1,9 +1,8 @@
-import React from "react";
 import ReactDOM from "react-dom/client";
 import AppRouter from "./app/AppRouter";
 import { HelmetProvider } from "react-helmet-async";
-// import { AuthProvider } from "./context/AuthContext";
-import { userService } from "./services";
+import { AuthProvider } from "./context/AuthContext";
+// import { userService } from "./services";
 // import { redirect } from "react-router";
 
 // Sentry logging
@@ -19,25 +18,14 @@ import { userService } from "./services";
 //   environment: process.env.NODE_ENV || "development",
 // });
 
-// attempt silent token refresh before startup
-// userService
-//   .refreshToken()
-//   .then(() => {
-//     // console.log("Silent token refresh successful");
-//   })
-//   .catch((error) => {
-//     console.warn("Silent token refresh failed:", error.message || error);
-//     // userService.logout(); // Ensure user is logged out on failure
-//     // redirect("/user/login"); // Redirect to login page
-//   })
-//   .finally(startApp);
-
 startApp();
 
 function startApp() {
   ReactDOM.createRoot(document.getElementById("root")).render(
     <HelmetProvider>
-      <AppRouter />
+      <AuthProvider>
+        <AppRouter />
+      </AuthProvider>
     </HelmetProvider>
   );
 }

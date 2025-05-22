@@ -15,14 +15,24 @@ export function AuthProvider({ children }) {
     });
 
     // Fetch the current user on mount
-    userService.refreshToken().catch(() => {
-      console.error("Failed to refresh token or fetch user");
-    });
+    userService
+      .refreshToken()
+      .then((user) => {
+        if (user) {
+          userService.user.next(user);
+          setUser(user);
+          setIsSignedIn(true);
+        }
+      })
+      .catch(() => {
+        console.error("Failed to refresh token or fetch user");
+      });
 
     return () => subscription.unsubscribe();
   }, []);
 
   const signIn = (user) => {
+    userService.user.next(user);
     setIsSignedIn(true);
     setUser(user);
   };
