@@ -1,7 +1,6 @@
-import React from "react";
+import { useEffect, useState } from "react";
 import { redirect, useNavigate } from "react-router"; // Import useNavigate
-import { userService } from "./user.service";
-import { useLoaderData } from "react-router";
+import { userService } from "../../services";
 import {
   useTheme,
   Box,
@@ -12,36 +11,38 @@ import {
   ListItemText,
   Button,
 } from "@mui/material";
-import ProtectedRoutes from "../../utils/ProtectedRoutes";
-
-export async function usersLoader() {
-  const user = userService.userValue; // Get the current user
-  // const user = await userService.refreshToken();
-
-  if (!ProtectedRoutes("Admin")) {
-    return redirect("/user/dashboard");
-  }
-
-  if (!user) {
-    throw new Response("usersLoader refreshToken problem", { status: 500 });
-  }
-  const users = await userService.getAll();
-  if (!users) {
-    throw new Response("usersLoader getAll problem", { status: 500 });
-  }
-  return { users };
-}
+import ProtectedRoutes from "../../lib/utils/ProtectedRoutes";
 
 export default function Users() {
-  const { users } = useLoaderData();
-  const theme = useTheme();
+  const [users, setUsers] = useState([]);
+  const [error, setError] = useState(null);
+  const theme = useTheme(); // Access the theme
   const navigate = useNavigate();
 
-  if (!users || users.length === 0) {
+  useEffect(() => {
+    if (!ProtectedRoutes("Admin")) {
+      navigate("/user/dashboard");
+      return;
+    }
+
+    async function fetchUsers() {
+      try {
+        const result = await userService.getAll();
+        setUsers(result || []);
+      } catch (err) {
+        console.error("Error loading users:", err);
+        setError("Failed to load users.");
+      }
+    }
+
+    fetchUsers();
+  }, []);
+
+  if (error) {
     return (
       <Box
         sx={{
-          padding: 3,
+          padding: theme.spacing(3),
           backgroundColor: theme.palette.background.default,
           minHeight: "100vh",
         }}
@@ -49,7 +50,33 @@ export default function Users() {
         <Paper
           elevation={3}
           sx={{
-            padding: 3,
+            padding: theme.spacing(3),
+            maxWidth: 800,
+            margin: "0 auto",
+            backgroundColor: theme.palette.background.paper,
+          }}
+        >
+          <Typography variant="h4" gutterBottom color="error">
+            {error}
+          </Typography>
+        </Paper>
+      </Box>
+    );
+  }
+
+  if (!users || users.length === 0) {
+    return (
+      <Box
+        sx={{
+          padding: theme.spacing(3),
+          backgroundColor: theme.palette.background.default,
+          minHeight: "100vh",
+        }}
+      >
+        <Paper
+          elevation={3}
+          sx={{
+            padding: theme.spacing(3),
             maxWidth: 800,
             margin: "0 auto",
             backgroundColor: theme.palette.background.paper,
@@ -62,7 +89,7 @@ export default function Users() {
             variant="contained"
             color="primary"
             onClick={() => navigate("/users/create")}
-            sx={{ mt: 2 }}
+            sx={{ mt: theme.spacing(2) }}
           >
             Create a New User
           </Button>
@@ -74,7 +101,7 @@ export default function Users() {
   return (
     <Box
       sx={{
-        padding: 3,
+        padding: theme.spacing(3),
         backgroundColor: theme.palette.background.default,
         minHeight: "100vh",
       }}
@@ -82,7 +109,7 @@ export default function Users() {
       <Paper
         elevation={3}
         sx={{
-          padding: 3,
+          padding: theme.spacing(3),
           maxWidth: 800,
           margin: "0 auto",
           backgroundColor: theme.palette.background.paper,
@@ -98,7 +125,7 @@ export default function Users() {
           variant="contained"
           color="primary"
           onClick={() => navigate("/users/create")}
-          sx={{ mb: 2 }}
+          sx={{ mb: theme.spacing(2) }}
         >
           Create a New User
         </Button>
@@ -109,7 +136,7 @@ export default function Users() {
               sx={{ borderBottom: `1px solid ${theme.palette.divider}` }}
             >
               <ListItemText
-                primary={user.firstName + " " + user.lastName}
+                primary={`${user.firstName} ${user.lastName}`}
                 secondary={`Role: ${user.role} | Position: ${user.position} | Email: ${user.email} | Phone: ${user.phone}`}
               />
             </ListItem>

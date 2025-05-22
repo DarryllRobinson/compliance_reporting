@@ -15,12 +15,10 @@ import {
   Paper,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { redirect, useLoaderData, useNavigate } from "react-router";
-import { userService } from "./user.service";
-import { reportService } from "../reports/report.service";
-import { useReportContext } from "../../context/ReportContext";
-import prepareReport from "../reports/ptrs/prepareReport";
-import ProtectedRoutes from "../../utils/ProtectedRoutes";
+import { redirect, useNavigate } from "react-router";
+import { useEffect, useState } from "react";
+import { reportService, userService } from "../../services";
+import ProtectedRoutes from "../../lib/utils/ProtectedRoutes";
 
 export async function dashboardLoader() {
   const user = userService.userValue; // Get the current user
@@ -31,7 +29,9 @@ export async function dashboardLoader() {
   }
 
   try {
-    const reports = await reportService.getAllById({ clientId: user.clientId });
+    const reports = await reportService.getAll({
+      clientId: user.clientId,
+    });
     return { reports };
   } catch (error) {
     console.error("Error fetching reports:", error);
@@ -40,51 +40,53 @@ export async function dashboardLoader() {
 }
 
 export default function Dashboard() {
-  const { reports } = useLoaderData();
-  const reportContext = useReportContext();
   const user = userService.userValue; // Get the current user
-
-  // console.log("Dashboard reports", reports); // Debug log to check the structure of reports
   const navigate = useNavigate();
-  const theme = useTheme();
+  const theme = useTheme(); // Access the theme
+  const [reports, setReports] = useState([]);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    async function fetchReports() {
+      const user = userService.userValue;
+      if (!ProtectedRoutes()) {
+        redirect("/user/login");
+        return;
+      }
+
+      try {
+        const response = await reportService.getAll({
+          clientId: user.clientId,
+        });
+        setReports(response || []);
+      } catch (err) {
+        console.error("Error fetching reports:", err);
+        setError("Failed to fetch reports");
+        setReports([]);
+      }
+    }
+
+    fetchReports();
+  }, []);
 
   const reportList = [
     {
       name: "Payment Times Reporting Scheme",
       code: "ptrs",
       description: "History of submitted reports",
-      items: 10,
-      link: "/xero-credentials",
-    },
-    {
-      name: "Report B",
-      code: "reportB",
-      description: "Description of Report B",
-      items: 25,
-      link: "/xero-credentials",
-    },
-    {
-      name: "Report C",
-      code: "reportC",
-      description: "Description of Report C",
-      items: 15,
-      link: "/xero-credentials",
     },
   ];
 
   function createReport(report) {
-    navigate(`/reports/${report.code}/create`, {
-      state: { reportName: report.name, reportList },
-    });
+    navigate(`/reports/${report.code}/create`);
   }
 
-  function continueReport(report) {
-    const prepared = prepareReport(report, reportContext);
-    if (prepared) {
-      navigate(`/reports/${report.code}/update`);
-      // navigate(`/reports/${report.code}/update`);
-    } else {
-      console.error("Dashboard prepareReport error");
+  async function continueReport(report) {
+    try {
+      // No need to fetch savedRecords or pass state; wizard loads from main route
+      navigate(`/reports/ptrs/${report.id}`);
+    } catch (error) {
+      console.error("Error continuing report:", error);
     }
   }
 
@@ -118,11 +120,7 @@ export default function Dashboard() {
             <Button
               variant="contained"
               color="primary"
-              onClick={() =>
-                navigate(`/report-details/${row.id}`, {
-                  state: { reportDetails: row },
-                })
-              }
+              onClick={() => createReport(row)}
             >
               View Details
             </Button>
@@ -135,7 +133,7 @@ export default function Dashboard() {
   return (
     <Box
       sx={{
-        padding: 4,
+        padding: theme.spacing(4),
         backgroundColor: theme.palette.background.default,
         minHeight: "100vh",
       }}
@@ -147,12 +145,22 @@ export default function Dashboard() {
         Here you can manage your reports and track their progress
       </Typography>
 
-      <Grid container spacing={3} sx={{ marginTop: 2 }}>
+      {error && (
+        <Typography color="error" sx={{ mt: 2 }}>
+          We couldn’t load your reports at this time. Please try again later or
+          contact support.
+        </Typography>
+      )}
+      <Grid container spacing={3} sx={{ marginTop: theme.spacing(2) }}>
         {reportList.map((report, index) => {
           // Ensure reports is an array before filtering
           const relevantReports = Array.isArray(reports)
             ? reports.filter((r) => r.code === report.code)
             : [];
+
+          const hasCreatedReport = relevantReports.some(
+            (r) => r.reportStatus === "Created"
+          );
 
           return (
             <Grid item xs={12} key={index}>
@@ -193,14 +201,16 @@ export default function Dashboard() {
                       No records found for this report
                     </Typography>
                   )}
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => createReport(report)}
-                    sx={{ marginTop: 2 }}
-                  >
-                    Create New Report
-                  </Button>
+                  {!hasCreatedReport && (
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={() => createReport(report)}
+                      sx={{ marginTop: theme.spacing(2) }}
+                    >
+                      Create New Report
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
             </Grid>

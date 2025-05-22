@@ -1,56 +1,62 @@
-import React from "react";
 import { createBrowserRouter, RouterProvider } from "react-router";
-import { useAlert } from "../context/AlertContext";
-import Layout from "../components/generic/Layout";
-import LandingPage from "../components/generic/LandingPage";
+import Layout from "../components/layout/Layout";
+import LandingPage from "../components/common/LandingPage";
 import RootErrorBoundary from "../components/navigation/RootErrorBoundary";
-import Login, { loginAction } from "../features/users/Login";
-import Users, { usersLoader } from "../features/users/Users";
-import Clients, { clientsLoader } from "../features/clients/Clients";
-import ClientRegister, {
-  clientRegisterLoader,
-  clientRegisterAction,
-} from "../features/clients/Register";
-import Dashboard, { dashboardLoader } from "../features/users/Dashboard";
-import ReportsMain from "../features/reports/ReportsMain";
-import ReportsLayout from "../features/reports/ReportsLayout";
-import CreateReport, {
-  createReportAction,
-} from "../features/reports/CreateReport";
-import XeroCredentials, {
-  xeroAction,
-} from "../features/reports/XeroCredentials";
-import { useReportContext } from "../context/ReportContext";
-import ReportFrame, {
-  reportFrameLoader,
-} from "../features/reports/ReportFrame";
-import ReportErrorBoundary from "../components/navigation/ReportErrorBoundary";
-import Fallback from "../components/generic/Fallback";
-import { reportLayoutLoader } from "../features/reports/ReportsLayout";
-import InvoiceMetrics from "../features/reports/ptrs/InvoiceMetrics";
-import ReviewRecords from "../features/reports/ptrs/ReviewRecords";
-import FinalReview, {
-  finalReviewLoader,
-} from "../features/reports/ptrs/FinalReview";
-import ClientsLayout, {
-  clientLayoutLoader,
-} from "../features/clients/ClientsLayout";
-import UsersLayout, { usersLayoutLoader } from "../features/users/UsersLayout";
-import UsersErrorBoundary from "../features/users/UsersErrorBoundary";
-import CreateUser, {
-  createUserAction,
-  createUserLoader,
-} from "../features/users/CreateUser";
-import ForgotPassword, {
-  forgotPasswordAction,
-} from "../features/users/ForgotPassword";
+import Fallback from "../components/common/Fallback";
+
+// Publicly available
+import Contact from "../components/common/Contact";
+import PublicComplianceNavigator from "../components/common/PublicComplianceNavigator";
+import PTRSolution from "../components/common/PTRSolution";
+import ResourcePage from "../components/common/ResourcePage";
+import { SubmissionChecklistViewer } from "../components/common/SubmissionChecklistViewer";
+
+// Policy documents
+import ClientServiceAgreement from "../components/policies/ClientServiceAgreement";
+import PrivacyPolicy from "../components/policies/PrivacyPolicy";
+
+// Static page viewer
+import StaticPageViewer from "../components/StaticPageViewer";
+
+// Testing pdf email
+import TestPdfEmail from "../components/common/TestPdfEmail";
+
+// Users
+import Users from "../features/users/Users";
+import UsersLayout from "../features/users/UsersLayout";
+import CreateUser from "../features/users/CreateUser";
+
+// User
+import Dashboard from "../features/users/Dashboard";
+import ForgotPassword from "../features/users/ForgotPassword";
 import ResetPassword from "../features/users/ResetPassword";
+import Login from "../features/users/Login";
+
+// Clients
+import Clients from "../features/clients/Clients";
+import ClientsLayout from "../features/clients/ClientsLayout";
+import ClientRegister from "../features/clients/ClientRegister";
+
+// Reports
+import ReportErrorBoundary from "../components/navigation/ReportErrorBoundary";
+import ReportsLayout from "../features/reports/ReportsLayout";
+
+// PTRS
+import ReportWizard from "../features/reports/ptrs/ReportWizard";
+import CreateReport from "../features/reports/ptrs/CreateReport";
+import ConnectExternalSystems from "../features/reports/ptrs/ConnectExternalSystems";
+import StepsOverview from "../features/reports/ptrs/StepsOverview";
+import GettingStartedPage from "../components/common/GettingStarted";
+import FAQ from "../components/common/FAQ";
+import Booking from "../components/common/Booking";
+import ContactThankyou from "../components/common/ContactThankyou";
+import BookingThankyou from "../components/common/BookingThankyou";
+import BlogIndex from "../routes/BlogIndex";
+import LegalDisclaimer from "../components/policies/LegalDisclaimer";
 
 // TODO: Optimise the whole thing: https://reactrouter.com/tutorials/address-book
 
 export default function AppRouter() {
-  const reportContext = useReportContext();
-  const alertContext = useAlert();
   const router = createBrowserRouter([
     {
       path: "",
@@ -62,166 +68,175 @@ export default function AppRouter() {
           index: true,
           Component: LandingPage,
         },
-        // Users
+        // Static page viewer and blog index
         {
-          path: "/users",
-          children: [
-            { index: true, Component: Users, loader: usersLoader },
-            {
-              Component: UsersLayout,
-              ErrorBoundary: UsersErrorBoundary,
-              loader: (args) =>
-                usersLayoutLoader({
-                  ...args,
-                  context: { alertContext },
-                }),
-              children: [
-                {
-                  path: "create",
-                  Component: CreateUser,
-                  action: (args) =>
-                    createUserAction({
-                      ...args,
-                      context: { alertContext },
-                    }),
-                  loader: createUserLoader,
-                },
-              ],
-            },
-          ],
+          path: "/blog",
+          Component: BlogIndex,
         },
-        // User
         {
-          path: "/user",
-          children: [
-            // { index: true, Component: Users },
-            {
-              // Component: AuthLayout,
-              children: [
-                {
-                  path: "dashboard",
-                  Component: Dashboard,
-                  loader: (args) =>
-                    dashboardLoader({
-                      ...args,
-                      context: { reportContext },
-                    }),
-                },
-                {
-                  path: "forgot-password",
-                  Component: ForgotPassword,
-                  action: (args) =>
-                    forgotPasswordAction({
-                      ...args,
-                      context: { alertContext },
-                    }),
-                },
-                {
-                  path: "reset-password",
-                  Component: ResetPassword,
-                  // action: (args) =>
-                  //   forgotPasswordAction({
-                  //     ...args,
-                  //     context: { alertContext },
-                  //   }),
-                },
-              ],
-            },
-            {
-              path: "login",
-              Component: Login,
-              action: (args) =>
-                loginAction({
-                  ...args,
-                  context: { alertContext },
-                }),
-            },
-          ],
+          path: "/blog/:slug",
+          Component: StaticPageViewer,
         },
-        // Clients
         {
-          path: "/clients",
+          path: "compliance-navigator",
+          Component: PublicComplianceNavigator,
+        },
+        {
+          path: "contact",
+          Component: Contact,
+        },
+        {
+          path: "thankyou-contact",
+          Component: ContactThankyou,
+        },
+        {
+          path: "ptr-solution",
+          Component: PTRSolution,
+        },
+        {
+          path: "test-pdf-email",
+          Component: TestPdfEmail,
+        },
+        {
+          path: "getting-started",
+          Component: GettingStartedPage,
+        },
+        {
+          path: "faq",
+          Component: FAQ,
+        },
+        {
+          path: "booking",
+          Component: Booking,
+        },
+        {
+          path: "resources",
+          Component: ResourcePage,
+        },
+        {
+          path: "resources/submission-checklist",
+          Component: SubmissionChecklistViewer,
+        },
+        {
+          path: "thankyou-booking",
+          Component: BookingThankyou,
+        },
+        // Policy documents
+        {
+          path: "policy-documents/client-service-agreement",
+          Component: ClientServiceAgreement,
+        },
+        {
+          path: "policy-documents/privacy-policy",
+          Component: PrivacyPolicy,
+        },
+        {
+          path: "policy-documents/legal",
+          Component: LegalDisclaimer,
+        },
+        // // Users
+        // {
+        //   path: "/users",
+        //   children: [
+        //     { index: true, Component: Users },
+        //     {
+        //       Component: UsersLayout,
+        //       children: [
+        //         {
+        //           path: "create",
+        //           Component: CreateUser,
+        //         },
+        //       ],
+        //     },
+        //   ],
+        // },
+        // // User
+        // {
+        //   path: "/user",
+        //   children: [
+        //     {
+        //       children: [
+        //         {
+        //           path: "dashboard",
+        //           Component: Dashboard,
+        //         },
+        //         {
+        //           path: "forgot-password",
+        //           Component: ForgotPassword,
+        //         },
+        //         {
+        //           path: "reset-password",
+        //           Component: ResetPassword,
+        //         },
+        //       ],
+        //     },
+        //     {
+        //       path: "login",
+        //       Component: Login,
+        //     },
+        //   ],
+        // },
+        // // Clients
+        // {
+        //   path: "/clients",
+        //   children: [
+        //     {
+        //       index: true,
+        //       Component: Clients,
+        //     },
+        //     {
+        //       Component: ClientsLayout,
+        //       children: [
+        //         {
+        //           path: "register",
+        //           Component: ClientRegister,
+        //         },
+        //       ],
+        //     },
+        //   ],
+        // },
+        // // Reports
+        // {
+        //   path: "reports",
+        //   children: [
+        //     {
+        //       Component: ReportsLayout,
+        //       ErrorBoundary: ReportErrorBoundary,
+        //       children: [
+        //         {
+        //           path: ":code/create",
+        //           Component: CreateReport,
+        //         },
+        //         {
+        //           path: ":code/:reportId",
+        //           Component: ReportWizard,
+        //         },
+        //         {
+        //           path: ":code/:reportId/connect",
+        //           Component: ConnectExternalSystems,
+        //         },
+        //         { path: "steps", Component: StepsOverview },
+        //       ],
+        //     },
+        //   ],
+        // },
+        // Admin content management
+        {
+          path: "/admin",
           children: [
             {
               index: true,
-              Component: Clients,
-              loader: clientsLoader,
+              // Lazy load to avoid import errors if not present, otherwise:
+              // Component: require("../features/admin/ContentList").default,
+              Component: require("../features/admin/ContentList").default,
             },
             {
-              Component: ClientsLayout,
-              loader: clientLayoutLoader,
-              children: [
-                // Register
-                {
-                  path: "register",
-                  Component: ClientRegister,
-                  action: (args) =>
-                    clientRegisterAction({
-                      ...args,
-                      context: { alertContext },
-                    }),
-                },
-              ],
+              path: "edit-faq",
+              Component: require("../features/admin/EditFaq").default,
             },
-          ],
-        },
-        // Reports
-        {
-          path: "reports",
-          children: [
-            { index: true, Component: ReportsMain },
             {
-              Component: ReportsLayout,
-              ErrorBoundary: ReportErrorBoundary,
-              loader: (args) =>
-                reportLayoutLoader({ ...args, context: { alertContext } }),
-              children: [
-                {
-                  path: ":code/create",
-                  Component: CreateReport,
-                  // loader: createReportLoader,
-                  action: (args) =>
-                    createReportAction({
-                      ...args,
-                      context: { reportContext, alertContext },
-                    }),
-                },
-                {
-                  path: ":code/xero-credentials",
-                  Component: XeroCredentials,
-                  action: (args) =>
-                    xeroAction({
-                      ...args,
-                      context: { reportContext, alertContext },
-                    }),
-                },
-                {
-                  path: ":code/update",
-                  Component: ReportFrame,
-                  loader: (args) =>
-                    reportFrameLoader({
-                      ...args,
-                      context: { reportContext, alertContext },
-                    }),
-                },
-                {
-                  path: ":code/invoice",
-                  Component: InvoiceMetrics,
-                },
-                {
-                  path: ":code/invoice/review/:index",
-                  Component: ReviewRecords,
-                },
-                {
-                  path: ":code/review",
-                  Component: FinalReview,
-                  loader: (args) =>
-                    finalReviewLoader({
-                      ...args,
-                      context: { reportContext, alertContext },
-                    }),
-                },
-              ],
+              path: "edit-blog/:slug",
+              Component: require("../features/admin/EditBlog").default,
             },
           ],
         },

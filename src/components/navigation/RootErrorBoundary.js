@@ -3,7 +3,7 @@ import * as Sentry from "@sentry/react";
 import { Box, Button, Typography } from "@mui/material";
 import { useNavigate, useRouteError, isRouteErrorResponse } from "react-router";
 import { useTheme } from "@mui/material/styles";
-import { userService } from "../../features/users/user.service";
+import { userService } from "../../services";
 // import { useAuthContext } from "../../context/AuthContext";
 
 export default function RootErrorBoundary() {

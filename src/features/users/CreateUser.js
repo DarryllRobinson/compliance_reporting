@@ -1,5 +1,5 @@
-import React from "react";
-import { Form, redirect, useLoaderData } from "react-router";
+import React, { useEffect, useState, useContext } from "react";
+import { useNavigate } from "react-router";
 import {
   Box,
   Typography,
@@ -13,42 +13,68 @@ import {
   Paper,
   Grid,
 } from "@mui/material";
-import { userService } from "./user.service";
-import { clientService } from "../clients/client.service";
-
-export async function createUserLoader() {
-  // const user = await userService.refreshToken();
-  // if (!user) {
-  //   throw new Response("userCreateLoader refreshToken problem", {
-  //     status: 500,
-  //   });
-  // }
-  const clients = await clientService.getAll();
-  if (!clients) {
-    throw new Response("userCreateLoader clients problem", { status: 500 });
-  }
-  return { clients };
-}
-
-export async function createUserAction({ request, context }) {
-  const { alertContext } = context;
-  // await userService.refreshToken();
-  const formData = await request.formData();
-  let userDetails = Object.fromEntries(formData);
-  userDetails = { ...userDetails, active: true };
-  try {
-    await userService.register(userDetails);
-    alertContext.sendAlert("success", "User created successfully.");
-    return redirect("/users");
-  } catch (error) {
-    alertContext.sendAlert("error", error || "Error creating user.");
-    console.error("Error creating user:", error);
-  }
-}
+import { clientService, userService } from "../../services";
+import { Alert } from "@mui/material";
 
 export default function UserCreate() {
   const theme = useTheme();
-  const { clients } = useLoaderData();
+  const [clients, setClients] = useState([]);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
+  const [alert, setAlert] = useState(null);
+  const [storedClientDetails, setStoredClientDetails] = useState({});
+  const [selectedRole, setSelectedRole] = useState("Admin"); // Controlled state for role
+  const [selectedClient, setSelectedClient] = useState(""); // Controlled state for client
+
+  useEffect(() => {
+    async function fetchClients() {
+      try {
+        const result = await clientService.getAll();
+        setClients(result || []);
+      } catch (err) {
+        console.error("Failed to fetch clients:", err);
+        setError("Unable to load client list.");
+      }
+    }
+    fetchClients();
+  }, []);
+
+  useEffect(() => {
+    // Retrieve client details from localStorage
+    const clientDetails =
+      JSON.parse(localStorage.getItem("clientDetails")) || {};
+    setStoredClientDetails(clientDetails);
+
+    // Set initial client selection if available
+    const initialClient = clients.find(
+      (client) => client.businessName === clientDetails.businessName
+    );
+    if (initialClient) {
+      setSelectedClient(initialClient.id);
+    }
+
+    // Clear localStorage after retrieving the details
+    localStorage.removeItem("clientDetails");
+  }, [clients]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    let userDetails = Object.fromEntries(formData);
+    userDetails = { ...userDetails, active: true };
+
+    try {
+      await userService.register(userDetails);
+      setAlert({ type: "success", message: "User created successfully." });
+      navigate("/users");
+    } catch (error) {
+      setAlert({
+        type: "error",
+        message: error.message || "Error creating user.",
+      });
+      console.error("Error creating user:", error);
+    }
+  };
 
   return (
     <Box
@@ -58,13 +84,13 @@ export default function UserCreate() {
         alignItems: "flex-start",
         minHeight: "100vh",
         backgroundColor: theme.palette.background.default,
-        padding: 2,
+        padding: theme.spacing(2),
       }}
     >
       <Paper
         elevation={3}
         sx={{
-          padding: 4,
+          padding: theme.spacing(4),
           maxWidth: 800,
           width: "100%",
           backgroundColor: theme.palette.background.paper,
@@ -73,11 +99,24 @@ export default function UserCreate() {
         <Typography variant="h4" gutterBottom align="center">
           Create a New User
         </Typography>
-        <Form
-          method="post"
+        {error && (
+          <Typography color="error" sx={{ mb: 2 }}>
+            {error}
+          </Typography>
+        )}
+        {alert && (
+          <Alert severity={alert.type} sx={{ mb: 2 }}>
+            {alert.message}
+          </Alert>
+        )}
+        <form
+          onSubmit={handleSubmit}
           id="create-user-form"
-          // onSubmit={handleSubmit}
-          style={{ display: "flex", flexDirection: "column", gap: 2 }}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: theme.spacing(2),
+          }}
         >
           <Grid container spacing={2}>
             <Grid item xs={6}>
@@ -87,7 +126,7 @@ export default function UserCreate() {
                 type="string"
                 fullWidth
                 required
-                defaultValue="Homer"
+                defaultValue={storedClientDetails.contactFirst || ""}
               />
             </Grid>
             <Grid item xs={6}>
@@ -97,7 +136,7 @@ export default function UserCreate() {
                 type="string"
                 fullWidth
                 required
-                defaultValue="Simpson"
+                defaultValue={storedClientDetails.contactLast || ""}
               />
             </Grid>
             <Grid item xs={12}>
@@ -107,7 +146,7 @@ export default function UserCreate() {
                 type="string"
                 fullWidth
                 required
-                defaultValue="darryllrobinson@icloud.com"
+                defaultValue={storedClientDetails.contactEmail || ""}
               />
             </Grid>
             <Grid item xs={6}>
@@ -117,7 +156,7 @@ export default function UserCreate() {
                 type="string"
                 fullWidth
                 required
-                defaultValue="0412345678"
+                defaultValue={storedClientDetails.contactPhone || ""}
               />
             </Grid>
             <Grid item xs={6}>
@@ -127,7 +166,7 @@ export default function UserCreate() {
                 type="string"
                 fullWidth
                 required
-                defaultValue="Manager"
+                defaultValue={storedClientDetails.contactPosition || ""}
               />
             </Grid>
             <Grid item xs={6}>
@@ -158,7 +197,8 @@ export default function UserCreate() {
                   name="role"
                   id="role"
                   label="List of Roles"
-                  defaultValue="Admin"
+                  value={selectedRole} // Controlled value
+                  onChange={(e) => setSelectedRole(e.target.value)} // Update state
                   required
                 >
                   <MenuItem value="Submitter">Submitter</MenuItem>
@@ -178,7 +218,8 @@ export default function UserCreate() {
                   name="clientId"
                   id="clientId"
                   label="List of Clients"
-                  defaultValue="3"
+                  value={selectedClient} // Controlled value
+                  onChange={(e) => setSelectedClient(e.target.value)} // Update state
                   required
                 >
                   {clients.map((client) => (
@@ -195,11 +236,11 @@ export default function UserCreate() {
             color="primary"
             type="submit"
             fullWidth
-            sx={{ mt: 2 }}
+            sx={{ mt: theme.spacing(2) }}
           >
             Create User
           </Button>
-        </Form>
+        </form>
       </Paper>
     </Box>
   );

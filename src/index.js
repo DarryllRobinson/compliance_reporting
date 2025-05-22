@@ -1,12 +1,9 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import AppRouter from "./app/AppRouter";
-import { ThemeProvider } from "@mui/material/styles";
-import globalTheme from "./theme/globalTheme";
+import { HelmetProvider } from "react-helmet-async";
 // import { AuthProvider } from "./context/AuthContext";
-import { ReportProvider } from "./context/ReportContext"; // Import ReportProvider
-import { userService } from "./features/users/user.service";
-import { AlertProvider } from "./context/AlertContext";
+import { userService } from "./services";
 // import { redirect } from "react-router";
 
 // Sentry logging
@@ -23,28 +20,24 @@ import { AlertProvider } from "./context/AlertContext";
 // });
 
 // attempt silent token refresh before startup
-userService
-  .refreshToken()
-  .then(() => {
-    // console.log("Silent token refresh successful");
-  })
-  .catch((error) => {
-    console.warn("Silent token refresh failed:", error.message || error);
-    // userService.logout(); // Ensure user is logged out on failure
-    // redirect("/user/login"); // Redirect to login page
-  })
-  .finally(startApp);
+// userService
+//   .refreshToken()
+//   .then(() => {
+//     // console.log("Silent token refresh successful");
+//   })
+//   .catch((error) => {
+//     console.warn("Silent token refresh failed:", error.message || error);
+//     // userService.logout(); // Ensure user is logged out on failure
+//     // redirect("/user/login"); // Redirect to login page
+//   })
+//   .finally(startApp);
 
-// startApp();
+startApp();
 
 function startApp() {
   ReactDOM.createRoot(document.getElementById("root")).render(
-    <ThemeProvider theme={globalTheme}>
-      <AlertProvider>
-        <ReportProvider>
-          <AppRouter />
-        </ReportProvider>
-      </AlertProvider>
-    </ThemeProvider>
+    <HelmetProvider>
+      <AppRouter />
+    </HelmetProvider>
   );
 }
