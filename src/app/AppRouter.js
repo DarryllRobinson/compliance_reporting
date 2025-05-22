@@ -35,7 +35,6 @@ import Login from "../features/users/Login";
 // Clients
 import Clients from "../features/clients/Clients";
 import ClientsLayout from "../features/clients/ClientsLayout";
-import ClientRegister from "../features/clients/ClientRegister";
 
 // Reports
 import ReportErrorBoundary from "../components/navigation/ReportErrorBoundary";
@@ -55,6 +54,10 @@ import BlogIndex from "../routes/BlogIndex";
 import LegalDisclaimer from "../components/policies/LegalDisclaimer";
 
 import ProtectedRoute from "../components/navigation/ProtectedRoute";
+import Role from "../context";
+
+import { protectedRoutes } from "../routes/routeConfig";
+import { publicRoutes } from "../routes/publicRoutes";
 
 // TODO: Optimise the whole thing: https://reactrouter.com/tutorials/address-book
 
@@ -164,97 +167,18 @@ export default function AppRouter() {
             },
           ],
         },
-        // Protected routes
-        {
-          Component: ProtectedRoute,
-          children: [
-            {
-              path: "/users",
-              children: [
-                { index: true, Component: Users },
-                {
-                  Component: UsersLayout,
-                  children: [
-                    {
-                      path: "create",
-                      Component: CreateUser,
-                    },
-                  ],
-                },
-              ],
-            },
-            {
-              path: "/user",
-              children: [
-                {
-                  path: "dashboard",
-                  Component: Dashboard,
-                },
-              ],
-            },
-            {
-              path: "/clients",
-              children: [
-                {
-                  index: true,
-                  Component: Clients,
-                },
-                {
-                  Component: ClientsLayout,
-                  children: [
-                    {
-                      path: "register",
-                      Component: ClientRegister,
-                    },
-                  ],
-                },
-              ],
-            },
-            {
-              path: "reports",
-              children: [
-                {
-                  Component: ReportsLayout,
-                  ErrorBoundary: ReportErrorBoundary,
-                  children: [
-                    {
-                      path: ":code/create",
-                      Component: CreateReport,
-                    },
-                    {
-                      path: ":code/:reportId",
-                      Component: ReportWizard,
-                    },
-                    {
-                      path: ":code/:reportId/connect",
-                      Component: ConnectExternalSystems,
-                    },
-                    { path: "steps", Component: StepsOverview },
-                  ],
-                },
-              ],
-            },
-            {
-              path: "/admin",
-              children: [
-                {
-                  index: true,
-                  // Lazy load to avoid import errors if not present, otherwise:
-                  // Component: require("../features/admin/ContentList").default,
-                  Component: require("../features/admin/ContentList").default,
-                },
-                {
-                  path: "edit-faq",
-                  Component: require("../features/admin/EditFaq").default,
-                },
-                {
-                  path: "edit-blog/:slug",
-                  Component: require("../features/admin/EditBlog").default,
-                },
-              ],
-            },
-          ],
-        },
+        ...publicRoutes,
+        // Protected routes dynamically inserted from routeConfig.js
+        ...protectedRoutes.map(({ requiredRoles, ...route }) => ({
+          path: route.path,
+          Component: () =>
+            requiredRoles ? (
+              <ProtectedRoute requiredRoles={requiredRoles} />
+            ) : (
+              <ProtectedRoute />
+            ),
+          children: route.children,
+        })),
       ],
     },
   ]);

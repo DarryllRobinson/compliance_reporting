@@ -277,6 +277,14 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
               <FolderIcon sx={{ fontSize: 20, mr: 1 }} />
               Booking
             </MenuItem>
+            <MenuItem
+              onClick={handleConnectClose}
+              component={Link}
+              to="/clients/register"
+            >
+              <FolderIcon sx={{ fontSize: 20, mr: 1 }} />
+              Register
+            </MenuItem>
             <MenuItem onClick={handleConnectClose} component={Link} to="/blog">
               <HelpOutlineIcon sx={{ fontSize: 20, mr: 1 }} />
               Blog
@@ -394,6 +402,14 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
               sx={{ color: theme.palette.text.primary }}
             >
               Booking
+            </MenuItem>
+            <MenuItem
+              onClick={handleMenuClose}
+              component={Link}
+              to="/clients/register"
+              sx={{ color: theme.palette.text.primary }}
+            >
+              Register
             </MenuItem>
             <MenuItem
               onClick={handleMenuClose}
