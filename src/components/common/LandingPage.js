@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Typography,
   Box,
@@ -65,17 +64,7 @@ export default function LandingPage() {
           px: isSmallScreen ? 2 : 6,
         }}
       >
-        <Box
-          sx={
-            {
-              // bgcolor: "rgba(0, 0, 0, 0.6)",
-              // p: isSmallScreen ? 2 : 4,
-              // borderRadius: 2,
-              // width: isSmallScreen ? "90%" : "75%",
-              // maxWidth: 720,
-            }
-          }
-        >
+        <Box>
           <Typography
             variant={isSmallScreen ? "h6" : "h3"}
             sx={{

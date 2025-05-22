@@ -229,6 +229,7 @@ export default function PublicComplianceNavigator() {
     contactData.email = contactData.email.trim();
     contactData.companyName = contactData.companyName.trim();
     contactData.position = contactData.position.trim();
+    contactData.from = "contact@monochrome-compliance.com";
     setLoading(true);
     try {
       // Structure the data for saving to the backend
@@ -409,7 +410,7 @@ export default function PublicComplianceNavigator() {
   return (
     <Box sx={{ p: 4 }} onKeyUp={handleKeyUp}>
       <Typography variant="h5" gutterBottom>
-        PTRS Eligibility Navigator
+        PTRS Compliance Navigator
       </Typography>
 
       <Box sx={{ mb: 2 }}>

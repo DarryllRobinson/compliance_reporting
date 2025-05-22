@@ -15,6 +15,7 @@ import { useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
+import { da } from "@faker-js/faker";
 
 export default function Contact() {
   const theme = useTheme();
@@ -41,7 +42,7 @@ export default function Contact() {
       name: "",
       email: "",
       subject: "Contact Us",
-      message: "Hello there! I have a question.",
+      message: "",
       to: "contact@monochrome-compliance.com",
       from: "",
     },
@@ -52,6 +53,7 @@ export default function Contact() {
     data.name = data.name.trim();
     data.email = data.email.trim();
     data.message = data.message.trim();
+    data.from = data.from.trim();
     try {
       setLoading(true);
       const response = await publicService.sendEmail(data);

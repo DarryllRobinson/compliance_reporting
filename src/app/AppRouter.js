@@ -134,103 +134,103 @@ export default function AppRouter() {
           path: "policy-documents/legal",
           Component: LegalDisclaimer,
         },
-        // Users
-        {
-          path: "/users",
-          children: [
-            { index: true, Component: Users },
-            {
-              Component: UsersLayout,
-              children: [
-                {
-                  path: "create",
-                  Component: CreateUser,
-                },
-              ],
-            },
-          ],
-        },
-        // User
-        {
-          path: "/user",
-          children: [
-            // { index: true, Component: Users },
-            {
-              // Component: AuthLayout,
-              children: [
-                {
-                  path: "dashboard",
-                  Component: Dashboard,
-                },
-                {
-                  path: "forgot-password",
-                  Component: ForgotPassword,
-                },
-                {
-                  path: "reset-password",
-                  Component: ResetPassword,
-                  // action: (args) =>
-                  //   forgotPasswordAction({
-                  //     ...args,
-                  //     context: { alertContext },
-                  //   }),
-                },
-              ],
-            },
-            {
-              path: "login",
-              Component: Login,
-            },
-          ],
-        },
-        // Clients
-        {
-          path: "/clients",
-          children: [
-            {
-              index: true,
-              Component: Clients,
-            },
-            {
-              Component: ClientsLayout,
-              children: [
-                // Register
-                {
-                  path: "register",
-                  Component: ClientRegister,
-                },
-              ],
-            },
-          ],
-        },
-        // Reports
-        {
-          path: "reports",
-          children: [
-            {
-              Component: ReportsLayout,
-              ErrorBoundary: ReportErrorBoundary,
-              children: [
-                {
-                  // Create PTRS Report
-                  path: ":code/create",
-                  Component: CreateReport,
-                },
-                // PTRS Wizard uses step-based route pattern: /reports/ptrs/stepX/:reportId
-                {
-                  path: ":code/:reportId",
-                  Component: ReportWizard,
-                },
-                {
-                  // Connect to external data source
-                  path: ":code/:reportId/connect",
-                  Component: ConnectExternalSystems,
-                },
-                { path: "steps", Component: StepsOverview },
-              ],
-            },
-          ],
-        },
+        // // Users
+        // {
+        //   path: "/users",
+        //   children: [
+        //     { index: true, Component: Users },
+        //     {
+        //       Component: UsersLayout,
+        //       children: [
+        //         {
+        //           path: "create",
+        //           Component: CreateUser,
+        //         },
+        //       ],
+        //     },
+        //   ],
+        // },
+        // // User
+        // {
+        //   path: "/user",
+        //   children: [
+        //     // { index: true, Component: Users },
+        //     {
+        //       // Component: AuthLayout,
+        //       children: [
+        //         {
+        //           path: "dashboard",
+        //           Component: Dashboard,
+        //         },
+        //         {
+        //           path: "forgot-password",
+        //           Component: ForgotPassword,
+        //         },
+        //         {
+        //           path: "reset-password",
+        //           Component: ResetPassword,
+        //           // action: (args) =>
+        //           //   forgotPasswordAction({
+        //           //     ...args,
+        //           //     context: { alertContext },
+        //           //   }),
+        //         },
+        //       ],
+        //     },
+        //     {
+        //       path: "login",
+        //       Component: Login,
+        //     },
+        //   ],
+        // },
+        // // Clients
+        // {
+        //   path: "/clients",
+        //   children: [
+        //     {
+        //       index: true,
+        //       Component: Clients,
+        //     },
+        //     {
+        //       Component: ClientsLayout,
+        //       children: [
+        //         // Register
+        //         {
+        //           path: "register",
+        //           Component: ClientRegister,
+        //         },
+        //       ],
+        //     },
+        //   ],
+        // },
+        // // Reports
+        // {
+        //   path: "reports",
+        //   children: [
+        //     {
+        //       Component: ReportsLayout,
+        //       ErrorBoundary: ReportErrorBoundary,
+        //       children: [
+        //         {
+        //           // Create PTRS Report
+        //           path: ":code/create",
+        //           Component: CreateReport,
+        //         },
+        //         // PTRS Wizard uses step-based route pattern: /reports/ptrs/stepX/:reportId
+        //         {
+        //           path: ":code/:reportId",
+        //           Component: ReportWizard,
+        //         },
+        //         {
+        //           // Connect to external data source
+        //           path: ":code/:reportId/connect",
+        //           Component: ConnectExternalSystems,
+        //         },
+        //         { path: "steps", Component: StepsOverview },
+        //       ],
+        //     },
+        //   ],
+        // },
       ],
     },
   ]);

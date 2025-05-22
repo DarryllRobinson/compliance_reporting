@@ -1,6 +1,4 @@
-import React from "react";
 import {
-  Box,
   Container,
   Typography,
   Grid,
@@ -19,7 +17,7 @@ export default function ResourcePage() {
       title: "CSV Template",
       description:
         "Use this to format your payment data correctly before upload.",
-      link: "/static-content/resources/ptr_template.csv",
+      link: "/templates/ptr_template.csv",
       available: true,
     },
     {

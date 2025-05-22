@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useLayoutEffect } from "react";
+import { useState, useEffect, useRef, useLayoutEffect } from "react";
 import {
   Box,
   Button,
@@ -18,6 +18,7 @@ import { useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
+import Tooltip from "@mui/material/Tooltip";
 
 const Booking = () => {
   const theme = useTheme();
@@ -96,15 +97,26 @@ const Booking = () => {
     "03:00 PM",
   ];
 
-  const days = Array.from({ length: 10 }, (_, i) =>
+  const rawDays = Array.from({ length: 14 }, (_, i) =>
     addDays(new Date(), i)
   ).filter((day) => day.getDay() !== 0 && day.getDay() !== 6);
+  const days = rawDays.sort((a, b) => {
+    if (format(a, "yyyy-MM-dd") === todayStr) return -1;
+    if (format(b, "yyyy-MM-dd") === todayStr) return 1;
+    return a - b;
+  });
 
   const scrollRef = useRef();
 
   useLayoutEffect(() => {
     if (scrollRef.current) {
-      scrollRef.current.scrollLeft = scrollRef.current.scrollWidth / 2 - 400;
+      const todayEl = scrollRef.current.querySelector('[data-today="true"]');
+      if (todayEl) {
+        const containerRect = scrollRef.current.getBoundingClientRect();
+        const todayRect = todayEl.getBoundingClientRect();
+        scrollRef.current.scrollLeft +=
+          todayRect.left - containerRect.left - 16;
+      }
     }
   }, []);
 
@@ -151,18 +163,19 @@ const Booking = () => {
       setError("");
       setSuccess("");
       await bookingService.create(data);
+      // Send confirmation email to the user
       await publicService.sendEmail({
         to: data.email,
-        bcc: "darryllrobinson@icloud.com",
         subject: "Booking Confirmation",
-        message: `Hi ${data.name},\n\nYour booking for ${data.date} at ${data.time} has been confirmed.\n\nThank you,\nMonochrome Team`,
-        from: "darryllrobinson@icloud.com",
+        message: `Hi ${data.name},\n\nYour booking for ${data.date} at ${data.time} has been confirmed.\n\nThank you,\nMonochrome Compliance Team`,
+        from: "contact@monochrome-compliance.com",
       });
+      // Send notification email to the contact team
       await publicService.sendEmail({
-        to: "darryllrobinson@icloud.com",
+        to: "contact@monochrome-compliance.com",
         subject: "New Booking Submitted",
         message: `New booking from ${data.name} (${data.email}) for ${data.date} at ${data.time}.\n\nReason: ${data.reason}`,
-        from: "darryllrobinson@icloud.com",
+        from: "contact@monochrome-compliance.com",
       });
       await loadBookings();
       setSuccess("Booking submitted successfully.");
@@ -213,6 +226,7 @@ const Booking = () => {
             return (
               <Box
                 key={dateStr}
+                data-today={dateStr === todayStr}
                 sx={{
                   width: 160,
                   flex: "0 0 auto",
@@ -310,34 +324,38 @@ const Booking = () => {
             sx={{ flex: 1 }}
           />
           <Box sx={{ display: "flex", alignItems: "center", pt: 1 }}>
-            <Button
-              variant="contained"
-              color="secondary"
-              sx={{
-                height: 48,
-                minWidth: 110,
-                fontWeight: "bold",
-                boxShadow: 2,
-                ml: 1,
-              }}
-              onClick={() => {
-                // Find the first available slot from today onwards
-                for (const day of days) {
-                  const dateStr = format(day, "yyyy-MM-dd");
-                  const bookedSlots = booked[dateStr] || [];
-                  const firstAvailable = timeslots.find(
-                    (slot) => !bookedSlots.includes(slot)
-                  );
-                  if (firstAvailable) {
-                    setValue("date", dateStr);
-                    setValue("time", firstAvailable);
-                    break;
-                  }
-                }
-              }}
-            >
-              Earliest
-            </Button>
+            <Tooltip title="Select the earliest available slot">
+              <span>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  sx={{
+                    height: 48,
+                    minWidth: 110,
+                    fontWeight: "bold",
+                    boxShadow: 2,
+                    ml: 1,
+                  }}
+                  onClick={() => {
+                    // Find the first available slot from today onwards
+                    for (const day of days) {
+                      const dateStr = format(day, "yyyy-MM-dd");
+                      const bookedSlots = booked[dateStr] || [];
+                      const firstAvailable = timeslots.find(
+                        (slot) => !bookedSlots.includes(slot)
+                      );
+                      if (firstAvailable) {
+                        setValue("date", dateStr);
+                        setValue("time", firstAvailable);
+                        break;
+                      }
+                    }
+                  }}
+                >
+                  Earliest
+                </Button>
+              </span>
+            </Tooltip>
           </Box>
         </Box>
         {(errors.date || errors.time) && (
