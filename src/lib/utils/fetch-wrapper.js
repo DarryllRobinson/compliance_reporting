@@ -187,12 +187,21 @@ function authHeader(url) {
 }
 
 function handleResponse(response) {
+  const contentType = response.headers.get("content-type");
+
   return response.text().then((text) => {
-    const data = text && JSON.parse(text);
+    let data;
+    try {
+      data =
+        contentType && contentType.includes("application/json")
+          ? JSON.parse(text)
+          : text;
+    } catch {
+      data = text;
+    }
 
     if (!response.ok) {
       if ([401, 403].includes(response.status) && userService.userValue) {
-        // auto logout if 401 Unauthorized or 403 Forbidden response returned from api
         userService.logout();
       }
 
@@ -200,8 +209,11 @@ function handleResponse(response) {
         return data;
       }
 
-      const error = (data && data.message) || response.statusText;
-      return Promise.reject(error);
+      const error =
+        (typeof data === "string" ? data.trim() : data?.message?.trim?.()) ||
+        response.statusText ||
+        "An unexpected error occurred";
+      return Promise.reject({ status: response.status, message: error });
     }
 
     return data;

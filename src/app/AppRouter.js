@@ -21,30 +21,9 @@ import StaticPageViewer from "../components/StaticPageViewer";
 // Testing pdf email
 import TestPdfEmail from "../components/common/TestPdfEmail";
 
-// Users
-import Users from "../features/users/Users";
-import UsersLayout from "../features/users/UsersLayout";
-import CreateUser from "../features/users/CreateUser";
-
-// User
-import Dashboard from "../features/users/Dashboard";
 import ForgotPassword from "../features/users/ForgotPassword";
 import ResetPassword from "../features/users/ResetPassword";
 import Login from "../features/users/Login";
-
-// Clients
-import Clients from "../features/clients/Clients";
-import ClientsLayout from "../features/clients/ClientsLayout";
-
-// Reports
-import ReportErrorBoundary from "../components/navigation/ReportErrorBoundary";
-import ReportsLayout from "../features/reports/ReportsLayout";
-
-// PTRS
-import ReportWizard from "../features/reports/ptrs/ReportWizard";
-import CreateReport from "../features/reports/ptrs/CreateReport";
-import ConnectExternalSystems from "../features/reports/ptrs/ConnectExternalSystems";
-import StepsOverview from "../features/reports/ptrs/StepsOverview";
 import GettingStartedPage from "../components/common/GettingStarted";
 import FAQ from "../components/common/FAQ";
 import Booking from "../components/common/Booking";
@@ -54,10 +33,11 @@ import BlogIndex from "../routes/BlogIndex";
 import LegalDisclaimer from "../components/policies/LegalDisclaimer";
 
 import ProtectedRoute from "../components/navigation/ProtectedRoute";
-import Role from "../context";
+import { Role } from "../context";
 
 import { protectedRoutes } from "../routes/routeConfig";
 import { publicRoutes } from "../routes/publicRoutes";
+import Payment from "../features/Payment/Payment";
 
 // TODO: Optimise the whole thing: https://reactrouter.com/tutorials/address-book
 
@@ -179,6 +159,18 @@ export default function AppRouter() {
             ),
           children: route.children,
         })),
+        {
+          path: "payment",
+          Component: () => (
+            <ProtectedRoute requiredRoles={[Role.Boss, Role.Admin]} />
+          ),
+          children: [
+            {
+              index: true,
+              Component: Payment,
+            },
+          ],
+        },
       ],
     },
   ]);

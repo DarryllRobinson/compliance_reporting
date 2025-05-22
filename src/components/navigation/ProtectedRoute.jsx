@@ -1,11 +1,15 @@
+import { useEffect } from "react";
 import { Navigate, Outlet } from "react-router";
 import { useAuthContext } from "../../context/AuthContext";
 import Fallback from "../common/Fallback";
+import { userService } from "../../services/";
 
 const ProtectedRoute = ({ requiredRoles = [] }) => {
   const { isSignedIn, user } = useAuthContext();
 
-  if (user === undefined) return <Fallback />;
+  if (isSignedIn === null) {
+    return <Fallback message="Checking your session..." />;
+  }
 
   if (!isSignedIn) {
     return <Navigate to="/user/login" replace />;

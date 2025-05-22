@@ -22,9 +22,10 @@ import Tooltip from "@mui/material/Tooltip";
 import { Link, useNavigate } from "react-router";
 import { useTheme } from "@mui/material/styles";
 import { userService } from "../../services";
+import { useAuthContext } from "../../context/AuthContext";
 
 export default function Navbar({ isDarkTheme, onToggleTheme }) {
-  const user = userService.userValue; // Get the current user
+  const { user } = useAuthContext();
   const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState(null);
   const [gettingStartedAnchor, setGettingStartedAnchor] = useState(null);
@@ -310,7 +311,7 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
               >
                 Dashboard
               </Button>
-              {user.role === "Admin" && (
+              {user.role === "Boss" && (
                 <>
                   <Button
                     color="inherit"
@@ -327,6 +328,23 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
                     sx={{ color: theme.palette.text.primary }}
                   >
                     Users
+                  </Button>
+                  {/* Admin routes for Boss */}
+                  <Button
+                    color="inherit"
+                    component={Link}
+                    to="/admin"
+                    sx={{ color: theme.palette.text.primary }}
+                  >
+                    Admin Content
+                  </Button>
+                  <Button
+                    color="inherit"
+                    component={Link}
+                    to="/admin/reports"
+                    sx={{ color: theme.palette.text.primary }}
+                  >
+                    Admin Reports
                   </Button>
                 </>
               )}

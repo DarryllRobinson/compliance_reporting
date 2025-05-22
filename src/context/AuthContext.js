@@ -4,28 +4,31 @@ import { userService } from "../services";
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  const [isSignedIn, setIsSignedIn] = useState(false); // Default to not signed in
-  const [user, setUser] = useState(null); // Store user details
+  const [isSignedIn, setIsSignedIn] = useState(null); // null = loading
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    // Subscribe to userService to track user state
     const subscription = userService.user.subscribe((x) => {
       setUser(x);
-      setIsSignedIn(!!x); // Set isSignedIn to true if user exists
     });
 
-    // Fetch the current user on mount
     userService
       .refreshToken()
       .then((user) => {
-        if (user) {
-          userService.user.next(user);
-          setUser(user);
-          setIsSignedIn(true);
+        try {
+          if (user) {
+            setIsSignedIn(true);
+          } else {
+            setIsSignedIn(false);
+          }
+        } catch (err) {
+          console.error("Error while handling refreshed user:", err);
+          setIsSignedIn(false);
         }
       })
       .catch(() => {
         console.error("Failed to refresh token or fetch user");
+        setIsSignedIn(false);
       });
 
     return () => subscription.unsubscribe();
@@ -33,18 +36,20 @@ export function AuthProvider({ children }) {
 
   const signIn = (user) => {
     userService.user.next(user);
-    setIsSignedIn(true);
     setUser(user);
+    setIsSignedIn(true);
   };
 
   const signOut = () => {
-    setIsSignedIn(false);
+    userService.logout();
     setUser(null);
-    userService.logout(); // Call logout from userService
+    setIsSignedIn(false);
   };
 
   return (
-    <AuthContext.Provider value={{ isSignedIn, user, signIn, signOut }}>
+    <AuthContext.Provider
+      value={{ isSignedIn, setIsSignedIn, user, setUser, signIn, signOut }}
+    >
       {children}
     </AuthContext.Provider>
   );

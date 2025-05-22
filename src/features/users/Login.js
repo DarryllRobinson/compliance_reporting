@@ -11,11 +11,13 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useState } from "react";
+import { useNavigate } from "react-router";
 
 export default function Login() {
   const theme = useTheme();
   const [loading, setLoading] = useState(false);
   const [alert, setAlert] = useState(null);
+  const navigate = useNavigate();
 
   const schema = yup.object().shape({
     email: yup.string().email("Invalid email").required("Email is required"),
@@ -38,13 +40,16 @@ export default function Login() {
     setLoading(true);
     try {
       await userService.login(data);
-      window.location.href = "/user/dashboard";
+      navigate("/user/dashboard");
     } catch (error) {
+      const message = error?.message || "Login failed. Please try again.";
+
       setError("password", {
         type: "manual",
-        message: error?.message || "Login failed",
+        message,
       });
-      setAlert({ type: "error", message: error?.message || "Login failed" });
+
+      setAlert({ type: "error", message });
     } finally {
       setLoading(false);
     }
