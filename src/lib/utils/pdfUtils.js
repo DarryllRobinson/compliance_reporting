@@ -112,13 +112,13 @@ export async function handlePdf(recordId, answers, flowQuestions) {
 
   // Report reference and navigator outcome with reason replaced by metadata table
   const metadataTable = [
-    ["Reference", recordId],
     ["PTR Submission Required", result.required ? "Yes" : "No"],
     ["Assessment Summary", result.reason],
-    ["Generated", date],
+    ["Reference", `${recordId} on ${date}`],
   ];
 
   autoTable(doc, {
+    head: [["Summary of Navigator Assessment", ""]],
     body: metadataTable,
     startY: y + 10,
     styles: {
@@ -129,6 +129,7 @@ export async function handlePdf(recordId, answers, flowQuestions) {
     headStyles: {
       fillColor: [77, 77, 77],
       textColor: 255,
+      fontStyle: "bold",
       halign: "left",
     },
     alternateRowStyles: {
@@ -140,6 +141,11 @@ export async function handlePdf(recordId, answers, flowQuestions) {
     },
     margin: { left: marginLeft, right: marginLeft },
     tableWidth: "wrap",
+    didDrawCell: function (data) {
+      if (data.section === "head" && data.column.index === 0) {
+        data.cell.colSpan = 2;
+      }
+    },
   });
 
   if (doc.previousAutoTable) {
@@ -243,11 +249,10 @@ export async function handlePdf(recordId, answers, flowQuestions) {
     doc.setPage(i);
     doc.setFontSize(9);
     doc.setTextColor("#4d4d4d");
-    // Removed duplicate date line here
     doc.text(
       `Page ${i} of ${pageCount}`,
       pageWidth - marginLeft - 30,
-      pageHeight - 10
+      pageHeight - 5
     );
   }
 

@@ -15,7 +15,17 @@ import { useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { da } from "@faker-js/faker";
+
+// Yup schema moved outside the component and updated to use yup.object({ ... }) directly
+const schema = yup.object({
+  name: yup.string().trim().required("Name is required"),
+  email: yup
+    .string()
+    .trim()
+    .email("Invalid email")
+    .required("Email is required"),
+  message: yup.string().trim().required("Message is required"),
+});
 
 export default function Contact() {
   const theme = useTheme();
@@ -23,18 +33,12 @@ export default function Contact() {
 
   const [alert, setAlert] = useState(null);
 
-  const schema = yup.object().shape({
-    name: yup.string().required("Name is required"),
-    email: yup.string().email("Invalid email").required("Email is required"),
-    message: yup.string().required("Message is required"),
-  });
-
   const [loading, setLoading] = useState(false);
 
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isValid },
     reset,
   } = useForm({
     resolver: yupResolver(schema),
@@ -46,6 +50,7 @@ export default function Contact() {
       to: "contact@monochrome-compliance.com",
       from: "contact@monochrome-compliance.com",
     },
+    mode: "onChange",
   });
 
   const sendContactEmail = async (data) => {
@@ -152,7 +157,7 @@ export default function Contact() {
             variant="contained"
             color="primary"
             fullWidth
-            disabled={loading}
+            disabled={!isValid || loading}
             startIcon={loading ? <CircularProgress size={20} /> : null}
             sx={{
               padding: theme.spacing(1.5),

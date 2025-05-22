@@ -17,7 +17,12 @@ export default function TestPdfEmail() {
   const answers = {
     charity: "No",
     section7: "Yes",
-    connectionToAustralia: ["Australian registered company"],
+    connectionToAustralia: [
+      "Incorporated in Australia",
+      "Carries on business in Australia",
+      "Central management and control in Australia",
+      "Majority voting power controlled by Australian shareholders",
+    ],
     controlled: "No",
     cce: "Yes",
     revenue: "Yes",
