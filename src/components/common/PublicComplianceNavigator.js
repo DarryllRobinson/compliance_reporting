@@ -113,7 +113,7 @@ const flowQuestions = [
     key: "cce",
     question: "Is the entity a Constitutionally Covered Entity (CCE)?",
     options: ["Yes", "No"],
-    help: "CCE includes trading, financial, and foreign corporations.",
+    help: "CCE includes trading, financial, and foreign corporations. See Section 6(1)(e) of the Payment Times Reporting Act 2020.",
   },
   {
     key: "charity",

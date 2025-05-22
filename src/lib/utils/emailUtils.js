@@ -7,8 +7,9 @@ export async function sendSummaryByEmail({
   answers,
   setAlert,
   from = "darryllrobinson@icloud.com",
-  subject = "Your Entity Navigator Summary",
-  fileName = "entity-report-summary.pdf",
+  // from = "contact@monochrome-compliance.com",
+  subject = "Your Compliance Navigator Summary",
+  fileName = "compliance-navigator-report.pdf",
   html,
   message,
 }) {
@@ -34,7 +35,7 @@ export async function sendSummaryByEmail({
       formData.append(
         "html",
         `<p>Hi ${name},</p>
-        <p>Thank you for using the PTRS Navigator. Attached is your summary.</p>
+        <p>Thank you for using the PTRS Compliance Navigator. Attached is your summary.</p>
         <p><strong>Company:</strong> ${companyName}<br/><strong>Position:</strong> ${position}</p>
         <p><strong>Reference:</strong> ${recordId}</p>`
       );

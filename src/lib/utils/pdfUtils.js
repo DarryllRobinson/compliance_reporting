@@ -1,4 +1,5 @@
 import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
 
 // Utility to load an image as base64
 export async function loadImage(url) {
@@ -23,23 +24,23 @@ export async function handlePdf(recordId, answers, flowQuestions) {
 
   const date = new Date().toLocaleString();
   const companyName = "Monochrome Compliance";
-  const subtitle =
-    "Entity Navigator Summary — Payment Times Reporting Scheme (PTRS)";
-  const logoPath = "/images/logos/logo-light.png";
+  const subtitleLine1 = "Compliance Navigator Summary";
+  const subtitleLine2 = "Payment Times Reporting Scheme (PTRS)";
+  const logoPath = "/images/logos/logo-light-m.png";
 
   const determineReportingRequirement = (answers) => {
     if (answers.charity === "Yes") {
       return {
         required: false,
         reason:
-          "The entity is a registered charity and is excluded under Section 6(1)(e) of the Payment Times Reporting Act 2020.",
+          "As a registered charity, the entity probably does not need to report. For more information, refer to Section 6(1)(e) of the Payment Times Reporting Act 2020.",
       };
     }
     if (answers.section7 !== "Yes") {
       return {
         required: false,
         reason:
-          "The entity has not been assessed under Section 7 of the Payment Times Reporting Act 2020.",
+          "As the entity has not been assessed under Section 7 of the Payment Times Reporting Act 2020, we are unable to provide guidance. For more information, refer to Section 6(1)(e) of the Payment Times Reporting Act 2020.",
       };
     }
     if (
@@ -49,7 +50,7 @@ export async function handlePdf(recordId, answers, flowQuestions) {
       return {
         required: false,
         reason:
-          "The entity does not appear to have a sufficient connection to Australia.",
+          "The entity does not appear to have a sufficient connection to Australia to necessiate submitting a report. We recommend consulting with your legal or compliance team for further guidance, in conjunction with reviewing the Guidance Note from the Regulator.",
       };
     }
     if (answers.controlled === "Yes") {
@@ -63,12 +64,13 @@ export async function handlePdf(recordId, answers, flowQuestions) {
       return {
         required: true,
         reason:
-          "The entity is a CCE with revenue over A$100M. PTRS reporting is required.",
+          "The entity is a Constitutionally Covered Entity with revenue over A$100M; PTRS reporting is required.",
       };
     }
     return {
       required: false,
-      reason: "Based on your responses, PTRS reporting is not required.",
+      reason:
+        "Based on your responses, PTRS reporting likely not required. We strongly recommend consulting with your legal or compliance team for further guidance, in conjunction with reviewing the Guidance Note from the Regulator.",
     };
   };
 
@@ -92,51 +94,60 @@ export async function handlePdf(recordId, answers, flowQuestions) {
   doc.setTextColor("#141414");
   doc.text(companyName, marginLeft + 30, y + 8);
   doc.setFontSize(12);
-  doc.text(subtitle, marginLeft + 30, y + 16);
-  y += 30;
+  doc.text(subtitleLine1, marginLeft + 30, y + 16);
+  doc.text(subtitleLine2, marginLeft + 30, y + 22);
+  y += 36;
 
   // Intro context
   doc.setFontSize(10);
   doc.setTextColor("#4d4d4d");
   const introText =
-    "This document provides a summary of the answers submitted through the Entity Navigator tool on our website. It is intended to assist you in determining your organisation’s obligations under the Payment Times Reporting Scheme (PTRS).";
+    "This document provides a summary of the answers submitted through the Compliance Navigator tool on our website. It is intended to assist you in determining your organisation’s obligations under the Payment Times Reporting Scheme (PTRS).";
   const wrappedIntro = doc.splitTextToSize(
     introText,
     pageWidth - marginLeft * 2
   );
   doc.text(wrappedIntro, marginLeft, y);
-  y += wrappedIntro.length * lineHeight + 5;
+  y += wrappedIntro.length * lineHeight;
 
-  // Report reference and navigator outcome with reason
-  doc.text(`Reference: ${recordId}`, marginLeft, y);
-  y += 6;
-  doc.text(
-    `PTR Submission Required: ${result.required ? "Yes" : "No"}`,
-    marginLeft,
-    y
-  );
-  y += 6;
-  doc.setTextColor("#4d4d4d");
-  const wrappedReason = doc.splitTextToSize(
-    result.reason,
-    pageWidth - marginLeft * 2
-  );
-  doc.text(wrappedReason, marginLeft, y);
-  doc.setTextColor(0, 0, 0);
-  y += wrappedReason.length * lineHeight + 5;
+  // Report reference and navigator outcome with reason replaced by metadata table
+  const metadataTable = [
+    ["Reference", recordId],
+    ["PTR Submission Required", result.required ? "Yes" : "No"],
+    ["Assessment Summary", result.reason],
+    ["Generated", date],
+  ];
+
+  autoTable(doc, {
+    body: metadataTable,
+    startY: y + 10,
+    styles: {
+      fontSize: 9,
+      cellPadding: 2,
+      valign: "top",
+    },
+    headStyles: {
+      fillColor: [77, 77, 77],
+      textColor: 255,
+      halign: "left",
+    },
+    alternateRowStyles: {
+      fillColor: [245, 245, 245],
+    },
+    columnStyles: {
+      0: { fontStyle: "bold", cellWidth: 60 },
+      1: { cellWidth: pageWidth - marginLeft * 2 - 60 },
+    },
+    margin: { left: marginLeft, right: marginLeft },
+    tableWidth: "wrap",
+  });
+
+  if (doc.previousAutoTable) {
+    y = doc.previousAutoTable.finalY + 20;
+  }
 
   // Section: Summary Table
-  doc.setFontSize(11);
-  doc.setTextColor("#141414");
-  doc.text("Summary of Responses", marginLeft, y);
-  y += 6;
-
-  doc.setDrawColor("#141414");
-  doc.line(marginLeft, y, pageWidth - marginLeft, y);
-  y += 4;
-
-  doc.setFontSize(10);
-  for (const q of flowQuestions) {
+  const tableData = flowQuestions.map((q) => {
     const question =
       q.key === "entityDetails" ? "Entity details provided" : q.question;
     let answer = "No answer";
@@ -148,57 +159,73 @@ export async function handlePdf(recordId, answers, flowQuestions) {
           const field = q.fields?.find((f) => f.name === key);
           return `${field?.label || key}: ${value || "—"}`;
         })
-        .join(", ");
+        .join("\n");
     } else if (q.key === "entityDetails") {
       answer = Object.entries(answers.entityDetails || {})
         .map(([key, value]) => {
           const field = q.fields?.find((f) => f.name === key);
           return `${field?.label || key}: ${value || "—"}`;
         })
-        .join(", ");
+        .join("\n");
     } else if (Array.isArray(answers[q.key])) {
       answer = answers[q.key].join(", ");
     } else if (typeof answers[q.key] === "object" && answers[q.key] !== null) {
       answer = Object.entries(answers[q.key])
         .map(([k, v]) => `${k}: ${v || "—"}`)
-        .join(", ");
+        .join("\n");
     } else {
       answer = answers[q.key] || "No answer";
     }
 
-    if (y + lineHeight > pageHeight - marginTop) {
-      doc.addPage();
-      doc.setFillColor("#eceff1");
-      doc.rect(0, 0, pageWidth, pageHeight, "F");
-      y = marginTop;
-    }
-
-    doc.setTextColor("#4d4d4d");
-    doc.text(`• ${question}`, marginLeft, y);
-    y += lineHeight;
-    doc.setTextColor("#141414");
-    const wrappedAnswer = doc.splitTextToSize(
-      answer,
-      pageWidth - marginLeft * 2
-    );
-    doc.text(wrappedAnswer, marginLeft + 4, y);
-    y += wrappedAnswer.length * lineHeight + 2;
-
-    doc.setDrawColor(200);
-    doc.line(marginLeft, y, pageWidth - marginLeft, y);
-    y += 5;
-  }
+    return [question, answer];
+  });
 
   // CTA
   const ctaText =
-    "For a full assessment and to receive tailored reporting guidance, please contact our team at ptrs@monochrome-compliance.com.";
+    "For a full assessment and to receive tailored reporting guidance, please contact our team at contact@monochrome-compliance.com.";
   const wrappedCTA = doc.splitTextToSize(ctaText, pageWidth - marginLeft * 2);
   doc.setFontSize(10);
   doc.setTextColor("#4d4d4d");
-  doc.text(wrappedCTA, marginLeft, y);
-  y += wrappedCTA.length * lineHeight + 3;
+  doc.text(wrappedCTA, marginLeft, y - 2);
+  y += wrappedCTA.length * lineHeight + 40;
 
-  // Disclaimer
+  doc.setFontSize(11);
+  doc.setTextColor("#141414");
+  doc.text("Summary of Responses", marginLeft, y);
+  const tableStartY = y + 6;
+
+  autoTable(doc, {
+    head: [["Question", "Answer"]],
+    body: tableData,
+    startY: tableStartY,
+    styles: {
+      fontSize: 9,
+      cellPadding: 2,
+      valign: "top",
+    },
+    headStyles: {
+      fillColor: [77, 77, 77],
+      textColor: 255,
+      halign: "left",
+    },
+    bodyStyles: {
+      lineColor: 240,
+    },
+    alternateRowStyles: {
+      fillColor: [245, 245, 245],
+    },
+    columnStyles: {
+      0: { cellWidth: 85 },
+      1: { cellWidth: pageWidth - marginLeft * 2 - 85 },
+    },
+    margin: { left: marginLeft, right: marginLeft },
+    tableWidth: "wrap",
+  });
+
+  if (doc.previousAutoTable) {
+    y = doc.previousAutoTable.finalY + 20;
+  }
+
   const disclaimer =
     "This report is informational only and does not constitute legal advice. Final determination of reporting obligations should be made in consultation with your legal or compliance team.";
   const wrappedDisclaimer = doc.splitTextToSize(
@@ -207,7 +234,8 @@ export async function handlePdf(recordId, answers, flowQuestions) {
   );
   doc.setFontSize(8);
   doc.setTextColor("#4d4d4d");
-  doc.text(wrappedDisclaimer, marginLeft, y);
+  doc.text(wrappedDisclaimer, marginLeft, y + 100);
+  y += wrappedDisclaimer.length * lineHeight + 5;
 
   // Footer on all pages
   const pageCount = doc.internal.getNumberOfPages();
@@ -215,7 +243,7 @@ export async function handlePdf(recordId, answers, flowQuestions) {
     doc.setPage(i);
     doc.setFontSize(9);
     doc.setTextColor("#4d4d4d");
-    doc.text(date, marginLeft, pageHeight - 10);
+    // Removed duplicate date line here
     doc.text(
       `Page ${i} of ${pageCount}`,
       pageWidth - marginLeft - 30,
@@ -223,6 +251,14 @@ export async function handlePdf(recordId, answers, flowQuestions) {
     );
   }
 
-  const pdfBlob = doc.output("blob");
-  return pdfBlob;
+  doc.setFontSize(9);
+  doc.setTextColor("#4d4d4d");
+  doc.text(
+    "© 2025 Monochrome Compliance | ABN 20687127386",
+    marginLeft,
+    pageHeight - 5
+  );
+
+  const pdfBlob = await doc.output("blob");
+  return Promise.resolve(pdfBlob);
 }

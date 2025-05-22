@@ -82,6 +82,7 @@ export default function TestPdfEmail() {
       setDownloadUrl(url);
       setBlob(pdfBlob);
       // No upload logic, just prepare for download
+      window.open(url, "_blank");
     } catch (err) {
       setError(err.message || "Failed to create PDF");
     } finally {
@@ -115,7 +116,7 @@ export default function TestPdfEmail() {
         >
           {loading ? <CircularProgress size={24} /> : "Create PDF"}
         </Button>
-        {downloadUrl && (
+        {/* {downloadUrl && (
           <Box sx={{ mt: 2 }}>
             <Button
               variant="outlined"
@@ -125,7 +126,7 @@ export default function TestPdfEmail() {
               Download PDF
             </Button>
           </Box>
-        )}
+        )} */}
         {error && (
           <Typography color="error" sx={{ mt: 2 }}>
             {error}

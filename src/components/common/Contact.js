@@ -44,7 +44,7 @@ export default function Contact() {
       subject: "Contact Us",
       message: "",
       to: "contact@monochrome-compliance.com",
-      from: "",
+      from: "contact@monochrome-compliance.com",
     },
   });
 

@@ -108,10 +108,10 @@ async function postEmail(url, formData) {
     body: formData,
   };
 
-  console.log("[fetch-wrapper] FormData entries:");
-  for (let pair of formData.entries()) {
-    console.log(pair[0], pair[1]);
-  }
+  // console.log("[fetch-wrapper] FormData entries:");
+  // for (let pair of formData.entries()) {
+  //   console.log(pair[0], pair[1]);
+  // }
 
   const response = await fetch(url, requestOptions);
   return handleResponse(response);
