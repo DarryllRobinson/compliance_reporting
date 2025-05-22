@@ -1,29 +1,44 @@
-import React from "react";
-import { Helmet } from "react-helmet-async";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router";
+import { adminService } from "../services/admin/admin";
 
-const SEO = ({ title, description, url }) => {
-  const siteName = "Monochrome Compliance";
-  const fullTitle = title ? `${title} | ${siteName}` : siteName;
+const StaticPageViewer = () => {
+  const { slug } = useParams();
+  const [content, setContent] = useState("");
+  const [meta, setMeta] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    const fetchContent = async () => {
+      try {
+        const data = await adminService.getBySlug(slug);
+        const { content, title, ...rest } = data;
+
+        setContent(content);
+        setMeta({ title, ...rest });
+        setError(false);
+      } catch (err) {
+        setError(true);
+        setContent("");
+        setMeta({});
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchContent();
+  }, [slug]);
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error loading content.</div>;
 
   return (
-    <Helmet>
-      <title>{fullTitle}</title>
-      {description && <meta name="description" content={description} />}
-      {url && <link rel="canonical" href={url} />}
-
-      {/* Open Graph */}
-      <meta property="og:title" content={fullTitle} />
-      {description && <meta property="og:description" content={description} />}
-      {url && <meta property="og:url" content={url} />}
-      <meta property="og:type" content="website" />
-      <meta property="og:site_name" content={siteName} />
-
-      {/* Twitter Card */}
-      <meta name="twitter:card" content="summary" />
-      <meta name="twitter:title" content={fullTitle} />
-      {description && <meta name="twitter:description" content={description} />}
-    </Helmet>
+    <div>
+      <h1>{meta.title}</h1>
+      <div dangerouslySetInnerHTML={{ __html: content }} />
+    </div>
   );
 };
 
-export default SEO;
+export default StaticPageViewer;

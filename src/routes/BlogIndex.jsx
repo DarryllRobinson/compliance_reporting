@@ -15,23 +15,9 @@ import {
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useNavigate } from "react-router";
+import { adminService } from "../services/admin/admin";
 
 const POSTS_PER_PAGE = 5;
-
-const parseFrontMatter = (text) => {
-  const frontmatter = {};
-  const normalized = text.replace(/\r\n/g, "\n"); // normalize CRLF to LF
-  const match = normalized.match(/^---\n([\s\S]+?)\n---/);
-  if (match) {
-    const lines = match[1].split("\n");
-    for (const line of lines) {
-      if (!line.includes(":")) continue;
-      const [key, ...rest] = line.split(":");
-      frontmatter[key.trim()] = rest.join(":").trim();
-    }
-  }
-  return frontmatter;
-};
 
 const BlogIndex = () => {
   const [allPosts, setAllPosts] = useState([]);
@@ -43,23 +29,26 @@ const BlogIndex = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const loadPosts = async () => {
-      const indexRes = await fetch("/blog/index.json");
-      const index = await indexRes.json();
+    adminService
+      .getAll()
+      .then((data) => {
+        const blogs = data
+          .filter((post) => post.type === "blog")
+          .map(({ slug, title, description, date, tags }) => {
+            return {
+              slug,
+              title: title || "Untitled",
+              description: description || "",
+              date: date || "",
+              tags: tags || [],
+            };
+          })
+          .sort((a, b) => new Date(b.date) - new Date(a.date));
 
-      const loaded = await Promise.all(
-        index.map(async ({ slug }) => {
-          const res = await fetch(`/blog/${slug}.md`);
-          const raw = await res.text();
-          const { title, description, date, tags = [] } = parseFrontMatter(raw);
-          return { slug, title, description, date, tags };
-        })
-      );
-
-      setAllPosts(loaded.sort((a, b) => new Date(b.date) - new Date(a.date)));
-      setLoading(false);
-    };
-    loadPosts();
+        setAllPosts(blogs);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
   }, []);
 
   const filteredPosts =
