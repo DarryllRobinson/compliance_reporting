@@ -28,10 +28,13 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
   const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState(null);
   const [gettingStartedAnchor, setGettingStartedAnchor] = useState(null);
+  const [connectAnchor, setConnectAnchor] = useState(null);
   const [solutionsAnchor, setSolutionsAnchor] = useState(null);
   const handleSolutionsOpen = (event) =>
     setSolutionsAnchor(event.currentTarget);
   const handleSolutionsClose = () => setSolutionsAnchor(null);
+  const handleConnectOpen = (event) => setConnectAnchor(event.currentTarget);
+  const handleConnectClose = () => setConnectAnchor(null);
   const navigate = useNavigate();
 
   const handleMenuOpen = (event) => {
@@ -242,28 +245,43 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
           </Menu>
           <Button
             color="inherit"
-            component={Link}
-            to="/contact"
-            sx={{ color: theme.palette.text.primary }}
+            onClick={handleConnectOpen}
+            sx={{
+              color: theme.palette.text.primary,
+              display: "flex",
+              alignItems: "center",
+            }}
+            endIcon={<ExpandMoreIcon />}
           >
-            Contact
+            Connect
           </Button>
-          <Button
-            color="inherit"
-            component={Link}
-            to="/booking"
-            sx={{ color: theme.palette.text.primary }}
+          <Menu
+            anchorEl={connectAnchor}
+            open={Boolean(connectAnchor)}
+            onClose={handleConnectClose}
+            sx={{ mt: 1 }}
           >
-            Booking
-          </Button>
-          <Button
-            color="inherit"
-            component={Link}
-            to="/blog"
-            sx={{ color: theme.palette.text.primary }}
-          >
-            Blog
-          </Button>
+            <MenuItem
+              onClick={handleConnectClose}
+              component={Link}
+              to="/contact"
+            >
+              <InfoIcon sx={{ fontSize: 20, mr: 1 }} />
+              Contact
+            </MenuItem>
+            <MenuItem
+              onClick={handleConnectClose}
+              component={Link}
+              to="/booking"
+            >
+              <FolderIcon sx={{ fontSize: 20, mr: 1 }} />
+              Booking
+            </MenuItem>
+            <MenuItem onClick={handleConnectClose} component={Link} to="/blog">
+              <HelpOutlineIcon sx={{ fontSize: 20, mr: 1 }} />
+              Blog
+            </MenuItem>
+          </Menu>
           {user && ( // Hiding for public site prep
             <Button
               color="inherit"
