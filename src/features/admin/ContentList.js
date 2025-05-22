@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Table,
@@ -16,7 +16,7 @@ import {
   DialogTitle,
 } from "@mui/material";
 import { useNavigate } from "react-router";
-import { fetchWrapper } from "../../lib/utils/fetch-wrapper";
+import { adminService } from "../../services/admin/admin";
 
 const ContentList = () => {
   const [content, setContent] = useState([]);
@@ -25,7 +25,8 @@ const ContentList = () => {
   const navigate = useNavigate();
 
   const fetchContent = () => {
-    fetchWrapper.get("/api/admin/content")
+    adminService
+      .getAll()
       .then((data) => {
         setContent(data);
         setLoading(false);
@@ -38,13 +39,15 @@ const ContentList = () => {
   }, []);
 
   const handleEdit = (item) => {
-    navigate(item.type === "faq" ? "/admin/edit-faq" : `/admin/edit-blog/${item.slug}`);
+    navigate(
+      item.type === "faq" ? "/admin/edit-faq" : `/admin/edit-blog/${item.slug}`
+    );
   };
 
   const handleDelete = async () => {
     if (!confirmDelete) return;
     try {
-      await fetchWrapper.delete(`/api/admin/content/${confirmDelete.slug}`);
+      await adminService.delete(confirmDelete.slug);
       setConfirmDelete(null);
       fetchContent();
     } catch {
@@ -54,7 +57,9 @@ const ContentList = () => {
 
   return (
     <Box sx={{ p: 4 }}>
-      <Typography variant="h4" gutterBottom>Admin Content</Typography>
+      <Typography variant="h4" gutterBottom>
+        Admin Content
+      </Typography>
       {loading ? (
         <CircularProgress />
       ) : (
@@ -76,11 +81,29 @@ const ContentList = () => {
                   <TableCell>{item.type}</TableCell>
                   <TableCell>{item.title}</TableCell>
                   <TableCell>{item.slug}</TableCell>
-                  <TableCell>{new Date(item.createdAt).toLocaleString()}</TableCell>
-                  <TableCell>{new Date(item.updatedAt).toLocaleString()}</TableCell>
+                  <TableCell>
+                    {new Date(item.createdAt).toLocaleString()}
+                  </TableCell>
+                  <TableCell>
+                    {new Date(item.updatedAt).toLocaleString()}
+                  </TableCell>
                   <TableCell align="right">
-                    <Button variant="outlined" size="small" onClick={() => handleEdit(item)} sx={{ mr: 1 }}>Edit</Button>
-                    <Button variant="outlined" size="small" color="error" onClick={() => setConfirmDelete(item)}>Delete</Button>
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      onClick={() => handleEdit(item)}
+                      sx={{ mr: 1 }}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      color="error"
+                      onClick={() => setConfirmDelete(item)}
+                    >
+                      Delete
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
@@ -89,12 +112,12 @@ const ContentList = () => {
         </TableContainer>
       )}
       <Dialog open={!!confirmDelete} onClose={() => setConfirmDelete(null)}>
-        <DialogTitle>
-          Delete "{confirmDelete?.title}"?
-        </DialogTitle>
+        <DialogTitle>Delete "{confirmDelete?.title}"?</DialogTitle>
         <DialogActions>
           <Button onClick={() => setConfirmDelete(null)}>Cancel</Button>
-          <Button onClick={handleDelete} color="error">Delete</Button>
+          <Button onClick={handleDelete} color="error">
+            Delete
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import MDEditor from "@uiw/react-md-editor";
 import { Box, Button, CircularProgress, Typography } from "@mui/material";
-import { fetchWrapper } from "../../lib/utils/fetch-wrapper";
+import { adminService } from "../../services/admin/admin";
 
 const EditFaq = () => {
   const [content, setContent] = useState("");
@@ -9,7 +9,8 @@ const EditFaq = () => {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    fetchWrapper.get("/api/admin/content/faq")
+    adminService
+      .getBySlug("faq")
       .then((data) => {
         setContent(data.content);
         setLoading(false);
@@ -23,7 +24,7 @@ const EditFaq = () => {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await fetchWrapper.post("/api/admin/save-faq", { content });
+      await adminService.saveFaq({ content });
       alert("✅ FAQ saved successfully!");
     } catch {
       alert("❌ Failed to save FAQ.");
@@ -36,10 +37,17 @@ const EditFaq = () => {
 
   return (
     <Box sx={{ p: 4 }}>
-      <Typography variant="h4" gutterBottom>Edit FAQ</Typography>
+      <Typography variant="h4" gutterBottom>
+        Edit FAQ
+      </Typography>
       <MDEditor value={content} onChange={setContent} height={500} />
       <Box sx={{ mt: 2 }}>
-        <Button variant="contained" color="primary" onClick={handleSave} disabled={saving}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleSave}
+          disabled={saving}
+        >
           {saving ? "Saving..." : "Save Changes"}
         </Button>
       </Box>

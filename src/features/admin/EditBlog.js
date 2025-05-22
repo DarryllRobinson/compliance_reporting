@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import { Box, Button, TextField, Typography } from "@mui/material";
 import MDEditor from "@uiw/react-md-editor";
-import { fetchWrapper } from "../../lib/utils/fetch-wrapper";
+import { adminService } from "../../services/admin/admin";
 
 const EditBlog = () => {
   const { slug } = useParams();
@@ -12,7 +12,8 @@ const EditBlog = () => {
 
   useEffect(() => {
     if (!slug) return;
-    fetchWrapper.get(`/api/admin/content/${slug}`)
+    adminService
+      .getBySlug(slug)
       .then((data) => {
         setTitle(data.title);
         setContent(data.content);
@@ -23,7 +24,7 @@ const EditBlog = () => {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await fetchWrapper.post("/api/admin/save-blog", { title, slug, content });
+      await adminService.saveBlog({ title, slug, content });
       alert("✅ Blog saved successfully!");
     } catch {
       alert("❌ Failed to save blog.");
@@ -34,7 +35,9 @@ const EditBlog = () => {
 
   return (
     <Box sx={{ p: 4 }}>
-      <Typography variant="h4" gutterBottom>Edit Blog Post</Typography>
+      <Typography variant="h4" gutterBottom>
+        Edit Blog Post
+      </Typography>
       <TextField
         label="Title"
         fullWidth
@@ -44,7 +47,12 @@ const EditBlog = () => {
       />
       <MDEditor value={content} onChange={setContent} height={500} />
       <Box sx={{ mt: 2 }}>
-        <Button variant="contained" color="primary" onClick={handleSave} disabled={saving}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleSave}
+          disabled={saving}
+        >
           {saving ? "Saving..." : "Save Blog Post"}
         </Button>
       </Box>
