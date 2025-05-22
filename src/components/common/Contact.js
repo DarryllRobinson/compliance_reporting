@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Box,
   Container,
@@ -42,7 +42,7 @@ export default function Contact() {
       email: "",
       subject: "Contact Us",
       message: "Hello there! I have a question.",
-      to: "darryllrobinson@icloud.com",
+      to: "contact@monochrome-compliance.com",
       from: "",
     },
   });
