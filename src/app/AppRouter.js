@@ -154,9 +154,7 @@ export default function AppRouter() {
         // {
         //   path: "/user",
         //   children: [
-        //     // { index: true, Component: Users },
         //     {
-        //       // Component: AuthLayout,
         //       children: [
         //         {
         //           path: "dashboard",
@@ -169,11 +167,6 @@ export default function AppRouter() {
         //         {
         //           path: "reset-password",
         //           Component: ResetPassword,
-        //           // action: (args) =>
-        //           //   forgotPasswordAction({
-        //           //     ...args,
-        //           //     context: { alertContext },
-        //           //   }),
         //         },
         //       ],
         //     },
@@ -194,7 +187,6 @@ export default function AppRouter() {
         //     {
         //       Component: ClientsLayout,
         //       children: [
-        //         // Register
         //         {
         //           path: "register",
         //           Component: ClientRegister,
@@ -212,17 +204,14 @@ export default function AppRouter() {
         //       ErrorBoundary: ReportErrorBoundary,
         //       children: [
         //         {
-        //           // Create PTRS Report
         //           path: ":code/create",
         //           Component: CreateReport,
         //         },
-        //         // PTRS Wizard uses step-based route pattern: /reports/ptrs/stepX/:reportId
         //         {
         //           path: ":code/:reportId",
         //           Component: ReportWizard,
         //         },
         //         {
-        //           // Connect to external data source
         //           path: ":code/:reportId/connect",
         //           Component: ConnectExternalSystems,
         //         },
@@ -231,6 +220,26 @@ export default function AppRouter() {
         //     },
         //   ],
         // },
+        // Admin content management
+        {
+          path: "/admin",
+          children: [
+            {
+              index: true,
+              // Lazy load to avoid import errors if not present, otherwise:
+              // Component: require("../features/admin/ContentList").default,
+              Component: require("../features/admin/ContentList").default,
+            },
+            {
+              path: "edit-faq",
+              Component: require("../features/admin/EditFaq").default,
+            },
+            {
+              path: "edit-blog/:slug",
+              Component: require("../features/admin/EditBlog").default,
+            },
+          ],
+        },
       ],
     },
   ]);
