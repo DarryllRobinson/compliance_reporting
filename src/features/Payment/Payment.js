@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router";
 import { Box, Typography, CircularProgress } from "@mui/material";
 
@@ -10,6 +10,7 @@ export default function Payment() {
     const timer = setTimeout(() => {
       const client =
         location.state?.client || JSON.parse(sessionStorage.getItem("client"));
+
       if (client) {
         navigate("/users/create", { state: client });
       }

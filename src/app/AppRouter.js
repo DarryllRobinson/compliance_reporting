@@ -37,7 +37,7 @@ import { Role } from "../context";
 
 import { protectedRoutes } from "../routes/routeConfig";
 import { publicRoutes } from "../routes/publicRoutes";
-import Payment from "../features/Payment/Payment";
+import Payment from "../features/payment/Payment";
 
 // TODO: Optimise the whole thing: https://reactrouter.com/tutorials/address-book
 

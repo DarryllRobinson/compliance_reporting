@@ -1,14 +1,14 @@
 import config from "../../lib/utils/config";
 import { fetchWrapper } from "../../lib/utils/fetch-wrapper";
 
-const baseUrl = `${config.apiUrl}/clients`;
+const baseUrl = `${config.apiUrl}/tracking`;
 
-export const clientService = {
+export const trackingService = {
   getAll,
   getById,
   create,
+  createHoneypot,
   update,
-  patch,
   delete: _delete,
 };
 
@@ -24,12 +24,12 @@ async function create(params) {
   return await fetchWrapper.post(baseUrl, params);
 }
 
-async function update(id, params) {
-  return await fetchWrapper.put(`${baseUrl}/${id}`, params);
+async function createHoneypot(params) {
+  return await fetchWrapper.post(`${baseUrl}/honeypot`, params);
 }
 
-async function patch(id, params) {
-  return await fetchWrapper.patch(`${baseUrl}/${id}`, params);
+async function update(id, params) {
+  return await fetchWrapper.put(`${baseUrl}/${id}`, params);
 }
 
 async function _delete(id) {

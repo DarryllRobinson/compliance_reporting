@@ -1,14 +1,13 @@
 import config from "../../lib/utils/config";
 import { fetchWrapper } from "../../lib/utils/fetch-wrapper";
 
-const baseUrl = `${config.apiUrl}/clients`;
+const baseUrl = `${config.apiUrl}/payment`;
 
-export const clientService = {
+export const paymentService = {
   getAll,
   getById,
   create,
   update,
-  patch,
   delete: _delete,
 };
 
@@ -26,10 +25,6 @@ async function create(params) {
 
 async function update(id, params) {
   return await fetchWrapper.put(`${baseUrl}/${id}`, params);
-}
-
-async function patch(id, params) {
-  return await fetchWrapper.patch(`${baseUrl}/${id}`, params);
 }
 
 async function _delete(id) {

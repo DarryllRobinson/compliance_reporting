@@ -18,7 +18,7 @@ import {
   FormControlLabel,
   Checkbox,
 } from "@mui/material";
-import { clientService, userService } from "../../services";
+import { clientService, userService, trackingService } from "../../services";
 import { Alert } from "@mui/material";
 
 export default function ClientRegister() {
@@ -63,6 +63,12 @@ export default function ClientRegister() {
     headEntityName: Yup.string(),
     headEntityAbn: Yup.string(),
     headEntityAcn: Yup.string(),
+    // Honeypot field
+    nickname: Yup.string().test(
+      "is-empty",
+      "Form submission failed",
+      (value) => !value || value.trim() === ""
+    ),
   });
 
   const {
@@ -103,6 +109,8 @@ export default function ClientRegister() {
       headEntityName: "",
       headEntityAbn: "",
       headEntityAcn: "",
+      // Honeypot field
+      nickname: "",
     },
   });
 
@@ -146,6 +154,19 @@ export default function ClientRegister() {
   };
 
   const onSubmit = async (clientDetails) => {
+    // Honeypot check
+    if (clientDetails.nickname?.trim()) {
+      setAlert({
+        type: "error",
+        message: "Form submission failed",
+      });
+      try {
+        await trackingService.createHoneypot();
+      } catch (logError) {
+        console.error("Failed to log honeypot event", logError);
+      }
+      return;
+    }
     clientDetails = {
       ...clientDetails,
       active: true,
@@ -525,6 +546,15 @@ export default function ClientRegister() {
               />
             </Grid>
           </Grid>
+          {/* Honeypot field */}
+          <TextField
+            label="Nickname"
+            fullWidth
+            {...register("nickname")}
+            style={{ display: "none" }}
+            tabIndex="-1"
+            autoComplete="off"
+          />
           <Button
             variant="contained"
             color="primary"
