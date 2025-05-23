@@ -7,3 +7,4 @@ export * from "./entity/entity";
 export * from "./booking/booking";
 export * from "./public/public";
 export * from "./tracking/tracking";
+export * from "./tcp/tcpRules";

@@ -125,6 +125,31 @@ export default function ConnectExternalSystems() {
           }
         });
 
+        // Add additional logic before returning mappedRecord
+        const hasAbn = !!mappedRecord.payeeEntityAbn;
+        const hasName = !!mappedRecord.payeeName || !!mappedRecord.supplierName;
+        mappedRecord.requiresAttention = !(hasAbn && hasName);
+
+        // Basic system recommendation logic (expand as needed)
+        const desc = (mappedRecord.description || "").toLowerCase();
+        const name = (
+          mappedRecord.payeeName ||
+          mappedRecord.supplierName ||
+          ""
+        ).toLowerCase();
+        const exclusionKeywords = [
+          "wages",
+          "salary",
+          "payroll",
+          "superannuation",
+        ];
+
+        mappedRecord.systemRecommendation = !exclusionKeywords.some(
+          (keyword) => desc.includes(keyword) || name.includes(keyword)
+        );
+
+        mappedRecord.isTcp = true;
+
         // Add additional fields
         mappedRecord = {
           ...mappedRecord,

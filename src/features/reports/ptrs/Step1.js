@@ -1,7 +1,20 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { Typography, useTheme, Alert } from "@mui/material";
-import { fieldMapping } from "./fieldMapping"; // Import fieldMapping
-import { tcpService, userService } from "../../../services";
+import { useState, useEffect } from "react";
+import {
+  Typography,
+  useTheme,
+  Alert,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  MenuItem,
+  Grid,
+  IconButton,
+} from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { tcpService, tcpRulesService, userService } from "../../../services";
 import CollapsibleTable from "./CollapsibleTable";
 
 export default function Step1({
@@ -24,15 +37,11 @@ export default function Step1({
   );
 
   useEffect(() => {
-    setRecords((prev) => {
-      if (prev !== savedRecords) return savedRecords;
-      return prev;
-    });
-
-    setFilteredRecords((prev) => {
-      if (prev !== savedRecords) return savedRecords;
-      return prev;
-    });
+    if (JSON.stringify(records) !== JSON.stringify(savedRecords)) {
+      setRecords(savedRecords);
+      setFilteredRecords(savedRecords);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [savedRecords]);
 
   const [changedRows, setChangedRows] = useState(() =>
@@ -53,6 +62,60 @@ export default function Step1({
       return acc;
     }, {})
   );
+
+  // TCP Rule Builder State
+  const [tcpRules, setTcpRules] = useState([]);
+  const [newRule, setNewRule] = useState({ field: "description", keyword: "" });
+
+  // Apply TCP Rules to records, optionally with rules parameter
+  const applyTcpRules = (baseRecords, rules = tcpRules) => {
+    return baseRecords.map((record) => {
+      const matches = rules.some((rule) => {
+        const value = (record[rule.field] || "").toLowerCase();
+        return value.includes(rule.keyword.toLowerCase());
+      });
+      return {
+        ...record,
+        systemRecommendation: !matches,
+      };
+    });
+  };
+
+  // Add new rule and update records, persist to backend
+  const handleAddRule = async () => {
+    if (newRule.keyword.trim()) {
+      const ruleToCreate = {
+        ...newRule,
+        clientId: userService.userValue.clientId,
+      };
+      const savedRule = await tcpRulesService.create(ruleToCreate);
+      const updatedRules = [...tcpRules, savedRule];
+      setTcpRules(updatedRules);
+      setRecords(applyTcpRules(records, updatedRules));
+    }
+  };
+
+  // Remove rule and update records, persist deletion to backend
+  const handleDeleteRule = async (index) => {
+    const ruleToDelete = tcpRules[index];
+    await tcpRulesService.delete(ruleToDelete.id);
+    const updated = tcpRules.filter((_, i) => i !== index);
+    setTcpRules(updated);
+    setRecords(applyTcpRules(records, updated));
+  };
+
+  // On component mount, fetch TCP rules from backend and apply to records
+  useEffect(() => {
+    const clientId = userService.userValue.clientId;
+    tcpRulesService.getByClient(clientId).then((rules) => {
+      const safeRules = Array.isArray(rules) ? rules : [];
+      setTcpRules(safeRules);
+      setRecords(applyTcpRules(records, safeRules));
+    });
+    // eslint-disable-next-line
+  }, []);
+  const [upliftOpen, setUpliftOpen] = useState(false);
+  const hasIncomplete = records.some((r) => r.requiresAttention);
 
   const saveChangedRows = async () => {
     // Utility to get only updated fields
@@ -176,6 +239,80 @@ export default function Step1({
           {alert.message}
         </Alert>
       )}
+
+      {hasIncomplete && (
+        <Button
+          variant="outlined"
+          color="warning"
+          sx={{ mb: 2 }}
+          onClick={() => setUpliftOpen(true)}
+        >
+          Fix Incomplete Records
+        </Button>
+      )}
+
+      <Dialog open={upliftOpen} onClose={() => setUpliftOpen(false)}>
+        <DialogTitle>Data Uplift Coming Soon</DialogTitle>
+        <DialogContent>
+          <Typography gutterBottom>
+            This feature will allow you to automatically enhance incomplete
+            records (e.g. missing ABN or supplier names) using verified external
+            data sources.
+          </Typography>
+          <Typography>
+            A small fee per record will apply for uplift. Stay tuned!
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setUpliftOpen(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* TCP Rule Builder Panel */}
+      <Typography variant="h6" sx={{ mt: 3 }}>
+        Exclusion Rules (TCP)
+      </Typography>
+      <Grid container spacing={2} alignItems="center" sx={{ mb: 2 }}>
+        <Grid item xs={4}>
+          <TextField
+            select
+            fullWidth
+            label="Field"
+            value={newRule.field}
+            onChange={(e) =>
+              setNewRule((prev) => ({ ...prev, field: e.target.value }))
+            }
+          >
+            <MenuItem value="description">Description</MenuItem>
+            <MenuItem value="payeeName">Payee Name</MenuItem>
+            <MenuItem value="supplierName">Supplier Name</MenuItem>
+          </TextField>
+        </Grid>
+        <Grid item xs={6}>
+          <TextField
+            fullWidth
+            label="Keyword"
+            value={newRule.keyword}
+            onChange={(e) =>
+              setNewRule((prev) => ({ ...prev, keyword: e.target.value }))
+            }
+          />
+        </Grid>
+        <Grid item xs={2}>
+          <Button onClick={handleAddRule} variant="contained" fullWidth>
+            Add Rule
+          </Button>
+        </Grid>
+      </Grid>
+      {tcpRules.map((rule, index) => (
+        <Typography key={index} sx={{ mb: 1 }}>
+          {rule.field}: contains "{rule.keyword}"{" "}
+          <IconButton size="small" onClick={() => handleDeleteRule(index)}>
+            <DeleteIcon fontSize="small" />
+          </IconButton>
+        </Typography>
+      ))}
+
       <CollapsibleTable
         records={records}
         savedRecords={savedRecords}
@@ -188,6 +325,14 @@ export default function Step1({
         isLocked={isLocked}
         currentStep={currentStep}
         theme={theme}
+        requiresAttention={records.reduce((acc, r) => {
+          acc[r.id] = r.requiresAttention || false;
+          return acc;
+        }, {})}
+        systemRecommendation={records.reduce((acc, r) => {
+          acc[r.id] = r.systemRecommendation !== false; // default to true
+          return acc;
+        }, {})}
       />
     </>
   );

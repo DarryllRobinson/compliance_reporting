@@ -14,6 +14,10 @@ import {
   Checkbox,
   TablePagination,
   IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
@@ -36,11 +40,18 @@ export default function CollapsibleTable({
   isLocked,
   currentStep,
   theme,
+  requiresAttention,
+  systemRecommendation,
 }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [collapsedGroups, setCollapsedGroups] = useState({});
+
+  const [upliftOpen, setUpliftOpen] = useState(false);
+  const hasIncomplete = records.some(
+    (r) => requiresAttention && requiresAttention[r.id]
+  );
 
   const toggleGroup = useCallback(
     (group) =>
@@ -100,6 +111,34 @@ export default function CollapsibleTable({
 
   return (
     <>
+      {hasIncomplete && (
+        <Button
+          variant="outlined"
+          color="warning"
+          sx={{ mb: 2 }}
+          onClick={() => setUpliftOpen(true)}
+        >
+          Fix Incomplete Records
+        </Button>
+      )}
+
+      <Dialog open={upliftOpen} onClose={() => setUpliftOpen(false)}>
+        <DialogTitle>Data Uplift Coming Soon</DialogTitle>
+        <DialogContent>
+          <Typography gutterBottom>
+            This feature will allow you to automatically enhance incomplete
+            records (e.g. missing ABN or supplier names) using verified external
+            data sources.
+          </Typography>
+          <Typography>
+            A small fee per record will apply for uplift. Stay tuned!
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setUpliftOpen(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
+
       <TextField
         label="Search"
         variant="outlined"
@@ -140,6 +179,9 @@ export default function CollapsibleTable({
         <Table stickyHeader>
           <TableHead>
             <TableRow>
+              <TableCell align="center" sx={{ fontWeight: "bold" }}>
+                ⚠️
+              </TableCell>
               {Object.entries(groupedVisibleFields).map(([group, fields]) => (
                 <TableCell
                   key={group}
@@ -173,6 +215,7 @@ export default function CollapsibleTable({
               ))}
             </TableRow>
             <TableRow>
+              <TableCell />
               {Object.entries(groupedVisibleFields).flatMap(
                 ([group, fields]) =>
                   collapsedGroups[group]
@@ -191,6 +234,13 @@ export default function CollapsibleTable({
                   backgroundColor: getRowHighlightColor(record, changedRows),
                 }}
               >
+                <TableCell>
+                  {requiresAttention && requiresAttention[record.id] && (
+                    <Typography color="error" fontWeight="bold">
+                      ⚠️
+                    </Typography>
+                  )}
+                </TableCell>
                 {Object.entries(groupedVisibleFields).flatMap(
                   ([group, fields]) =>
                     collapsedGroups[group]
@@ -202,11 +252,22 @@ export default function CollapsibleTable({
                             ) : field.type === "date" ? (
                               formatDateForMySQL(record[field.name])
                             ) : field.name === "isTcp" ? (
-                              <Checkbox
-                                checked={!!tcpStatus[record.id]}
-                                onChange={() => handleTcpToggle(record.id)}
-                                disabled={isLocked}
-                              />
+                              <>
+                                <Checkbox
+                                  checked={!!tcpStatus[record.id]}
+                                  onChange={() => handleTcpToggle(record.id)}
+                                  disabled={isLocked}
+                                />
+                                {systemRecommendation &&
+                                  systemRecommendation[record.id] === false && (
+                                    <Typography
+                                      variant="caption"
+                                      color="warning.main"
+                                    >
+                                      System recommends NOT TCP
+                                    </Typography>
+                                  )}
+                              </>
                             ) : field.name === "tcpExclusionComment" ? (
                               <TextField
                                 variant="outlined"

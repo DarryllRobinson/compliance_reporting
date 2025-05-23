@@ -79,7 +79,7 @@ const sections = [
           Client data is retained for at least 7 years unless otherwise required
           by law. After this period, it will be securely destroyed or
           anonymised. Clients can request deletion by contacting us at
-          privacy@monochrome-compliance.com. Deletion will be confirmed within
+          contact@monochrome-compliance.com. Deletion will be confirmed within
           30 days unless retention is required by law.
         </Typography>
       </>
@@ -108,7 +108,7 @@ const sections = [
       <>
         <Typography paragraph sx={{ whiteSpace: "pre-line" }}>
           You may request access to or correction of your personal information
-          by contacting privacy@monochrome-compliance.com. We will respond
+          by contacting contact@monochrome-compliance.com. We will respond
           within 30 days in line with the Australian Privacy Principles (APPs).
         </Typography>
       </>
@@ -134,7 +134,7 @@ const sections = [
       <>
         <Typography paragraph sx={{ whiteSpace: "pre-line" }}>
           If you believe we have breached the Privacy Act, contact us at
-          privacy@monochrome-compliance.com. If unresolved, you may contact the
+          contact@monochrome-compliance.com. If unresolved, you may contact the
           Office of the Australian Information Commissioner (OAIC): 1300 363 992
           | https://www.oaic.gov.au
         </Typography>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
@@ -18,6 +18,7 @@ import {
   FormControlLabel,
   Checkbox,
 } from "@mui/material";
+import AddressAutocomplete from "../../components/AddressAutocomplete";
 import { clientService, userService, trackingService } from "../../services";
 import { Alert } from "@mui/material";
 
@@ -259,13 +260,7 @@ export default function ClientRegister() {
               />
             </Grid>
             <Grid item xs={12}>
-              <TextField
-                label="Address Line 1"
-                fullWidth
-                {...register("addressline1")}
-                error={!!errors.addressline1}
-                helperText={errors.addressline1?.message}
-              />
+              <AddressAutocomplete />
             </Grid>
             <Grid item xs={6}>
               <TextField

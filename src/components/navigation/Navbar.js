@@ -311,7 +311,7 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
               >
                 Dashboard
               </Button>
-              {user.role === "Boss" && (
+              {["Boss", "Admin", "Audit"].includes(user.role) && (
                 <>
                   <Button
                     color="inherit"
@@ -321,31 +321,37 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
                   >
                     Clients
                   </Button>
-                  <Button
-                    color="inherit"
-                    component={Link}
-                    to="/users"
-                    sx={{ color: theme.palette.text.primary }}
-                  >
-                    Users
-                  </Button>
-                  {/* Admin routes for Boss */}
-                  <Button
-                    color="inherit"
-                    component={Link}
-                    to="/admin"
-                    sx={{ color: theme.palette.text.primary }}
-                  >
-                    Admin Content
-                  </Button>
-                  <Button
-                    color="inherit"
-                    component={Link}
-                    to="/admin/reports"
-                    sx={{ color: theme.palette.text.primary }}
-                  >
-                    Admin Reports
-                  </Button>
+                  {["Admin", "Audit"].includes(user.role) && (
+                    <Button
+                      color="inherit"
+                      component={Link}
+                      to="/users"
+                      sx={{ color: theme.palette.text.primary }}
+                    >
+                      Users
+                    </Button>
+                  )}
+                  {/* Admin routes for Boss, Admin, Audit */}
+                  {["Admin", "Audit"].includes(user.role) && (
+                    <>
+                      <Button
+                        color="inherit"
+                        component={Link}
+                        to="/admin"
+                        sx={{ color: theme.palette.text.primary }}
+                      >
+                        Admin Content
+                      </Button>
+                      <Button
+                        color="inherit"
+                        component={Link}
+                        to="/admin/reports"
+                        sx={{ color: theme.palette.text.primary }}
+                      >
+                        Admin Reports
+                      </Button>
+                    </>
+                  )}
                 </>
               )}
               <Button

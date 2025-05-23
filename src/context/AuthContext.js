@@ -6,42 +6,40 @@ const AuthContext = createContext();
 export function AuthProvider({ children }) {
   const [isSignedIn, setIsSignedIn] = useState(null); // null = loading
   const [user, setUser] = useState(null);
+  const [isInitialising, setIsInitialising] = useState(true);
 
   useEffect(() => {
     const subscription = userService.user.subscribe((x) => {
       setUser(x);
+      setIsSignedIn(!!x);
     });
 
     userService
       .refreshToken()
-      .then((user) => {
-        try {
-          if (user) {
-            setIsSignedIn(true);
-          } else {
-            setIsSignedIn(false);
-          }
-        } catch (err) {
-          console.error("Error while handling refreshed user:", err);
-          setIsSignedIn(false);
+      .then((refreshedUser) => {
+        if (refreshedUser) {
+          setUser(refreshedUser);
+          setIsSignedIn(true);
         }
       })
       .catch(() => {
-        console.error("Failed to refresh token or fetch user");
         setIsSignedIn(false);
+      })
+      .finally(() => {
+        setIsInitialising(false);
       });
 
     return () => subscription.unsubscribe();
   }, []);
 
+  if (isInitialising) return null;
+
   const signIn = (user) => {
-    userService.user.next(user);
     setUser(user);
     setIsSignedIn(true);
   };
 
   const signOut = () => {
-    userService.logout();
     setUser(null);
     setIsSignedIn(false);
   };

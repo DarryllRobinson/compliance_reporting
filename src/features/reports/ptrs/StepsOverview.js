@@ -63,7 +63,7 @@ export default function StepsOverview() {
     <Box sx={{ maxWidth: 400 }}>
       <Stepper activeStep={activeStep} orientation="vertical">
         {steps.map((step, index) => (
-          <Step key={step.label}>
+          <Step key={step.step}>
             <StepLabel
               optional={
                 index === steps.length - 1 ? (
