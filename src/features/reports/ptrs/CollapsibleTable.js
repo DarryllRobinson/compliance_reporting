@@ -121,17 +121,7 @@ export default function CollapsibleTable({
     [sortedRecords, page, rowsPerPage]
   );
 
-  const handleTcpToggle = (id) => {
-    setTcpStatus((prev) => {
-      const updatedStatus = { ...prev, [id]: !prev[id] };
-      const originalValue = !!savedRecords.find((r) => r.id === id)?.isTcp;
-      setChangedRows((prevRows) => ({
-        ...prevRows,
-        [id]: updatedStatus[id] === originalValue ? false : "unsaved",
-      }));
-      return updatedStatus;
-    });
-  };
+  // Remove handleTcpToggle, logic will be inline in Checkbox below
 
   // Load sortConfig from localStorage on mount
   useEffect(() => {
@@ -374,8 +364,22 @@ export default function CollapsibleTable({
                             ) : field.name === "isTcp" ? (
                               <>
                                 <Checkbox
-                                  checked={!!tcpStatus[record.id]}
-                                  onChange={() => handleTcpToggle(record.id)}
+                                  checked={record.isTcp}
+                                  onChange={() => {
+                                    const newStatus = !record.isTcp;
+                                    record.isTcp = newStatus;
+
+                                    const originalValue = !!savedRecords.find(
+                                      (r) => r.id === record.id
+                                    )?.isTcp;
+                                    setChangedRows((prevRows) => ({
+                                      ...prevRows,
+                                      [record.id]:
+                                        newStatus === originalValue
+                                          ? false
+                                          : "unsaved",
+                                    }));
+                                  }}
                                   disabled={isLocked}
                                 />
                                 {systemRecommendation &&

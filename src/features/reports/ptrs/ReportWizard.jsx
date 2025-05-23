@@ -133,6 +133,16 @@ export default function ReportWizard() {
     setCurrentStep((prev) => Math.max(prev - 1, 0));
   };
 
+  const handleSaveUpdates = async () => {
+    try {
+      const updatedRecords = stepData[`step${currentStep + 1}`];
+      await tcpService.patchRecord(reportId, updatedRecords);
+      console.log("Records saved successfully.");
+    } catch (error) {
+      console.error("Failed to save records:", error);
+    }
+  };
+
   function renderGuidance() {
     const guidance = ptrsGuidance[currentStep];
     if (!guidance) return null;
@@ -205,11 +215,19 @@ export default function ReportWizard() {
       {/* Removed PTRS Report Wizard heading */}
 
       {renderGuidance()}
+      {typeof stepData[`step${currentStep + 1}`]?.[0] === "object" && (
+        <Box sx={{ textAlign: "right", mb: 2 }}>
+          <Button variant="outlined" onClick={handleSaveUpdates}>
+            Save Updates
+          </Button>
+        </Box>
+      )}
       <Component
         data={stepData[`step${currentStep + 1}`]}
         onNext={goToNext}
         onBack={goToBack}
         reportStatus={reportStatus}
+        onSave={handleSaveUpdates}
       />
 
       <Box sx={{ display: "flex", justifyContent: "space-between", mt: 4 }}>

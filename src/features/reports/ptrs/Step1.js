@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Typography,
   useTheme,
@@ -22,16 +22,38 @@ export default function Step1({
   onNext,
   reportId,
   reportStatus,
+  onSave,
 }) {
+  // Prevent navigating back into this page via browser back unless allowed
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      e.preventDefault();
+      e.returnValue = ""; // Show confirmation dialog on refresh or back
+    };
+
+    const handlePopState = (e) => {
+      // Force forward navigation or refresh
+      window.history.pushState(null, "", window.location.href);
+    };
+
+    window.history.pushState(null, "", window.location.href);
+    window.addEventListener("popstate", handlePopState);
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, []);
   const currentStep = 1;
   const theme = useTheme();
   const [alert, setAlert] = useState(null);
   const isLocked = reportStatus === "Submitted";
   const [records, setRecords] = useState(() =>
-    savedRecords.map((r) => ({ ...r, isTcp: true }))
+    savedRecords.map((r) => ({ ...r, isTcp: !!r.isTcp }))
   );
   const [filteredRecords, setFilteredRecords] = useState(() =>
-    savedRecords.map((r) => ({ ...r, isTcp: true }))
+    savedRecords.map((r) => ({ ...r, isTcp: !!r.isTcp }))
   );
   const [tcpStatus, setTcpStatus] = useState(() =>
     savedRecords.reduce((acc, record) => {
@@ -41,7 +63,11 @@ export default function Step1({
   );
 
   useEffect(() => {
-    const initialized = savedRecords.map((r) => ({ ...r, isTcp: true }));
+    console.log("Saved Records on mount:", savedRecords);
+    const initialized = savedRecords.map((r) => ({
+      ...r,
+      isTcp: !!r.isTcp,
+    }));
     if (JSON.stringify(records) !== JSON.stringify(initialized)) {
       setRecords(initialized);
       setFilteredRecords(initialized);
@@ -240,10 +266,15 @@ export default function Step1({
     );
   }
 
-  console.log("Filtered Records:", filteredRecords);
-  console.log("Records:", records);
   console.log("Changed Rows:", changedRows);
   console.log("First 5 records sample:", records.slice(0, 5));
+
+  // Removed problematic useEffect that registered onSave(saveChangedRows)
+  const handleNext = () => {
+    if (onNext) {
+      onNext();
+    }
+  };
 
   return (
     <>
@@ -402,7 +433,18 @@ export default function Step1({
         setFilterText={setFilterText}
         sortConfig={sortConfig}
         setSortConfig={setSortConfig}
+        // If CollapsibleTable has a next button, ensure it uses handleNext
+        onNext={handleNext}
       />
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={saveChangedRows}
+        disabled={isLocked}
+        sx={{ mt: 2 }}
+      >
+        Save Records
+      </Button>
     </>
   );
 }
