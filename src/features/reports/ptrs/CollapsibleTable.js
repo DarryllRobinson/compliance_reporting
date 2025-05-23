@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import {
   Box,
   Table,
@@ -18,6 +18,8 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
@@ -27,6 +29,7 @@ import {
   getRowHighlightColor,
 } from "../../../lib/utils/";
 import { fieldMapping } from "./fieldMapping";
+const LOCAL_STORAGE_KEY = "tcpTableSortConfig";
 
 export default function CollapsibleTable({
   records,
@@ -42,6 +45,8 @@ export default function CollapsibleTable({
   theme,
   requiresAttention,
   systemRecommendation,
+  sortConfig,
+  setSortConfig,
 }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(0);
@@ -80,21 +85,40 @@ export default function CollapsibleTable({
     setSearchTerm(lower);
   };
 
-  const filteredRecords = useMemo(
-    () =>
-      records.filter((record) =>
-        Object.values(record).join(" ").toLowerCase().includes(searchTerm)
-      ),
-    [records, searchTerm]
-  );
+  const filteredRecords = useMemo(() => {
+    return records.filter((record) => {
+      const passesSearch = Object.values(record)
+        .join(" ")
+        .toLowerCase()
+        .includes(searchTerm);
+
+      const passesColumnFilters = Object.entries(
+        sortConfig?.filters || {}
+      ).every(([key, value]) => {
+        const recordValue = String(record[key] || "").toLowerCase();
+        if (value === "__empty__") return !record[key];
+        return recordValue.includes(value.toLowerCase());
+      });
+
+      return passesSearch && passesColumnFilters;
+    });
+  }, [records, searchTerm, sortConfig?.filters]);
+
+  const sortedRecords = useMemo(() => {
+    if (!sortConfig?.key) return filteredRecords;
+    return [...filteredRecords].sort((a, b) => {
+      const aVal = a[sortConfig.key] || "";
+      const bVal = b[sortConfig.key] || "";
+      return sortConfig.direction === "asc"
+        ? String(aVal).localeCompare(String(bVal))
+        : String(bVal).localeCompare(String(aVal));
+    });
+  }, [filteredRecords, sortConfig]);
 
   const displayedRecords = useMemo(
     () =>
-      filteredRecords.slice(
-        page * rowsPerPage,
-        page * rowsPerPage + rowsPerPage
-      ),
-    [filteredRecords, page, rowsPerPage]
+      sortedRecords.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
+    [sortedRecords, page, rowsPerPage]
   );
 
   const handleTcpToggle = (id) => {
@@ -108,6 +132,26 @@ export default function CollapsibleTable({
       return updatedStatus;
     });
   };
+
+  // Load sortConfig from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        setSortConfig(parsed);
+      } catch {
+        console.warn("Invalid sort config in localStorage");
+      }
+    }
+  }, []);
+
+  // Persist sortConfig to localStorage when it changes
+  useEffect(() => {
+    if (sortConfig) {
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(sortConfig));
+    }
+  }, [sortConfig]);
 
   return (
     <>
@@ -178,7 +222,14 @@ export default function CollapsibleTable({
       <TableContainer component={Paper} sx={{ maxHeight: 500 }}>
         <Table stickyHeader>
           <TableHead>
-            <TableRow>
+            <TableRow
+              sx={{
+                position: "sticky",
+                top: 0,
+                zIndex: 11,
+                backgroundColor: (theme) => theme.palette.background.paper,
+              }}
+            >
               <TableCell align="center" sx={{ fontWeight: "bold" }}>
                 ⚠️
               </TableCell>
@@ -221,7 +272,76 @@ export default function CollapsibleTable({
                   collapsedGroups[group]
                     ? [<TableCell key={`${group}-collapsed`} />]
                     : fields.map((field) => (
-                        <TableCell key={field.name}>{field.label}</TableCell>
+                        <TableCell
+                          key={field.name}
+                          onClick={() =>
+                            setSortConfig((prev) => ({
+                              key: field.name,
+                              direction:
+                                prev.key === field.name &&
+                                prev.direction === "asc"
+                                  ? "desc"
+                                  : "asc",
+                            }))
+                          }
+                          sx={{
+                            cursor: "pointer",
+                            userSelect: "none",
+                            textDecoration: "underline",
+                            "&:hover": {
+                              backgroundColor: theme.palette.action.hover,
+                            },
+                            verticalAlign: "bottom",
+                          }}
+                          title="Click to sort"
+                        >
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 0.5,
+                            }}
+                          >
+                            {field.label}
+                            {sortConfig?.key === field.name && (
+                              <Typography variant="body2">
+                                {sortConfig.direction === "asc" ? "🔼" : "🔽"}
+                              </Typography>
+                            )}
+                          </Box>
+                          <Select
+                            size="small"
+                            variant="standard"
+                            fullWidth
+                            disabled={isLocked}
+                            displayEmpty
+                            value={sortConfig?.filters?.[field.name] ?? ""}
+                            onClick={(e) => e.stopPropagation()}
+                            onChange={(e) =>
+                              setSortConfig((prev) => ({
+                                ...prev,
+                                filters: {
+                                  ...prev?.filters,
+                                  [field.name]: e.target.value,
+                                },
+                              }))
+                            }
+                          >
+                            <MenuItem value="">(All)</MenuItem>
+                            <MenuItem value="__empty__">(Empty)</MenuItem>
+                            {[
+                              ...new Set(
+                                records.map((r) => r[field.name] || "")
+                              ),
+                            ]
+                              .filter((v) => v)
+                              .map((option) => (
+                                <MenuItem key={option} value={option}>
+                                  {String(option)}
+                                </MenuItem>
+                              ))}
+                          </Select>
+                        </TableCell>
                       ))
               )}
             </TableRow>
@@ -315,6 +435,11 @@ export default function CollapsibleTable({
         }
         rowsPerPageOptions={[5, 10, 25]}
       />
+      <Box sx={{ display: "flex", justifyContent: "flex-start", mt: 2 }}>
+        <Button size="small" href="#">
+          ↑ Back to top
+        </Button>
+      </Box>
     </>
   );
 }

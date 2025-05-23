@@ -27,8 +27,12 @@ export default function Step1({
   const theme = useTheme();
   const [alert, setAlert] = useState(null);
   const isLocked = reportStatus === "Submitted";
-  const [records, setRecords] = useState(savedRecords);
-  const [filteredRecords, setFilteredRecords] = useState(savedRecords);
+  const [records, setRecords] = useState(() =>
+    savedRecords.map((r) => ({ ...r, isTcp: true }))
+  );
+  const [filteredRecords, setFilteredRecords] = useState(() =>
+    savedRecords.map((r) => ({ ...r, isTcp: true }))
+  );
   const [tcpStatus, setTcpStatus] = useState(() =>
     savedRecords.reduce((acc, record) => {
       acc[record.id] = record.isTcp !== false;
@@ -37,9 +41,10 @@ export default function Step1({
   );
 
   useEffect(() => {
-    if (JSON.stringify(records) !== JSON.stringify(savedRecords)) {
-      setRecords(savedRecords);
-      setFilteredRecords(savedRecords);
+    const initialized = savedRecords.map((r) => ({ ...r, isTcp: true }));
+    if (JSON.stringify(records) !== JSON.stringify(initialized)) {
+      setRecords(initialized);
+      setFilteredRecords(initialized);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [savedRecords]);
@@ -226,11 +231,19 @@ export default function Step1({
     }
   };
 
+  const [filterText, setFilterText] = useState("");
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
+
   if (records.length === 0) {
     return (
       <Typography variant="h6">No records available to display.</Typography>
     );
   }
+
+  console.log("Filtered Records:", filteredRecords);
+  console.log("Records:", records);
+  console.log("Changed Rows:", changedRows);
+  console.log("First 5 records sample:", records.slice(0, 5));
 
   return (
     <>
@@ -285,7 +298,6 @@ export default function Step1({
           >
             <MenuItem value="description">Description</MenuItem>
             <MenuItem value="payeeName">Payee Name</MenuItem>
-            <MenuItem value="supplierName">Supplier Name</MenuItem>
           </TextField>
         </Grid>
         <Grid item xs={6}>
@@ -313,6 +325,56 @@ export default function Step1({
         </Typography>
       ))}
 
+      <Alert severity="info" sx={{ mb: 2 }}>
+        <div>
+          🟡 <strong>{records.length}</strong> record(s) loaded for review.
+        </div>
+        <div>
+          {records.filter((r) => String(r.payeeEntityAbn ?? "").trim() === "")
+            .length > 0
+            ? "⚠️"
+            : "✅"}{" "}
+          <strong>
+            {
+              records.filter(
+                (r) => String(r.payeeEntityAbn ?? "").trim() === ""
+              ).length
+            }
+          </strong>{" "}
+          record(s) missing Payee ABN
+        </div>
+        <div>
+          {records.filter(
+            (r) =>
+              !(
+                typeof r.payeeEntityName === "string" &&
+                r.payeeEntityName.trim()
+              )
+          ).length > 0
+            ? "⚠️"
+            : "✅"}{" "}
+          <strong>
+            {
+              records.filter(
+                (r) =>
+                  !(
+                    typeof r.payeeEntityName === "string" &&
+                    r.payeeEntityName.trim()
+                  )
+              ).length
+            }
+          </strong>{" "}
+          record(s) missing Payee Name
+        </div>
+        <div>
+          🧠{" "}
+          <strong>
+            {records.filter((r) => r.systemRecommendation === false).length}
+          </strong>{" "}
+          record(s) are recommended by the system to be excluded from TCP.
+        </div>
+      </Alert>
+
       <CollapsibleTable
         records={records}
         savedRecords={savedRecords}
@@ -326,13 +388,20 @@ export default function Step1({
         currentStep={currentStep}
         theme={theme}
         requiresAttention={records.reduce((acc, r) => {
-          acc[r.id] = r.requiresAttention || false;
+          acc[r.id] =
+            String(r.payeeEntityAbn ?? "").trim() === "" ||
+            String(r.payeeEntityName ?? "").trim() === "";
           return acc;
         }, {})}
         systemRecommendation={records.reduce((acc, r) => {
           acc[r.id] = r.systemRecommendation !== false; // default to true
           return acc;
         }, {})}
+        stickyHeader={true}
+        filterText={filterText}
+        setFilterText={setFilterText}
+        sortConfig={sortConfig}
+        setSortConfig={setSortConfig}
       />
     </>
   );
