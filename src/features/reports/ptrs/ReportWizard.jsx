@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 
 // Step components (to be built/refactored)
-import Step1View from "./steps/Step1View";
+import Step1 from "./Step1";
 import Step2View from "./steps/Step2View";
 import Step3View from "./steps/Step3View";
 import Step4View from "./steps/Step4View";
@@ -23,7 +23,7 @@ import { tcpService } from "../../../services";
 import { glossary, ptrsGuidance } from "../../../constants/";
 
 const steps = [
-  { label: "Step 1: Confirm TCPs", Component: Step1View },
+  { label: "Step 1: Confirm TCPs", Component: Step1 },
   { label: "Step 2: Finalise TCP Dataset", Component: Step2View },
   { label: "Step 3: Export ABNs for SBI", Component: Step3View },
   { label: "Step 4: Upload SBI Results", Component: Step4View },
@@ -67,6 +67,7 @@ export default function ReportWizard() {
     async function loadData() {
       try {
         const records = await tcpService.getAllByReportId(reportId);
+        // console.log("Loaded records:", records);
         setStepData((prev) => ({ ...prev, step1: records }));
         if (records.length > 0 && records[0].reportStatus) {
           setReportStatus(records[0].reportStatus);
@@ -136,6 +137,7 @@ export default function ReportWizard() {
   const handleSaveUpdates = async () => {
     try {
       const updatedRecords = stepData[`step${currentStep + 1}`];
+      console.log("Saving records:", updatedRecords);
       await tcpService.patchRecord(reportId, updatedRecords);
       console.log("Records saved successfully.");
     } catch (error) {
@@ -169,6 +171,33 @@ export default function ReportWizard() {
       </Box>
     );
   }
+
+  const handleRecordChange = (id, field, value) => {
+    setStepData((prev) => {
+      const key = `step${currentStep + 1}`;
+      const updated = (prev[key] || []).map((rec) =>
+        rec.id === id ? { ...rec, [field]: value, wasChanged: true } : rec
+      );
+      return { ...prev, [key]: updated };
+    });
+  };
+
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      const hasUnsavedChanges = Object.values(stepData).some(
+        (records) =>
+          Array.isArray(records) && records.some((rec) => rec.wasChanged)
+      );
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [stepData]);
 
   return (
     <Box sx={{ pt: 2, px: 3 }}>
@@ -215,19 +244,13 @@ export default function ReportWizard() {
       {/* Removed PTRS Report Wizard heading */}
 
       {renderGuidance()}
-      {typeof stepData[`step${currentStep + 1}`]?.[0] === "object" && (
-        <Box sx={{ textAlign: "right", mb: 2 }}>
-          <Button variant="outlined" onClick={handleSaveUpdates}>
-            Save Updates
-          </Button>
-        </Box>
-      )}
       <Component
-        data={stepData[`step${currentStep + 1}`]}
+        records={stepData[`step${currentStep + 1}`]}
         onNext={goToNext}
         onBack={goToBack}
         reportStatus={reportStatus}
         onSave={handleSaveUpdates}
+        onRecordChange={handleRecordChange}
       />
 
       <Box sx={{ display: "flex", justifyContent: "space-between", mt: 4 }}>
@@ -238,6 +261,21 @@ export default function ReportWizard() {
         >
           Back
         </Button>
+        {Array.isArray(stepData[`step${currentStep + 1}`]) &&
+          stepData[`step${currentStep + 1}`].some((rec) => rec.wasChanged) && (
+            <Box
+              sx={{
+                mt: 2,
+                mb: 2,
+                display: "flex",
+                justifyContent: "flex-start",
+              }}
+            >
+              <Button variant="outlined" onClick={handleSaveUpdates}>
+                Save Updates
+              </Button>
+            </Box>
+          )}
         <Button
           onClick={goToNext}
           variant="contained"

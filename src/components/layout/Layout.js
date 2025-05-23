@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Outlet, useLocation } from "react-router";
-import { Box, CssBaseline, Typography } from "@mui/material";
+import { Box, Button, CssBaseline, Typography } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
 import Navbar from "../navigation/Navbar";
 import Footer from "../navigation/Footer";
@@ -100,6 +100,13 @@ export default function Layout() {
         {showProcessFlow && <ProcessFlow />}
         <Box sx={{ flex: 1 }}>
           <Outlet />
+        </Box>
+        <Box
+          sx={{ display: "flex", justifyContent: "flex-start", mt: 2, px: 2 }}
+        >
+          <Button size="small" href="#">
+            ↑ Back to top
+          </Button>
         </Box>
         <Footer />
       </Box>

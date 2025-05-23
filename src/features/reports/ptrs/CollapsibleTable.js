@@ -20,14 +20,12 @@ import {
   DialogActions,
   Select,
   MenuItem,
+  useTheme,
 } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
-import {
-  formatCurrency,
-  formatDateForMySQL,
-  getRowHighlightColor,
-} from "../../../lib/utils/";
+import { formatCurrency, formatDateForMySQL } from "../../../lib/utils/";
+import { getRowHighlightColor } from "../../../lib/utils/highlightRow";
 import { fieldMapping } from "./fieldMapping";
 const LOCAL_STORAGE_KEY = "tcpTableSortConfig";
 
@@ -36,18 +34,15 @@ export default function CollapsibleTable({
   savedRecords,
   changedRows,
   setChangedRows,
-  tcpStatus,
-  setTcpStatus,
-  tcpExclusionComments,
-  setTcpExclusionComments,
   isLocked,
   currentStep,
-  theme,
   requiresAttention,
-  systemRecommendation,
   sortConfig,
   setSortConfig,
+  onPageChangeWithSave,
+  onRecordChange,
 }) {
+  const theme = useTheme();
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -142,6 +137,41 @@ export default function CollapsibleTable({
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(sortConfig));
     }
   }, [sortConfig]);
+
+  // Compute highlight states for all records before rendering
+  // Highlighting based on createdAt vs updatedAt, no wasSaved field
+  const highlightStates = sortedRecords.reduce((acc, record) => {
+    const original = savedRecords.find((r) => r.id === record.id);
+    acc[record.id] = {
+      isError: requiresAttention?.[record.id] || false,
+      isUnsaved: changedRows?.[record.id] === "unsaved",
+      partialPayment: record.partialPayment,
+    };
+    return acc;
+  }, {});
+
+  // Handler for checkbox changes (e.g., isTcp) with basic validation
+  const handleCheckboxChange = (recordId, field, value) => {
+    if (typeof value !== "boolean") return;
+    if (typeof onRecordChange === "function") {
+      onRecordChange(recordId, field, value);
+    }
+    setChangedRows((prev) => ({
+      ...prev,
+      [recordId]: "unsaved",
+    }));
+  };
+
+  const handleTextInputChange = (recordId, field, value) => {
+    if (typeof value !== "string") return;
+    if (typeof onRecordChange === "function") {
+      onRecordChange(recordId, field, value);
+    }
+    setChangedRows((prev) => ({
+      ...prev,
+      [recordId]: "unsaved",
+    }));
+  };
 
   return (
     <>
@@ -341,7 +371,9 @@ export default function CollapsibleTable({
               <TableRow
                 key={record.id}
                 sx={{
-                  backgroundColor: getRowHighlightColor(record, changedRows),
+                  backgroundColor: getRowHighlightColor(
+                    highlightStates[record.id]
+                  ),
                 }}
               >
                 <TableCell>
@@ -362,59 +394,31 @@ export default function CollapsibleTable({
                             ) : field.type === "date" ? (
                               formatDateForMySQL(record[field.name])
                             ) : field.name === "isTcp" ? (
-                              <>
-                                <Checkbox
-                                  checked={record.isTcp}
-                                  onChange={() => {
-                                    const newStatus = !record.isTcp;
-                                    record.isTcp = newStatus;
-
-                                    const originalValue = !!savedRecords.find(
-                                      (r) => r.id === record.id
-                                    )?.isTcp;
-                                    setChangedRows((prevRows) => ({
-                                      ...prevRows,
-                                      [record.id]:
-                                        newStatus === originalValue
-                                          ? false
-                                          : "unsaved",
-                                    }));
-                                  }}
-                                  disabled={isLocked}
-                                />
-                                {systemRecommendation &&
-                                  systemRecommendation[record.id] === false && (
-                                    <Typography
-                                      variant="caption"
-                                      color="warning.main"
-                                    >
-                                      System recommends NOT TCP
-                                    </Typography>
-                                  )}
-                              </>
+                              <Checkbox
+                                checked={Boolean(record.isTcp)}
+                                onChange={(e) =>
+                                  handleCheckboxChange(
+                                    record.id,
+                                    "isTcp",
+                                    e.target.checked
+                                  )
+                                }
+                                disabled={isLocked}
+                              />
                             ) : field.name === "tcpExclusionComment" ? (
                               <TextField
                                 variant="outlined"
                                 size="small"
                                 fullWidth
                                 multiline
-                                value={tcpExclusionComments[record.id] || ""}
-                                onChange={(e) => {
-                                  const updated = {
-                                    ...tcpExclusionComments,
-                                    [record.id]: e.target.value,
-                                  };
-                                  const originalValue =
-                                    savedRecords.find((r) => r.id === record.id)
-                                      ?.tcpExclusionComment || "";
-                                  const isReverted =
-                                    updated[record.id] === originalValue;
-                                  setChangedRows((prev) => ({
-                                    ...prev,
-                                    [record.id]: isReverted ? false : "unsaved",
-                                  }));
-                                  setTcpExclusionComments(updated);
-                                }}
+                                value={record.tcpExclusionComment || ""}
+                                onChange={(e) =>
+                                  handleTextInputChange(
+                                    record.id,
+                                    "tcpExclusionComment",
+                                    e.target.value
+                                  )
+                                }
                                 disabled={isLocked}
                               />
                             ) : (
@@ -432,18 +436,23 @@ export default function CollapsibleTable({
         component="div"
         count={filteredRecords.length}
         page={page}
-        onPageChange={(_, newPage) => setPage(newPage)}
+        onPageChange={(_, newPage) => {
+          // If any changedRows for displayedRecords, use onPageChangeWithSave
+          const unsavedForPage = displayedRecords.some(
+            (rec) => changedRows?.[rec.id] === "unsaved"
+          );
+          if (unsavedForPage && typeof onPageChangeWithSave === "function") {
+            onPageChangeWithSave(newPage);
+          } else {
+            setPage(newPage);
+          }
+        }}
         rowsPerPage={rowsPerPage}
         onRowsPerPageChange={(e) =>
           setRowsPerPage(parseInt(e.target.value, 10))
         }
         rowsPerPageOptions={[5, 10, 25]}
       />
-      <Box sx={{ display: "flex", justifyContent: "flex-start", mt: 2 }}>
-        <Button size="small" href="#">
-          ↑ Back to top
-        </Button>
-      </Box>
     </>
   );
 }
