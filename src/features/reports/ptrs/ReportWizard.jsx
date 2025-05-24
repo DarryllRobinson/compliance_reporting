@@ -143,43 +143,41 @@ export default function ReportWizard() {
 
   const handleSaveUpdates = async () => {
     try {
-      const updatedRecords = (stepData[currentStepKey] || [])
-        .filter((rec) => rec.updatedAt > rec.createdAt)
-        .map((rec) => {
-          const original = originalRecordsRef.current?.[rec.id];
-          const changedFields = Object.keys(rec).reduce((acc, key) => {
-            if (
-              key !== "updatedAt" &&
-              key !== "createdAt" &&
-              rec[key] !== original?.[key]
-            ) {
-              acc[key] = rec[key];
-            }
-            return acc;
-          }, {});
-          return { id: rec.id, ...changedFields };
-        });
-
-      console.log("Saving records:", updatedRecords);
-      const savedRecord = await tcpService.patchRecord(
-        reportId,
-        updatedRecords[0]
+      const changedRecords = (stepData[currentStepKey] || []).filter(
+        (rec) => rec.wasChanged
       );
-      console.log("Records saved successfully.", savedRecord);
 
-      // After save, update records in state without wasChanged field
-      setStepData((prev) => {
-        const key = currentStepKey;
-        const updated = (prev[key] || []).map((rec) => {
-          if (updatedRecords.some((ur) => ur.id === rec.id)) {
-            return { ...rec };
+      const patchPayloads = changedRecords.map((rec) => {
+        const original = originalRecordsRef.current?.[rec.id] || {};
+        const changedFields = Object.keys(rec).reduce((acc, key) => {
+          if (
+            key !== "updatedAt" &&
+            key !== "createdAt" &&
+            key !== "wasChanged" &&
+            rec[key] !== original[key]
+          ) {
+            acc[key] = rec[key];
           }
-          return rec;
-        });
-        return { ...prev, [key]: updated };
+          return acc;
+        }, {});
+        return { id: rec.id, ...changedFields };
       });
+
+      console.log("Saving changed records:", patchPayloads);
+
+      // Send one PATCH request with all payloads at once
+      const response = await tcpService.patchRecords(patchPayloads);
+      console.log("Batch patch response:", response);
+
+      setStepData((prev) => ({
+        ...prev,
+        [currentStepKey]: (prev[currentStepKey] || []).map((rec) => ({
+          ...rec,
+          wasChanged: false,
+        })),
+      }));
     } catch (error) {
-      console.error("Failed to save records:", error);
+      console.error("Failed to save updated records:", error);
     }
   };
 
@@ -211,9 +209,6 @@ export default function ReportWizard() {
   }
 
   const handleRecordChange = (id, field, value) => {
-    console.log(
-      `Updating record ${id} field ${field} to ${value} in step ${currentStepKey}`
-    );
     setStepData((prev) => {
       const key = currentStepKey;
       const updated = (prev[key] || []).map((rec) =>

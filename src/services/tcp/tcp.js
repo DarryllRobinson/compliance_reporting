@@ -7,6 +7,7 @@ export const tcpService = {
   getAll,
   getAllByReportId,
   patchRecord,
+  patchRecords,
   getTcpByReportId,
   sbiUpdate,
   partialUpdate,
@@ -29,6 +30,10 @@ async function getAllByReportId(reportId) {
 
 async function patchRecord(id, updates) {
   return fetchWrapper.patch(`${baseUrl}/${id}`, updates);
+}
+
+async function patchRecords(updates) {
+  return fetchWrapper.patch(`${baseUrl}/bulk-patch`, updates);
 }
 
 async function getTcpByReportId(reportId) {
