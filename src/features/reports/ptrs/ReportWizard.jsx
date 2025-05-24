@@ -55,6 +55,21 @@ function enhanceWithGlossary(text) {
   return <>{parts}</>;
 }
 
+function getChangedFields(record, original) {
+  const changedFields = {};
+  for (const key in original) {
+    const norm = (v) =>
+      v === null || v === "" ? "" : v === true ? 1 : v === false ? 0 : v;
+    const origVal = norm(original[key]);
+    const currVal = norm(record[key]);
+
+    if (origVal !== currVal) {
+      changedFields[key] = record[key];
+    }
+  }
+  return changedFields;
+}
+
 export default function ReportWizard() {
   const { reportId } = useParams();
   const [currentStep, setCurrentStep] = useState(0);
@@ -128,6 +143,48 @@ export default function ReportWizard() {
 
   const handleSaveUpdates = async () => {
     try {
+      const changedRecords = records.filter((rec) => rec.wasChanged);
+      console.log("Changed Records:", changedRecords);
+      const payload = changedRecords.map((rec) => {
+        const changedFields = getChangedFields(rec, rec.original);
+        return { id: rec.id, ...changedFields };
+      });
+
+      if (payload.length === 0) {
+        setAlert({ type: "info", message: "No changes to save." });
+        return;
+      }
+
+      const response = await tcpService.patchRecords(payload);
+      console.log("Response from patchRecords:", response);
+
+      // Handle updated records from response
+      const updatedRecordsMap = {};
+      if (Array.isArray(response?.results)) {
+        response.results.forEach((updatedRec) => {
+          updatedRecordsMap[updatedRec.id] = updatedRec;
+        });
+      } else if (response?.id) {
+        updatedRecordsMap[response.id] = response;
+      }
+      console.log("Updated Records Map:", updatedRecordsMap);
+
+      setRecords((prevRecords) => {
+        const newRecords = prevRecords.map((rec) => {
+          if (updatedRecordsMap[rec.id]) {
+            return {
+              ...rec,
+              wasChanged: false,
+              wasSaved: true,
+              updatedAt: updatedRecordsMap[rec.id].updatedAt,
+            };
+          }
+          return rec;
+        });
+        console.log("Final Records after update:", newRecords);
+        return newRecords;
+      });
+
       setAlert({ type: "success", message: "Changes saved successfully." });
     } catch (error) {
       console.error("Failed to save updated records:", error);
@@ -164,40 +221,15 @@ export default function ReportWizard() {
 
   const handleRecordChange = (id, field, value) => {
     setRecords((prevRecords) =>
-      prevRecords.map((record) =>
-        record.id === id
-          ? { ...record, [field]: value, wasChanged: true, wasSaved: false }
-          : record
-      )
-    );
-    checkRecordChangeRevert(id, field, value);
-  };
-
-  const checkRecordChangeRevert = (id, field, newValue) => {
-    setRecords((prevRecords) =>
       prevRecords.map((record) => {
         if (record.id !== id) return record;
 
-        let originalValue = record.original
-          ? record.original[field]
-          : undefined;
-        if (originalValue === undefined) {
-          originalValue = record[field];
-        }
-
-        // Treat null and "" as equal
-        const normalise = (val) => {
-          if (val === null || val === "") return "";
-          if (val === true) return 1;
-          if (val === false) return 0;
-          return val;
+        const updatedRecord = { ...record, [field]: value, wasSaved: false };
+        const changedFields = getChangedFields(updatedRecord, record.original);
+        return {
+          ...updatedRecord,
+          wasChanged: Object.keys(changedFields).length > 0,
         };
-
-        const normalisedOriginal = normalise(originalValue);
-        const normalisedNew = normalise(newValue);
-        const isReverted = normalisedOriginal === normalisedNew;
-
-        return { ...record, wasChanged: !isReverted };
       })
     );
   };
