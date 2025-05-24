@@ -86,20 +86,6 @@ export default function ReportWizard() {
     loadData();
   }, [reportId]);
 
-  const handleFieldRevertCheck = (id, field, newValue) => {
-    setStepData((prev) => {
-      const key = currentStepKey;
-      const updated = (prev[key] || []).map((rec) => {
-        if (rec.id !== id) return rec;
-        const original = originalRecordsRef.current?.[id];
-        const originalValue = original?.[field];
-        const wasChanged = originalValue !== newValue;
-        return { ...rec, wasChanged };
-      });
-      return { ...prev, [key]: updated };
-    });
-  };
-
   const goToNext = () => {
     const currentStepIndex = currentStep;
 
@@ -157,10 +143,41 @@ export default function ReportWizard() {
 
   const handleSaveUpdates = async () => {
     try {
-      const updatedRecords = stepData[currentStepKey];
+      const updatedRecords = (stepData[currentStepKey] || [])
+        .filter((rec) => rec.updatedAt > rec.createdAt)
+        .map((rec) => {
+          const original = originalRecordsRef.current?.[rec.id];
+          const changedFields = Object.keys(rec).reduce((acc, key) => {
+            if (
+              key !== "updatedAt" &&
+              key !== "createdAt" &&
+              rec[key] !== original?.[key]
+            ) {
+              acc[key] = rec[key];
+            }
+            return acc;
+          }, {});
+          return { id: rec.id, ...changedFields };
+        });
+
       console.log("Saving records:", updatedRecords);
-      await tcpService.patchRecord(reportId, updatedRecords);
-      console.log("Records saved successfully.");
+      const savedRecord = await tcpService.patchRecord(
+        reportId,
+        updatedRecords[0]
+      );
+      console.log("Records saved successfully.", savedRecord);
+
+      // After save, update records in state without wasChanged field
+      setStepData((prev) => {
+        const key = currentStepKey;
+        const updated = (prev[key] || []).map((rec) => {
+          if (updatedRecords.some((ur) => ur.id === rec.id)) {
+            return { ...rec };
+          }
+          return rec;
+        });
+        return { ...prev, [key]: updated };
+      });
     } catch (error) {
       console.error("Failed to save records:", error);
     }
@@ -194,6 +211,9 @@ export default function ReportWizard() {
   }
 
   const handleRecordChange = (id, field, value) => {
+    console.log(
+      `Updating record ${id} field ${field} to ${value} in step ${currentStepKey}`
+    );
     setStepData((prev) => {
       const key = currentStepKey;
       const updated = (prev[key] || []).map((rec) =>
@@ -201,14 +221,40 @@ export default function ReportWizard() {
       );
       return { ...prev, [key]: updated };
     });
-    handleFieldRevertCheck(id, field, value);
+    checkRecordChangeRevert(id, field, value);
+  };
+
+  const checkRecordChangeRevert = (id, field, value) => {
+    setStepData((prev) => {
+      const key = currentStepKey;
+      const updated = (prev[key] || []).map((rec) => {
+        if (rec.id !== id) return rec;
+        const original = originalRecordsRef.current?.[id];
+        if (!original) return rec;
+
+        // Enhanced equality check
+        const isEqual = (a, b) => {
+          if (a === b) return true;
+          if (a == null && (b === "" || b == null)) return true;
+          if (b == null && (a === "" || a == null)) return true;
+          if ((a === true || a === 1) && (b === true || b === 1)) return true;
+          if ((a === false || a === 0) && (b === false || b === 0)) return true;
+          return false;
+        };
+
+        const isChanged = !isEqual(value, original[field]);
+        return { ...rec, wasChanged: isChanged };
+      });
+      return { ...prev, [key]: updated };
+    });
   };
 
   useEffect(() => {
     const handleBeforeUnload = (e) => {
       const hasUnsavedChanges = Object.values(stepData).some(
         (records) =>
-          Array.isArray(records) && records.some((rec) => rec.wasChanged)
+          Array.isArray(records) &&
+          records.some((rec) => rec.updatedAt > rec.createdAt)
       );
       if (hasUnsavedChanges) {
         e.preventDefault();

@@ -46,7 +46,7 @@ export default function CollapsibleTable() {
     sortConfig,
     setSortConfig,
     onPageChangeWithSave,
-    onRecordChange,
+    handleRecordChange,
   } = useReportContext();
   const theme = useTheme();
   const [searchTerm, setSearchTerm] = useState("");
@@ -364,7 +364,8 @@ export default function CollapsibleTable() {
                 sx={{
                   backgroundColor: getRowHighlightColor({
                     isError: false,
-                    isUnsaved: record.wasChanged,
+                    wasChanged: record.wasChanged || false,
+                    wasSaved: record.isRecordSaved || false,
                     partialPayment: record.partialPayment,
                   }),
                 }}
@@ -390,7 +391,7 @@ export default function CollapsibleTable() {
                               <Checkbox
                                 checked={Boolean(record.isTcp)}
                                 onChange={(e) =>
-                                  onRecordChange(
+                                  handleRecordChange(
                                     record.id,
                                     "isTcp",
                                     e.target.checked
@@ -406,7 +407,7 @@ export default function CollapsibleTable() {
                                 multiline
                                 value={record.tcpExclusionComment || ""}
                                 onChange={(e) =>
-                                  onRecordChange(
+                                  handleRecordChange(
                                     record.id,
                                     "tcpExclusionComment",
                                     e.target.value
