@@ -47,6 +47,7 @@ function login(params) {
 }
 
 function logout() {
+  localStorage.setItem("lastVisitedPath", window.location.pathname);
   // Revoke the refresh token using the cookie
   fetchWrapper
     .post(`${baseUrl}/revoke-token`, {

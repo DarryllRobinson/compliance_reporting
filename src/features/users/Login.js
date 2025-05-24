@@ -40,7 +40,13 @@ export default function Login() {
     setLoading(true);
     try {
       await userService.login(data);
-      navigate("/user/dashboard");
+      const lastPath = localStorage.getItem("lastVisitedPath");
+      if (lastPath) {
+        navigate(lastPath);
+        localStorage.removeItem("lastVisitedPath");
+      } else {
+        navigate("/dashboard");
+      }
     } catch (error) {
       const message = error?.message || "Login failed. Please try again.";
 

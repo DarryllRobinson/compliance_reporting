@@ -1,4 +1,4 @@
-import React from "react";
+import { useState } from "react";
 import { Box, Paper, TextField, Button, Grid, useTheme } from "@mui/material";
 import { Alert } from "@mui/material";
 import { useNavigate, useParams } from "react-router";
@@ -9,8 +9,8 @@ export default function CreateReport() {
   const { code } = useParams();
   const navigate = useNavigate();
 
-  const [alert, setAlert] = React.useState(null);
-  const [reportDetails, setReportDetails] = React.useState(null);
+  const [alert, setAlert] = useState(null);
+  const [reportDetails, setReportDetails] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

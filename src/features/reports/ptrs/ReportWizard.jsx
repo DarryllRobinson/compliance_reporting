@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router";
 import {
   Box,
@@ -8,6 +8,7 @@ import {
   Button,
   Typography,
   Tooltip,
+  Alert,
 } from "@mui/material";
 import Loading from "../../../components/Loading";
 
@@ -57,33 +58,25 @@ function enhanceWithGlossary(text) {
 export default function ReportWizard() {
   const { reportId } = useParams();
   const [currentStep, setCurrentStep] = useState(0);
-  const currentStepKey = `step${currentStep + 1}`;
-  const adjustedCurrentStep = currentStep + 1;
-  const [stepData, setStepData] = useState({});
-  // Track validation errors for each step (array of step indices with errors)
-  const [stepErrors, setStepErrors] = useState([]);
+  const [records, setRecords] = useState({});
   const [isLoading, setIsLoading] = useState(true);
-
-  const originalRecordsRef = useRef({});
+  const [alert, setAlert] = useState(null);
 
   const { Component } = steps[currentStep];
 
   useEffect(() => {
     // Initial load logic (e.g. fetch report data)
-    async function loadData() {
+    async function loadRecords() {
       try {
         const records = await tcpService.getAllByReportId(reportId);
-        setStepData((prev) => ({ ...prev, step1: records }));
-        originalRecordsRef.current = Object.fromEntries(
-          records.map((r) => [r.id, { ...r }])
-        );
+        setRecords(records || {});
       } catch (error) {
-        console.error("Error loading report data:", error);
+        console.error("Error loading report records:", error);
       } finally {
         setIsLoading(false);
       }
     }
-    loadData();
+    loadRecords();
   }, [reportId]);
 
   const goToNext = () => {
@@ -92,42 +85,22 @@ export default function ReportWizard() {
     let hasErrors = false;
 
     if (currentStepIndex === 0) {
-      const data = stepData["step1"];
-      hasErrors = !data || data.length === 0;
     }
 
     if (currentStepIndex === 1) {
-      const data = stepData["step2"];
-      hasErrors = !data || data.some((record) => record.payeeEntityAbn == null);
     }
 
     if (currentStepIndex === 2) {
-      const data = stepData["step3"];
-      hasErrors = !data || data.abnListExported !== true;
     }
 
     if (currentStepIndex === 3) {
-      const data = stepData["step4"];
-      hasErrors = !data || data.sbiUploaded !== true;
     }
 
     if (currentStepIndex === 4) {
-      const data = stepData["step5"];
-      hasErrors =
-        !data ||
-        data.length === 0 ||
-        data.some((rec) => rec.isSb === null || rec.isSb === undefined);
     }
 
     if (currentStepIndex === 5) {
-      const data = stepData["step6"];
-      hasErrors = !data || data.readyToSubmit !== true;
     }
-
-    setStepErrors((prev) => {
-      const withoutCurrent = prev.filter((idx) => idx !== currentStepIndex);
-      return hasErrors ? [...withoutCurrent, currentStepIndex] : withoutCurrent;
-    });
 
     if (hasErrors) return;
 
@@ -143,41 +116,10 @@ export default function ReportWizard() {
 
   const handleSaveUpdates = async () => {
     try {
-      const changedRecords = (stepData[currentStepKey] || []).filter(
-        (rec) => rec.wasChanged
-      );
-
-      const patchPayloads = changedRecords.map((rec) => {
-        const original = originalRecordsRef.current?.[rec.id] || {};
-        const changedFields = Object.keys(rec).reduce((acc, key) => {
-          if (
-            key !== "updatedAt" &&
-            key !== "createdAt" &&
-            key !== "wasChanged" &&
-            rec[key] !== original[key]
-          ) {
-            acc[key] = rec[key];
-          }
-          return acc;
-        }, {});
-        return { id: rec.id, ...changedFields };
-      });
-
-      console.log("Saving changed records:", patchPayloads);
-
-      // Send one PATCH request with all payloads at once
-      const response = await tcpService.patchRecords(patchPayloads);
-      console.log("Batch patch response:", response);
-
-      setStepData((prev) => ({
-        ...prev,
-        [currentStepKey]: (prev[currentStepKey] || []).map((rec) => ({
-          ...rec,
-          wasChanged: false,
-        })),
-      }));
+      setAlert({ type: "success", message: "Changes saved successfully." });
     } catch (error) {
       console.error("Failed to save updated records:", error);
+      setAlert({ type: "error", message: "Failed to save updates." });
     }
   };
 
@@ -209,44 +151,14 @@ export default function ReportWizard() {
   }
 
   const handleRecordChange = (id, field, value) => {
-    setStepData((prev) => {
-      const key = currentStepKey;
-      const updated = (prev[key] || []).map((rec) =>
-        rec.id === id ? { ...rec, [field]: value } : rec
-      );
-      return { ...prev, [key]: updated };
-    });
     checkRecordChangeRevert(id, field, value);
   };
 
-  const checkRecordChangeRevert = (id, field, value) => {
-    setStepData((prev) => {
-      const key = currentStepKey;
-      const updated = (prev[key] || []).map((rec) => {
-        if (rec.id !== id) return rec;
-        const original = originalRecordsRef.current?.[id];
-        if (!original) return rec;
-
-        // Enhanced equality check
-        const isEqual = (a, b) => {
-          if (a === b) return true;
-          if (a == null && (b === "" || b == null)) return true;
-          if (b == null && (a === "" || a == null)) return true;
-          if ((a === true || a === 1) && (b === true || b === 1)) return true;
-          if ((a === false || a === 0) && (b === false || b === 0)) return true;
-          return false;
-        };
-
-        const isChanged = !isEqual(value, original[field]);
-        return { ...rec, wasChanged: isChanged };
-      });
-      return { ...prev, [key]: updated };
-    });
-  };
+  const checkRecordChangeRevert = (id, field, value) => {};
 
   useEffect(() => {
     const handleBeforeUnload = (e) => {
-      const hasUnsavedChanges = Object.values(stepData).some(
+      const hasUnsavedChanges = Object.values(records).some(
         (records) =>
           Array.isArray(records) &&
           records.some((rec) => rec.updatedAt > rec.createdAt)
@@ -260,40 +172,55 @@ export default function ReportWizard() {
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
-  }, [stepData]);
+  }, [records]);
+
+  if (isLoading) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+        <Loading />
+      </Box>
+    );
+  }
 
   return (
     <ReportContext.Provider
       value={{
         reportId,
         currentStep: currentStep + 1,
-        records: stepData[currentStepKey] || [],
-        setStepData,
-        originalRecordsRef,
+        records,
         handleRecordChange,
         handleSaveUpdates,
       }}
     >
       <Box sx={{ pt: 2, px: 3 }}>
+        {alert && (
+          <Alert
+            severity={alert.severity}
+            onClose={() => setAlert(null)}
+            sx={{ mb: 2 }}
+          >
+            {alert.message}
+          </Alert>
+        )}
         {/* Main content */}
         <Typography
           variant="subtitle1"
           sx={{ mb: 0.5, color: "text.secondary" }}
         >
-          Step {adjustedCurrentStep} of {steps.length}
+          Step {currentStep} of {steps.length}
         </Typography>
         <Stepper activeStep={currentStep} alternativeLabel sx={{ mb: 2.5 }}>
           {steps.map((step, index) => (
             <Step key={step.label} completed={index < currentStep}>
               <Tooltip title={step.label} arrow>
                 <StepLabel
-                  icon={
-                    index < currentStep
-                      ? stepErrors.includes(index)
-                        ? "⚠️"
-                        : "✓"
-                      : undefined
-                  }
+                  // icon={
+                  //   index < currentStep
+                  //     ? stepErrors.includes(index)
+                  //       ? "⚠️"
+                  //       : "✓"
+                  //     : undefined
+                  // }
                   onClick={() => {
                     if (index < currentStep) setCurrentStep(index);
                   }}
@@ -310,7 +237,7 @@ export default function ReportWizard() {
         </Stepper>
 
         {renderGuidance()}
-        {stepData[currentStepKey] ? <Component /> : <Loading />}
+        {records ? <Component /> : <Loading />}
 
         <Box sx={{ display: "flex", justifyContent: "space-between", mt: 4 }}>
           <Button
@@ -320,21 +247,18 @@ export default function ReportWizard() {
           >
             Back
           </Button>
-          {Array.isArray(stepData[currentStepKey]) &&
-            stepData[currentStepKey].some((rec) => rec.wasChanged) && (
-              <Box
-                sx={{
-                  mt: 2,
-                  mb: 2,
-                  display: "flex",
-                  justifyContent: "flex-start",
-                }}
-              >
-                <Button variant="outlined" onClick={handleSaveUpdates}>
-                  Save Updates
-                </Button>
-              </Box>
-            )}
+          <Box
+            sx={{
+              mt: 2,
+              mb: 2,
+              display: "flex",
+              justifyContent: "flex-start",
+            }}
+          >
+            <Button variant="outlined" onClick={handleSaveUpdates}>
+              Save Updates
+            </Button>
+          </Box>
           <Button
             onClick={goToNext}
             variant="contained"

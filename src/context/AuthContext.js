@@ -34,6 +34,7 @@ export function AuthProvider({ children }) {
     // Auto logout at 15 min
     logoutTimer = setTimeout(
       () => {
+        setShowWarningDialog(false);
         userService.logout();
       },
       15 * 60 * 1000

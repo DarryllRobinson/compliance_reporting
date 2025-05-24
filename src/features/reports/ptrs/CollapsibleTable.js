@@ -365,7 +365,8 @@ export default function CollapsibleTable() {
                   backgroundColor: getRowHighlightColor({
                     isError: false,
                     wasChanged: record.wasChanged || false,
-                    wasSaved: record.isRecordSaved || false,
+                    wasSaved:
+                      new Date(record.updatedAt) > new Date(record.createdAt),
                     partialPayment: record.partialPayment,
                   }),
                 }}
