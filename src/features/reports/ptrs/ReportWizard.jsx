@@ -163,9 +163,6 @@ export default function ReportWizard() {
   }
 
   const handleRecordChange = (id, field, value) => {
-    console.log(
-      `Handling record change for ID ${id}, field "${field}", new value: ${value}`
-    );
     setRecords((prevRecords) =>
       prevRecords.map((record) =>
         record.id === id

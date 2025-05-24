@@ -4,8 +4,6 @@
  * @returns {string} - The background color for the row.
  */
 export function getRowHighlightColor(record) {
-  if (record.wasSaved) console.log("getRowHighlightColor", record);
-  if (record.wasChanged) console.log("getRowHighlightColor", record);
   if (record.isError) return "rgba(255, 0, 0, 0.1)";
   if (record.wasChanged) return "rgba(255, 165, 0, 0.3)";
   if (record.wasSaved) return "rgba(0, 255, 0, 0.1)";
