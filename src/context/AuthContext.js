@@ -1,12 +1,52 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { userService } from "../services";
+import { Dialog, DialogTitle, DialogActions, Button } from "@mui/material";
 
 const AuthContext = createContext();
+
+let logoutTimer;
+let warningTimer;
 
 export function AuthProvider({ children }) {
   const [isSignedIn, setIsSignedIn] = useState(null); // null = loading
   const [user, setUser] = useState(null);
   const [isInitialising, setIsInitialising] = useState(true);
+  const [showWarningDialog, setShowWarningDialog] = useState(false);
+
+  const resetInactivityTimer = useCallback(() => {
+    clearTimeout(logoutTimer);
+    clearTimeout(warningTimer);
+
+    // Show warning at 14 min
+    warningTimer = setTimeout(
+      () => {
+        setShowWarningDialog(true);
+      },
+      14 * 60 * 1000
+    );
+
+    // Auto logout at 15 min
+    logoutTimer = setTimeout(
+      () => {
+        userService.logout();
+      },
+      15 * 60 * 1000
+    );
+  }, []);
+
+  const handleContinueSession = () => {
+    setShowWarningDialog(false);
+    resetInactivityTimer();
+    userService.refreshToken().catch(() => {
+      userService.logout();
+    });
+  };
 
   useEffect(() => {
     const subscription = userService.user.subscribe((x) => {
@@ -29,26 +69,34 @@ export function AuthProvider({ children }) {
         setIsInitialising(false);
       });
 
-    return () => subscription.unsubscribe();
-  }, []);
+    const activityEvents = ["mousemove", "keydown", "click", "scroll"];
+    activityEvents.forEach((event) =>
+      window.addEventListener(event, resetInactivityTimer)
+    );
+
+    resetInactivityTimer();
+
+    return () => {
+      subscription.unsubscribe();
+      activityEvents.forEach((event) =>
+        window.removeEventListener(event, resetInactivityTimer)
+      );
+      clearTimeout(logoutTimer);
+      clearTimeout(warningTimer);
+    };
+  }, [resetInactivityTimer]);
 
   if (isInitialising) return null;
 
-  const signIn = (user) => {
-    setUser(user);
-    setIsSignedIn(true);
-  };
-
-  const signOut = () => {
-    setUser(null);
-    setIsSignedIn(false);
-  };
-
   return (
-    <AuthContext.Provider
-      value={{ isSignedIn, setIsSignedIn, user, setUser, signIn, signOut }}
-    >
+    <AuthContext.Provider value={{ isSignedIn, setIsSignedIn, user, setUser }}>
       {children}
+      <Dialog open={showWarningDialog}>
+        <DialogTitle>Are you still there?</DialogTitle>
+        <DialogActions>
+          <Button onClick={handleContinueSession}>Yes, I’m still here</Button>
+        </DialogActions>
+      </Dialog>
     </AuthContext.Provider>
   );
 }
