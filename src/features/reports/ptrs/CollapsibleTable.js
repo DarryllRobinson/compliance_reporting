@@ -27,21 +27,27 @@ import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import { formatCurrency, formatDateForMySQL } from "../../../lib/utils/";
 import { getRowHighlightColor } from "../../../lib/utils/highlightRow";
 import { fieldMapping } from "./fieldMapping";
+import { useReportContext } from "../../../context";
+
+const DEFAULT_SORT_CONFIG = {
+  key: null,
+  direction: "asc",
+  filters: {},
+};
 const LOCAL_STORAGE_KEY = "tcpTableSortConfig";
 
-export default function CollapsibleTable({
-  records,
-  savedRecords,
-  changedRows,
-  setChangedRows,
-  isLocked,
-  currentStep,
-  requiresAttention,
-  sortConfig,
-  setSortConfig,
-  onPageChangeWithSave,
-  onRecordChange,
-}) {
+export default function CollapsibleTable() {
+  const {
+    records,
+    changedRows,
+    isLocked,
+    currentStep,
+    requiresAttention,
+    sortConfig,
+    setSortConfig,
+    onPageChangeWithSave,
+    onRecordChange,
+  } = useReportContext();
   const theme = useTheme();
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(0);
@@ -116,62 +122,42 @@ export default function CollapsibleTable({
     [sortedRecords, page, rowsPerPage]
   );
 
-  // Remove handleTcpToggle, logic will be inline in Checkbox below
-
-  // Load sortConfig from localStorage on mount
+  // Combine loading and persisting sortConfig in one effect
   useEffect(() => {
-    const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        setSortConfig(parsed);
-      } catch {
-        console.warn("Invalid sort config in localStorage");
+    if (typeof setSortConfig === "function") {
+      if (sortConfig == null) {
+        const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved);
+            if (
+              parsed &&
+              typeof parsed === "object" &&
+              "key" in parsed &&
+              "direction" in parsed
+            ) {
+              setSortConfig(parsed);
+            } else {
+              console.warn(
+                "Invalid sort config in localStorage, using default."
+              );
+              setSortConfig(DEFAULT_SORT_CONFIG);
+            }
+          } catch {
+            console.warn(
+              "Invalid sort config in localStorage (JSON parse error), using default."
+            );
+            setSortConfig(DEFAULT_SORT_CONFIG);
+          }
+        } else {
+          // No saved sort config, use default
+          setSortConfig(DEFAULT_SORT_CONFIG);
+        }
+      } else {
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(sortConfig));
       }
     }
-  }, []);
-
-  // Persist sortConfig to localStorage when it changes
-  useEffect(() => {
-    if (sortConfig) {
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(sortConfig));
-    }
-  }, [sortConfig]);
-
-  // Compute highlight states for all records before rendering
-  // Highlighting based on createdAt vs updatedAt, no wasSaved field
-  const highlightStates = sortedRecords.reduce((acc, record) => {
-    const original = savedRecords.find((r) => r.id === record.id);
-    acc[record.id] = {
-      isError: requiresAttention?.[record.id] || false,
-      isUnsaved: changedRows?.[record.id] === "unsaved",
-      partialPayment: record.partialPayment,
-    };
-    return acc;
-  }, {});
-
-  // Handler for checkbox changes (e.g., isTcp) with basic validation
-  const handleCheckboxChange = (recordId, field, value) => {
-    if (typeof value !== "boolean") return;
-    if (typeof onRecordChange === "function") {
-      onRecordChange(recordId, field, value);
-    }
-    setChangedRows((prev) => ({
-      ...prev,
-      [recordId]: "unsaved",
-    }));
-  };
-
-  const handleTextInputChange = (recordId, field, value) => {
-    if (typeof value !== "string") return;
-    if (typeof onRecordChange === "function") {
-      onRecordChange(recordId, field, value);
-    }
-    setChangedRows((prev) => ({
-      ...prev,
-      [recordId]: "unsaved",
-    }));
-  };
+  }, [sortConfig, setSortConfig]);
 
   return (
     <>
@@ -294,16 +280,19 @@ export default function CollapsibleTable({
                     : fields.map((field) => (
                         <TableCell
                           key={field.name}
-                          onClick={() =>
-                            setSortConfig((prev) => ({
-                              key: field.name,
-                              direction:
-                                prev.key === field.name &&
-                                prev.direction === "asc"
-                                  ? "desc"
-                                  : "asc",
-                            }))
-                          }
+                          onClick={() => {
+                            if (typeof setSortConfig === "function") {
+                              setSortConfig((prev) => ({
+                                key: field.name,
+                                direction:
+                                  prev &&
+                                  prev.key === field.name &&
+                                  prev.direction === "asc"
+                                    ? "desc"
+                                    : "asc",
+                              }));
+                            }
+                          }}
                           sx={{
                             cursor: "pointer",
                             userSelect: "none",
@@ -337,15 +326,17 @@ export default function CollapsibleTable({
                             displayEmpty
                             value={sortConfig?.filters?.[field.name] ?? ""}
                             onClick={(e) => e.stopPropagation()}
-                            onChange={(e) =>
-                              setSortConfig((prev) => ({
-                                ...prev,
-                                filters: {
-                                  ...prev?.filters,
-                                  [field.name]: e.target.value,
-                                },
-                              }))
-                            }
+                            onChange={(e) => {
+                              if (typeof setSortConfig === "function") {
+                                setSortConfig((prev) => ({
+                                  ...prev,
+                                  filters: {
+                                    ...prev?.filters,
+                                    [field.name]: e.target.value,
+                                  },
+                                }));
+                              }
+                            }}
                           >
                             <MenuItem value="">(All)</MenuItem>
                             <MenuItem value="__empty__">(Empty)</MenuItem>
@@ -371,9 +362,11 @@ export default function CollapsibleTable({
               <TableRow
                 key={record.id}
                 sx={{
-                  backgroundColor: getRowHighlightColor(
-                    highlightStates[record.id]
-                  ),
+                  backgroundColor: getRowHighlightColor({
+                    isError: false,
+                    isUnsaved: record.wasChanged,
+                    partialPayment: record.partialPayment,
+                  }),
                 }}
               >
                 <TableCell>
@@ -397,7 +390,7 @@ export default function CollapsibleTable({
                               <Checkbox
                                 checked={Boolean(record.isTcp)}
                                 onChange={(e) =>
-                                  handleCheckboxChange(
+                                  onRecordChange(
                                     record.id,
                                     "isTcp",
                                     e.target.checked
@@ -413,7 +406,7 @@ export default function CollapsibleTable({
                                 multiline
                                 value={record.tcpExclusionComment || ""}
                                 onChange={(e) =>
-                                  handleTextInputChange(
+                                  onRecordChange(
                                     record.id,
                                     "tcpExclusionComment",
                                     e.target.value

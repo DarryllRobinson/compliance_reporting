@@ -29,7 +29,7 @@ export default function ReportsLayout() {
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
       {/* AppBar */}
-      <AppBar
+      {/* <AppBar
         position="fixed" // Keep AppBar fixed
         sx={{
           width: isDrawerOpen ? `calc(100% - ${drawerWidth}px)` : "100%",
@@ -52,7 +52,7 @@ export default function ReportsLayout() {
             PTRS Process Flow
           </Typography>
         </Toolbar>
-      </AppBar>
+      </AppBar> */}
 
       {/* Sidebar */}
       <Drawer

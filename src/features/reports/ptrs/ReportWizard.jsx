@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router";
 import {
   Box,
@@ -9,6 +9,7 @@ import {
   Typography,
   Tooltip,
 } from "@mui/material";
+import Loading from "../../../components/Loading";
 
 // Step components (to be built/refactored)
 import Step1 from "./Step1";
@@ -21,6 +22,7 @@ import Step6View from "./steps/Step6View";
 // Example data loader (replace with actual context or API call if needed)
 import { tcpService } from "../../../services";
 import { glossary, ptrsGuidance } from "../../../constants/";
+import { ReportContext } from "../../../context/ReportContext";
 
 const steps = [
   { label: "Step 1: Confirm TCPs", Component: Step1 },
@@ -55,10 +57,14 @@ function enhanceWithGlossary(text) {
 export default function ReportWizard() {
   const { reportId } = useParams();
   const [currentStep, setCurrentStep] = useState(0);
+  const currentStepKey = `step${currentStep + 1}`;
+  const adjustedCurrentStep = currentStep + 1;
   const [stepData, setStepData] = useState({});
-  const [reportStatus, setReportStatus] = useState("");
   // Track validation errors for each step (array of step indices with errors)
   const [stepErrors, setStepErrors] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const originalRecordsRef = useRef({});
 
   const { Component } = steps[currentStep];
 
@@ -67,17 +73,32 @@ export default function ReportWizard() {
     async function loadData() {
       try {
         const records = await tcpService.getAllByReportId(reportId);
-        // console.log("Loaded records:", records);
         setStepData((prev) => ({ ...prev, step1: records }));
-        if (records.length > 0 && records[0].reportStatus) {
-          setReportStatus(records[0].reportStatus);
-        }
+        originalRecordsRef.current = Object.fromEntries(
+          records.map((r) => [r.id, { ...r }])
+        );
       } catch (error) {
         console.error("Error loading report data:", error);
+      } finally {
+        setIsLoading(false);
       }
     }
     loadData();
   }, [reportId]);
+
+  const handleFieldRevertCheck = (id, field, newValue) => {
+    setStepData((prev) => {
+      const key = currentStepKey;
+      const updated = (prev[key] || []).map((rec) => {
+        if (rec.id !== id) return rec;
+        const original = originalRecordsRef.current?.[id];
+        const originalValue = original?.[field];
+        const wasChanged = originalValue !== newValue;
+        return { ...rec, wasChanged };
+      });
+      return { ...prev, [key]: updated };
+    });
+  };
 
   const goToNext = () => {
     const currentStepIndex = currentStep;
@@ -136,7 +157,7 @@ export default function ReportWizard() {
 
   const handleSaveUpdates = async () => {
     try {
-      const updatedRecords = stepData[`step${currentStep + 1}`];
+      const updatedRecords = stepData[currentStepKey];
       console.log("Saving records:", updatedRecords);
       await tcpService.patchRecord(reportId, updatedRecords);
       console.log("Records saved successfully.");
@@ -174,12 +195,13 @@ export default function ReportWizard() {
 
   const handleRecordChange = (id, field, value) => {
     setStepData((prev) => {
-      const key = `step${currentStep + 1}`;
+      const key = currentStepKey;
       const updated = (prev[key] || []).map((rec) =>
-        rec.id === id ? { ...rec, [field]: value, wasChanged: true } : rec
+        rec.id === id ? { ...rec, [field]: value } : rec
       );
       return { ...prev, [key]: updated };
     });
+    handleFieldRevertCheck(id, field, value);
   };
 
   useEffect(() => {
@@ -200,91 +222,88 @@ export default function ReportWizard() {
   }, [stepData]);
 
   return (
-    <Box sx={{ pt: 2, px: 3 }}>
-      {/* Main content */}
-      <Typography variant="subtitle1" sx={{ mb: 0.5, color: "text.secondary" }}>
-        Step {currentStep + 1} of {steps.length}
-      </Typography>
-      <Stepper activeStep={currentStep} alternativeLabel sx={{ mb: 2.5 }}>
-        {steps.map((step, index) => (
-          <Step key={step.label} completed={index < currentStep}>
-            <Tooltip title={step.label} arrow>
-              <StepLabel
-                icon={
-                  index < currentStep
-                    ? stepErrors.includes(index)
-                      ? "⚠️"
-                      : "✓"
-                    : undefined
-                }
-                onClick={() => {
-                  if (index < currentStep) setCurrentStep(index);
-                }}
+    <ReportContext.Provider
+      value={{
+        reportId,
+        currentStep: currentStep + 1,
+        records: stepData[currentStepKey] || [],
+        setStepData,
+        originalRecordsRef,
+        handleRecordChange,
+        handleSaveUpdates,
+      }}
+    >
+      <Box sx={{ pt: 2, px: 3 }}>
+        {/* Main content */}
+        <Typography
+          variant="subtitle1"
+          sx={{ mb: 0.5, color: "text.secondary" }}
+        >
+          Step {adjustedCurrentStep} of {steps.length}
+        </Typography>
+        <Stepper activeStep={currentStep} alternativeLabel sx={{ mb: 2.5 }}>
+          {steps.map((step, index) => (
+            <Step key={step.label} completed={index < currentStep}>
+              <Tooltip title={step.label} arrow>
+                <StepLabel
+                  icon={
+                    index < currentStep
+                      ? stepErrors.includes(index)
+                        ? "⚠️"
+                        : "✓"
+                      : undefined
+                  }
+                  onClick={() => {
+                    if (index < currentStep) setCurrentStep(index);
+                  }}
+                  sx={{
+                    cursor: index < currentStep ? "pointer" : "default",
+                    px: 1,
+                  }}
+                >
+                  {step.label.replace(/^Step \d+: /, "")}
+                </StepLabel>
+              </Tooltip>
+            </Step>
+          ))}
+        </Stepper>
+
+        {renderGuidance()}
+        {stepData[currentStepKey] ? <Component /> : <Loading />}
+
+        <Box sx={{ display: "flex", justifyContent: "space-between", mt: 4 }}>
+          <Button
+            disabled={currentStep === 0}
+            onClick={goToBack}
+            variant="outlined"
+          >
+            Back
+          </Button>
+          {Array.isArray(stepData[currentStepKey]) &&
+            stepData[currentStepKey].some((rec) => rec.wasChanged) && (
+              <Box
                 sx={{
-                  cursor: index < currentStep ? "pointer" : "default",
-                  px: 1,
+                  mt: 2,
+                  mb: 2,
+                  display: "flex",
+                  justifyContent: "flex-start",
                 }}
               >
-                {step.label.replace(/^Step \d+: /, "")}
-              </StepLabel>
-            </Tooltip>
-          </Step>
-        ))}
-      </Stepper>
-      {reportStatus && (
-        <Box sx={{ mb: 2 }}>
-          <Typography variant="subtitle2" color="textSecondary">
-            Report Status:{" "}
-            <strong style={{ textTransform: "uppercase" }}>
-              {reportStatus}
-            </strong>
-          </Typography>
+                <Button variant="outlined" onClick={handleSaveUpdates}>
+                  Save Updates
+                </Button>
+              </Box>
+            )}
+          <Button
+            onClick={goToNext}
+            variant="contained"
+            color="primary"
+            disabled={currentStep === steps.length - 1}
+          >
+            {currentStep === steps.length - 2 ? "Finish" : "Next"}
+          </Button>
         </Box>
-      )}
-      {/* Removed PTRS Report Wizard heading */}
-
-      {renderGuidance()}
-      <Component
-        records={stepData[`step${currentStep + 1}`]}
-        onNext={goToNext}
-        onBack={goToBack}
-        reportStatus={reportStatus}
-        onSave={handleSaveUpdates}
-        onRecordChange={handleRecordChange}
-      />
-
-      <Box sx={{ display: "flex", justifyContent: "space-between", mt: 4 }}>
-        <Button
-          disabled={currentStep === 0}
-          onClick={goToBack}
-          variant="outlined"
-        >
-          Back
-        </Button>
-        {Array.isArray(stepData[`step${currentStep + 1}`]) &&
-          stepData[`step${currentStep + 1}`].some((rec) => rec.wasChanged) && (
-            <Box
-              sx={{
-                mt: 2,
-                mb: 2,
-                display: "flex",
-                justifyContent: "flex-start",
-              }}
-            >
-              <Button variant="outlined" onClick={handleSaveUpdates}>
-                Save Updates
-              </Button>
-            </Box>
-          )}
-        <Button
-          onClick={goToNext}
-          variant="contained"
-          color="primary"
-          disabled={currentStep === steps.length - 1}
-        >
-          {currentStep === steps.length - 2 ? "Finish" : "Next"}
-        </Button>
       </Box>
-    </Box>
+    </ReportContext.Provider>
   );
 }
