@@ -293,18 +293,28 @@ export default function ReportWizard() {
           >
             Back
           </Button>
-          <Box
-            sx={{
-              mt: 2,
-              mb: 2,
-              display: "flex",
-              justifyContent: "flex-start",
-            }}
-          >
-            <Button variant="outlined" onClick={handleSaveUpdates}>
-              Save Updates
-            </Button>
-          </Box>
+          {(() => {
+            const changedCount = records.filter((rec) => rec.wasChanged).length;
+            return (
+              <Tooltip
+                title={
+                  changedCount === 0
+                    ? "No changes to save"
+                    : `Save the changes you made to ${changedCount} record${changedCount > 1 ? "s" : ""}`
+                }
+              >
+                <span>
+                  <Button
+                    variant="outlined"
+                    onClick={handleSaveUpdates}
+                    disabled={changedCount === 0}
+                  >
+                    Save Updates
+                  </Button>
+                </span>
+              </Tooltip>
+            );
+          })()}
           <Button
             onClick={goToNext}
             variant="contained"
