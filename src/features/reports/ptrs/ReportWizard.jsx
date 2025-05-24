@@ -58,7 +58,7 @@ function enhanceWithGlossary(text) {
 export default function ReportWizard() {
   const { reportId } = useParams();
   const [currentStep, setCurrentStep] = useState(0);
-  const [records, setRecords] = useState({});
+  const [records, setRecords] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [alert, setAlert] = useState(null);
 
@@ -69,7 +69,19 @@ export default function ReportWizard() {
     async function loadRecords() {
       try {
         const records = await tcpService.getAllByReportId(reportId);
-        setRecords(records || {});
+        // Append wasChanged, wasSaved, and original object to each record
+        const enhancedRecords = records.map((r) => {
+          const { original, original_field, ...rest } = r; // Remove any original_ fields if exist
+          // Deep copy the record for original
+          const originalCopy = JSON.parse(JSON.stringify(rest));
+          return {
+            ...rest,
+            wasChanged: false,
+            wasSaved: false,
+            original: originalCopy,
+          };
+        });
+        setRecords(enhancedRecords || {});
       } catch (error) {
         console.error("Error loading report records:", error);
       } finally {
@@ -151,10 +163,47 @@ export default function ReportWizard() {
   }
 
   const handleRecordChange = (id, field, value) => {
+    console.log(
+      `Handling record change for ID ${id}, field "${field}", new value: ${value}`
+    );
+    setRecords((prevRecords) =>
+      prevRecords.map((record) =>
+        record.id === id
+          ? { ...record, [field]: value, wasChanged: true, wasSaved: false }
+          : record
+      )
+    );
     checkRecordChangeRevert(id, field, value);
   };
 
-  const checkRecordChangeRevert = (id, field, value) => {};
+  const checkRecordChangeRevert = (id, field, newValue) => {
+    setRecords((prevRecords) =>
+      prevRecords.map((record) => {
+        if (record.id !== id) return record;
+
+        let originalValue = record.original
+          ? record.original[field]
+          : undefined;
+        if (originalValue === undefined) {
+          originalValue = record[field];
+        }
+
+        // Treat null and "" as equal
+        const normalise = (val) => {
+          if (val === null || val === "") return "";
+          if (val === true) return 1;
+          if (val === false) return 0;
+          return val;
+        };
+
+        const normalisedOriginal = normalise(originalValue);
+        const normalisedNew = normalise(newValue);
+        const isReverted = normalisedOriginal === normalisedNew;
+
+        return { ...record, wasChanged: !isReverted };
+      })
+    );
+  };
 
   useEffect(() => {
     const handleBeforeUnload = (e) => {

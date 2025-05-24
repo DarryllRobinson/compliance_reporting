@@ -55,9 +55,9 @@ export default function CollapsibleTable() {
   const [collapsedGroups, setCollapsedGroups] = useState({});
 
   const [upliftOpen, setUpliftOpen] = useState(false);
-  const hasIncomplete = records.some(
-    (r) => requiresAttention && requiresAttention[r.id]
-  );
+  // const hasIncomplete = records.some(
+  //   (r) => requiresAttention && requiresAttention[r.id]
+  // );
 
   const toggleGroup = useCallback(
     (group) =>
@@ -161,7 +161,7 @@ export default function CollapsibleTable() {
 
   return (
     <>
-      {hasIncomplete && (
+      {/* {hasIncomplete && (
         <Button
           variant="outlined"
           color="warning"
@@ -170,7 +170,7 @@ export default function CollapsibleTable() {
         >
           Fix Incomplete Records
         </Button>
-      )}
+      )} */}
 
       <Dialog open={upliftOpen} onClose={() => setUpliftOpen(false)}>
         <DialogTitle>Data Uplift Coming Soon</DialogTitle>
