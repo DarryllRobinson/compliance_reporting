@@ -39,14 +39,13 @@ const LOCAL_STORAGE_KEY = "tcpTableSortConfig";
 export default function CollapsibleTable() {
   const {
     records,
-    changedRows,
     isLocked,
     currentStep,
     requiresAttention,
     sortConfig,
     setSortConfig,
-    onPageChangeWithSave,
     handleRecordChange,
+    handleSaveUpdates,
   } = useReportContext();
   const theme = useTheme();
   const [searchTerm, setSearchTerm] = useState("");
@@ -433,15 +432,14 @@ export default function CollapsibleTable() {
         count={filteredRecords.length}
         page={page}
         onPageChange={(_, newPage) => {
-          // If any changedRows for displayedRecords, use onPageChangeWithSave
-          const unsavedForPage = displayedRecords.some(
-            (rec) => changedRows?.[rec.id] === "unsaved"
+          const changedRecords = displayedRecords.filter(
+            (rec) => rec.wasChanged
           );
-          if (unsavedForPage && typeof onPageChangeWithSave === "function") {
-            onPageChangeWithSave(newPage);
-          } else {
-            setPage(newPage);
+          if (changedRecords.length > 0) {
+            // Save updates before changing page
+            handleSaveUpdates();
           }
+          setPage(newPage);
         }}
         rowsPerPage={rowsPerPage}
         onRowsPerPageChange={(e) =>

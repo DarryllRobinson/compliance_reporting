@@ -107,6 +107,10 @@ export default function ReportWizard() {
   }, [reportId]);
 
   const goToNext = () => {
+    // Save any changes before moving to the next step
+    const changedCount = records.filter((rec) => rec.wasChanged).length;
+    if (changedCount > 0) handleSaveUpdates();
+
     const currentStepIndex = currentStep;
 
     let hasErrors = false;
@@ -190,7 +194,6 @@ export default function ReportWizard() {
         return newRecords;
       });
 
-      console.log("Record saved");
       setAlert({ type: "success", message: "Changes saved successfully." });
     } catch (error) {
       console.error("Failed to save updated records:", error);
