@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback } from "react";
 import {
   Box,
   Table,
@@ -21,6 +21,7 @@ import {
   Select,
   MenuItem,
   useTheme,
+  Tooltip,
 } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
@@ -34,7 +35,6 @@ const DEFAULT_SORT_CONFIG = {
   direction: "asc",
   filters: {},
 };
-const LOCAL_STORAGE_KEY = "tcpTableSortConfig";
 
 export default function CollapsibleTable() {
   const {
@@ -42,8 +42,6 @@ export default function CollapsibleTable() {
     isLocked,
     currentStep,
     requiresAttention,
-    sortConfig,
-    setSortConfig,
     handleRecordChange,
     handleSaveUpdates,
   } = useReportContext();
@@ -52,11 +50,11 @@ export default function CollapsibleTable() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [collapsedGroups, setCollapsedGroups] = useState({});
-
+  const [sortConfig, setSortConfig] = useState(DEFAULT_SORT_CONFIG);
   const [upliftOpen, setUpliftOpen] = useState(false);
-  // const hasIncomplete = records.some(
-  //   (r) => requiresAttention && requiresAttention[r.id]
-  // );
+  const hasIncomplete = records.some(
+    (r) => requiresAttention && requiresAttention[r.id]
+  );
 
   const toggleGroup = useCallback(
     (group) =>
@@ -121,46 +119,9 @@ export default function CollapsibleTable() {
     [sortedRecords, page, rowsPerPage]
   );
 
-  // Combine loading and persisting sortConfig in one effect
-  useEffect(() => {
-    if (typeof setSortConfig === "function") {
-      if (sortConfig == null) {
-        const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
-        if (saved) {
-          try {
-            const parsed = JSON.parse(saved);
-            if (
-              parsed &&
-              typeof parsed === "object" &&
-              "key" in parsed &&
-              "direction" in parsed
-            ) {
-              setSortConfig(parsed);
-            } else {
-              console.warn(
-                "Invalid sort config in localStorage, using default."
-              );
-              setSortConfig(DEFAULT_SORT_CONFIG);
-            }
-          } catch {
-            console.warn(
-              "Invalid sort config in localStorage (JSON parse error), using default."
-            );
-            setSortConfig(DEFAULT_SORT_CONFIG);
-          }
-        } else {
-          // No saved sort config, use default
-          setSortConfig(DEFAULT_SORT_CONFIG);
-        }
-      } else {
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(sortConfig));
-      }
-    }
-  }, [sortConfig, setSortConfig]);
-
   return (
     <>
-      {/* {hasIncomplete && (
+      {!hasIncomplete && (
         <Button
           variant="outlined"
           color="warning"
@@ -169,7 +130,7 @@ export default function CollapsibleTable() {
         >
           Fix Incomplete Records
         </Button>
-      )} */}
+      )}
 
       <Dialog open={upliftOpen} onClose={() => setUpliftOpen(false)}>
         <DialogTitle>Data Uplift Coming Soon</DialogTitle>
@@ -224,7 +185,7 @@ export default function CollapsibleTable() {
           </Box>
         )}
       </Box>
-      <TableContainer component={Paper} sx={{ maxHeight: 500 }}>
+      <TableContainer component={Paper} sx={{ maxHeight: 500, p: 0 }}>
         <Table stickyHeader>
           <TableHead>
             <TableRow
@@ -280,43 +241,41 @@ export default function CollapsibleTable() {
                         <TableCell
                           key={field.name}
                           onClick={() => {
-                            if (typeof setSortConfig === "function") {
-                              setSortConfig((prev) => ({
-                                key: field.name,
-                                direction:
-                                  prev &&
-                                  prev.key === field.name &&
-                                  prev.direction === "asc"
-                                    ? "desc"
-                                    : "asc",
-                              }));
-                            }
+                            setSortConfig((prev) => ({
+                              ...prev,
+                              key: field.name,
+                              direction:
+                                prev &&
+                                prev.key === field.name &&
+                                prev.direction === "asc"
+                                  ? "desc"
+                                  : "asc",
+                            }));
                           }}
                           sx={{
-                            cursor: "pointer",
                             userSelect: "none",
-                            textDecoration: "underline",
                             "&:hover": {
                               backgroundColor: theme.palette.action.hover,
                             },
                             verticalAlign: "bottom",
                           }}
-                          title="Click to sort"
                         >
-                          <Box
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 0.5,
-                            }}
-                          >
-                            {field.label}
-                            {sortConfig?.key === field.name && (
-                              <Typography variant="body2">
-                                {sortConfig.direction === "asc" ? "🔼" : "🔽"}
-                              </Typography>
-                            )}
-                          </Box>
+                          <Tooltip title="Click to sort" placement="top-end">
+                            <Box
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 0.5,
+                              }}
+                            >
+                              {field.label}
+                              {sortConfig?.key === field.name && (
+                                <Typography variant="body2">
+                                  {sortConfig.direction === "asc" ? "🔼" : "🔽"}
+                                </Typography>
+                              )}
+                            </Box>
+                          </Tooltip>
                           <Select
                             size="small"
                             variant="standard"
@@ -326,15 +285,14 @@ export default function CollapsibleTable() {
                             value={sortConfig?.filters?.[field.name] ?? ""}
                             onClick={(e) => e.stopPropagation()}
                             onChange={(e) => {
-                              if (typeof setSortConfig === "function") {
-                                setSortConfig((prev) => ({
-                                  ...prev,
-                                  filters: {
-                                    ...prev?.filters,
-                                    [field.name]: e.target.value,
-                                  },
-                                }));
-                              }
+                              const { value } = e.target;
+                              setSortConfig((prev) => {
+                                const newFilters = {
+                                  ...(prev.filters || {}),
+                                  [field.name]: value,
+                                };
+                                return { ...prev, filters: newFilters };
+                              });
                             }}
                           >
                             <MenuItem value="">(All)</MenuItem>
