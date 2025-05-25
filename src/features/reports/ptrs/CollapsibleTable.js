@@ -363,6 +363,7 @@ export default function CollapsibleTable() {
                 key={record.id}
                 sx={{
                   backgroundColor: getRowHighlightColor({
+                    id: record.id,
                     isError: false,
                     wasChanged: record.wasChanged || false,
                     wasSaved:
