@@ -150,7 +150,7 @@ export default function ReportWizard() {
       const changedRecords = records.filter((rec) => rec.wasChanged);
       const payload = changedRecords.map((rec) => {
         const changedFields = getChangedFields(rec, rec.original);
-        return { id: rec.id, ...changedFields };
+        return { id: rec.id, ...changedFields, step: currentStep + 1 };
       });
 
       if (payload.length === 0) {
