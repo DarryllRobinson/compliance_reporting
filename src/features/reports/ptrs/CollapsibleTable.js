@@ -52,11 +52,9 @@ export default function CollapsibleTable({
   const [sortConfig, setSortConfig] = useState(DEFAULT_SORT_CONFIG);
   const [upliftOpen, setUpliftOpen] = useState(false);
   // A record is "incomplete" if it has an issue or a recommended exclusion
-  const hasIncomplete = records.some(
-    (r) =>
-      (issues && issues[r.id]) ||
-      (recommendedExclusions && recommendedExclusions[r.id])
-  );
+  const hasIncomplete = records.some((r) => {
+    return Boolean(r.hasIssue) || Boolean(r.hasExclusion);
+  });
 
   const toggleGroup = useCallback(
     (group) =>
@@ -130,18 +128,50 @@ export default function CollapsibleTable({
     <>
       {hasIncomplete && (
         <Button
-          variant="outlined"
-          color="warning"
-          sx={{ mb: 2 }}
+          variant="contained"
+          color="primary"
+          sx={{
+            mb: 2,
+            color: theme.palette.primary.contrastText,
+            backgroundColor: theme.palette.secondary.main,
+            fontWeight: "bold",
+            boxShadow: 2,
+            "&:hover": {
+              backgroundColor: theme.palette.primary.dark,
+              color: theme.palette.primary.contrastText,
+              boxShadow: 4,
+            },
+          }}
           onClick={() => setUpliftOpen(true)}
         >
           Fix Incomplete Records
         </Button>
       )}
 
-      <Dialog open={upliftOpen} onClose={() => setUpliftOpen(false)}>
-        <DialogTitle>Data Uplift Coming Soon</DialogTitle>
-        <DialogContent>
+      <Dialog
+        open={upliftOpen}
+        onClose={() => setUpliftOpen(false)}
+        PaperProps={{
+          sx: {
+            backgroundColor: theme.palette.background.paper,
+            color: theme.palette.text.primary,
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            backgroundColor: theme.palette.background.paper,
+            color: theme.palette.text.primary,
+          }}
+        >
+          Data Uplift Coming Soon
+        </DialogTitle>
+        <DialogContent
+          sx={{
+            backgroundColor: theme.palette.background.paper,
+            color: theme.palette.text.primary,
+          }}
+        >
           <Typography gutterBottom>
             This feature will allow you to automatically enhance incomplete
             records (e.g. missing ABN or supplier names) using verified external
@@ -151,8 +181,24 @@ export default function CollapsibleTable({
             A small fee per record will apply for uplift. Stay tuned!
           </Typography>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setUpliftOpen(false)}>Close</Button>
+        <DialogActions
+          sx={{
+            backgroundColor: theme.palette.background.paper,
+          }}
+        >
+          <Button
+            onClick={() => setUpliftOpen(false)}
+            sx={{
+              backgroundColor: theme.palette.primary.main,
+              color: theme.palette.primary.contrastText,
+              "&:hover": {
+                backgroundColor: theme.palette.primary.dark,
+                color: theme.palette.primary.contrastText,
+              },
+            }}
+          >
+            Close
+          </Button>
         </DialogActions>
       </Dialog>
 
@@ -192,7 +238,14 @@ export default function CollapsibleTable({
           </Box>
         )}
       </Box>
-      <TableContainer component={Paper} sx={{ maxHeight: 500, p: 0 }}>
+      <TableContainer
+        component={Paper}
+        sx={{
+          maxHeight: 500,
+          p: 0,
+          backgroundColor: theme.palette.background.paper,
+        }}
+      >
         <Table stickyHeader>
           <TableHead>
             <TableRow
@@ -200,12 +253,13 @@ export default function CollapsibleTable({
                 position: "sticky",
                 top: 0,
                 zIndex: 11,
-                backgroundColor: (theme) => theme.palette.background.paper,
+                backgroundColor: theme.palette.background.paper,
               }}
             >
               <TableCell
                 sx={{
                   backgroundColor: theme.palette.background.paper,
+                  color: theme.palette.text.primary,
                   fontWeight: "bold",
                   borderBottom: `1px solid ${theme.palette.divider}`,
                 }}
@@ -217,6 +271,7 @@ export default function CollapsibleTable({
                   colSpan={collapsedGroups[group] ? 1 : fields.length}
                   sx={{
                     backgroundColor: theme.palette.background.paper,
+                    color: theme.palette.text.primary,
                     fontWeight: "bold",
                     borderBottom: `1px solid ${theme.palette.divider}`,
                     cursor: "pointer",
@@ -231,7 +286,10 @@ export default function CollapsibleTable({
                     }}
                   >
                     {group.toUpperCase()}
-                    <IconButton size="small" sx={{ ml: 1, color: "inherit" }}>
+                    <IconButton
+                      size="small"
+                      sx={{ ml: 1, color: theme.palette.text.primary }}
+                    >
                       {collapsedGroups[group] ? (
                         <KeyboardArrowRightIcon fontSize="inherit" />
                       ) : (
@@ -245,7 +303,12 @@ export default function CollapsibleTable({
             <TableRow>
               <TableCell
                 align="center"
-                sx={{ fontWeight: "bold", verticalAlign: "bottom" }}
+                sx={{
+                  fontWeight: "bold",
+                  verticalAlign: "bottom",
+                  backgroundColor: theme.palette.background.paper,
+                  color: theme.palette.text.primary,
+                }}
               >
                 ⚠️ 🧠
                 <Select
@@ -264,6 +327,18 @@ export default function CollapsibleTable({
                       return { ...prev, filters: newFilters };
                     });
                   }}
+                  sx={{
+                    backgroundColor: theme.palette.background.paper,
+                    color: theme.palette.text.primary,
+                  }}
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        backgroundColor: theme.palette.background.paper,
+                        color: theme.palette.text.primary,
+                      },
+                    },
+                  }}
                 >
                   <MenuItem value="">(All)</MenuItem>
                   <MenuItem value="issue">⚠️ Issue</MenuItem>
@@ -276,7 +351,15 @@ export default function CollapsibleTable({
               {Object.entries(groupedVisibleFields).flatMap(
                 ([group, fields]) =>
                   collapsedGroups[group]
-                    ? [<TableCell key={`${group}-collapsed`} />]
+                    ? [
+                        <TableCell
+                          key={`${group}-collapsed`}
+                          sx={{
+                            backgroundColor: theme.palette.background.paper,
+                            color: theme.palette.text.primary,
+                          }}
+                        />,
+                      ]
                     : fields.map((field) => {
                         if (hiddenColumns?.includes(field.name)) return null;
                         return (
@@ -300,6 +383,8 @@ export default function CollapsibleTable({
                                 backgroundColor: theme.palette.action.hover,
                               },
                               verticalAlign: "bottom",
+                              backgroundColor: theme.palette.background.paper,
+                              color: theme.palette.text.primary,
                             }}
                           >
                             <Tooltip title="Click to sort" placement="top-end">
@@ -337,6 +422,19 @@ export default function CollapsibleTable({
                                   };
                                   return { ...prev, filters: newFilters };
                                 });
+                              }}
+                              sx={{
+                                backgroundColor: theme.palette.background.paper,
+                                color: theme.palette.text.primary,
+                              }}
+                              MenuProps={{
+                                PaperProps: {
+                                  sx: {
+                                    backgroundColor:
+                                      theme.palette.background.paper,
+                                    color: theme.palette.text.primary,
+                                  },
+                                },
                               }}
                             >
                               <MenuItem value="">(All)</MenuItem>
