@@ -402,36 +402,34 @@ export default function CollapsibleTable({
                                 formatCurrency(record[field.name])
                               ) : field.type === "date" ? (
                                 formatDateForMySQL(record[field.name])
+                              ) : field.type === "checkbox" ? (
+                                <Checkbox
+                                  checked={Boolean(record[field.name])}
+                                  onChange={(e) =>
+                                    handleRecordChange(
+                                      record.id,
+                                      field.name,
+                                      e.target.checked
+                                    )
+                                  }
+                                  disabled={isLocked}
+                                />
                               ) : isEditable ? (
-                                field.type === "boolean" ? (
-                                  <Checkbox
-                                    checked={Boolean(record[field.name])}
-                                    onChange={(e) =>
-                                      handleRecordChange(
-                                        record.id,
-                                        field.name,
-                                        e.target.checked
-                                      )
-                                    }
-                                    disabled={isLocked}
-                                  />
-                                ) : (
-                                  <TextField
-                                    variant="outlined"
-                                    size="small"
-                                    fullWidth
-                                    multiline={field.multiline || false}
-                                    value={record[field.name] || ""}
-                                    onChange={(e) =>
-                                      handleRecordChange(
-                                        record.id,
-                                        field.name,
-                                        e.target.value
-                                      )
-                                    }
-                                    disabled={isLocked}
-                                  />
-                                )
+                                <TextField
+                                  variant="outlined"
+                                  size="small"
+                                  fullWidth
+                                  multiline={field.multiline || false}
+                                  value={record[field.name] || ""}
+                                  onChange={(e) =>
+                                    handleRecordChange(
+                                      record.id,
+                                      field.name,
+                                      e.target.value
+                                    )
+                                  }
+                                  disabled={isLocked}
+                                />
                               ) : (
                                 record[field.name] || "-"
                               )}
