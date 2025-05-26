@@ -94,6 +94,12 @@ export default function CollapsibleTable({
       const passesColumnFilters = Object.entries(
         sortConfig?.filters || {}
       ).every(([key, value]) => {
+        if (key === "flagStatus") {
+          if (value === "issue") return record.hasIssue;
+          if (value === "exclusion") return record.hasExclusion;
+          if (value === "none") return !record.hasIssue && !record.hasExclusion;
+          return true;
+        }
         const recordValue = String(record[key] || "").toLowerCase();
         if (value === "__empty__") return !record[key];
         return recordValue.includes(value.toLowerCase());
@@ -197,9 +203,13 @@ export default function CollapsibleTable({
                 backgroundColor: (theme) => theme.palette.background.paper,
               }}
             >
-              <TableCell align="center" sx={{ fontWeight: "bold" }}>
-                ⚠️
-              </TableCell>
+              <TableCell
+                sx={{
+                  backgroundColor: theme.palette.background.paper,
+                  fontWeight: "bold",
+                  borderBottom: `1px solid ${theme.palette.divider}`,
+                }}
+              />
               {Object.entries(groupedVisibleFields).map(([group, fields]) => (
                 <TableCell
                   key={group}
@@ -233,7 +243,36 @@ export default function CollapsibleTable({
               ))}
             </TableRow>
             <TableRow>
-              <TableCell />
+              <TableCell
+                align="center"
+                sx={{ fontWeight: "bold", verticalAlign: "bottom" }}
+              >
+                ⚠️ 🧠
+                <Select
+                  size="small"
+                  variant="standard"
+                  fullWidth
+                  value={sortConfig?.filters?.["flagStatus"] ?? ""}
+                  onClick={(e) => e.stopPropagation()}
+                  onChange={(e) => {
+                    const { value } = e.target;
+                    setSortConfig((prev) => {
+                      const newFilters = {
+                        ...(prev.filters || {}),
+                        flagStatus: value,
+                      };
+                      return { ...prev, filters: newFilters };
+                    });
+                  }}
+                >
+                  <MenuItem value="">(All)</MenuItem>
+                  <MenuItem value="issue">⚠️ Issue</MenuItem>
+                  <MenuItem value="exclusion">
+                    🧠 Recommended Exclusion
+                  </MenuItem>
+                  <MenuItem value="none">None</MenuItem>
+                </Select>
+              </TableCell>
               {Object.entries(groupedVisibleFields).flatMap(
                 ([group, fields]) =>
                   collapsedGroups[group]
@@ -336,16 +375,15 @@ export default function CollapsibleTable({
                 }}
               >
                 <TableCell>
-                  {issues && issues[record.id] ? (
+                  {record.hasExclusion ? (
+                    <Tooltip title="Recommended Exclusion">
+                      <Typography fontWeight="bold">🧠</Typography>
+                    </Tooltip>
+                  ) : record.hasIssue ? (
                     <Tooltip title="Issue">
                       <Typography color="error" fontWeight="bold">
                         ⚠️
                       </Typography>
-                    </Tooltip>
-                  ) : recommendedExclusions &&
-                    recommendedExclusions[record.id] ? (
-                    <Tooltip title="Recommended Exclusion">
-                      <Typography fontWeight="bold">🧠</Typography>
                     </Tooltip>
                   ) : null}
                 </TableCell>
