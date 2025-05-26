@@ -36,14 +36,14 @@ const DEFAULT_SORT_CONFIG = {
   filters: {},
 };
 
-export default function CollapsibleTable({ editableFields, hiddenColumns }) {
-  const {
-    records,
-    isLocked,
-    requiresAttention,
-    handleRecordChange,
-    handleSaveUpdates,
-  } = useReportContext();
+export default function CollapsibleTable({
+  editableFields,
+  hiddenColumns,
+  issues = {},
+  recommendedExclusions = {},
+}) {
+  const { records, isLocked, handleRecordChange, handleSaveUpdates } =
+    useReportContext();
   const theme = useTheme();
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(0);
@@ -51,8 +51,11 @@ export default function CollapsibleTable({ editableFields, hiddenColumns }) {
   const [collapsedGroups, setCollapsedGroups] = useState({});
   const [sortConfig, setSortConfig] = useState(DEFAULT_SORT_CONFIG);
   const [upliftOpen, setUpliftOpen] = useState(false);
+  // A record is "incomplete" if it has an issue or a recommended exclusion
   const hasIncomplete = records.some(
-    (r) => requiresAttention && requiresAttention[r.id]
+    (r) =>
+      (issues && issues[r.id]) ||
+      (recommendedExclusions && recommendedExclusions[r.id])
   );
 
   const toggleGroup = useCallback(
@@ -119,7 +122,7 @@ export default function CollapsibleTable({ editableFields, hiddenColumns }) {
 
   return (
     <>
-      {!hasIncomplete && (
+      {hasIncomplete && (
         <Button
           variant="outlined"
           color="warning"
@@ -333,11 +336,18 @@ export default function CollapsibleTable({ editableFields, hiddenColumns }) {
                 }}
               >
                 <TableCell>
-                  {requiresAttention && requiresAttention[record.id] && (
-                    <Typography color="error" fontWeight="bold">
-                      ⚠️
-                    </Typography>
-                  )}
+                  {issues && issues[record.id] ? (
+                    <Tooltip title="Issue">
+                      <Typography color="error" fontWeight="bold">
+                        ⚠️
+                      </Typography>
+                    </Tooltip>
+                  ) : recommendedExclusions &&
+                    recommendedExclusions[record.id] ? (
+                    <Tooltip title="Recommended Exclusion">
+                      <Typography fontWeight="bold">🧠</Typography>
+                    </Tooltip>
+                  ) : null}
                 </TableCell>
                 {Object.entries(groupedVisibleFields).flatMap(
                   ([group, fields]) =>

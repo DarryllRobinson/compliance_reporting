@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { getExclusionFlags, getIssueFlags } from "../../../lib/utils/";
 import { useParams } from "react-router";
 import {
   Box,
@@ -13,7 +14,7 @@ import {
 import Loading from "../../../components/Loading";
 
 // Step components (to be built/refactored)
-import Step1 from "./Step1";
+import StepView from "./StepView";
 import Step2View from "./steps/Step2View";
 import Step3View from "./steps/Step3View";
 import Step4View from "./steps/Step4View";
@@ -24,9 +25,10 @@ import Step6View from "./steps/Step6View";
 import { tcpService } from "../../../services";
 import { glossary, ptrsGuidance } from "../../../constants/";
 import { ReportContext } from "../../../context/ReportContext";
+import { stepConfigs } from "../../../config/stepConfigs";
 
 const steps = [
-  { label: "Step 1: Confirm TCPs", Component: Step1 },
+  { label: "Step 1: Confirm TCPs", Component: StepView },
   { label: "Step 2: Finalise TCP Dataset", Component: Step2View },
   { label: "Step 3: Export ABNs for SBI", Component: Step3View },
   { label: "Step 4: Upload SBI Results", Component: Step4View },
@@ -78,6 +80,28 @@ export default function ReportWizard() {
   const [alert, setAlert] = useState(null);
 
   const { Component } = steps[currentStep];
+  const stepConfig = stepConfigs[`step${currentStep + 1}`];
+
+  const updateRecordsWithFlags = useCallback(
+    (records) => {
+      if (!records || records.length === 0) return records;
+
+      // Apply exclusion flags
+      const excludedRecords = getExclusionFlags(
+        records,
+        stepConfig.exclusionRules
+      );
+
+      // Apply issue flags
+      const issueRecords = getIssueFlags(
+        excludedRecords,
+        stepConfig.issueRules
+      );
+
+      return issueRecords;
+    },
+    [stepConfig]
+  );
 
   useEffect(() => {
     // Initial load logic (e.g. fetch report data)
@@ -96,7 +120,8 @@ export default function ReportWizard() {
             original: originalCopy,
           };
         });
-        setRecords(enhancedRecords || {});
+        setRecords(enhancedRecords || []);
+        setRecords((prev) => updateRecordsWithFlags(prev));
       } catch (error) {
         console.error("Error loading report records:", error);
       } finally {
@@ -104,7 +129,7 @@ export default function ReportWizard() {
       }
     }
     loadRecords();
-  }, [reportId]);
+  }, [reportId, updateRecordsWithFlags]);
 
   const goToNext = () => {
     // Save any changes before moving to the next step
@@ -279,6 +304,7 @@ export default function ReportWizard() {
         records,
         handleRecordChange,
         handleSaveUpdates,
+        updateRecordsWithFlags, // add here
       }}
     >
       <Box sx={{ pt: 2, px: 3 }}>
@@ -326,7 +352,7 @@ export default function ReportWizard() {
         </Stepper>
 
         {renderGuidance()}
-        {records ? <Component /> : <Loading />}
+        {records ? <Component stepId={currentStep + 1} /> : <Loading />}
 
         <Box sx={{ display: "flex", justifyContent: "space-between", mt: 4 }}>
           <Button

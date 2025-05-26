@@ -16,18 +16,29 @@ export const stepConfigs = {
       tcpCategory: "string",
       notes: "string",
     },
-    getIssueCounts: (records) => ({
-      missingAbnCount: records.filter(
-        (r) => String(r.payeeEntityAbn ?? "").trim() === ""
-      ).length,
-      missingNameCount: records.filter(
-        (r) =>
-          !(typeof r.payeeEntityName === "string" && r.payeeEntityName.trim())
-      ).length,
-      recommendedExclusionCount: records.filter(
-        (r) => r.systemRecommendation === false
-      ).length,
-    }),
+    issueRules: [
+      {
+        id: "missingAbn",
+        label: "Missing Payee Entity ABN",
+        field: "payeeEntityAbn",
+        condition: (record) =>
+          !record.payeeEntityAbn || record.payeeEntityAbn === "",
+      },
+      {
+        id: "missingName",
+        label: "Missing Payee Entity Name",
+        field: "payeeEntityName",
+        condition: (record) =>
+          !record.payeeEntityName || record.payeeEntityName === "",
+      },
+    ],
+    exclusionRules: [
+      {
+        field: "description",
+        type: "contains",
+        terms: ["wage", "salary", "commission"],
+      },
+    ],
   },
 
   // future steps like step2, step3...
