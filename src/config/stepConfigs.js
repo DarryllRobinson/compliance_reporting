@@ -1,7 +1,16 @@
+import { fieldMapping } from "../features/reports/ptrs/fieldMapping";
+
 export const stepConfigs = {
   step1: {
-    editableFields: ["isTcp", "tcpCategory", "notes"],
-    hiddenColumns: ["createdAt", "updatedAt", "systemRecommendation"],
+    editableFields: ["isTcp", "tcpExclusionComment"],
+    hiddenColumns: fieldMapping
+      .filter(
+        (field) =>
+          !field.requiredAtStep?.includes(1) ||
+          field.group === "step 2" ||
+          field.group === "step 3"
+      )
+      .map((field) => field.name),
     validationRules: {
       isTcp: "boolean",
       tcpCategory: "string",

@@ -230,11 +230,4 @@ export const fieldMapping = [
     requiredAtStep: [2],
     group: "step 4",
   },
-  {
-    name: "notes",
-    label: "Notes",
-    type: "textArea",
-    requiredAtStep: [2],
-    group: "step 4",
-  },
 ];

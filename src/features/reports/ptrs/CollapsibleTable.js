@@ -36,11 +36,10 @@ const DEFAULT_SORT_CONFIG = {
   filters: {},
 };
 
-export default function CollapsibleTable() {
+export default function CollapsibleTable({ editableFields, hiddenColumns }) {
   const {
     records,
     isLocked,
-    currentStep,
     requiresAttention,
     handleRecordChange,
     handleSaveUpdates,
@@ -64,8 +63,7 @@ export default function CollapsibleTable() {
 
   const groupedVisibleFields = useMemo(() => {
     const filtered = fieldMapping.filter(
-      (field) =>
-        !field.requiredAtStep || field.requiredAtStep.includes(currentStep)
+      (field) => !hiddenColumns?.includes(field.name)
     );
 
     const groups = {};
@@ -76,7 +74,7 @@ export default function CollapsibleTable() {
     }
 
     return groups;
-  }, [currentStep]);
+  }, [hiddenColumns]);
 
   const handleSearch = (event) => {
     const lower = event.target.value.toLowerCase();
@@ -237,80 +235,85 @@ export default function CollapsibleTable() {
                 ([group, fields]) =>
                   collapsedGroups[group]
                     ? [<TableCell key={`${group}-collapsed`} />]
-                    : fields.map((field) => (
-                        <TableCell
-                          key={field.name}
-                          onClick={() => {
-                            setSortConfig((prev) => ({
-                              ...prev,
-                              key: field.name,
-                              direction:
-                                prev &&
-                                prev.key === field.name &&
-                                prev.direction === "asc"
-                                  ? "desc"
-                                  : "asc",
-                            }));
-                          }}
-                          sx={{
-                            userSelect: "none",
-                            "&:hover": {
-                              backgroundColor: theme.palette.action.hover,
-                            },
-                            verticalAlign: "bottom",
-                          }}
-                        >
-                          <Tooltip title="Click to sort" placement="top-end">
-                            <Box
-                              sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 0.5,
-                              }}
-                            >
-                              {field.label}
-                              {sortConfig?.key === field.name && (
-                                <Typography variant="body2">
-                                  {sortConfig.direction === "asc" ? "🔼" : "🔽"}
-                                </Typography>
-                              )}
-                            </Box>
-                          </Tooltip>
-                          <Select
-                            size="small"
-                            variant="standard"
-                            fullWidth
-                            disabled={isLocked}
-                            displayEmpty
-                            value={sortConfig?.filters?.[field.name] ?? ""}
-                            onClick={(e) => e.stopPropagation()}
-                            onChange={(e) => {
-                              const { value } = e.target;
-                              setSortConfig((prev) => {
-                                const newFilters = {
-                                  ...(prev.filters || {}),
-                                  [field.name]: value,
-                                };
-                                return { ...prev, filters: newFilters };
-                              });
+                    : fields.map((field) => {
+                        if (hiddenColumns?.includes(field.name)) return null;
+                        return (
+                          <TableCell
+                            key={field.name}
+                            onClick={() => {
+                              setSortConfig((prev) => ({
+                                ...prev,
+                                key: field.name,
+                                direction:
+                                  prev &&
+                                  prev.key === field.name &&
+                                  prev.direction === "asc"
+                                    ? "desc"
+                                    : "asc",
+                              }));
+                            }}
+                            sx={{
+                              userSelect: "none",
+                              "&:hover": {
+                                backgroundColor: theme.palette.action.hover,
+                              },
+                              verticalAlign: "bottom",
                             }}
                           >
-                            <MenuItem value="">(All)</MenuItem>
-                            <MenuItem value="__empty__">(Empty)</MenuItem>
-                            {[
-                              ...new Set(
-                                records.map((r) => r[field.name] || "")
-                              ),
-                            ]
-                              .filter((v) => v)
-                              .map((option) => (
-                                <MenuItem key={option} value={option}>
-                                  {String(option)}
-                                </MenuItem>
-                              ))}
-                          </Select>
-                        </TableCell>
-                      ))
+                            <Tooltip title="Click to sort" placement="top-end">
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 0.5,
+                                }}
+                              >
+                                {field.label}
+                                {sortConfig?.key === field.name && (
+                                  <Typography variant="body2">
+                                    {sortConfig.direction === "asc"
+                                      ? "🔼"
+                                      : "🔽"}
+                                  </Typography>
+                                )}
+                              </Box>
+                            </Tooltip>
+                            <Select
+                              size="small"
+                              variant="standard"
+                              fullWidth
+                              disabled={isLocked}
+                              displayEmpty
+                              value={sortConfig?.filters?.[field.name] ?? ""}
+                              onClick={(e) => e.stopPropagation()}
+                              onChange={(e) => {
+                                const { value } = e.target;
+                                setSortConfig((prev) => {
+                                  const newFilters = {
+                                    ...(prev.filters || {}),
+                                    [field.name]: value,
+                                  };
+                                  return { ...prev, filters: newFilters };
+                                });
+                              }}
+                            >
+                              <MenuItem value="">(All)</MenuItem>
+                              <MenuItem value="__empty__">(Empty)</MenuItem>
+                              {[
+                                ...new Set(
+                                  records.map((r) => r[field.name] || "")
+                                ),
+                              ]
+                                .filter((v) => v)
+                                .map((option) => (
+                                  <MenuItem key={option} value={option}>
+                                    {String(option)}
+                                  </MenuItem>
+                                ))}
+                            </Select>
+                          </TableCell>
+                        );
+                      })
               )}
             </TableRow>
           </TableHead>
@@ -340,45 +343,53 @@ export default function CollapsibleTable() {
                   ([group, fields]) =>
                     collapsedGroups[group]
                       ? [<TableCell key={`${record.id}-${group}-collapsed`} />]
-                      : fields.map((field) => (
-                          <TableCell key={`${record.id}-${field.name}`}>
-                            {field.type === "amount" ? (
-                              formatCurrency(record[field.name])
-                            ) : field.type === "date" ? (
-                              formatDateForMySQL(record[field.name])
-                            ) : field.name === "isTcp" ? (
-                              <Checkbox
-                                checked={Boolean(record.isTcp)}
-                                onChange={(e) =>
-                                  handleRecordChange(
-                                    record.id,
-                                    "isTcp",
-                                    e.target.checked
-                                  )
-                                }
-                                disabled={isLocked}
-                              />
-                            ) : field.name === "tcpExclusionComment" ? (
-                              <TextField
-                                variant="outlined"
-                                size="small"
-                                fullWidth
-                                multiline
-                                value={record.tcpExclusionComment || ""}
-                                onChange={(e) =>
-                                  handleRecordChange(
-                                    record.id,
-                                    "tcpExclusionComment",
-                                    e.target.value
-                                  )
-                                }
-                                disabled={isLocked}
-                              />
-                            ) : (
-                              record[field.name] || "-"
-                            )}
-                          </TableCell>
-                        ))
+                      : fields.map((field) => {
+                          if (hiddenColumns?.includes(field.name)) return null;
+                          const isEditable = editableFields?.includes(
+                            field.name
+                          );
+                          return (
+                            <TableCell key={`${record.id}-${field.name}`}>
+                              {field.type === "amount" ? (
+                                formatCurrency(record[field.name])
+                              ) : field.type === "date" ? (
+                                formatDateForMySQL(record[field.name])
+                              ) : isEditable ? (
+                                field.type === "boolean" ? (
+                                  <Checkbox
+                                    checked={Boolean(record[field.name])}
+                                    onChange={(e) =>
+                                      handleRecordChange(
+                                        record.id,
+                                        field.name,
+                                        e.target.checked
+                                      )
+                                    }
+                                    disabled={isLocked}
+                                  />
+                                ) : (
+                                  <TextField
+                                    variant="outlined"
+                                    size="small"
+                                    fullWidth
+                                    multiline={field.multiline || false}
+                                    value={record[field.name] || ""}
+                                    onChange={(e) =>
+                                      handleRecordChange(
+                                        record.id,
+                                        field.name,
+                                        e.target.value
+                                      )
+                                    }
+                                    disabled={isLocked}
+                                  />
+                                )
+                              ) : (
+                                record[field.name] || "-"
+                              )}
+                            </TableCell>
+                          );
+                        })
                 )}
               </TableRow>
             ))}
