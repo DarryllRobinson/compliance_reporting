@@ -181,7 +181,7 @@ export default function ClientRegister() {
     try {
       const response = await clientService.create(clientDetails);
       sessionStorage.setItem("clientId", response.id); // Save ID for later use
-      navigate("/payment", {
+      navigate("/users/create", {
         state: {
           client: {
             id: response.id,

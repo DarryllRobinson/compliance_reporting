@@ -1,7 +1,6 @@
-import config from "../../lib/utils/config";
 import { fetchWrapper } from "../../lib/utils/";
 
-const baseUrl = `${config.apiUrl}/public`;
+const baseUrl = `${process.env.REACT_APP_API_URL}/public`;
 
 export const publicService = {
   sendEmail,

@@ -1,4 +1,3 @@
-import config from "./config";
 import { userService } from "../../services";
 
 export const fetchWrapper = {
@@ -178,7 +177,7 @@ function authHeader(url) {
   // const user = await firstValueFrom(userService.user);
   const user = userService.userValue;
   const isLoggedIn = user && user.jwtToken;
-  const isApiUrl = url.startsWith(config.apiUrl);
+  const isApiUrl = url.startsWith(process.env.REACT_APP_API_URL);
   if (isLoggedIn && isApiUrl) {
     return { Authorization: `Bearer ${user.jwtToken}` };
   } else {

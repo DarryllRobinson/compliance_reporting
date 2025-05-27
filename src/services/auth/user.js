@@ -1,10 +1,9 @@
 import { BehaviorSubject } from "rxjs";
 
-import config from "../../lib/utils/config";
 import { fetchWrapper } from "../../lib/utils/fetch-wrapper";
 
 const userSubject = new BehaviorSubject(null);
-const baseUrl = `${config.apiUrl}/users`;
+const baseUrl = `${process.env.REACT_APP_API_URL}/users`;
 
 export const userService = {
   login,

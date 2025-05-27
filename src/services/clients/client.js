@@ -1,7 +1,6 @@
-import config from "../../lib/utils/config";
 import { fetchWrapper } from "../../lib/utils/fetch-wrapper";
 
-const baseUrl = `${config.apiUrl}/clients`;
+const baseUrl = `${process.env.REACT_APP_API_URL}/clients`;
 
 export const clientService = {
   getAll,

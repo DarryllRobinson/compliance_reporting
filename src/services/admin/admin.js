@@ -1,7 +1,6 @@
-import config from "../../lib/utils/config";
 import { fetchWrapper } from "../../lib/utils/fetch-wrapper";
 
-const baseUrl = `${config.apiUrl}/admin`;
+const baseUrl = `${process.env.REACT_APP_API_URL}/admin`;
 
 export const adminService = {
   getAll,
