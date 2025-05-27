@@ -120,7 +120,7 @@ export default function ReportWizard() {
 
         const report = await reportService.getById(params.reportId);
         setReport(report || {});
-        console.log("Report loaded:", report);
+        // console.log("Report loaded:", report);
         if (report?.currentStep) {
           setCurrentStep(report.currentStep);
         }
