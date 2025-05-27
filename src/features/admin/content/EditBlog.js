@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import { Box, Button, TextField, Typography } from "@mui/material";
 import MDEditor from "@uiw/react-md-editor";
-import { adminService } from "../../services/admin/admin";
+import { adminService } from "../../../services/admin/admin";
 
 const EditBlog = () => {
   const { slug } = useParams();

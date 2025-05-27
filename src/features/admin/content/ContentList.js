@@ -16,7 +16,7 @@ import {
   DialogTitle,
 } from "@mui/material";
 import { useNavigate } from "react-router";
-import { adminService } from "../../services/admin/admin";
+import { adminService } from "../../../services/admin/admin";
 
 const ContentList = () => {
   const [content, setContent] = useState([]);

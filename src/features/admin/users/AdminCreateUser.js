@@ -169,7 +169,7 @@ export default function UserCreate() {
                 variant="contained"
                 onClick={() => {
                   sessionStorage.removeItem("clientDetails");
-                  navigate("/user/admin-dashboard");
+                  navigate("/dashboard");
                 }}
               >
                 Finish Setup

@@ -1,8 +1,97 @@
 import ClientRegister from "../features/clients/ClientRegister";
 
+// Publicly available
+import Contact from "../components/common/Contact";
+import PublicComplianceNavigator from "../components/common/PublicComplianceNavigator";
+import PTRSolution from "../components/common/PTRSolution";
+import ResourcePage from "../components/common/ResourcePage";
+import { SubmissionChecklistViewer } from "../components/common/SubmissionChecklistViewer";
+
+// Policy documents
+import ClientServiceAgreement from "../components/policies/ClientServiceAgreement";
+import PrivacyPolicy from "../components/policies/PrivacyPolicy";
+
+// Static page viewer
+import StaticPageViewer from "../components/StaticPageViewer";
+
+// Testing pdf email
+import TestPdfEmail from "../components/common/TestPdfEmail";
+
+import ForgotPassword from "../features/users/ForgotPassword";
+import ResetPassword from "../features/users/ResetPassword";
+import Login from "../features/users/Login";
+import GettingStartedPage from "../components/common/GettingStarted";
+import FAQ from "../components/common/FAQ";
+import Booking from "../components/common/Booking";
+import ContactThankyou from "../components/common/ContactThankyou";
+import BookingThankyou from "../components/common/BookingThankyou";
+import BlogIndex from "../routes/BlogIndex";
+import LegalDisclaimer from "../components/policies/LegalDisclaimer";
+
 export const publicRoutes = [
   {
     path: "/clients/register",
     Component: ClientRegister,
+  },
+  {
+    path: "/user/login",
+    Component: Login,
+  },
+  {
+    path: "compliance-navigator",
+    Component: PublicComplianceNavigator,
+  },
+  {
+    path: "contact",
+    Component: Contact,
+  },
+  {
+    path: "thankyou-contact",
+    Component: ContactThankyou,
+  },
+  {
+    path: "ptr-solution",
+    Component: PTRSolution,
+  },
+  {
+    path: "test-pdf-email",
+    Component: TestPdfEmail,
+  },
+  {
+    path: "getting-started",
+    Component: GettingStartedPage,
+  },
+  {
+    path: "faq",
+    Component: FAQ,
+  },
+  {
+    path: "booking",
+    Component: Booking,
+  },
+  {
+    path: "resources",
+    Component: ResourcePage,
+  },
+  {
+    path: "resources/submission-checklist",
+    Component: SubmissionChecklistViewer,
+  },
+  {
+    path: "thankyou-booking",
+    Component: BookingThankyou,
+  },
+  // Policy documents
+  {
+    path: "policy-documents/client-service-agreement",
+    Component: ClientServiceAgreement,
+  },
+  {
+    path: "policy-documents/privacy-policy",
+    Component: PrivacyPolicy,
+  },
+  {
+    path: "policy-documents/legal",
+    Component: LegalDisclaimer,
   },
 ];

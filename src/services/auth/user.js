@@ -19,6 +19,7 @@ export const userService = {
   reactivateUser,
   resendInvitation,
   getAll,
+  getAllByClientId,
   getById,
   create,
   update,
@@ -143,6 +144,11 @@ function resendInvitation(id) {
 // Fetch all users
 function getAll() {
   return fetchWrapper.get(baseUrl);
+}
+
+// Fetch all users by client ID
+function getAllByClientId() {
+  return fetchWrapper.get(`${baseUrl}/by-client`);
 }
 
 // Fetch a user by ID

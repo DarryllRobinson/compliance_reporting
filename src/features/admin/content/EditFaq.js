@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import MDEditor from "@uiw/react-md-editor";
 import { Box, Button, CircularProgress, Typography } from "@mui/material";
-import { adminService } from "../../services/admin/admin";
+import { adminService } from "../../../services/admin/admin";
 
 const EditFaq = () => {
   const [content, setContent] = useState("");

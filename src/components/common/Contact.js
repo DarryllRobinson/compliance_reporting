@@ -9,6 +9,7 @@ import {
   useTheme,
   CircularProgress,
   Alert,
+  MenuItem,
 } from "@mui/material";
 import { publicService } from "../../services";
 import { useNavigate } from "react-router";
@@ -19,6 +20,7 @@ import * as yup from "yup";
 // Yup schema moved outside the component and updated to use yup.object({ ... }) directly
 const schema = yup.object({
   name: yup.string().trim().required("Name is required"),
+  company: yup.string().trim().required("Company is required"),
   email: yup
     .string()
     .trim()
@@ -45,6 +47,7 @@ export default function Contact() {
     defaultValues: {
       name: "",
       email: "",
+      company: "",
       subject: "Contact Us",
       message: "",
       to: "contact@monochrome-compliance.com",
@@ -54,14 +57,31 @@ export default function Contact() {
   });
 
   const sendContactEmail = async (data) => {
-    // Trim whitespace from input fields
-    data.name = data.name.trim();
-    data.email = data.email.trim();
-    data.message = data.message.trim();
-    data.from = data.from.trim();
+    const contactEmail = {
+      name: data.name.trim(),
+      email: data.email.trim(),
+      company: data.company.trim(),
+      subject: `${data.topic} - ${data.company.trim()}`,
+      message: data.message.trim(),
+      to: data.email.trim(),
+      from: data.from.trim(),
+    };
+
     try {
       setLoading(true);
-      const response = await publicService.sendEmail(data);
+
+      // Send the contact email
+      const response = await publicService.sendEmail(contactEmail);
+
+      // Send notification email to the contact team
+      await publicService.sendEmail({
+        name: data.name.trim(),
+        email: data.email.trim(),
+        to: "contact@monochrome-compliance.com",
+        subject: `New contact: ${data.topic}`,
+        message: `New contact from ${data.name} (${data.email})`,
+        from: "contact@monochrome-compliance.com",
+      });
       if (response.status === 200) {
         reset();
         setAlert({ type: "success", message: "Message sent successfully!" });
@@ -129,6 +149,17 @@ export default function Contact() {
             sx={{ mb: theme.spacing(2) }}
           />
           <TextField
+            label="Company"
+            type="text"
+            {...register("company")}
+            error={!!errors.company}
+            helperText={errors.company?.message}
+            autoComplete="off"
+            fullWidth
+            required
+            sx={{ mb: theme.spacing(2) }}
+          />
+          <TextField
             label="Email"
             type="email"
             {...register("email")}
@@ -139,6 +170,25 @@ export default function Contact() {
             required
             sx={{ mb: theme.spacing(2) }}
           />
+          <TextField
+            select
+            label="Topic"
+            defaultValue="General contact"
+            {...register("topic")}
+            fullWidth
+            required
+            sx={{ mb: theme.spacing(2) }}
+          >
+            <MenuItem value="Suggestion for improvement">
+              Suggestion for improvement
+            </MenuItem>
+            <MenuItem value="Privacy complaint">Privacy complaint</MenuItem>
+            <MenuItem value="General contact">General contact</MenuItem>
+            <MenuItem value="Log technical issue">Log technical issue</MenuItem>
+            <MenuItem value="Request for assistance">
+              Request for assistance
+            </MenuItem>
+          </TextField>
           <TextField
             label="Message"
             type="text"
