@@ -13,8 +13,7 @@ export const stepConfigs = {
       .map((field) => field.name),
     validationRules: {
       isTcp: "boolean",
-      tcpCategory: "string",
-      notes: "string",
+      tcpExclusionComment: "string",
     },
     issueRules: [
       {
@@ -38,8 +37,54 @@ export const stepConfigs = {
         type: "contains",
         terms: ["wage", "salary", "commission"],
       },
+      {
+        field: "description",
+        type: "contains",
+        terms: ["royalty", "royalties"],
+      },
+      {
+        field: "invoicePaymentTerms",
+        type: "contains",
+        terms: ["immediate", "cash", "on delivery", "COD", "cash on delivery"],
+      },
     ],
   },
-
-  // future steps like step2, step3...
+  step2: {
+    editableFields: [
+      "peppolEnabled",
+      "rcti",
+      "creditCardPayment",
+      "creditCardNumber",
+      "partialPayment",
+    ],
+    hiddenColumns: fieldMapping
+      .filter(
+        (field) =>
+          !field.requiredAtStep?.includes(2) ||
+          field.group === "step 1" ||
+          field.group === "step 3" ||
+          field.group === "step 4"
+      )
+      .map((field) => field.name),
+    validationRules: {
+      peppolEnabled: "boolean",
+      rcti: "boolean",
+      creditCardPayment: "boolean",
+      creditCardNumber: "string",
+      partialPayment: "boolean",
+    },
+    issueRules: [],
+    exclusionRules: [
+      {
+        field: "description",
+        type: "contains",
+        terms: ["intra-group"],
+      },
+      {
+        field: "paymentAmount",
+        type: "lessThanAndCreditCard",
+        terms: [100],
+      },
+    ],
+  },
 };

@@ -193,14 +193,14 @@ export const fieldMapping = [
     label: "Payment Term",
     type: "text",
     requiredAtStep: [2],
-    group: "payment",
+    group: "step 2",
   },
   {
     name: "excludedTcp",
     label: "Excluded TCP",
     type: "checkbox",
-    requiredAtStep: [2],
-    group: "step 3",
+    requiredAtStep: [1, 2],
+    group: "step 2",
   },
   {
     name: "explanatoryComments1",

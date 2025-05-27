@@ -5,6 +5,16 @@ export function getExclusionFlags(records, rules) {
     let isExcluded = false;
 
     for (const rule of rules) {
+      if (rule.type === "lessThanAndCreditCard") {
+        const isLessThan = Number(record.paymentAmount) < rule.terms[0];
+        const isCreditCardPayment = record.creditCardPayment === true;
+        if (isLessThan && isCreditCardPayment) {
+          isExcluded = true;
+          break;
+        }
+        continue;
+      }
+
       const value = record[rule.field];
       if (typeof value === "undefined") continue;
 
@@ -12,7 +22,7 @@ export function getExclusionFlags(records, rules) {
         typeof value === "string" ? value.toLowerCase() : value;
 
       for (const term of rule.terms) {
-        const termLower = term.toLowerCase();
+        const termLower = typeof term === "string" ? term.toLowerCase() : term;
         const isExactMatch = rule.type === "exact" && valueLower === termLower;
         const isContainsMatch =
           rule.type === "contains" &&

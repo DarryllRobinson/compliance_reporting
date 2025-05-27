@@ -13,27 +13,20 @@ import {
 } from "@mui/material";
 import Loading from "../../../components/Loading";
 
-// Step components (to be built/refactored)
 import StepView from "./StepView";
-import Step2View from "./steps/Step2View";
-import Step3View from "./steps/Step3View";
-import Step4View from "./steps/Step4View";
-import Step5View from "./steps/Step5View";
-import Step6View from "./steps/Step6View";
 
-// Example data loader (replace with actual context or API call if needed)
-import { tcpService } from "../../../services";
+import { reportService, tcpService } from "../../../services";
 import { glossary, ptrsGuidance } from "../../../constants/";
 import { ReportContext } from "../../../context/ReportContext";
 import { stepConfigs } from "../../../config/stepConfigs";
 
 const steps = [
   { label: "Step 1: Confirm TCPs", Component: StepView },
-  { label: "Step 2: Finalise TCP Dataset", Component: Step2View },
-  { label: "Step 3: Export ABNs for SBI", Component: Step3View },
-  { label: "Step 4: Upload SBI Results", Component: Step4View },
-  { label: "Step 5: Small Business Review", Component: Step5View },
-  { label: "Step 6: Summary & Submission", Component: Step6View },
+  { label: "Step 2: Finalise TCP Dataset", Component: StepView },
+  { label: "Step 3: Export ABNs for SBI", Component: StepView },
+  { label: "Step 4: Upload SBI Results", Component: StepView },
+  { label: "Step 5: Small Business Review", Component: StepView },
+  { label: "Step 6: Summary & Submission", Component: StepView },
 ];
 
 function enhanceWithGlossary(text) {
@@ -76,8 +69,10 @@ export default function ReportWizard() {
   const { reportId } = useParams();
   const [currentStep, setCurrentStep] = useState(0);
   const [records, setRecords] = useState([]);
+  const [report, setReport] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [alert, setAlert] = useState(null);
+  const params = useParams();
 
   const { Component } = steps[currentStep];
   const stepConfig = stepConfigs[`step${currentStep + 1}`];
@@ -122,6 +117,13 @@ export default function ReportWizard() {
         });
         setRecords(enhancedRecords || []);
         setRecords((prev) => updateRecordsWithFlags(prev));
+
+        const report = await reportService.getById(params.reportId);
+        setReport(report || {});
+        console.log("Report loaded:", report);
+        if (report?.currentStep) {
+          setCurrentStep(report.currentStep);
+        }
       } catch (error) {
         console.error("Error loading report records:", error);
       } finally {
@@ -129,7 +131,7 @@ export default function ReportWizard() {
       }
     }
     loadRecords();
-  }, [reportId, updateRecordsWithFlags]);
+  }, [reportId, updateRecordsWithFlags, params.reportId]);
 
   const goToNext = () => {
     // Save any changes before moving to the next step
@@ -162,8 +164,23 @@ export default function ReportWizard() {
 
     setCurrentStep((prev) => {
       if (prev < steps.length - 1) return prev + 1;
+      // report.currentStep = prev;
       return prev;
     });
+
+    // Update the report's current step in the database
+    // reportService
+    //   .update(params.reportId, report)
+    //   .then(() => {
+    //     console.log("Report step updated successfully");
+    //   })
+    //   .catch((error) => {
+    //     console.error("Failed to update report step:", error);
+    //     setAlert({
+    //       type: "error",
+    //       message: "Failed to update report step.",
+    //     });
+    //   });
   };
 
   const goToBack = () => {
@@ -322,7 +339,7 @@ export default function ReportWizard() {
           variant="subtitle1"
           sx={{ mb: 0.5, color: "text.secondary" }}
         >
-          Step {currentStep} of {steps.length}
+          Step {currentStep + 1} of {steps.length}
         </Typography>
         <Stepper activeStep={currentStep} alternativeLabel sx={{ mb: 2.5 }}>
           {steps.map((step, index) => (

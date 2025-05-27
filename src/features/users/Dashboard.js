@@ -114,7 +114,7 @@ export default function Dashboard() {
               color="primary"
               onClick={() => continueReport(row)}
             >
-              Continue
+              Resume
             </Button>
           ) : (
             <Button
