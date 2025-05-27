@@ -23,7 +23,7 @@ yarn-debug.log*
 yarn-error.log*
 
 # configuration
-*config.*
+config.*
 
 # .env files
 .env

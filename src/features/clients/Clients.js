@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router"; // Import useNavigate
 import { clientService } from "../../services";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   useTheme,
   Box,
@@ -11,7 +11,6 @@ import {
   ListItemText,
   Button,
 } from "@mui/material";
-import ProtectedRoutes from "../../lib/utils/ProtectedRoutes";
 
 export default function Clients() {
   const [clients, setClients] = useState([]);
@@ -20,11 +19,6 @@ export default function Clients() {
   const navigate = useNavigate(); // Initialize navigate
 
   useEffect(() => {
-    if (!ProtectedRoutes("Admin")) {
-      navigate("/user/dashboard");
-      return;
-    }
-
     async function fetchClients() {
       try {
         const response = await clientService.getAll();
