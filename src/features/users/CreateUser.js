@@ -13,7 +13,7 @@ import {
   Paper,
   Grid,
 } from "@mui/material";
-import { clientService, userService } from "../../services";
+import { userService } from "../../services";
 import { Alert } from "@mui/material";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -27,18 +27,36 @@ const validationSchema = Yup.object().shape({
   position: Yup.string().required("Position is required"),
   role: Yup.string().required("Role is required"),
   clientName: Yup.string().required("Client selection is required"),
+  password: Yup.string().when("$isFirstUser", {
+    is: true,
+    then: (schema) =>
+      schema
+        .required("Password is required")
+        .min(8, "Password must be at least 8 characters")
+        .matches(/[a-z]/, "Password must contain at least one lowercase letter")
+        .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
+        .matches(/\d/, "Password must contain at least one number"),
+    otherwise: (schema) => schema.notRequired(),
+  }),
+  confirmPassword: Yup.string().when("$isFirstUser", {
+    is: true,
+    then: (schema) =>
+      schema
+        .required("Confirm Password is required")
+        .oneOf([Yup.ref("password"), null], "Passwords must match"),
+    otherwise: (schema) => schema.notRequired(),
+  }),
 });
 
 export default function UserCreate() {
   const theme = useTheme();
-  const [clients, setClients] = useState([]);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   const [alert, setAlert] = useState(null);
   const [storedClientDetails, setStoredClientDetails] = useState({});
   const [selectedRole, setSelectedRole] = useState("Admin"); // Controlled state for role
-  const [selectedClient, setSelectedClient] = useState(""); // Controlled state for client
   const location = useLocation();
+  const isFirstUser = location.state?.step !== 2;
 
   const {
     register,
@@ -47,20 +65,9 @@ export default function UserCreate() {
     setValue,
   } = useForm({
     resolver: yupResolver(validationSchema),
+    context: { isFirstUser },
+    // Remove defaultValues usage of storedClientDetails
   });
-
-  useEffect(() => {
-    async function fetchClients() {
-      try {
-        const result = await clientService.getAll();
-        setClients(result || []);
-      } catch (err) {
-        console.error("Failed to fetch clients:", err);
-        setError("Unable to load client list.");
-      }
-    }
-    fetchClients();
-  }, []);
 
   useEffect(() => {
     let clientDetails = (location.state && location.state.client) || {};
@@ -76,38 +83,43 @@ export default function UserCreate() {
 
     setStoredClientDetails(clientDetails);
 
-    const initialClient = clients.find(
-      (client) => client.businessName === clientDetails.name
-    );
-    if (initialClient) {
-      setSelectedClient(initialClient.id);
-      setValue("clientId", initialClient.id);
-    }
-
-    setValue("firstName", clientDetails.contactFirst || "");
-    setValue("lastName", clientDetails.contactLast || "");
-    setValue("email", clientDetails.contactEmail || "");
-    setValue("phone", clientDetails.contactPhone || "");
-    setValue("position", clientDetails.contactPosition || "");
     setValue("role", "Admin");
-    setValue("clientName", clientDetails.name || "");
-  }, [clients, location.state, setValue]);
+    setValue(
+      "clientName",
+      clientDetails.name || clientDetails.clientName || ""
+    );
+    setValue("firstName", clientDetails.firstName || "");
+    setValue("lastName", clientDetails.lastName || "");
+    setValue("email", clientDetails.email || "");
+    setValue("phone", clientDetails.phone || "");
+    setValue("position", clientDetails.position || "");
+    setValue("clientId", clientDetails.id || "");
+  }, [location.state, setValue]);
 
   const onSubmit = async (data) => {
-    let userDetails = { ...data, active: true };
-
+    let userDetails = { ...data, active: true, verified: new Date() };
     try {
-      await userService.register(userDetails);
+      if (isFirstUser) {
+        await userService.registerFirstUser(userDetails);
+        await userService.login({
+          email: userDetails.email,
+          password: userDetails.password,
+        });
 
-      // Silent login using same credentials
-      await userService.login({
-        email: userDetails.email,
-        password: userDetails.password,
-      });
+        setAlert({
+          type: "success",
+          message: "Welcome! Your admin user has been created.",
+        });
 
-      navigate("/users/create", {
-        state: { step: 2 },
-      });
+        sessionStorage.removeItem("clientDetails");
+        navigate("/admin");
+      } else {
+        await userService.register(userDetails);
+        setAlert({
+          type: "success",
+          message: "User created successfully.",
+        });
+      }
     } catch (error) {
       setAlert({
         type: "error",
@@ -150,155 +162,162 @@ export default function UserCreate() {
             {alert.message}
           </Alert>
         )}
-        {location.state?.step === 2 && (
-          <Box sx={{ mb: 2 }}>
-            <Alert severity="info">
-              You're now logged in as Admin. Add another user or click "Finish
-              Setup" to continue to your dashboard.
-            </Alert>
-            <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
-              <Button
-                variant="outlined"
-                onClick={() =>
-                  navigate("/users/create", { state: { step: 2 } })
-                }
-              >
-                Add Another User
-              </Button>
-              <Button
-                variant="contained"
-                onClick={() => {
-                  sessionStorage.removeItem("clientDetails");
-                  navigate("/user/admin-dashboard");
-                }}
-              >
-                Finish Setup
-              </Button>
-            </Box>
-          </Box>
-        )}
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          id="create-user-form"
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: theme.spacing(2),
-          }}
-        >
-          <Grid container spacing={2}>
-            <Grid item xs={6}>
-              <TextField
-                label="First Name"
-                name="firstName"
-                type="string"
-                fullWidth
-                required
-                {...register("firstName")}
-                error={!!errors.firstName}
-                helperText={errors.firstName?.message}
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <TextField
-                label="Last Name"
-                name="lastName"
-                type="string"
-                fullWidth
-                required
-                {...register("lastName")}
-                error={!!errors.lastName}
-                helperText={errors.lastName?.message}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                label="Email"
-                name="email"
-                type="string"
-                fullWidth
-                required
-                {...register("email")}
-                error={!!errors.email}
-                helperText={errors.email?.message}
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <TextField
-                label="Phone"
-                name="phone"
-                type="string"
-                fullWidth
-                required
-                {...register("phone")}
-                error={!!errors.phone}
-                helperText={errors.phone?.message}
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <TextField
-                label="Position"
-                name="position"
-                type="string"
-                fullWidth
-                required
-                {...register("position")}
-                error={!!errors.position}
-                helperText={errors.position?.message}
-              />
-            </Grid>
-            {/* Password fields removed */}
-            <Grid item xs={6}>
-              <FormControl fullWidth error={!!errors.role}>
-                <InputLabel id="role-select-label">Role</InputLabel>
-                <Select
-                  labelId="role-select-label"
-                  name="role"
-                  id="role"
-                  label="List of Roles"
-                  value={selectedRole}
-                  onChange={(e) => {
-                    setSelectedRole(e.target.value);
-                    setValue("role", e.target.value, { shouldValidate: true });
-                  }}
-                  required
-                >
-                  <MenuItem value="User">User</MenuItem>
-                  <MenuItem value="Approver">Approver</MenuItem>
-                  <MenuItem value="Admin">Admin</MenuItem>
-                </Select>
-                {errors.role && (
-                  <Typography variant="caption" color="error">
-                    {errors.role.message}
-                  </Typography>
-                )}
-              </FormControl>
-            </Grid>
-            <Grid item xs={6}>
-              <TextField
-                label="Company"
-                name="clientName"
-                type="string"
-                {...register("clientName")}
-                fullWidth
-                disabled
-              />
-            </Grid>
-          </Grid>
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-            You’ll receive an email with a secure link to set your password
-            after verifying your email.
-          </Typography>
-          <Button
-            variant="contained"
-            color="primary"
-            type="submit"
-            fullWidth
-            sx={{ mt: theme.spacing(2) }}
+        {/* Removed Add Another User and Finish Setup UI */}
+        {!(alert && alert.type === "success" && isFirstUser) && (
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            id="create-user-form"
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: theme.spacing(2),
+            }}
           >
-            Create User
-          </Button>
-        </form>
+            <Grid container spacing={2}>
+              <Grid item xs={6}>
+                <TextField
+                  label="First Name"
+                  name="firstName"
+                  type="string"
+                  fullWidth
+                  required
+                  {...register("firstName")}
+                  error={!!errors.firstName}
+                  helperText={errors.firstName?.message}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  label="Last Name"
+                  name="lastName"
+                  type="string"
+                  fullWidth
+                  required
+                  {...register("lastName")}
+                  error={!!errors.lastName}
+                  helperText={errors.lastName?.message}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  label="Email"
+                  name="email"
+                  type="string"
+                  fullWidth
+                  required
+                  {...register("email")}
+                  error={!!errors.email}
+                  helperText={errors.email?.message}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  label="Phone"
+                  name="phone"
+                  type="string"
+                  fullWidth
+                  required
+                  {...register("phone")}
+                  error={!!errors.phone}
+                  helperText={errors.phone?.message}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  label="Position"
+                  name="position"
+                  type="string"
+                  fullWidth
+                  required
+                  {...register("position")}
+                  error={!!errors.position}
+                  helperText={errors.position?.message}
+                />
+              </Grid>
+              {isFirstUser && (
+                <>
+                  <Grid item xs={6}>
+                    <TextField
+                      label="Password"
+                      name="password"
+                      type="password"
+                      fullWidth
+                      required
+                      {...register("password")}
+                      error={!!errors.password}
+                      helperText={errors.password?.message}
+                    />
+                  </Grid>
+                  <Grid item xs={6}>
+                    <TextField
+                      label="Confirm Password"
+                      name="confirmPassword"
+                      type="password"
+                      fullWidth
+                      required
+                      {...register("confirmPassword")}
+                      error={!!errors.confirmPassword}
+                      helperText={errors.confirmPassword?.message}
+                    />
+                  </Grid>
+                </>
+              )}
+              <Grid item xs={6}>
+                <FormControl fullWidth error={!!errors.role}>
+                  <InputLabel id="role-select-label">Role</InputLabel>
+                  <Select
+                    labelId="role-select-label"
+                    name="role"
+                    id="role"
+                    label="List of Roles"
+                    value={selectedRole}
+                    onChange={(e) => {
+                      setSelectedRole(e.target.value);
+                      setValue("role", e.target.value, {
+                        shouldValidate: true,
+                      });
+                    }}
+                    required
+                  >
+                    <MenuItem value="User">User</MenuItem>
+                    <MenuItem value="Approver">Approver</MenuItem>
+                    <MenuItem value="Admin">Admin</MenuItem>
+                  </Select>
+                  {errors.role && (
+                    <Typography variant="caption" color="error">
+                      {errors.role.message}
+                    </Typography>
+                  )}
+                </FormControl>
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  label="Company"
+                  name="clientName"
+                  type="string"
+                  {...register("clientName")}
+                  fullWidth
+                  disabled
+                />
+              </Grid>
+            </Grid>
+            {!isFirstUser ? (
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+                You’ll receive an email with a secure link to set your password
+                after verifying your email.
+              </Typography>
+            ) : null}
+            <Button
+              variant="contained"
+              color="primary"
+              type="submit"
+              fullWidth
+              sx={{ mt: theme.spacing(2) }}
+            >
+              Create User
+            </Button>
+          </form>
+        )}
       </Paper>
     </Box>
   );

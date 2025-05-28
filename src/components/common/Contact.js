@@ -60,7 +60,6 @@ export default function Contact() {
     const contactEmail = {
       name: data.name.trim(),
       email: data.email.trim(),
-      company: data.company.trim(),
       subject: `${data.topic} - ${data.company.trim()}`,
       message: data.message.trim(),
       to: data.email.trim(),
@@ -179,15 +178,15 @@ export default function Contact() {
             required
             sx={{ mb: theme.spacing(2) }}
           >
-            <MenuItem value="Suggestion for improvement">
-              Suggestion for improvement
-            </MenuItem>
-            <MenuItem value="Privacy complaint">Privacy complaint</MenuItem>
             <MenuItem value="General contact">General contact</MenuItem>
-            <MenuItem value="Log technical issue">Log technical issue</MenuItem>
+            <MenuItem value="Privacy complaint">Privacy complaint</MenuItem>
             <MenuItem value="Request for assistance">
               Request for assistance
             </MenuItem>
+            <MenuItem value="Suggestion for improvement">
+              Suggestion for improvement
+            </MenuItem>
+            <MenuItem value="Technical issue">Technical issue</MenuItem>
           </TextField>
           <TextField
             label="Message"

@@ -61,7 +61,7 @@ export default function VerifyEmail() {
   const onSubmit = async (values) => {
     try {
       await userService.setPassword({ token, ...values });
-      navigate("/user/signin", { replace: true });
+      navigate("/user/login", { replace: true });
     } catch (error) {
       console.error(error);
     }

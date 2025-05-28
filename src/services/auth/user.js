@@ -10,6 +10,7 @@ export const userService = {
   logout,
   refreshToken,
   register,
+  registerFirstUser,
   verifyEmail,
   forgotPassword,
   validateResetToken,
@@ -92,6 +93,11 @@ function refreshToken() {
 // Register a new user
 function register(params) {
   return fetchWrapper.post(`${baseUrl}/register`, params);
+}
+
+// Register the first user in the system
+function registerFirstUser(params) {
+  return fetchWrapper.post(`${baseUrl}/register-first-user`, params);
 }
 
 // Verify the user's email address
