@@ -23,7 +23,7 @@ export default function Login() {
     email: yup.string().email("Invalid email").required("Email is required"),
     password: yup
       .string()
-      .min(6, "Minimum 6 characters")
+      .min(8, "Minimum 8 characters")
       .required("Password is required"),
   });
 
@@ -63,6 +63,7 @@ export default function Login() {
 
   return (
     <Box
+      className="login-container"
       sx={{
         display: "flex",
         flexDirection: "column",
