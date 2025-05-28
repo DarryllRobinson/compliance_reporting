@@ -13,61 +13,33 @@ import {
   Paper,
   Grid,
 } from "@mui/material";
-import { userService } from "../../services";
+import { publicService, userService } from "../../services";
 import { Alert } from "@mui/material";
 import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as Yup from "yup";
-
-const validationSchema = Yup.object().shape({
-  firstName: Yup.string().required("First Name is required"),
-  lastName: Yup.string().required("Last Name is required"),
-  email: Yup.string().email("Invalid email").required("Email is required"),
-  phone: Yup.string().required("Phone is required"),
-  position: Yup.string().required("Position is required"),
-  role: Yup.string().required("Role is required"),
-  clientName: Yup.string().required("Client selection is required"),
-  password: Yup.string().when("$isFirstUser", {
-    is: true,
-    then: (schema) =>
-      schema
-        .required("Password is required")
-        .min(8, "Password must be at least 8 characters")
-        .matches(/[a-z]/, "Password must contain at least one lowercase letter")
-        .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
-        .matches(/\d/, "Password must contain at least one number"),
-    otherwise: (schema) => schema.notRequired(),
-  }),
-  confirmPassword: Yup.string().when("$isFirstUser", {
-    is: true,
-    then: (schema) =>
-      schema
-        .required("Confirm Password is required")
-        .oneOf([Yup.ref("password"), null], "Passwords must match"),
-    otherwise: (schema) => schema.notRequired(),
-  }),
-});
 
 export default function UserCreate() {
+  const user = userService.userValue;
   const theme = useTheme();
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   const [alert, setAlert] = useState(null);
   const [storedClientDetails, setStoredClientDetails] = useState({});
-  const [selectedRole, setSelectedRole] = useState("Admin"); // Controlled state for role
   const location = useLocation();
-  const isFirstUser = location.state?.step !== 2;
+  const isFirstUser = location.state?.step === 1;
+  const [selectedRole, setSelectedRole] = useState(
+    isFirstUser ? "Admin" : "User"
+  ); // Default role
+  const [isLoading, setIsLoading] = useState(false);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     setValue,
-  } = useForm({
-    resolver: yupResolver(validationSchema),
-    context: { isFirstUser },
-    // Remove defaultValues usage of storedClientDetails
-  });
+    watch,
+  } = useForm();
+
+  const password = watch("password", "");
 
   useEffect(() => {
     let clientDetails = (location.state && location.state.client) || {};
@@ -83,20 +55,17 @@ export default function UserCreate() {
 
     setStoredClientDetails(clientDetails);
 
-    setValue("role", "Admin");
-    setValue(
-      "clientName",
-      clientDetails.name || clientDetails.clientName || ""
-    );
+    setValue("role", isFirstUser ? "Admin" : "User");
     setValue("firstName", clientDetails.firstName || "");
     setValue("lastName", clientDetails.lastName || "");
     setValue("email", clientDetails.email || "");
     setValue("phone", clientDetails.phone || "");
     setValue("position", clientDetails.position || "");
-    setValue("clientId", clientDetails.id || "");
-  }, [location.state, setValue]);
+    setValue("clientId", user.clientId);
+  }, [location.state, setValue, isFirstUser, user.clientId]);
 
   const onSubmit = async (data) => {
+    setIsLoading(true);
     let userDetails = { ...data, active: true, verified: new Date() };
     try {
       if (isFirstUser) {
@@ -105,6 +74,19 @@ export default function UserCreate() {
           email: userDetails.email,
           password: userDetails.password,
         });
+
+        // Send welcome email
+        const userData = {
+          topic: "Admin User Created",
+          name: `${userDetails.firstName} ${userDetails.lastName}`,
+          email: userDetails.email,
+          subject: "Admin User Created",
+          company: userDetails.clientName,
+          message: "",
+          to: userDetails.email,
+          from: "contact@monochrome-compliance.com",
+        };
+        await publicService.sendSesEmail(userData);
 
         setAlert({
           type: "success",
@@ -115,6 +97,7 @@ export default function UserCreate() {
         navigate("/admin");
       } else {
         await userService.register(userDetails);
+        // Welcome email for User-level users sent after verification
         setAlert({
           type: "success",
           message: "User created successfully.",
@@ -127,6 +110,7 @@ export default function UserCreate() {
       });
       console.error("Error creating user:", error);
     }
+    setIsLoading(false);
   };
 
   return (
@@ -181,7 +165,9 @@ export default function UserCreate() {
                   type="string"
                   fullWidth
                   required
-                  {...register("firstName")}
+                  {...register("firstName", {
+                    required: "First Name is required",
+                  })}
                   error={!!errors.firstName}
                   helperText={errors.firstName?.message}
                 />
@@ -193,7 +179,9 @@ export default function UserCreate() {
                   type="string"
                   fullWidth
                   required
-                  {...register("lastName")}
+                  {...register("lastName", {
+                    required: "Last Name is required",
+                  })}
                   error={!!errors.lastName}
                   helperText={errors.lastName?.message}
                 />
@@ -205,7 +193,13 @@ export default function UserCreate() {
                   type="string"
                   fullWidth
                   required
-                  {...register("email")}
+                  {...register("email", {
+                    required: "Email is required",
+                    pattern: {
+                      value: /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/,
+                      message: "Invalid email",
+                    },
+                  })}
                   error={!!errors.email}
                   helperText={errors.email?.message}
                 />
@@ -217,7 +211,7 @@ export default function UserCreate() {
                   type="string"
                   fullWidth
                   required
-                  {...register("phone")}
+                  {...register("phone", { required: "Phone is required" })}
                   error={!!errors.phone}
                   helperText={errors.phone?.message}
                 />
@@ -229,7 +223,9 @@ export default function UserCreate() {
                   type="string"
                   fullWidth
                   required
-                  {...register("position")}
+                  {...register("position", {
+                    required: "Position is required",
+                  })}
                   error={!!errors.position}
                   helperText={errors.position?.message}
                 />
@@ -243,7 +239,18 @@ export default function UserCreate() {
                       type="password"
                       fullWidth
                       required
-                      {...register("password")}
+                      {...register("password", {
+                        required: "Password is required",
+                        minLength: {
+                          value: 8,
+                          message: "Password must be at least 8 characters",
+                        },
+                        pattern: {
+                          value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/,
+                          message:
+                            "Password must contain at least one lowercase letter, one uppercase letter, and one number",
+                        },
+                      })}
                       error={!!errors.password}
                       helperText={errors.password?.message}
                     />
@@ -255,7 +262,11 @@ export default function UserCreate() {
                       type="password"
                       fullWidth
                       required
-                      {...register("confirmPassword")}
+                      {...register("confirmPassword", {
+                        required: "Confirm Password is required",
+                        validate: (value) =>
+                          value === password || "Passwords must match",
+                      })}
                       error={!!errors.confirmPassword}
                       helperText={errors.confirmPassword?.message}
                     />
@@ -290,16 +301,6 @@ export default function UserCreate() {
                   )}
                 </FormControl>
               </Grid>
-              <Grid item xs={6}>
-                <TextField
-                  label="Company"
-                  name="clientName"
-                  type="string"
-                  {...register("clientName")}
-                  fullWidth
-                  disabled
-                />
-              </Grid>
             </Grid>
             {!isFirstUser ? (
               <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
@@ -313,8 +314,9 @@ export default function UserCreate() {
               type="submit"
               fullWidth
               sx={{ mt: theme.spacing(2) }}
+              disabled={isLoading}
             >
-              Create User
+              {isLoading ? "Creating..." : "Create User"}
             </Button>
           </form>
         )}

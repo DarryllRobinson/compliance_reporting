@@ -51,6 +51,7 @@ export default function Contact() {
       subject: "Contact Us",
       message: "",
       to: "contact@monochrome-compliance.com",
+      cc: "contact@monochrome-compliance.com",
       from: "contact@monochrome-compliance.com",
     },
     mode: "onChange",
@@ -59,8 +60,11 @@ export default function Contact() {
   const sendContactEmail = async (data) => {
     const contactEmail = {
       name: data.name.trim(),
+      cc: data.cc.trim(),
       email: data.email.trim(),
-      subject: `${data.topic} - ${data.company.trim()}`,
+      subject: data.topic.trim(),
+      topic: data.topic.trim(),
+      company: data.company.trim(),
       message: data.message.trim(),
       to: data.email.trim(),
       from: data.from.trim(),
@@ -70,18 +74,18 @@ export default function Contact() {
       setLoading(true);
 
       // Send the contact email
-      const response = await publicService.sendEmail(contactEmail);
+      const response = await publicService.sendSesEmail(contactEmail);
 
       // Send notification email to the contact team
-      await publicService.sendEmail({
-        name: data.name.trim(),
-        email: data.email.trim(),
-        to: "contact@monochrome-compliance.com",
-        subject: `New contact: ${data.topic}`,
-        message: `New contact from ${data.name} (${data.email})`,
-        from: "contact@monochrome-compliance.com",
-      });
-      if (response.status === 200) {
+      // await publicService.sendEmail({
+      //   name: data.name.trim(),
+      //   email: data.email.trim(),
+      //   to: "contact@monochrome-compliance.com",
+      //   subject: `New contact: ${data.topic}`,
+      //   message: `New contact from ${data.name} (${data.email})`,
+      //   from: "contact@monochrome-compliance.com",
+      // });
+      if (response?.status === 200) {
         reset();
         setAlert({ type: "success", message: "Message sent successfully!" });
         setTimeout(() => {

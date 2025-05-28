@@ -27,6 +27,7 @@ import ContactThankyou from "../components/common/ContactThankyou";
 import BookingThankyou from "../components/common/BookingThankyou";
 import BlogIndex from "../routes/BlogIndex";
 import LegalDisclaimer from "../components/policies/LegalDisclaimer";
+import VerifyEmail from "../features/users/VerifyEmail";
 
 export const publicRoutes = [
   {
@@ -94,4 +95,13 @@ export const publicRoutes = [
     path: "policy-documents/legal",
     Component: LegalDisclaimer,
   },
+  {
+    path: "/user/verify-email",
+    Component: VerifyEmail, // make sure to import this component
+  },
+  {
+    path: "/user/forgot-password",
+    Component: ForgotPassword,
+  },
+  { path: "/user/reset-password", Component: ResetPassword },
 ];

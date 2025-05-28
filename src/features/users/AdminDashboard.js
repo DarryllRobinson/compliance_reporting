@@ -43,7 +43,7 @@ const AdminDashboard = () => {
         <Button
           variant="contained"
           component={Link}
-          to="/users/create"
+          to="/admin/users/create"
           sx={{
             backgroundColor: theme.palette.secondary.main,
             color: theme.palette.primary.contrastText,

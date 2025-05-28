@@ -44,6 +44,12 @@ const Booking = () => {
         "Please enter a valid email address"
       )
       .required("Email is required"),
+    company: yup
+      .string()
+      .trim()
+      .min(2, "Please provide at least two characters")
+      .max(100, "Company name is too long (max 100 characters)")
+      .required("Company is required"),
     reason: yup
       .string()
       .trim()
@@ -79,6 +85,7 @@ const Booking = () => {
     defaultValues: {
       name: "",
       email: "",
+      company: "",
       reason: "",
       date: "",
       time: "",
@@ -163,20 +170,22 @@ const Booking = () => {
       setError("");
       setSuccess("");
       await bookingService.create(data);
+
+      const bookingData = {
+        topic: "Booking",
+        name: data.name.trim(),
+        email: data.email.trim(),
+        subject: "booking",
+        company: data.company.trim(),
+        date: data.date,
+        time: data.time,
+        reason: data.reason.trim(),
+        from: "contact@monochrome-compliance.com",
+        to: data.email.trim(),
+      };
       // Send confirmation email to the user
-      await publicService.sendEmail({
-        to: data.email,
-        subject: "Booking Confirmation",
-        message: `Hi ${data.name},\n\nYour booking for ${data.date} at ${data.time} has been confirmed.\n\nThank you,\nMonochrome Compliance Team`,
-        from: "contact@monochrome-compliance.com",
-      });
-      // Send notification email to the contact team
-      await publicService.sendEmail({
-        to: "contact@monochrome-compliance.com",
-        subject: "New Booking Submitted",
-        message: `New booking from ${data.name} (${data.email}) for ${data.date} at ${data.time}.\n\nReason: ${data.reason}`,
-        from: "contact@monochrome-compliance.com",
-      });
+      await publicService.sendSesEmail(bookingData);
+
       await loadBookings();
       setSuccess("Booking submitted successfully.");
       navigate("/thankyou-booking");
@@ -307,6 +316,18 @@ const Booking = () => {
         {...register("email")}
         error={!!errors.email}
         helperText={errors.email?.message}
+        InputLabelProps={{ style: { color: theme.palette.text.primary } }}
+      />
+      <TextField
+        fullWidth
+        margin="normal"
+        label="Company"
+        name="company"
+        required
+        autoComplete="off"
+        {...register("company")}
+        error={!!errors.company}
+        helperText={errors.company?.message}
         InputLabelProps={{ style: { color: theme.palette.text.primary } }}
       />
       {/* Selected Date & Time display with button and validation message */}
