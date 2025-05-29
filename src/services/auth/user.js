@@ -12,6 +12,7 @@ export const userService = {
   register,
   registerFirstUser,
   verifyEmail,
+  verifyToken,
   forgotPassword,
   validateResetToken,
   resetPassword,
@@ -100,9 +101,14 @@ function registerFirstUser(params) {
   return fetchWrapper.post(`${baseUrl}/register-first-user`, params);
 }
 
+// Verify the user's token
+function verifyToken(token) {
+  return fetchWrapper.post(`${baseUrl}/verify-token`, { token });
+}
+
 // Verify the user's email address
-function verifyEmail(token) {
-  return fetchWrapper.post(`${baseUrl}/verify-email`, { token });
+function verifyEmail(params) {
+  return fetchWrapper.post(`${baseUrl}/verify-email`, params);
 }
 
 // Send a password reset email

@@ -58,22 +58,15 @@ export default function VerifyEmail() {
     }
 
     userService
-      .verifyEmail(token)
-      .then(async (user) => {
-        const userData = {
-          topic: "User Created",
-          name: `${user.firstName} ${user.lastName}`,
-          email: user.email,
-          subject: "User Created",
-          company: user.clientId,
-          message: "",
-          to: user.email,
-          from: "contact@monochrome-compliance.com",
-        };
-        await publicService.sendSesEmail(userData);
+      .verifyToken(token)
+      .then(() => {
         setEmailStatus(EmailStatus.Valid);
       })
-      .catch(() => {
+      .catch((error) => {
+        setAlert({
+          type: "error",
+          message: error || "Invalid or expired token",
+        });
         setEmailStatus(EmailStatus.Failed);
       });
   }, [EmailStatus.Failed, EmailStatus.Valid, token]);
@@ -126,7 +119,18 @@ export default function VerifyEmail() {
         password: formValues.password,
         confirmPassword: formValues.confirmPassword,
       })
-      .then(() => {
+      .then(async (user) => {
+        const userData = {
+          topic: "User Created",
+          name: `${user.firstName} ${user.lastName}`,
+          email: user.email,
+          subject: "User Created",
+          company: user.clientId,
+          message: "",
+          to: user.email,
+          from: "contact@monochrome-compliance.com",
+        };
+        await publicService.sendSesEmail(userData);
         setAlert({
           type: "success",
           message:
