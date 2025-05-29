@@ -22,6 +22,7 @@ export default function CreateReport() {
       code: code,
       reportName: "Payment Times Reporting Scheme",
       reportStatus: "Created",
+      currentStep: 0,
       createdBy: userService.userValue.id,
       clientId: userService.userValue.clientId,
     };

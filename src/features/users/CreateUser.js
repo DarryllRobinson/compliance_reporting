@@ -296,8 +296,8 @@ export default function UserCreate() {
             </Grid>
             {!isFirstUser ? (
               <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-                You’ll receive an email with a secure link to set your password
-                after verifying your email.
+                The user receive an email with a secure link to set their
+                password after verifying their email.
               </Typography>
             ) : null}
             <Button

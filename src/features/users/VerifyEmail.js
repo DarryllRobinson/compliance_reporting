@@ -50,6 +50,14 @@ export default function VerifyEmail() {
   });
   const [formErrors, setFormErrors] = useState({});
   const [alert, setAlert] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    // Remove the token query param from the URL
+    const url = new URL(window.location.href);
+    url.searchParams.delete("token");
+    window.history.replaceState({}, document.title, url.toString());
+  }, []);
 
   useEffect(() => {
     if (!token) {
@@ -107,43 +115,46 @@ export default function VerifyEmail() {
   async function onSubmit(e) {
     e.preventDefault();
     setAlert(null);
+    setIsSubmitting(true);
 
-    const isValid = await validateForm();
-    if (!isValid) {
-      return;
-    }
+    try {
+      const isValid = await validateForm();
+      if (!isValid) {
+        return;
+      }
 
-    userService
-      .verifyEmail({
+      const user = await userService.verifyEmail({
         token,
         password: formValues.password,
         confirmPassword: formValues.confirmPassword,
-      })
-      .then(async (user) => {
-        const userData = {
-          topic: "User Created",
-          name: `${user.firstName} ${user.lastName}`,
-          email: user.email,
-          subject: "User Created",
-          company: user.clientId,
-          message: "",
-          to: user.email,
-          from: "contact@monochrome-compliance.com",
-        };
-        await publicService.sendSesEmail(userData);
-        setAlert({
-          type: "success",
-          message:
-            "Password set successfully - redirecting you to the login page",
-        });
-        navigate("/user/login");
-      })
-      .catch((error) => {
-        setAlert({
-          type: "error",
-          message: error || "Error setting your password",
-        });
       });
+
+      const userData = {
+        topic: "User Created",
+        name: `${user.firstName} ${user.lastName}`,
+        email: user.email,
+        subject: "User Created",
+        company: user.clientId,
+        message: "",
+        to: user.email,
+        from: "contact@monochrome-compliance.com",
+      };
+
+      await publicService.sendSesEmail(userData);
+      setAlert({
+        type: "success",
+        message:
+          "Password set successfully - redirecting you to the login page",
+      });
+      navigate("/user/login");
+    } catch (error) {
+      setAlert({
+        type: "error",
+        message: error || "Error setting your password",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   function getForm() {
@@ -188,8 +199,9 @@ export default function VerifyEmail() {
             type="submit"
             size="large"
             onClick={onSubmit}
+            disabled={isSubmitting}
           >
-            Set Your Password
+            {isSubmitting ? "Setting Password..." : "Set Your Password"}
           </Button>
         </Box>
       </Form>
