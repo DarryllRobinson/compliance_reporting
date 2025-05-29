@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Form, Link } from "react-router";
-import queryString from "query-string";
+import * as Yup from "yup";
 import {
   Box,
   Typography,
@@ -15,6 +15,19 @@ import { publicService, userService } from "../../services";
 import { useNavigate } from "react-router";
 import { useSearchParams } from "react-router";
 
+const validationSchema = Yup.object().shape({
+  password: Yup.string()
+    .min(8, "Password must be at least 8 characters long")
+    .matches(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/,
+      "Password must contain at least one lowercase letter, one uppercase letter, and one number"
+    )
+    .required("Password is required"),
+  confirmPassword: Yup.string()
+    .oneOf([Yup.ref("password"), null], "Passwords do not match")
+    .required("Please confirm your password"),
+});
+
 export default function VerifyEmail() {
   const [searchParams] = useSearchParams();
   const theme = useTheme();
@@ -27,18 +40,19 @@ export default function VerifyEmail() {
   };
 
   const [emailStatus, setEmailStatus] = useState(EmailStatus.Verifying);
+  const [pageTitle, setPageTitle] = useState("Verify Your Email Address");
 
   const token = searchParams.get("token");
 
-  const [password, setPassword] = useState(null);
-  const [passwordError, setPasswordError] = useState(null);
-  const [confirmPassword, setConfirmPassword] = useState(null);
-  const [confirmPasswordError, setConfirmPasswordError] = useState(null);
+  const [formValues, setFormValues] = useState({
+    password: "",
+    confirmPassword: "",
+  });
+  const [formErrors, setFormErrors] = useState({});
   const [alert, setAlert] = useState(null);
 
   useEffect(() => {
     if (!token) {
-      console.error("Token not found in URL");
       setEmailStatus(EmailStatus.Failed);
       return;
     }
@@ -46,7 +60,6 @@ export default function VerifyEmail() {
     userService
       .verifyEmail(token)
       .then(async (user) => {
-        // Send welcome email
         const userData = {
           topic: "User Created",
           name: `${user.firstName} ${user.lastName}`,
@@ -60,70 +73,73 @@ export default function VerifyEmail() {
         await publicService.sendSesEmail(userData);
         setEmailStatus(EmailStatus.Valid);
       })
-      .catch((error) => {
-        console.error("Token validation failed:", error);
+      .catch(() => {
         setEmailStatus(EmailStatus.Failed);
       });
   }, [EmailStatus.Failed, EmailStatus.Valid, token]);
 
-  const handlePassword = (e) => {
-    const value = e.target.value;
-    setPassword(value);
-  };
-
-  const handleConfirmPassword = (e) => {
-    const value = e.target.value;
-    setConfirmPassword(value);
-  };
-
-  const clearErrorMessages = () => {
-    setPasswordError(null);
-    setConfirmPasswordError(null);
-  };
-
-  const checkFields = () => {
-    let cont = true;
-
-    if (!password || password.length < 8) {
-      setPasswordError("Password must be at least 8 characters long");
-      cont = false;
+  useEffect(() => {
+    if (emailStatus === EmailStatus.Valid) {
+      setPageTitle("Enter Your Password");
     }
+  }, [EmailStatus.Valid, emailStatus]);
 
-    if (confirmPassword !== password) {
-      setConfirmPasswordError("Passwords do not match");
-      cont = false;
-    }
-
-    if (!confirmPassword) {
-      setConfirmPasswordError("Please confirm your password");
-      cont = false;
-    }
-
-    return cont;
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormValues((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+    setFormErrors((prev) => ({
+      ...prev,
+      [name]: null,
+    }));
   };
 
-  function onSubmit(e) {
+  const validateForm = async () => {
+    try {
+      await validationSchema.validate(formValues, { abortEarly: false });
+      setFormErrors({});
+      return true;
+    } catch (validationErrors) {
+      const errors = {};
+      validationErrors.inner.forEach((error) => {
+        errors[error.path] = error.message;
+      });
+      setFormErrors(errors);
+      return false;
+    }
+  };
+
+  async function onSubmit(e) {
     e.preventDefault();
-    clearErrorMessages();
+    setAlert(null);
 
-    if (checkFields()) {
-      userService
-        .verifyEmail({ token, password, confirmPassword })
-        .then(() => {
-          setAlert({
-            type: "success",
-            message:
-              "Password set successfully - redirecting you to the login page",
-          });
-          navigate("/user/login");
-        })
-        .catch((error) => {
-          setAlert({
-            type: "error",
-            message: error || "Error setting your password",
-          });
-        });
+    const isValid = await validateForm();
+    if (!isValid) {
+      return;
     }
+
+    userService
+      .verifyEmail({
+        token,
+        password: formValues.password,
+        confirmPassword: formValues.confirmPassword,
+      })
+      .then(() => {
+        setAlert({
+          type: "success",
+          message:
+            "Password set successfully - redirecting you to the login page",
+        });
+        navigate("/user/login");
+      })
+      .catch((error) => {
+        setAlert({
+          type: "error",
+          message: error || "Error setting your password",
+        });
+      });
   }
 
   function getForm() {
@@ -141,27 +157,27 @@ export default function VerifyEmail() {
               type="password"
               fullWidth
               required
-              onChange={handlePassword}
-              error={!!passwordError}
-              helperText={passwordError}
+              value={formValues.password}
+              onChange={handleChange}
+              error={!!formErrors.password}
+              helperText={formErrors.password}
             />
           </Grid>
           <Grid item xs={6}>
             <TextField
               label="Confirm Password"
-              name="password"
+              name="confirmPassword"
               type="password"
               fullWidth
               required
-              onChange={handleConfirmPassword}
-              error={!!confirmPasswordError}
-              helperText={confirmPasswordError}
+              value={formValues.confirmPassword}
+              onChange={handleChange}
+              error={!!formErrors.confirmPassword}
+              helperText={formErrors.confirmPassword}
             />
           </Grid>
         </Grid>
-        <Box
-          sx={{ display: "flex", justifyContent: "center", mt: 2 }} // Center horizontally
-        >
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
           <Button
             variant="contained"
             color="primary"
@@ -188,7 +204,7 @@ export default function VerifyEmail() {
           </div>
         );
       case EmailStatus.Valid:
-        return <Box>Validating token...</Box>;
+        return getForm();
 
       default:
         return <div>Something went wrong. Please try again later.</div>;
@@ -215,8 +231,8 @@ export default function VerifyEmail() {
           backgroundColor: theme.palette.background.paper,
         }}
       >
-        <Typography variant="h4" gutterBottom align="center">
-          Reset Password
+        <Typography variant="h4" gutterBottom align="center" sx={{ mb: 2 }}>
+          {pageTitle}
         </Typography>
         {alert && (
           <Alert severity={alert.type} sx={{ mb: 2 }}>

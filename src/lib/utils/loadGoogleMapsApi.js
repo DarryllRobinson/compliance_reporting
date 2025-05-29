@@ -1,5 +1,9 @@
+let loadPromise = null;
+
 export const loadGoogleMapsApi = () => {
-  return new Promise((resolve, reject) => {
+  if (loadPromise) return loadPromise;
+
+  loadPromise = new Promise((resolve, reject) => {
     if (window.google && window.google.maps && window.google.maps.places) {
       resolve();
       return;
@@ -28,4 +32,6 @@ export const loadGoogleMapsApi = () => {
     script.onerror = reject;
     document.head.appendChild(script);
   });
+
+  return loadPromise;
 };

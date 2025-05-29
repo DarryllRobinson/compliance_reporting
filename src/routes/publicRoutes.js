@@ -28,12 +28,14 @@ import BookingThankyou from "../components/common/BookingThankyou";
 import BlogIndex from "../routes/BlogIndex";
 import LegalDisclaimer from "../components/policies/LegalDisclaimer";
 import VerifyEmail from "../features/users/VerifyEmail";
+import FirstUserRegister from "../features/users/FirstUserRegister";
 
 export const publicRoutes = [
   {
     path: "/clients/register",
     Component: ClientRegister,
   },
+  { path: "/clients/register-first-user", Component: FirstUserRegister },
   {
     path: "/user/login",
     Component: Login,
@@ -97,7 +99,7 @@ export const publicRoutes = [
   },
   {
     path: "/user/verify-email",
-    Component: VerifyEmail, // make sure to import this component
+    Component: VerifyEmail,
   },
   {
     path: "/user/forgot-password",

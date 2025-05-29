@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { use, useState } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
-// import { useNavigate } from "react-router";
 import {
+  Alert,
   Box,
   Typography,
   Button,
@@ -20,15 +20,15 @@ import {
 } from "@mui/material";
 import { clientService, userService, trackingService } from "../../services";
 import CreateUser from "../users/CreateUser";
-import { Alert } from "@mui/material";
 import GoogleAddressAutocomplete from "../../components/common/GoogleAddressAutocomplete";
+import { useNavigate } from "react-router";
 
 export default function ClientRegister() {
   const theme = useTheme();
   const [alert, setAlert] = useState(null);
   // const navigate = useNavigate();
   const [sameAsAddress, setSameAsAddress] = useState(false);
-  const [showCreateUserForm, setShowCreateUserForm] = useState(false);
+  const navigate = useNavigate();
 
   // Yup validation schema
   const validationSchema = Yup.object().shape({
@@ -239,7 +239,6 @@ export default function ClientRegister() {
     };
     try {
       const response = await clientService.create(clientDetails);
-      sessionStorage.setItem("clientId", response.id);
 
       // Store user details in sessionStorage for CreateUser page to pick up
       sessionStorage.setItem(
@@ -255,8 +254,7 @@ export default function ClientRegister() {
         })
       );
 
-      // Instead of navigating, show CreateUser form
-      setShowCreateUserForm(true);
+      navigate("/clients/register-first-user");
     } catch (error) {
       setAlert({
         type: "error",
@@ -274,13 +272,13 @@ export default function ClientRegister() {
         alignItems: "flex-start",
         minHeight: "100vh",
         backgroundColor: theme.palette.background.default,
-        padding: 2,
+        padding: theme.spacing(2),
       }}
     >
       <Paper
         elevation={3}
         sx={{
-          padding: 4,
+          padding: theme.spacing(4),
           maxWidth: 800,
           width: "100%",
           backgroundColor: theme.palette.background.paper,
@@ -294,349 +292,357 @@ export default function ClientRegister() {
             {alert.message}
           </Alert>
         )}
-        {!showCreateUserForm && (
-          <FormProvider {...methods}>
-            <form
-              onSubmit={handleSubmit(onSubmit)}
-              id="register-client-form"
-              style={{ display: "flex", flexDirection: "column", gap: 2 }}
-            >
-              <Grid container spacing={2}>
-                <Grid item xs={12}>
-                  <TextField
-                    label="Business Name"
-                    fullWidth
-                    {...register("businessName")}
-                    error={!!errors.businessName}
-                    helperText={errors.businessName?.message}
-                  />
-                </Grid>
-                <Grid item xs={6}>
-                  <TextField
-                    label="ABN"
-                    fullWidth
-                    {...register("abn")}
-                    error={!!errors.abn}
-                    helperText={errors.abn?.message}
-                  />
-                </Grid>
-                <Grid item xs={6}>
-                  <TextField
-                    label="ACN"
-                    fullWidth
-                    {...register("acn")}
-                    error={!!errors.acn}
-                    helperText={errors.acn?.message}
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <GoogleAddressAutocomplete />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    {...register("addressline1")}
-                    error={!!errors.addressline1}
-                    helperText={errors.addressline1?.message}
-                    value={watch("addressline1")}
-                    onChange={(e) => setValue("addressline1", e.target.value)}
-                  />
-                </Grid>
-                <Grid item xs={6}>
-                  <TextField
-                    fullWidth
-                    {...register("addressline2")}
-                    error={!!errors.addressline2}
-                    helperText={errors.addressline2?.message}
-                  />
-                </Grid>
-                <Grid item xs={6}>
-                  <TextField
-                    fullWidth
-                    {...register("addressline3")}
-                    error={!!errors.addressline3}
-                    helperText={errors.addressline3?.message}
-                  />
-                </Grid>
-                <Grid item xs={6}>
-                  <TextField
-                    fullWidth
-                    {...register("city")}
-                    error={!!errors.city}
-                    helperText={errors.city?.message}
-                  />
-                </Grid>
-                <Grid item xs={3}>
-                  <FormControl fullWidth error={!!errors.state}>
-                    <InputLabel id="state-select-label">State</InputLabel>
-                    <Select
-                      labelId="state-select-label"
-                      id="state-select"
-                      label="State"
-                      defaultValue=""
-                      {...register("state")}
-                      value={watch("state") || ""}
-                      onChange={(e) => setValue("state", e.target.value)}
-                    >
-                      <MenuItem value="ACT">ACT</MenuItem>
-                      <MenuItem value="NT">NT</MenuItem>
-                      <MenuItem value="NSW">NSW</MenuItem>
-                      <MenuItem value="QLD">QLD</MenuItem>
-                      <MenuItem value="SA">SA</MenuItem>
-                      <MenuItem value="TAS">TAS</MenuItem>
-                      <MenuItem value="VIC">VIC</MenuItem>
-                      <MenuItem value="WA">WA</MenuItem>
-                    </Select>
-                    {errors.state && (
-                      <Typography variant="caption" color="error">
-                        {errors.state.message}
-                      </Typography>
-                    )}
-                  </FormControl>
-                </Grid>
-                <Grid item xs={3}>
-                  <TextField
-                    fullWidth
-                    {...register("postcode")}
-                    error={!!errors.postcode}
-                    helperText={errors.postcode?.message}
-                  />
-                </Grid>
-                <Grid item xs={6}>
-                  <TextField
-                    fullWidth
-                    {...register("country")}
-                    error={!!errors.country}
-                    helperText={errors.country?.message}
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={sameAsAddress}
-                        onChange={handleCheckboxChange}
-                        name="sameAsAddress"
-                      />
-                    }
-                    label="Postal address is the same as the address above"
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    {...register("postaladdressline1")}
-                    error={!!errors.postaladdressline1}
-                    helperText={errors.postaladdressline1?.message}
-                  />
-                </Grid>
-                <Grid item xs={6}>
-                  <TextField
-                    fullWidth
-                    {...register("postaladdressline2")}
-                    error={!!errors.postaladdressline2}
-                    helperText={errors.postaladdressline2?.message}
-                  />
-                </Grid>
-                <Grid item xs={6}>
-                  <TextField
-                    fullWidth
-                    {...register("postaladdressline3")}
-                    error={!!errors.postaladdressline3}
-                    helperText={errors.postaladdressline3?.message}
-                  />
-                </Grid>
-                <Grid item xs={6}>
-                  <TextField
-                    fullWidth
-                    {...register("postalcity")}
-                    error={!!errors.postalcity}
-                    helperText={errors.postalcity?.message}
-                  />
-                </Grid>
-                <Grid item xs={3}>
-                  <FormControl fullWidth error={!!errors.postalstate}>
-                    <InputLabel id="postalstate-select-label">
-                      Postal State
-                    </InputLabel>
-                    <Select
-                      labelId="postalstate-select-label"
-                      id="postalstate-select"
-                      label="Postal State"
-                      defaultValue=""
-                      {...register("postalstate")}
-                      value={watch("postalstate") || ""}
-                      onChange={(e) => setValue("postalstate", e.target.value)}
-                    >
-                      <MenuItem value="ACT">ACT</MenuItem>
-                      <MenuItem value="NT">NT</MenuItem>
-                      <MenuItem value="NSW">NSW</MenuItem>
-                      <MenuItem value="QLD">QLD</MenuItem>
-                      <MenuItem value="SA">SA</MenuItem>
-                      <MenuItem value="TAS">TAS</MenuItem>
-                      <MenuItem value="VIC">VIC</MenuItem>
-                      <MenuItem value="WA">WA</MenuItem>
-                    </Select>
-                    {errors.postalstate && (
-                      <Typography variant="caption" color="error">
-                        {errors.postalstate.message}
-                      </Typography>
-                    )}
-                  </FormControl>
-                </Grid>
-                <Grid item xs={3}>
-                  <TextField
-                    fullWidth
-                    {...register("postalpostcode")}
-                    error={!!errors.postalpostcode}
-                    helperText={errors.postalpostcode?.message}
-                  />
-                </Grid>
-                <Grid item xs={6}>
-                  <TextField
-                    fullWidth
-                    {...register("postalcountry")}
-                    error={!!errors.postalcountry}
-                    helperText={errors.postalcountry?.message}
-                  />
-                </Grid>
-                <Grid item xs={6}>
-                  <TextField
-                    label="Industry Code"
-                    fullWidth
-                    {...register("industryCode")}
-                    error={!!errors.industryCode}
-                    helperText={errors.industryCode?.message}
-                  />
-                </Grid>
-                <Grid item xs={6}>
-                  <TextField
-                    label="Contact First Name"
-                    fullWidth
-                    {...register("contactFirst")}
-                    error={!!errors.contactFirst}
-                    helperText={errors.contactFirst?.message}
-                  />
-                </Grid>
-                <Grid item xs={6}>
-                  <TextField
-                    label="Contact Last Name"
-                    fullWidth
-                    {...register("contactLast")}
-                    error={!!errors.contactLast}
-                    helperText={errors.contactLast?.message}
-                  />
-                </Grid>
-                <Grid item xs={6}>
-                  <TextField
-                    label="Contact Position"
-                    fullWidth
-                    {...register("contactPosition")}
-                    error={!!errors.contactPosition}
-                    helperText={errors.contactPosition?.message}
-                  />
-                </Grid>
-                <Grid item xs={6}>
-                  <TextField
-                    label="Contact Email"
-                    type="email"
-                    fullWidth
-                    {...register("contactEmail")}
-                    error={!!errors.contactEmail}
-                    helperText={errors.contactEmail?.message}
-                  />
-                </Grid>
-                <Grid item xs={6}>
-                  <TextField
-                    label="Contact Phone"
-                    fullWidth
-                    {...register("contactPhone")}
-                    error={!!errors.contactPhone}
-                    helperText={errors.contactPhone?.message}
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    label="Controlling Corporation Name"
-                    fullWidth
-                    {...register("controllingCorporationName")}
-                    error={!!errors.controllingCorporationName}
-                    helperText={errors.controllingCorporationName?.message}
-                  />
-                </Grid>
-                <Grid item xs={6}>
-                  <TextField
-                    label="Controlling Corporation ABN"
-                    fullWidth
-                    {...register("controllingCorporationAbn")}
-                    error={!!errors.controllingCorporationAbn}
-                    helperText={errors.controllingCorporationAbn?.message}
-                  />
-                </Grid>
-                <Grid item xs={6}>
-                  <TextField
-                    label="Controlling Corporation ACN"
-                    fullWidth
-                    {...register("controllingCorporationAcn")}
-                    error={!!errors.controllingCorporationAcn}
-                    helperText={errors.controllingCorporationAcn?.message}
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    label="Head Entity Name"
-                    fullWidth
-                    {...register("headEntityName")}
-                    error={!!errors.headEntityName}
-                    helperText={errors.headEntityName?.message}
-                  />
-                </Grid>
-                <Grid item xs={6}>
-                  <TextField
-                    label="Head Entity ABN"
-                    fullWidth
-                    {...register("headEntityAbn")}
-                    error={!!errors.headEntityAbn}
-                    helperText={errors.headEntityAbn?.message}
-                  />
-                </Grid>
-                <Grid item xs={6}>
-                  <TextField
-                    label="Head Entity ACN"
-                    fullWidth
-                    {...register("headEntityAcn")}
-                    error={!!errors.headEntityAcn}
-                    helperText={errors.headEntityAcn?.message}
-                  />
-                </Grid>
+        <FormProvider {...methods}>
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            id="register-client-form"
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: theme.spacing(2),
+            }}
+          >
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <TextField
+                  label="Business Name *"
+                  fullWidth
+                  {...register("businessName")}
+                  error={!!errors.businessName}
+                  helperText={errors.businessName?.message}
+                />
               </Grid>
-              {/* Honeypot field */}
-              <TextField
-                label="Nickname"
-                fullWidth
-                {...register("nickname")}
-                style={{ display: "none" }}
-                tabIndex="-1"
-                autoComplete="off"
-              />
-              <Button
-                variant="contained"
-                color="primary"
-                type="submit"
-                fullWidth
-                sx={{ mt: 2 }}
-              >
-                Register Client
-              </Button>
-            </form>
-          </FormProvider>
-        )}
-        {/* Conditionally render CreateUser form after client registration */}
-        {showCreateUserForm && (
-          <Box mt={4}>
-            <CreateUser />
-          </Box>
-        )}
+              <Grid item xs={6}>
+                <TextField
+                  label="ABN *"
+                  fullWidth
+                  {...register("abn")}
+                  error={!!errors.abn}
+                  helperText={errors.abn?.message}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  label="ACN"
+                  fullWidth
+                  {...register("acn")}
+                  error={!!errors.acn}
+                  helperText={errors.acn?.message}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <GoogleAddressAutocomplete />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  label="Address Line 1 *"
+                  fullWidth
+                  {...register("addressline1")}
+                  error={!!errors.addressline1}
+                  helperText={errors.addressline1?.message}
+                  value={watch("addressline1")}
+                  onChange={(e) => setValue("addressline1", e.target.value)}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  label="Address Line 2"
+                  fullWidth
+                  {...register("addressline2")}
+                  error={!!errors.addressline2}
+                  helperText={errors.addressline2?.message}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  label="Address Line 3"
+                  fullWidth
+                  {...register("addressline3")}
+                  error={!!errors.addressline3}
+                  helperText={errors.addressline3?.message}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  label="City"
+                  fullWidth
+                  {...register("city")}
+                  error={!!errors.city}
+                  helperText={errors.city?.message}
+                />
+              </Grid>
+              <Grid item xs={3}>
+                <FormControl fullWidth error={!!errors.state}>
+                  <InputLabel id="state-select-label">State *</InputLabel>
+                  <Select
+                    labelId="state-select-label"
+                    id="state-select"
+                    label="State *"
+                    defaultValue=""
+                    {...register("state")}
+                    value={watch("state") || ""}
+                    onChange={(e) => setValue("state", e.target.value)}
+                  >
+                    <MenuItem value="ACT">ACT</MenuItem>
+                    <MenuItem value="NT">NT</MenuItem>
+                    <MenuItem value="NSW">NSW</MenuItem>
+                    <MenuItem value="QLD">QLD</MenuItem>
+                    <MenuItem value="SA">SA</MenuItem>
+                    <MenuItem value="TAS">TAS</MenuItem>
+                    <MenuItem value="VIC">VIC</MenuItem>
+                    <MenuItem value="WA">WA</MenuItem>
+                  </Select>
+                  {errors.state && (
+                    <Typography variant="caption" color="error">
+                      {errors.state.message}
+                    </Typography>
+                  )}
+                </FormControl>
+              </Grid>
+              <Grid item xs={3}>
+                <TextField
+                  label="Postcode"
+                  fullWidth
+                  {...register("postcode")}
+                  error={!!errors.postcode}
+                  helperText={errors.postcode?.message}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  label="Country *"
+                  fullWidth
+                  {...register("country")}
+                  error={!!errors.country}
+                  helperText={errors.country?.message}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={sameAsAddress}
+                      onChange={handleCheckboxChange}
+                      name="sameAsAddress"
+                    />
+                  }
+                  label="Postal address is the same as the address above"
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  label="Postal Address Line 1 *"
+                  fullWidth
+                  {...register("postaladdressline1")}
+                  error={!!errors.postaladdressline1}
+                  helperText={errors.postaladdressline1?.message}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  label="Postal Address Line 2"
+                  fullWidth
+                  {...register("postaladdressline2")}
+                  error={!!errors.postaladdressline2}
+                  helperText={errors.postaladdressline2?.message}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  label="Postal Address Line 3"
+                  fullWidth
+                  {...register("postaladdressline3")}
+                  error={!!errors.postaladdressline3}
+                  helperText={errors.postaladdressline3?.message}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  label="Postal City"
+                  fullWidth
+                  {...register("postalcity")}
+                  error={!!errors.postalcity}
+                  helperText={errors.postalcity?.message}
+                />
+              </Grid>
+              <Grid item xs={3}>
+                <FormControl fullWidth error={!!errors.postalstate}>
+                  <InputLabel id="postalstate-select-label">
+                    Postal State *
+                  </InputLabel>
+                  <Select
+                    labelId="postalstate-select-label"
+                    id="postalstate-select"
+                    label="Postal State *"
+                    defaultValue=""
+                    {...register("postalstate")}
+                    value={watch("postalstate") || ""}
+                    onChange={(e) => setValue("postalstate", e.target.value)}
+                  >
+                    <MenuItem value="ACT">ACT</MenuItem>
+                    <MenuItem value="NT">NT</MenuItem>
+                    <MenuItem value="NSW">NSW</MenuItem>
+                    <MenuItem value="QLD">QLD</MenuItem>
+                    <MenuItem value="SA">SA</MenuItem>
+                    <MenuItem value="TAS">TAS</MenuItem>
+                    <MenuItem value="VIC">VIC</MenuItem>
+                    <MenuItem value="WA">WA</MenuItem>
+                  </Select>
+                  {errors.postalstate && (
+                    <Typography variant="caption" color="error">
+                      {errors.postalstate.message}
+                    </Typography>
+                  )}
+                </FormControl>
+              </Grid>
+              <Grid item xs={3}>
+                <TextField
+                  label="Postal Postcode"
+                  fullWidth
+                  {...register("postalpostcode")}
+                  error={!!errors.postalpostcode}
+                  helperText={errors.postalpostcode?.message}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  label="Postal Country *"
+                  fullWidth
+                  {...register("postalcountry")}
+                  error={!!errors.postalcountry}
+                  helperText={errors.postalcountry?.message}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  label="Industry Code *"
+                  fullWidth
+                  {...register("industryCode")}
+                  error={!!errors.industryCode}
+                  helperText={errors.industryCode?.message}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  label="Contact First Name *"
+                  fullWidth
+                  {...register("contactFirst")}
+                  error={!!errors.contactFirst}
+                  helperText={errors.contactFirst?.message}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  label="Contact Last Name *"
+                  fullWidth
+                  {...register("contactLast")}
+                  error={!!errors.contactLast}
+                  helperText={errors.contactLast?.message}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  label="Contact Position *"
+                  fullWidth
+                  {...register("contactPosition")}
+                  error={!!errors.contactPosition}
+                  helperText={errors.contactPosition?.message}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  label="Contact Email *"
+                  type="email"
+                  fullWidth
+                  {...register("contactEmail")}
+                  error={!!errors.contactEmail}
+                  helperText={errors.contactEmail?.message}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  label="Contact Phone *"
+                  fullWidth
+                  {...register("contactPhone")}
+                  error={!!errors.contactPhone}
+                  helperText={errors.contactPhone?.message}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  label="Controlling Corporation Name"
+                  fullWidth
+                  {...register("controllingCorporationName")}
+                  error={!!errors.controllingCorporationName}
+                  helperText={errors.controllingCorporationName?.message}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  label="Controlling Corporation ABN"
+                  fullWidth
+                  {...register("controllingCorporationAbn")}
+                  error={!!errors.controllingCorporationAbn}
+                  helperText={errors.controllingCorporationAbn?.message}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  label="Controlling Corporation ACN"
+                  fullWidth
+                  {...register("controllingCorporationAcn")}
+                  error={!!errors.controllingCorporationAcn}
+                  helperText={errors.controllingCorporationAcn?.message}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  label="Head Entity Name"
+                  fullWidth
+                  {...register("headEntityName")}
+                  error={!!errors.headEntityName}
+                  helperText={errors.headEntityName?.message}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  label="Head Entity ABN"
+                  fullWidth
+                  {...register("headEntityAbn")}
+                  error={!!errors.headEntityAbn}
+                  helperText={errors.headEntityAbn?.message}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  label="Head Entity ACN"
+                  fullWidth
+                  {...register("headEntityAcn")}
+                  error={!!errors.headEntityAcn}
+                  helperText={errors.headEntityAcn?.message}
+                />
+              </Grid>
+            </Grid>
+            {/* Honeypot field */}
+            <TextField
+              label="Nickname"
+              fullWidth
+              {...register("nickname")}
+              style={{ display: "none" }}
+              tabIndex="-1"
+              autoComplete="off"
+            />
+            <Button
+              variant="contained"
+              color="primary"
+              type="submit"
+              fullWidth
+              sx={{ mt: 2 }}
+            >
+              Register Client
+            </Button>
+          </form>
+        </FormProvider>
       </Paper>
     </Box>
   );

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router";
 import {
+  Alert,
   Box,
   Typography,
   Button,
@@ -14,7 +15,6 @@ import {
   Grid,
 } from "@mui/material";
 import { publicService, userService } from "../../services";
-import { Alert } from "@mui/material";
 import { useForm } from "react-hook-form";
 
 export default function UserCreate() {
@@ -160,11 +160,10 @@ export default function UserCreate() {
             <Grid container spacing={2}>
               <Grid item xs={6}>
                 <TextField
-                  label="First Name"
+                  label="First Name *"
                   name="firstName"
                   type="string"
                   fullWidth
-                  required
                   {...register("firstName", {
                     required: "First Name is required",
                   })}
@@ -174,11 +173,10 @@ export default function UserCreate() {
               </Grid>
               <Grid item xs={6}>
                 <TextField
-                  label="Last Name"
+                  label="Last Name *"
                   name="lastName"
                   type="string"
                   fullWidth
-                  required
                   {...register("lastName", {
                     required: "Last Name is required",
                   })}
@@ -188,11 +186,10 @@ export default function UserCreate() {
               </Grid>
               <Grid item xs={12}>
                 <TextField
-                  label="Email"
+                  label="Email *"
                   name="email"
                   type="string"
                   fullWidth
-                  required
                   {...register("email", {
                     required: "Email is required",
                     pattern: {
@@ -206,11 +203,10 @@ export default function UserCreate() {
               </Grid>
               <Grid item xs={6}>
                 <TextField
-                  label="Phone"
+                  label="Phone *"
                   name="phone"
                   type="string"
                   fullWidth
-                  required
                   {...register("phone", { required: "Phone is required" })}
                   error={!!errors.phone}
                   helperText={errors.phone?.message}
@@ -218,11 +214,10 @@ export default function UserCreate() {
               </Grid>
               <Grid item xs={6}>
                 <TextField
-                  label="Position"
+                  label="Position *"
                   name="position"
                   type="string"
                   fullWidth
-                  required
                   {...register("position", {
                     required: "Position is required",
                   })}
@@ -234,11 +229,10 @@ export default function UserCreate() {
                 <>
                   <Grid item xs={6}>
                     <TextField
-                      label="Password"
+                      label="Password *"
                       name="password"
                       type="password"
                       fullWidth
-                      required
                       {...register("password", {
                         required: "Password is required",
                         minLength: {
@@ -257,11 +251,10 @@ export default function UserCreate() {
                   </Grid>
                   <Grid item xs={6}>
                     <TextField
-                      label="Confirm Password"
+                      label="Confirm Password *"
                       name="confirmPassword"
                       type="password"
                       fullWidth
-                      required
                       {...register("confirmPassword", {
                         required: "Confirm Password is required",
                         validate: (value) =>
@@ -280,7 +273,7 @@ export default function UserCreate() {
                     labelId="role-select-label"
                     name="role"
                     id="role"
-                    label="List of Roles"
+                    label="List of Roles *"
                     value={selectedRole}
                     onChange={(e) => {
                       setSelectedRole(e.target.value);
@@ -288,7 +281,6 @@ export default function UserCreate() {
                         shouldValidate: true,
                       });
                     }}
-                    required
                   >
                     <MenuItem value="User">User</MenuItem>
                     <MenuItem value="Approver">Approver</MenuItem>
