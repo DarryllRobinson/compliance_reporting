@@ -193,7 +193,22 @@ export default function GoogleAddressAutocomplete() {
 
   return (
     <div style={{ marginBottom: "1rem" }}>
-      <label htmlFor="autocomplete-container">Address Lookup</label>
+      <label
+        htmlFor="autocomplete-container"
+        style={{
+          display: "block",
+          marginBottom: "6px",
+          fontWeight: 400,
+          fontSize: "1rem",
+          lineHeight: "1.4375em",
+          padding: "0 8px",
+          color: theme.palette.text.primary,
+          fontFamily: theme.typography.fontFamily,
+          letterSpacing: "0.01em",
+        }}
+      >
+        Address Lookup
+      </label>
       <div
         id="autocomplete-container"
         className="widget-container"
@@ -204,8 +219,11 @@ export default function GoogleAddressAutocomplete() {
           border: `1px solid ${theme.palette.mode === "dark" ? "#818181" : "#818181"}`,
           background: theme.palette.mode === "dark" ? "#5b5b5b" : "#fff",
           color: theme.palette.mode === "dark" ? "#fff" : "#000",
-          padding: "8px",
-          boxSizing: "border-box",
+          display: "block",
+          fontSize: "1rem",
+          height: "1.4375em",
+          padding: "16.5px 14px",
+          boxSizing: "content-box",
           transition: "background 0.2s, color 0.2s",
         }}
       />
