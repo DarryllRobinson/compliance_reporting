@@ -272,6 +272,29 @@ export default function LandingPage() {
           No login. No risk. Just clear answers.
         </Typography>
       </Box>
+      <Box sx={{ textAlign: "center", px: 2 }}>
+        <Typography
+          variant={isSmallScreen ? "h5" : "h4"}
+          sx={{ mb: 4, color: theme.palette.text.primary }}
+        >
+          Ready to simplify your compliance?
+        </Typography>
+        <Button
+          variant="contained"
+          color="primary"
+          size="large"
+          onClick={() => navigate("/clients/register")}
+          sx={{ width: isSmallScreen ? "100%" : "auto" }}
+        >
+          Register for Free
+        </Button>
+        <Typography
+          variant="body2"
+          sx={{ mt: 1, color: theme.palette.text.secondary }}
+        >
+          Pay only if you need to report. No upfront fees.
+        </Typography>
+      </Box>
     </Box>
   );
 }

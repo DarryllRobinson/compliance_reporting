@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useFormContext } from "react-hook-form";
-import "./GoogleAddressStyling.css";
+import { useTheme } from "@mui/material/styles";
+// import "./GoogleAddressStyling.css";
 
 const stateNameToCode = {
   "Australian Capital Territory": "ACT",
@@ -82,11 +83,11 @@ export default function GoogleAddressAutocomplete() {
   const { setValue } = useFormContext();
   const containerRef = useRef(null);
   const placeAutocompleteRef = useRef(null);
+  const theme = useTheme();
 
   useEffect(() => {
     let placeAutocomplete;
     const container = containerRef.current;
-    let scriptElement = null;
 
     loadGoogleMapsApi()
       .then(() => {
@@ -96,6 +97,10 @@ export default function GoogleAddressAutocomplete() {
               new window.google.maps.places.PlaceAutocompleteElement();
             container.appendChild(placeAutocomplete);
             placeAutocompleteRef.current = placeAutocomplete;
+
+            // Try to resize the internal input using the element's width/height properties
+            placeAutocomplete.style.width = "100%";
+            placeAutocomplete.style.minHeight = "56px"; // match MUI TextField height
 
             placeAutocomplete.addEventListener(
               "gmp-select",
@@ -173,6 +178,12 @@ export default function GoogleAddressAutocomplete() {
         script.remove();
         googleMapsApiPromise = null;
       }
+      if (
+        placeAutocompleteRef.current &&
+        placeAutocompleteRef.current._observer
+      ) {
+        placeAutocompleteRef.current._observer.disconnect();
+      }
       if (placeAutocompleteRef.current && container) {
         container.removeChild(placeAutocompleteRef.current);
         placeAutocompleteRef.current = null;
@@ -187,7 +198,16 @@ export default function GoogleAddressAutocomplete() {
         id="autocomplete-container"
         className="widget-container"
         ref={containerRef}
-        // Remove inline styles in favor of CSS class
+        style={{
+          width: "100%",
+          borderRadius: "8px",
+          border: `1px solid ${theme.palette.mode === "dark" ? "#818181" : "#818181"}`,
+          background: theme.palette.mode === "dark" ? "#5b5b5b" : "#fff",
+          color: theme.palette.mode === "dark" ? "#fff" : "#000",
+          padding: "8px",
+          boxSizing: "border-box",
+          transition: "background 0.2s, color 0.2s",
+        }}
       />
     </div>
   );

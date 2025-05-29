@@ -1,4 +1,4 @@
-import { use, useState } from "react";
+import { useState } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
@@ -19,7 +19,6 @@ import {
   Checkbox,
 } from "@mui/material";
 import { clientService, userService, trackingService } from "../../services";
-import CreateUser from "../users/CreateUser";
 import GoogleAddressAutocomplete from "../../components/common/GoogleAddressAutocomplete";
 import { useNavigate } from "react-router";
 
@@ -285,7 +284,7 @@ export default function ClientRegister() {
         }}
       >
         <Typography variant="h4" gutterBottom align="center">
-          Register a New Client
+          Register Your Business
         </Typography>
         {alert && (
           <Alert severity={alert.type} sx={{ mb: 2 }}>
