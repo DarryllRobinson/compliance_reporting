@@ -1,8 +1,16 @@
 export function calculateFinalMetrics(dataset) {
   // Define the SBTCP dataset by filtering the input dataset
   const sbtcpDataset = dataset.filter(
-    (record) => record.isSb && !record.isPartial && !record.excludedTcp
+    (record) =>
+      record.isSb &&
+      !record.isPartial &&
+      !record.excludedTcp &&
+      record.isTcp &&
+      !record.partialPayment &&
+      !record.excludedTcp &&
+      record.isSb
   );
+  console.log("SBTCP Dataset:", sbtcpDataset);
 
   // Ensure the dataset is not empty and contains valid paymentTerm values
   const paymentTerms = sbtcpDataset
@@ -57,7 +65,6 @@ export function calculateFinalMetrics(dataset) {
   const paymentTimes = sbtcpDataset
     .map((record) => Number(record.paymentTime)) // Normalize to numbers
     .filter((time) => !isNaN(time)); // Exclude invalid numbers
-  console.log("paymentTimes: ", paymentTimes);
 
   if (paymentTimes.length === 0) {
     console.warn("No valid payment times found in the SBTCP dataset.");
@@ -132,7 +139,6 @@ export function calculateFinalMetrics(dataset) {
 
 // Helper function to calculate the mode of an array
 function calculateMode(arr) {
-  console.log("Calculating mode for array: ", arr);
   const frequency = {};
   let maxFreq = 0;
   let mode = null;

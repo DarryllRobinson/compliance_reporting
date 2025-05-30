@@ -19,7 +19,6 @@ export default function Step6() {
 
   // Compute metrics from records if present, otherwise use empty/default
   const metrics = calculateFinalMetrics(records ?? []);
-  console.log("Step6 records:", records);
 
   const sections = [
     {
