@@ -29,6 +29,7 @@ import { formatCurrency, formatDateForMySQL } from "../../../lib/utils/";
 import { getRowHighlightColor } from "../../../lib/utils/highlightRow";
 import { fieldMapping } from "./fieldMapping";
 import { useReportContext } from "../../../context";
+import { calculatePaymentTerm } from "../../../lib/calculations/ptrs";
 
 const DEFAULT_SORT_CONFIG = {
   key: null,
@@ -37,8 +38,6 @@ const DEFAULT_SORT_CONFIG = {
 };
 
 export default function CollapsibleTable({ editableFields, hiddenColumns }) {
-  console.log("CollapsibleTable rendered with editableFields:", editableFields);
-  console.log("CollapsibleTable rendered with hiddenColumns:", hiddenColumns);
   const { records, handleRecordChange, handleSaveUpdates } = useReportContext();
   const theme = useTheme();
   const [searchTerm, setSearchTerm] = useState("");
@@ -452,90 +451,108 @@ export default function CollapsibleTable({ editableFields, hiddenColumns }) {
             </TableRow>
           </TableHead>
           <TableBody>
-            {displayedRecords.map((record) => (
-              <TableRow
-                key={record.id}
-                sx={{
-                  backgroundColor: getRowHighlightColor({
-                    id: record.id,
-                    isError: false,
-                    wasChanged: record.wasChanged || false,
-                    wasSaved:
-                      new Date(record.updatedAt) > new Date(record.createdAt),
-                    partialPayment: record.partialPayment,
-                  }),
-                }}
-              >
-                <TableCell>
-                  {record.hasExclusion ? (
-                    <Tooltip title="Recommended Exclusion">
-                      <Typography fontWeight="bold">🧠</Typography>
-                    </Tooltip>
-                  ) : record.hasIssue ? (
-                    <Tooltip title="Issue">
-                      <Typography color="error" fontWeight="bold">
-                        ⚠️
-                      </Typography>
-                    </Tooltip>
-                  ) : null}
-                </TableCell>
-                {Object.entries(groupedVisibleFields).flatMap(
-                  ([group, fields]) =>
-                    collapsedGroups[group]
-                      ? [<TableCell key={`${record.id}-${group}-collapsed`} />]
-                      : fields.map((field) => {
-                          if (hiddenColumns?.includes(field.name)) return null;
-                          const isEditable = editableFields?.includes(
-                            field.name
-                          );
-                          return (
-                            <TableCell key={`${record.id}-${field.name}`}>
-                              {field.type === "amount" ? (
-                                formatCurrency(record[field.name])
-                              ) : field.type === "date" ? (
-                                formatDateForMySQL(record[field.name])
-                              ) : field.type === "checkbox" ? (
-                                isEditable ? (
-                                  <Checkbox
-                                    checked={Boolean(record[field.name])}
+            {displayedRecords.map((record) => {
+              // Calculate payment term for this record
+              const paymentTerm = calculatePaymentTerm(record);
+              return (
+                <TableRow
+                  key={record.id}
+                  sx={{
+                    backgroundColor: getRowHighlightColor({
+                      id: record.id,
+                      isError: false,
+                      wasChanged: record.wasChanged || false,
+                      wasSaved:
+                        new Date(record.updatedAt) > new Date(record.createdAt),
+                      partialPayment: record.partialPayment,
+                    }),
+                  }}
+                >
+                  <TableCell>
+                    {record.hasExclusion ? (
+                      <Tooltip title="Recommended Exclusion">
+                        <Typography fontWeight="bold">🧠</Typography>
+                      </Tooltip>
+                    ) : record.hasIssue ? (
+                      <Tooltip title="Issue">
+                        <Typography color="error" fontWeight="bold">
+                          ⚠️
+                        </Typography>
+                      </Tooltip>
+                    ) : null}
+                  </TableCell>
+                  {Object.entries(groupedVisibleFields).flatMap(
+                    ([group, fields]) =>
+                      collapsedGroups[group]
+                        ? [
+                            <TableCell
+                              key={`${record.id}-${group}-collapsed`}
+                            />,
+                          ]
+                        : fields.map((field) => {
+                            if (hiddenColumns?.includes(field.name))
+                              return null;
+                            const isEditable = editableFields?.includes(
+                              field.name
+                            );
+
+                            if (field.name === "paymentTerm") {
+                              return (
+                                <TableCell key={`${record.id}-paymentTerm`}>
+                                  {paymentTerm}
+                                </TableCell>
+                              );
+                            }
+
+                            return (
+                              <TableCell key={`${record.id}-${field.name}`}>
+                                {field.type === "amount" ? (
+                                  formatCurrency(record[field.name])
+                                ) : field.type === "date" ? (
+                                  formatDateForMySQL(record[field.name])
+                                ) : field.type === "checkbox" ? (
+                                  isEditable ? (
+                                    <Checkbox
+                                      checked={Boolean(record[field.name])}
+                                      onChange={(e) =>
+                                        handleRecordChange(
+                                          record.id,
+                                          field.name,
+                                          e.target.checked
+                                        )
+                                      }
+                                    />
+                                  ) : (
+                                    <Checkbox
+                                      checked={Boolean(record[field.name])}
+                                      disabled
+                                    />
+                                  )
+                                ) : isEditable ? (
+                                  <TextField
+                                    variant="outlined"
+                                    size="small"
+                                    fullWidth
+                                    multiline={field.multiline || false}
+                                    value={record[field.name] || ""}
                                     onChange={(e) =>
                                       handleRecordChange(
                                         record.id,
                                         field.name,
-                                        e.target.checked
+                                        e.target.value
                                       )
                                     }
                                   />
                                 ) : (
-                                  <Checkbox
-                                    checked={Boolean(record[field.name])}
-                                    disabled
-                                  />
-                                )
-                              ) : isEditable ? (
-                                <TextField
-                                  variant="outlined"
-                                  size="small"
-                                  fullWidth
-                                  multiline={field.multiline || false}
-                                  value={record[field.name] || ""}
-                                  onChange={(e) =>
-                                    handleRecordChange(
-                                      record.id,
-                                      field.name,
-                                      e.target.value
-                                    )
-                                  }
-                                />
-                              ) : (
-                                record[field.name] || "-"
-                              )}
-                            </TableCell>
-                          );
-                        })
-                )}
-              </TableRow>
-            ))}
+                                  record[field.name] || "-"
+                                )}
+                              </TableCell>
+                            );
+                          })
+                  )}
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </TableContainer>

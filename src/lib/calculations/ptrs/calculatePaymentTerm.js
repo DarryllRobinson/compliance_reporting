@@ -77,8 +77,8 @@ export function calculatePaymentTerm(data) {
   if (invoiceIssueDate && invoiceDueDate) {
     const issueDate = new Date(invoiceIssueDate);
     const dueDate = new Date(invoiceDueDate);
-    const diffTime = dueDate - issueDate;
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // Convert milliseconds to days
+    const diffDays = (dueDate - issueDate) / (1000 * 60 * 60 * 24);
+    return Math.floor(diffDays) + 1; // Use floor instead of ceil because we’re forcibly including the start day
   }
 
   // Return 99 if no conditions are met
