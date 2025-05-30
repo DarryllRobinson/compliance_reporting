@@ -4,8 +4,6 @@ import { useReportContext } from "../../../context";
 import { stepConfigs } from "../../../config/stepConfigs";
 
 export default function StepView({ stepId }) {
-  console.log("StepView rendered for stepId:", stepId);
-  console.log("Current step configs:", stepConfigs[`step${stepId}`]);
   const { records } = useReportContext();
 
   if (!records) {

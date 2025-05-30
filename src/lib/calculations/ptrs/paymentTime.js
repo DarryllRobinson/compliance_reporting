@@ -9,10 +9,15 @@ export const calculatePaymentTime = (record) => {
   } = record;
 
   const parseDate = (date) => (date ? new Date(date) : null);
-  const daysBetween = (start, end) =>
-    start && end
-      ? Math.max(0, Math.ceil((end - start) / (1000 * 60 * 60 * 24)))
-      : null;
+  const daysBetween = (start, end) => {
+    if (!start || !end) return null;
+
+    const diff = (end - start) / (1000 * 60 * 60 * 24); // exact day difference
+    const calculatedDays = Math.floor(diff);
+
+    if (calculatedDays <= 0) return 0;
+    return calculatedDays + 1; // include the start day like Excel
+  };
 
   const paymentDateParsed = parseDate(paymentDate);
 
