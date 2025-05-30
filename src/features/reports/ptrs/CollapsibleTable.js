@@ -37,8 +37,9 @@ const DEFAULT_SORT_CONFIG = {
 };
 
 export default function CollapsibleTable({ editableFields, hiddenColumns }) {
-  const { records, isLocked, handleRecordChange, handleSaveUpdates } =
-    useReportContext();
+  console.log("CollapsibleTable rendered with editableFields:", editableFields);
+  console.log("CollapsibleTable rendered with hiddenColumns:", hiddenColumns);
+  const { records, handleRecordChange, handleSaveUpdates } = useReportContext();
   const theme = useTheme();
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(0);
@@ -204,7 +205,6 @@ export default function CollapsibleTable({ editableFields, hiddenColumns }) {
         value={searchTerm}
         onChange={handleSearch}
         sx={{ mb: 2 }}
-        disabled={isLocked}
       />
       <Box sx={{ textAlign: "center", mb: 2 }}>
         {Object.values(collapsedGroups).filter(Boolean).length ===
@@ -404,7 +404,6 @@ export default function CollapsibleTable({ editableFields, hiddenColumns }) {
                               size="small"
                               variant="standard"
                               fullWidth
-                              disabled={isLocked}
                               displayEmpty
                               value={sortConfig?.filters?.[field.name] ?? ""}
                               onClick={(e) => e.stopPropagation()}
@@ -496,17 +495,23 @@ export default function CollapsibleTable({ editableFields, hiddenColumns }) {
                               ) : field.type === "date" ? (
                                 formatDateForMySQL(record[field.name])
                               ) : field.type === "checkbox" ? (
-                                <Checkbox
-                                  checked={Boolean(record[field.name])}
-                                  onChange={(e) =>
-                                    handleRecordChange(
-                                      record.id,
-                                      field.name,
-                                      e.target.checked
-                                    )
-                                  }
-                                  disabled={isLocked}
-                                />
+                                isEditable ? (
+                                  <Checkbox
+                                    checked={Boolean(record[field.name])}
+                                    onChange={(e) =>
+                                      handleRecordChange(
+                                        record.id,
+                                        field.name,
+                                        e.target.checked
+                                      )
+                                    }
+                                  />
+                                ) : (
+                                  <Checkbox
+                                    checked={Boolean(record[field.name])}
+                                    disabled
+                                  />
+                                )
                               ) : isEditable ? (
                                 <TextField
                                   variant="outlined"
@@ -521,7 +526,6 @@ export default function CollapsibleTable({ editableFields, hiddenColumns }) {
                                       e.target.value
                                     )
                                   }
-                                  disabled={isLocked}
                                 />
                               ) : (
                                 record[field.name] || "-"

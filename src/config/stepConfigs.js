@@ -95,12 +95,10 @@ export const stepConfigs = {
     exclusionRules: [],
   },
   step4: {
-    editableFields: ["excludedTcp", "notes", "isSb"],
-    hiddenColumns: ["paymentTime"], // and any other purely virtual fields
+    editableFields: ["partialPayment"],
+    hiddenColumns: [],
     validationRules: {
-      excludedTcp: "boolean",
-      notes: "string",
-      isSb: "boolean",
+      paymentTime: "number",
     },
     issueRules: [],
     exclusionRules: [],

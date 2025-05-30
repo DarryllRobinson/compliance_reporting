@@ -185,8 +185,8 @@ export const fieldMapping = [
     name: "partialPayment",
     label: "Partial Payment",
     type: "checkbox",
-    requiredAtStep: [2, 4],
-    group: "step 2",
+    requiredAtStep: [4],
+    group: "step 4",
   },
   {
     name: "paymentTerm",
@@ -207,7 +207,7 @@ export const fieldMapping = [
     label: "Explanatory Comments",
     type: "textArea",
     requiredAtStep: [2, 4],
-    group: "step 3",
+    group: "step 2",
   },
   {
     name: "isSb",
@@ -220,7 +220,7 @@ export const fieldMapping = [
     name: "paymentTime",
     label: "Payment Time (days)",
     type: "number",
-    requiredAtStep: [2, 4],
+    requiredAtStep: [4],
     group: "step 4",
   },
   {

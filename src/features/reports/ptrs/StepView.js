@@ -4,6 +4,8 @@ import { useReportContext } from "../../../context";
 import { stepConfigs } from "../../../config/stepConfigs";
 
 export default function StepView({ stepId }) {
+  console.log("StepView rendered for stepId:", stepId);
+  console.log("Current step configs:", stepConfigs[`step${stepId}`]);
   const { records } = useReportContext();
 
   if (!records) {
@@ -17,18 +19,20 @@ export default function StepView({ stepId }) {
 
   return (
     <>
-      <Typography variant="body1" sx={{ mb: 2 }}>
-        🟡 <strong>{records.length}</strong> record(s) loaded for review.
-      </Typography>
-
-      <Typography variant="body1" sx={{ mb: 2 }}>
-        ⚠️ <strong>{issuesCount}</strong> record(s) with potential issues.
-      </Typography>
-
-      <Typography variant="body1" sx={{ mb: 2 }}>
-        🧠 <strong>{recommendedExclusionCount}</strong> record(s) are
-        recommended by the system to be excluded from TCP.
-      </Typography>
+      {(stepId === 1 || stepId === 2) && (
+        <>
+          <Typography variant="body1" sx={{ mb: 2 }}>
+            🟡 <strong>{records.length}</strong> record(s) loaded for review.
+          </Typography>
+          <Typography variant="body1" sx={{ mb: 2 }}>
+            ⚠️ <strong>{issuesCount}</strong> record(s) with potential issues.
+          </Typography>
+          <Typography variant="body1" sx={{ mb: 2 }}>
+            🧠 <strong>{recommendedExclusionCount}</strong> record(s) are
+            recommended by the system to be excluded from TCP.
+          </Typography>
+        </>
+      )}
 
       <CollapsibleTable
         editableFields={stepConfigs[`step${stepId}`].editableFields}
