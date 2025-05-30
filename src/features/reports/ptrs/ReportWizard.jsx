@@ -22,6 +22,10 @@ import { reportService, tcpService } from "../../../services";
 import { glossary, ptrsGuidance } from "../../../constants/";
 import { ReportContext } from "../../../context/ReportContext";
 import { stepConfigs } from "../../../config/stepConfigs";
+import {
+  calculatePaymentTerm,
+  calculatePaymentTime,
+} from "../../../lib/calculations/ptrs";
 
 const steps = [
   { label: "Step 1: Confirm TCPs", Component: StepView },
@@ -73,7 +77,7 @@ function getChangedFields(record, original) {
 
 export default function ReportWizard() {
   const { reportId } = useParams();
-  const [currentStep, setCurrentStep] = useState(3);
+  const [currentStep, setCurrentStep] = useState(5);
   const [records, setRecords] = useState([]);
   const [report, setReport] = useState({});
   const [isLoading, setIsLoading] = useState(true);
@@ -120,15 +124,38 @@ export default function ReportWizard() {
         // Append wasChanged, wasSaved, and original object to each record
         const enhancedRecords = records.map((r) => {
           const { original, original_field, ...rest } = r; // Remove any original_ fields if exist
-          // Deep copy the record for original
-          const originalCopy = JSON.parse(JSON.stringify(rest));
+          // Calculate paymentTime and paymentTerm
+          const paymentTime = calculatePaymentTime(rest);
+          const paymentTerm = calculatePaymentTerm(rest);
+
+          const originalCopy = JSON.parse(
+            JSON.stringify({
+              ...rest,
+              paymentTime,
+              paymentTerm,
+            })
+          );
+
           return {
             ...rest,
+            paymentTime,
+            paymentTerm,
             wasChanged: false,
             wasSaved: false,
             original: originalCopy,
           };
         });
+
+        // Update the backend with the paymentTime and paymentTerm
+        // Create the payload to update paymentTerm and paymentTime in the DB
+        const updatePayload = enhancedRecords.map((rec) => ({
+          id: rec.id,
+          paymentTime: rec.paymentTime,
+          paymentTerm: rec.paymentTerm,
+        }));
+
+        // Send the bulk patch request
+        await tcpService.patchRecords(updatePayload);
         setRecords(enhancedRecords || []);
         setRecords((prev) => updateRecordsWithFlags(prev));
 

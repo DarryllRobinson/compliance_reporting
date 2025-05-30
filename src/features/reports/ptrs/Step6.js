@@ -9,7 +9,6 @@ import {
   TableRow,
   TextField,
   Typography,
-  Alert,
 } from "@mui/material";
 import { calculateFinalMetrics } from "../../../lib/calculations/ptrs";
 import { CheckBox } from "@mui/icons-material";
@@ -20,7 +19,6 @@ export default function Step6() {
 
   // Compute metrics from records if present, otherwise use empty/default
   const metrics = calculateFinalMetrics(records ?? []);
-  console.log("Step6 metrics:", metrics);
   console.log("Step6 records:", records);
 
   const sections = [
@@ -244,7 +242,7 @@ export default function Step6() {
   return (
     <Box sx={{ padding: 2 }}>
       <Typography variant="h5" sx={{ marginBottom: 2 }}>
-        Step 5: Final Report Summary
+        Step 6: Final Report Summary
       </Typography>
       {sections.map((section, sectionIndex) => (
         <TableContainer

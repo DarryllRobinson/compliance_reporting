@@ -29,10 +29,6 @@ import { formatCurrency, formatDateForMySQL } from "../../../lib/utils/";
 import { getRowHighlightColor } from "../../../lib/utils/highlightRow";
 import { fieldMapping } from "./fieldMapping";
 import { useReportContext } from "../../../context";
-import {
-  calculatePaymentTerm,
-  calculatePaymentTime,
-} from "../../../lib/calculations/ptrs";
 
 const DEFAULT_SORT_CONFIG = {
   key: null,
@@ -456,8 +452,6 @@ export default function CollapsibleTable({ editableFields, hiddenColumns }) {
           <TableBody>
             {displayedRecords.map((record) => {
               // Calculate payment term and time for this record
-              const paymentTerm = calculatePaymentTerm(record);
-              const paymentTime = calculatePaymentTime(record);
               return (
                 <TableRow
                   key={record.id}
@@ -499,22 +493,6 @@ export default function CollapsibleTable({ editableFields, hiddenColumns }) {
                             const isEditable = editableFields?.includes(
                               field.name
                             );
-
-                            if (field.name === "paymentTerm") {
-                              return (
-                                <TableCell key={`${record.id}-paymentTerm`}>
-                                  {paymentTerm}
-                                </TableCell>
-                              );
-                            }
-
-                            if (field.name === "paymentTime") {
-                              return (
-                                <TableCell key={`${record.id}-paymentTime`}>
-                                  {paymentTime}
-                                </TableCell>
-                              );
-                            }
 
                             return (
                               <TableCell key={`${record.id}-${field.name}`}>

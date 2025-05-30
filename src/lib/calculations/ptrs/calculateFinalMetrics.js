@@ -132,6 +132,7 @@ export function calculateFinalMetrics(dataset) {
 
 // Helper function to calculate the mode of an array
 function calculateMode(arr) {
+  console.log("Calculating mode for array: ", arr);
   const frequency = {};
   let maxFreq = 0;
   let mode = null;
