@@ -36,12 +36,7 @@ const DEFAULT_SORT_CONFIG = {
   filters: {},
 };
 
-export default function CollapsibleTable({
-  editableFields,
-  hiddenColumns,
-  issues = {},
-  recommendedExclusions = {},
-}) {
+export default function CollapsibleTable({ editableFields, hiddenColumns }) {
   const { records, isLocked, handleRecordChange, handleSaveUpdates } =
     useReportContext();
   const theme = useTheme();

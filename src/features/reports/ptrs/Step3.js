@@ -232,20 +232,6 @@ export default function Step3({
         >
           Submit
         </Button>
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={async () => {
-            if (onNext) {
-              onNext();
-            } else {
-              navigate(`/reports/ptrs/step4/${reportId}`);
-            }
-          }}
-          disabled={!isFileUploaded || isLocked} // Disable until file is successfully uploaded or locked
-        >
-          Next: Step 4
-        </Button>
       </Paper>
     </Box>
   );

@@ -14,6 +14,9 @@ import {
 import Loading from "../../../components/Loading";
 
 import StepView from "./StepView";
+import Step3 from "./Step3";
+import Step6 from "./Step6";
+import Payment from "../../payment/Payment";
 
 import { reportService, tcpService } from "../../../services";
 import { glossary, ptrsGuidance } from "../../../constants/";
@@ -23,10 +26,13 @@ import { stepConfigs } from "../../../config/stepConfigs";
 const steps = [
   { label: "Step 1: Confirm TCPs", Component: StepView },
   { label: "Step 2: Finalise TCP Dataset", Component: StepView },
-  { label: "Step 3: Export ABNs for SBI", Component: StepView },
-  { label: "Step 4: Upload SBI Results", Component: StepView },
-  { label: "Step 5: Small Business Review", Component: StepView },
-  { label: "Step 6: Summary & Submission", Component: StepView },
+  { label: "Step 3: Export ABNs and upload returns for SBI", Component: Step3 },
+  {
+    label: "Step 4: Exclude parial payments and insert payment times",
+    Component: StepView,
+  },
+  { label: "Step 5: Process payment", Component: Payment },
+  { label: "Step 6: Summary & Submission", Component: Step6 },
 ];
 
 function enhanceWithGlossary(text) {
@@ -67,7 +73,7 @@ function getChangedFields(record, original) {
 
 export default function ReportWizard() {
   const { reportId } = useParams();
-  const [currentStep, setCurrentStep] = useState(0);
+  const [currentStep, setCurrentStep] = useState(5);
   const [records, setRecords] = useState([]);
   const [report, setReport] = useState({});
   const [isLoading, setIsLoading] = useState(true);
@@ -81,19 +87,27 @@ export default function ReportWizard() {
     (records) => {
       if (!records || records.length === 0) return records;
 
-      // Apply exclusion flags
-      const excludedRecords = getExclusionFlags(
-        records,
-        stepConfig.exclusionRules
-      );
+      if (
+        !stepConfig.exclusionRules?.length &&
+        !stepConfig.issueRules?.length
+      ) {
+        return records; // Skip flagging altogether for steps 3 and 4
+      }
 
-      // Apply issue flags
-      const issueRecords = getIssueFlags(
-        excludedRecords,
-        stepConfig.issueRules
-      );
+      let flaggedRecords = records;
 
-      return issueRecords;
+      if (stepConfig.exclusionRules?.length) {
+        flaggedRecords = getExclusionFlags(
+          flaggedRecords,
+          stepConfig.exclusionRules
+        );
+      }
+
+      if (stepConfig.issueRules?.length) {
+        flaggedRecords = getIssueFlags(flaggedRecords, stepConfig.issueRules);
+      }
+
+      return flaggedRecords;
     },
     [stepConfig]
   );

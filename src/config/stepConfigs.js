@@ -87,4 +87,36 @@ export const stepConfigs = {
       },
     ],
   },
+  step3: {
+    editableFields: [],
+    hiddenColumns: [],
+    validationRules: {},
+    issueRules: [],
+    exclusionRules: [],
+  },
+  step4: {
+    editableFields: ["excludedTcp", "notes", "isSb"],
+    hiddenColumns: ["paymentTime"], // and any other purely virtual fields
+    validationRules: {
+      excludedTcp: "boolean",
+      notes: "string",
+      isSb: "boolean",
+    },
+    issueRules: [],
+    exclusionRules: [],
+  },
+  step5: {
+    editableFields: [],
+    hiddenColumns: [],
+    validationRules: {},
+    issueRules: [],
+    exclusionRules: [],
+  },
+  step6: {
+    editableFields: [],
+    hiddenColumns: [],
+    validationRules: {},
+    issueRules: [],
+    exclusionRules: [],
+  },
 };
