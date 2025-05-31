@@ -12,8 +12,7 @@ import {
   Alert,
 } from "@mui/material";
 import { publicService, userService } from "../../services";
-import { useNavigate } from "react-router";
-import { useSearchParams } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 
 const validationSchema = Yup.object().shape({
   password: Yup.string()
@@ -141,12 +140,14 @@ export default function VerifyEmail() {
       };
 
       await publicService.sendSesEmail(userData);
+      // Login the user with their new credentials
+      await userService.login(user.email, formValues.password);
       setAlert({
         type: "success",
         message:
-          "Password set successfully - redirecting you to the login page",
+          "Password set successfully - redirecting you to your dashboard",
       });
-      navigate("/user/login");
+      navigate("/user/dashboard");
     } catch (error) {
       setAlert({
         type: "error",

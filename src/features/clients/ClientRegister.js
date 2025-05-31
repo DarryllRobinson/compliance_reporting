@@ -156,7 +156,7 @@ export default function ClientRegister() {
       contactLast: "Simpson",
       contactPosition: "King of the World",
       contactEmail: "darryll.robinson@monochrome-compliance.com",
-      contactPhone: "1010101",
+      contactPhone: "1010101111",
       controllingCorporationName: "",
       controllingCorporationAbn: "12345678901",
       controllingCorporationAcn: "",
