@@ -29,6 +29,8 @@ import BlogIndex from "../routes/BlogIndex";
 import LegalDisclaimer from "../components/policies/LegalDisclaimer";
 import VerifyEmail from "../features/users/VerifyEmail";
 import FirstUserRegister from "../features/users/FirstUserRegister";
+import { Component } from "react";
+import ConnectExternalSystemsTest from "../features/reports/ptrs/ConnectExternalSystemsTest";
 
 export const publicRoutes = [
   {
@@ -60,6 +62,7 @@ export const publicRoutes = [
     path: "test-pdf-email",
     Component: TestPdfEmail,
   },
+  { path: "connect-xero", Component: ConnectExternalSystemsTest },
   {
     path: "getting-started",
     Component: GettingStartedPage,

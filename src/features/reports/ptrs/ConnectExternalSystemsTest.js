@@ -1,49 +1,32 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { tcpService, userService, xeroService } from "../../../services";
-import { Box, TextField, Button, Typography, Alert } from "@mui/material";
-import { fieldMapping } from "./fieldMapping"; // Import the field mapping
-import { useLocation, useNavigate } from "react-router"; // Import useNavigate
+import { Box, Button, Typography, Snackbar } from "@mui/material";
+import { fieldMapping } from "./fieldMapping";
+import { useLocation } from "react-router";
 
-export default function ConnectExternalSystems() {
+export default function ConnectExternalSystemsTest() {
   const { state } = useLocation();
   const reportDetails = state?.reportDetails || {};
-  const [alert, setAlert] = useState(null);
-  const navigate = useNavigate(); // Initialize navigate
-  const [credentials, setCredentials] = useState({
-    clientId: "",
-    clientSecret: "",
-  });
+  const [progressMessage, setProgressMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-
-  const handleInputChange = (event) => {
-    const { name, value } = event.target;
-    setCredentials((prev) => ({ ...prev, [name]: value }));
-  };
 
   const handleConnect = async () => {
     setIsLoading(true);
+    setProgressMessage("Connecting to Xero...");
     try {
-      const response = await xeroService.connect({
-        clientId: credentials.clientId,
-        clientSecret: credentials.clientSecret,
-        reportId: reportDetails.reportId,
+      const data = await xeroService.connect({
+        reportId: "Z2lH58qtri", // hardcoded for testing reportDetails.reportId,
       });
 
-      if (response && response.authUrl) {
-        window.location.href = response.authUrl;
-      } else {
-        setAlert({
-          type: "error",
-          message: "Failed to get authorization URL from Xero service.",
-        });
-        setIsLoading(false);
+      const authUrl = data.authUrl;
+      if (!authUrl) {
+        throw new Error("Authorisation URL not provided by server");
       }
+
+      window.location.href = authUrl;
     } catch (error) {
-      console.error("Error connecting to Xero or saving data:", error);
-      setAlert({
-        type: "error",
-        message: "An error occurred while connecting or saving data.",
-      });
+      console.error("Error connecting to Xero:", error);
+      setProgressMessage("Error occurred while connecting to Xero.");
       setIsLoading(false);
     }
   };
@@ -156,28 +139,6 @@ export default function ConnectExternalSystems() {
       <Typography variant="h5" sx={{ marginBottom: 2 }}>
         Connect to External Data Source
       </Typography>
-      <TextField
-        label="Client ID"
-        name="clientId"
-        fullWidth
-        value={credentials.clientId}
-        onChange={handleInputChange}
-        sx={{ marginBottom: 2 }}
-      />
-      <TextField
-        label="Client Secret"
-        name="clientSecret"
-        fullWidth
-        type="password"
-        value={credentials.clientSecret}
-        onChange={handleInputChange}
-        sx={{ marginBottom: 2 }}
-      />
-      {alert && (
-        <Alert severity={alert.type} sx={{ mb: 2 }}>
-          {alert.message}
-        </Alert>
-      )}
       <Button
         variant="contained"
         color="primary"
@@ -186,6 +147,14 @@ export default function ConnectExternalSystems() {
       >
         {isLoading ? "Processing..." : "Connect and Fetch Data"}
       </Button>
+
+      <Snackbar
+        open={!!progressMessage}
+        message={progressMessage}
+        autoHideDuration={3000}
+        onClose={() => setProgressMessage("")}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      />
     </Box>
   );
 }
