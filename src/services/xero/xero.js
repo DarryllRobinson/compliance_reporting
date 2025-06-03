@@ -22,6 +22,9 @@ function fetchData(params) {
 
 function subscribeToProgressUpdates(onMessage, onError, onClose) {
   const ws = new WebSocket(wsBaseUrl);
+  ws.onopen = () => {
+    ws.send(JSON.stringify({ action: "subscribe", type: "xeroUpdates" }));
+  };
 
   ws.onmessage = (event) => {
     try {

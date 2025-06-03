@@ -201,7 +201,8 @@ export default function Dashboard() {
                       No records found for this report
                     </Typography>
                   )}
-                  {!hasCreatedReport && (
+                  {hasCreatedReport && (
+                    // {!hasCreatedReport && ( // Testing
                     <Button
                       variant="contained"
                       color="primary"

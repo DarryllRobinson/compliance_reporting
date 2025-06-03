@@ -58,11 +58,12 @@ export const XeroConnectSuccess = () => {
       }}
     >
       <Typography variant="h4" gutterBottom>
-        Connection Successful!
+        {progressMessage || "Connecting to Xero..."}
       </Typography>
       <Typography variant="body1" paragraph>
-        Your Xero data has been successfully fetched and will appear in your
-        dashboard shortly.
+        {progressMessage
+          ? progressMessage
+          : "Waiting for Xero to finish processing. This may take a few minutes depending on how much data you have!"}
       </Typography>
       <Box mt={4}>
         <Button
@@ -80,7 +81,7 @@ export const XeroConnectSuccess = () => {
       )}
       {progressHistory.length > 0 && (
         <Box mt={4} sx={{ textAlign: "left" }}>
-          {progressHistory.map((msg, idx) => (
+          {[...progressHistory].reverse().map((msg, idx) => (
             <Typography key={idx} variant="body2">
               {msg}
             </Typography>
