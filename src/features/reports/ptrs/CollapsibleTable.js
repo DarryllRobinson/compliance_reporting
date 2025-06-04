@@ -234,9 +234,10 @@ export default function CollapsibleTable({ editableFields, hiddenColumns }) {
       <TableContainer
         component={Paper}
         sx={{
-          maxHeight: 500,
+          maxHeight: "70vh", // Use a viewport-relative height for more rows
           p: 0,
           backgroundColor: theme.palette.background.paper,
+          // overflow: 'auto', // Not needed, MUI sets this for maxHeight
         }}
       >
         <Table stickyHeader>
@@ -562,9 +563,9 @@ export default function CollapsibleTable({ editableFields, hiddenColumns }) {
         }}
         rowsPerPage={rowsPerPage}
         onRowsPerPageChange={(e) =>
-          setRowsPerPage(parseInt(e.target.value, 10))
+          setRowsPerPage(parseInt(e.target.value, 25))
         }
-        rowsPerPageOptions={[5, 10, 25]}
+        rowsPerPageOptions={[5, 10, 25, 50, 100]}
       />
     </>
   );
