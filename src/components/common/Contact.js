@@ -8,7 +8,6 @@ import {
   Paper,
   useTheme,
   CircularProgress,
-  Alert,
   MenuItem,
 } from "@mui/material";
 import { publicService } from "../../services";
@@ -16,6 +15,8 @@ import { useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
+import { useAlert } from "../../context/AlertContext";
+import { error as logError } from "../../utils/logger";
 
 // Yup schema moved outside the component and updated to use yup.object({ ... }) directly
 const schema = yup.object({
@@ -33,7 +34,7 @@ export default function Contact() {
   const theme = useTheme();
   const navigate = useNavigate();
 
-  const [alert, setAlert] = useState(null);
+  const { showAlert } = useAlert();
 
   const [loading, setLoading] = useState(false);
 
@@ -58,12 +59,13 @@ export default function Contact() {
   });
 
   const sendContactEmail = async (data) => {
+    const topic = data.topic.trim();
     const contactEmail = {
       name: data.name.trim(),
       cc: data.cc.trim(),
       email: data.email.trim(),
-      subject: data.topic.trim(),
-      topic: data.topic.trim(),
+      subject: topic,
+      topic,
       company: data.company.trim(),
       message: data.message.trim(),
       to: data.email.trim(),
@@ -87,15 +89,15 @@ export default function Contact() {
       // });
       if (response?.status === 200) {
         reset();
-        setAlert({ type: "success", message: "Message sent successfully!" });
+        showAlert("Message sent successfully!", "success");
         setTimeout(() => {
           navigate("/thankyou-contact");
         }, 1500);
         return;
       }
     } catch (error) {
-      console.error("Error sending email:", error);
-      setAlert({ type: "error", message: "Failed to send email." });
+      logError("Error sending email:", error);
+      showAlert("Failed to send email.", "error");
     } finally {
       setLoading(false);
     }
@@ -119,11 +121,6 @@ export default function Contact() {
           color: theme.palette.text.primary,
         }}
       >
-        {alert && (
-          <Alert severity={alert.type} sx={{ mb: 2 }}>
-            {alert.message}
-          </Alert>
-        )}
         <Typography
           variant="h4"
           gutterBottom
@@ -139,7 +136,11 @@ export default function Contact() {
           We'd love to hear from you! Please fill out the form below and we'll
           get back to you as soon as possible.
         </Typography>
-        <Box component="form" onSubmit={handleSubmit(sendContactEmail)}>
+        <Box
+          component="form"
+          onSubmit={handleSubmit(sendContactEmail)}
+          sx={{ mb: theme.spacing(2) }}
+        >
           <TextField
             label="Name"
             type="text"
@@ -147,9 +148,9 @@ export default function Contact() {
             error={!!errors.name}
             helperText={errors.name?.message}
             autoComplete="off"
+            autoFocus
             fullWidth
             required
-            sx={{ mb: theme.spacing(2) }}
           />
           <TextField
             label="Company"
@@ -160,7 +161,6 @@ export default function Contact() {
             autoComplete="off"
             fullWidth
             required
-            sx={{ mb: theme.spacing(2) }}
           />
           <TextField
             label="Email"
@@ -171,7 +171,6 @@ export default function Contact() {
             autoComplete="off"
             fullWidth
             required
-            sx={{ mb: theme.spacing(2) }}
           />
           <TextField
             select
@@ -180,7 +179,6 @@ export default function Contact() {
             {...register("topic")}
             fullWidth
             required
-            sx={{ mb: theme.spacing(2) }}
           >
             <MenuItem value="General contact">General contact</MenuItem>
             <MenuItem value="Privacy complaint">Privacy complaint</MenuItem>
@@ -203,7 +201,6 @@ export default function Contact() {
             multiline
             rows={4}
             required
-            sx={{ mb: theme.spacing(2) }}
           />
           <Button
             type="submit"

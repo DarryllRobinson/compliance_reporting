@@ -18,7 +18,7 @@ async function sendSesEmail(formData) {
       `${baseUrl}/send-ses-email`,
       formData
     );
-    return response.data;
+    return response;
   } catch (error) {
     console.error("Failed to send SES email:", error);
     throw error;
@@ -31,7 +31,7 @@ async function sendAttachmentEmail(formData, isFormData = false) {
       `${baseUrl}/send-attachment-email`,
       formData
     );
-    return response.data;
+    return response;
   } catch (error) {
     console.error("Failed to send email:", error);
     throw error;

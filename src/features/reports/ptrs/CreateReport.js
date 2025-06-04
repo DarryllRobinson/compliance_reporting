@@ -29,7 +29,6 @@ export default function CreateReport() {
 
     try {
       const report = await reportService.create(newReportDetails);
-      console.log("Report created:", report);
       if (!report) {
         setAlert({ type: "error", message: "Report not created" });
         return;
