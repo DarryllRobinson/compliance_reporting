@@ -34,11 +34,11 @@ export default function UserCreate() {
 
   useEffect(() => {
     setValue("role", "User");
-    setValue("firstName", "Darryll");
-    setValue("lastName", "Robinson");
-    setValue("email", "darryll@stillproud.com");
-    setValue("phone", "0123456789");
-    setValue("position", "Coffee Maker");
+    setValue("firstName", "");
+    setValue("lastName", "");
+    setValue("email", "");
+    setValue("phone", "");
+    setValue("position", "");
     setValue("clientId", user.clientId);
   }, [setValue, user.clientId]);
 
