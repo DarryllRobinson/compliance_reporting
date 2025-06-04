@@ -29,7 +29,6 @@ import BlogIndex from "../routes/BlogIndex";
 import LegalDisclaimer from "../components/policies/LegalDisclaimer";
 import VerifyEmail from "../features/users/VerifyEmail";
 import FirstUserRegister from "../features/users/FirstUserRegister";
-import { Component } from "react";
 import ConnectExternalSystemsTest from "../features/reports/ptrs/ConnectExternalSystemsTest";
 
 export const publicRoutes = [
@@ -49,6 +48,14 @@ export const publicRoutes = [
   {
     path: "contact",
     Component: Contact,
+  },
+  {
+    path: "blog/:slug",
+    Component: StaticPageViewer,
+  },
+  {
+    path: "blog",
+    Component: BlogIndex,
   },
   {
     path: "thankyou-contact",
