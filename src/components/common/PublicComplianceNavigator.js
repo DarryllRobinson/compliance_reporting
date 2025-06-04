@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useForm, Controller, useWatch } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -24,8 +24,10 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { entityService } from "../../services";
-import { Alert } from "@mui/material";
+// Removed Alert import since alerts are handled via context
 import { handlePdf, sendSummaryByEmail } from "../../lib/utils";
+import { useAlert } from "../../context/AlertContext";
+import { error as logError } from "../../utils/logger";
 
 // Yup validation schema for Entity Details
 const entitySchema = yup.object().shape({
@@ -169,15 +171,7 @@ export default function PublicComplianceNavigator() {
   const [answers, setAnswers] = useState({});
   const [loading, setLoading] = useState(false); // Track loading state for Submit button
   const navigate = useNavigate();
-  const [alert, setAlert] = useState(null);
-
-  // Auto-clear alert after 4 seconds
-  useEffect(() => {
-    if (alert) {
-      const timeout = setTimeout(() => setAlert(null), 4000);
-      return () => clearTimeout(timeout);
-    }
-  }, [alert]);
+  const { showAlert } = useAlert();
 
   // React-hook-form for Contact Details step
   const {
@@ -264,22 +258,13 @@ export default function PublicComplianceNavigator() {
         contactData,
         answers,
         entityService,
-        setAlert,
       });
-      setAlert({
-        type: "success",
-        message: "Email sent successfully! Please check your inbox.",
-      });
-      setTimeout(() => setAlert(null), 4000);
-
+      showAlert("Email sent successfully! Please check your inbox.", "success");
       // Navigate to the solution page
       navigate("/ptr-solution");
     } catch (error) {
-      console.error("Failed to complete submission", error);
-      setAlert({
-        type: "error",
-        message: "Failed to complete submission. Please try again.",
-      });
+      logError("Failed to complete submission", error);
+      showAlert("Failed to complete submission. Please try again.", "error");
     } finally {
       setLoading(false); // Reset loading state after submission
     }
@@ -444,12 +429,6 @@ export default function PublicComplianceNavigator() {
           );
         })}
       </Stepper>
-
-      {alert && (
-        <Alert severity={alert.type} sx={{ mb: 2 }}>
-          {alert.message}
-        </Alert>
-      )}
 
       <Card
         sx={{

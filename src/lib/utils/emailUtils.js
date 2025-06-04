@@ -6,10 +6,10 @@ export async function sendSummaryByEmail({
   contactData,
   answers,
   setAlert,
-  from = "darryllrobinson@icloud.com",
-  // from = "contact@monochrome-compliance.com",
+  from = "contact@monochrome-compliance.com",
   subject = "Your Compliance Navigator Summary",
   fileName = "compliance-navigator-report.pdf",
+  email,
   html,
   message,
 }) {
@@ -24,6 +24,7 @@ export async function sendSummaryByEmail({
     formData.append("to", to);
     formData.append("name", name);
     formData.append("from", from);
+    formData.append("email", contactData.email);
     formData.append("subject", subject);
 
     // Prefer explicit html/message if provided, else fallback to default html

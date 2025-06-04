@@ -4,12 +4,10 @@ import {
   Button,
   TextField,
   Typography,
-  Alert,
   IconButton,
   CircularProgress,
 } from "@mui/material";
 import { bookingService, publicService } from "../../services";
-import Fade from "@mui/material/Fade";
 import { useTheme } from "@mui/material/styles";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
@@ -19,15 +17,17 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import Tooltip from "@mui/material/Tooltip";
+import { error as logError } from "../../utils/logger";
+import { useAlert } from "../../context/AlertContext";
 
 const Booking = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const todayStr = format(new Date(), "yyyy-MM-dd");
-  const [success, setSuccess] = useState("");
-  const [error, setError] = useState("");
   const [booked, setBooked] = useState({});
   const [loading, setLoading] = useState(false);
+
+  const { showAlert } = useAlert();
 
   const schema = yup.object().shape({
     name: yup
@@ -155,7 +155,7 @@ const Booking = () => {
       //   setValue("time", firstAvailable);
       // }
     } catch (err) {
-      console.error("Failed to load bookings:", err);
+      logError("Failed to load bookings:", err);
     }
   };
 
@@ -164,11 +164,8 @@ const Booking = () => {
   }, []);
 
   const onSubmit = async (data) => {
-    console.log("Form data:", data);
     try {
       setLoading(true);
-      setError("");
-      setSuccess("");
       await bookingService.create(data);
 
       const bookingData = {
@@ -187,10 +184,11 @@ const Booking = () => {
       await publicService.sendSesEmail(bookingData);
 
       await loadBookings();
-      setSuccess("Booking submitted successfully.");
+      showAlert("Booking submitted successfully.", "success");
       navigate("/thankyou-booking");
     } catch (err) {
-      setError("There was an error submitting your booking.");
+      logError("Booking submission failed:", err);
+      showAlert("There was an error submitting your booking.", "error");
     } finally {
       setLoading(false);
     }
@@ -288,12 +286,6 @@ const Booking = () => {
           <ArrowForwardIosIcon />
         </IconButton>
       </Box>
-      <Fade in={!!success}>
-        <Alert severity="success" sx={{ mt: 2 }}>
-          {success}
-        </Alert>
-      </Fade>
-      {error && <Alert severity="error">{error}</Alert>}
       <TextField
         fullWidth
         margin="normal"
