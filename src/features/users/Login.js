@@ -100,7 +100,7 @@ export default function Login() {
             autoComplete="off"
             fullWidth
             required
-            defaultValue="darryll.robinson@monochrome-compliance.com"
+            defaultValue=""
             {...register("email")}
             error={!!errors.email}
             helperText={errors.email?.message}
@@ -111,7 +111,7 @@ export default function Login() {
             autoComplete="new-password"
             fullWidth
             required
-            defaultValue="Der5rdcfdk"
+            defaultValue=""
             {...register("password")}
             error={!!errors.password}
             helperText={errors.password?.message}
