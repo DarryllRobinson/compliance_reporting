@@ -1,3 +1,5 @@
+import { publicRoutes } from "../../routes/publicRoutes";
+import { protectedRoutes } from "../../routes/routeConfig";
 import { BehaviorSubject } from "rxjs";
 
 import { fetchWrapper } from "../../lib/utils/fetch-wrapper";
@@ -49,7 +51,23 @@ function login(params) {
 }
 
 function logout() {
-  localStorage.setItem("lastVisitedPath", window.location.pathname);
+  const allPaths = [
+    ...publicRoutes.map((r) => r.path),
+    ...protectedRoutes.flatMap((r) =>
+      r.children
+        ? r.children.map((c) => `${r.path}/${c.path || ""}`.replace(/\/+$/, ""))
+        : [r.path]
+    ),
+  ];
+
+  const excludedPaths = ["/user/login", "/user/verify", "/reset-password"];
+  const currentPath = window.location.pathname;
+
+  if (!excludedPaths.includes(currentPath) && allPaths.includes(currentPath)) {
+    localStorage.setItem("lastVisitedPath", currentPath);
+  } else {
+    localStorage.removeItem("lastVisitedPath");
+  }
   // Revoke the refresh token using the cookie
   fetchWrapper
     .post(`${baseUrl}/revoke-token`, {
