@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useForm, Controller, useWatch } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -26,9 +26,54 @@ import {
 import { entityService } from "../../services";
 // Removed Alert import since alerts are handled via context
 import { handlePdf, sendSummaryByEmail } from "../../lib/utils";
+import { sanitiseInput } from "../../lib/utils/sanitiseInput";
 import { useAlert } from "../../context/AlertContext";
 import { error as logError } from "../../utils/logger";
+import { isValidABN } from "../../lib/utils/abnChecksum";
 
+const EntityDetailsForm = ({ control, errors, answers, onChange }) => (
+  <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mb: 2 }}>
+    {entityDetailsStep.fields.map((field) => (
+      <Controller
+        key={field.name}
+        name={field.name}
+        control={control}
+        defaultValue={answers?.[field.name] || ""}
+        render={({ field: controllerField }) => (
+          <TextField
+            {...controllerField}
+            label={field.label}
+            required={field.required}
+            error={!!errors[field.name]}
+            helperText={errors[field.name]?.message}
+          />
+        )}
+      />
+    ))}
+  </Box>
+);
+
+const ContactDetailsForm = ({ control, errors, answers }) => (
+  <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mb: 2 }}>
+    {contactDetailsStep.fields.map((field) => (
+      <Controller
+        key={field.name}
+        name={field.name}
+        control={control}
+        defaultValue={answers?.[field.name] || ""}
+        render={({ field: controllerField }) => (
+          <TextField
+            {...controllerField}
+            label={field.label}
+            required={field.required}
+            error={!!errors[field.name]}
+            helperText={errors[field.name]?.message}
+          />
+        )}
+      />
+    ))}
+  </Box>
+);
 // Yup validation schema for Entity Details
 const entitySchema = yup.object().shape({
   entityName: yup
@@ -38,12 +83,16 @@ const entitySchema = yup.object().shape({
     .required("Entity name is required"),
   entityABN: yup
     .string()
-    .matches(/^\d{11}$/, {
-      message: "ABN must be exactly 11 digits",
-      excludeEmptyString: true,
-    })
     .nullable()
-    .transform((value) => (value === "" ? null : value)),
+    .transform((value) => (value === "" ? null : value))
+    .test(
+      "is-valid-abn",
+      "ABN must be exactly 11 digits and pass the official checksum",
+      function (value) {
+        if (!value) return true; // Optional field
+        return /^\d{11}$/.test(value) && isValidABN(value);
+      }
+    ),
 });
 
 // Yup validation schema for Contact Details
@@ -74,7 +123,100 @@ const contactSchema = yup.object().shape({
     .required("Your position is required"),
 });
 
-const steps = [
+// Checkbox options for "Connection to Australia"
+const ALL_CHECKBOX_OPTIONS = [
+  "Incorporated in Australia",
+  "Carries on business in Australia",
+  "Central management and control in Australia",
+  "Majority voting power controlled by Australian shareholders",
+  "All of the above",
+  "None of the above",
+];
+
+const INDIVIDUAL_OPTIONS = ALL_CHECKBOX_OPTIONS.filter(
+  (opt) => opt !== "All of the above" && opt !== "None of the above"
+);
+
+// Memoize steps and flowQuestions for performance
+
+const entityDetailsStep = {
+  key: "entityDetails",
+  question: "Please enter the entity details",
+  type: "form",
+  fields: [
+    { name: "entityName", label: "Entity Name", required: true },
+    { name: "entityABN", label: "ABN (optional)", required: false },
+  ],
+  help: "These details will be used to track submissions and ensure audit compliance.",
+};
+
+const startEntityStep = {
+  key: "startEntity",
+  question: "Are you starting with the highest-level entity in the group?",
+  options: ["Yes", "No"],
+  help: "Begin with the parent/holding entity, then assess others if needed.",
+};
+
+const section7Step = {
+  key: "section7",
+  question:
+    "Has this entity been assessed under Section 7 of the Payment Times Reporting Act 2020?",
+  options: ["Yes", "No"],
+  help: "Only entities meeting the criteria in Section 7 are required to report.",
+};
+
+const cceStep = {
+  key: "cce",
+  question: "Is the entity a Constitutionally Covered Entity (CCE)?",
+  options: ["Yes", "No"],
+  help: "CCE includes trading, financial, and foreign corporations. See Section 6(1)(e) of the Payment Times Reporting Act 2020.",
+};
+
+const charityStep = {
+  key: "charity",
+  question: "Is the entity a registered charity?",
+  options: ["Yes", "No"],
+  help: "Charities are excluded from PTRS reporting. See Section 6(1)(e) of the Payment Times Reporting Act 2020.",
+};
+
+const connectionToAustraliaStep = {
+  key: "connectionToAustralia",
+  question: "Does the entity have a connection to Australia?",
+  type: "checkbox",
+  subOptions: [...ALL_CHECKBOX_OPTIONS],
+  help: "Tick any that apply — only one is required. If none apply, select 'None of the above'.",
+};
+
+const revenueStep = {
+  key: "revenue",
+  question:
+    "Did the entity have consolidated revenue of more than A$100 million in the last financial year?",
+  options: ["Yes", "No"],
+  help: "Entities below this threshold are excluded.",
+};
+
+const controlledStep = {
+  key: "controlled",
+  question:
+    "Is the entity controlled by another entity that is a reporting entity?",
+  options: ["Yes", "No"],
+  help: "Controlled entities are included in the parent entity's report.",
+};
+
+const contactDetailsStep = {
+  key: "contactDetails",
+  question: "Please provide your contact details",
+  type: "form",
+  fields: [
+    { name: "name", label: "Your Name", required: true },
+    { name: "email", label: "Your Email", required: true },
+    { name: "company", label: "Company Name", required: true },
+    { name: "position", label: "Your Position", required: true },
+  ],
+  help: "We'll use these details to send you a summary and follow up if needed.",
+};
+
+const stepsData = [
   "Entity Details",
   "Start at Highest-Level Entity",
   "Confirm Reporting Requirement",
@@ -84,88 +226,24 @@ const steps = [
   "Revenue Threshold",
   "Controlled by Reporting Entity",
   "Summary",
-  "Contact Details", // Added Contact Details as the final step
+  "Contact Details",
 ];
 
-const flowQuestions = [
-  {
-    key: "entityDetails",
-    question: "Please enter the entity details",
-    type: "form",
-    fields: [
-      { name: "entityName", label: "Entity Name", required: true },
-      { name: "entityABN", label: "ABN (optional)", required: false },
-    ],
-    help: "These details will be used to track submissions and ensure audit compliance.",
-  },
-  {
-    key: "startEntity",
-    question: "Are you starting with the highest-level entity in the group?",
-    options: ["Yes", "No"],
-    help: "Begin with the parent/holding entity, then assess others if needed.",
-  },
-  {
-    key: "section7",
-    question:
-      "Has this entity been assessed under Section 7 of the Payment Times Reporting Act 2020?",
-    options: ["Yes", "No"],
-    help: "Only entities meeting the criteria in Section 7 are required to report.",
-  },
-  {
-    key: "cce",
-    question: "Is the entity a Constitutionally Covered Entity (CCE)?",
-    options: ["Yes", "No"],
-    help: "CCE includes trading, financial, and foreign corporations. See Section 6(1)(e) of the Payment Times Reporting Act 2020.",
-  },
-  {
-    key: "charity",
-    question: "Is the entity a registered charity?",
-    options: ["Yes", "No"],
-    help: "Charities are excluded from PTRS reporting. See Section 6(1)(e) of the Payment Times Reporting Act 2020.",
-  },
-  {
-    key: "connectionToAustralia",
-    question: "Does the entity have a connection to Australia?",
-    type: "checkbox",
-    subOptions: [
-      "Incorporated in Australia",
-      "Carries on business in Australia",
-      "Central management and control in Australia",
-      "Majority voting power controlled by Australian shareholders",
-      "All of the above",
-      "None of the above",
-    ],
-    help: "Tick any that apply — only one is required. If none apply, select 'None of the above'.",
-  },
-  {
-    key: "revenue",
-    question:
-      "Did the entity have consolidated revenue of more than A$100 million in the last financial year?",
-    options: ["Yes", "No"],
-    help: "Entities below this threshold are excluded.",
-  },
-  {
-    key: "controlled",
-    question:
-      "Is the entity controlled by another entity that is a reporting entity?",
-    options: ["Yes", "No"],
-    help: "Controlled entities are included in the parent entity's report.",
-  },
-  {
-    key: "contactDetails",
-    question: "Please provide your contact details",
-    type: "form",
-    fields: [
-      { name: "name", label: "Your Name", required: true },
-      { name: "email", label: "Your Email", required: true },
-      { name: "company", label: "Company Name", required: true },
-      { name: "position", label: "Your Position", required: true },
-    ],
-    help: "We'll use these details to send you a summary and follow up if needed.",
-  },
+const flowQuestionsData = [
+  entityDetailsStep,
+  startEntityStep,
+  section7Step,
+  cceStep,
+  charityStep,
+  connectionToAustraliaStep,
+  revenueStep,
+  controlledStep,
+  contactDetailsStep,
 ];
-
 export default function PublicComplianceNavigator() {
+  // Memoize steps and flowQuestions so they're not recreated on every render
+  const steps = useMemo(() => stepsData, []);
+  const flowQuestions = useMemo(() => flowQuestionsData, []);
   const theme = useTheme();
   const [activeStep, setActiveStep] = useState(0);
   const [answers, setAnswers] = useState({});
@@ -218,11 +296,11 @@ export default function PublicComplianceNavigator() {
 
   // Submission handler for Contact Details with form validation
   const confirmSubmission = async (contactData) => {
-    // Defensive trim of contact input before processing
-    contactData.name = contactData.name.trim();
-    contactData.email = contactData.email.trim();
-    contactData.company = contactData.company.trim();
-    contactData.position = contactData.position.trim();
+    // Input sanitation to prevent HTML/script injection
+    contactData.name = sanitiseInput(contactData.name);
+    contactData.email = sanitiseInput(contactData.email);
+    contactData.company = sanitiseInput(contactData.company);
+    contactData.position = sanitiseInput(contactData.position);
     contactData.from = "contact@monochrome-compliance.com";
     setLoading(true);
     try {
@@ -313,11 +391,24 @@ export default function PublicComplianceNavigator() {
     if (!q) return true; // Skip validation for steps like "Summary" that have no corresponding question
     const val = answers[q.key];
     if (q.type === "form") {
-      return q.fields.every(
-        (field) =>
-          !field.required ||
-          (val && val[field.name] && val[field.name].trim() !== "")
-      );
+      if (q.key === "entityDetails") {
+        return (
+          watchedEntityName.trim().length >= 5 &&
+          (!watchedEntityABN ||
+            (watchedEntityABN.trim().length === 11 &&
+              isValidABN(watchedEntityABN)))
+        );
+      } else if (q.key === "contactDetails") {
+        return (
+          answers.contactDetails &&
+          answers.contactDetails.name?.trim().length >= 5 &&
+          /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+            answers.contactDetails.email?.trim()
+          ) &&
+          answers.contactDetails.company?.trim().length >= 5 &&
+          answers.contactDetails.position?.trim().length >= 5
+        );
+      }
     }
     return val && (Array.isArray(val) ? val.length > 0 : true);
   };
@@ -335,22 +426,7 @@ export default function PublicComplianceNavigator() {
     setAnswers({ ...answers, [key]: e.target.value });
 
   const handleCheckboxChange = (key, value) => (e) => {
-    const allOptions = [
-      "Incorporated in Australia",
-      "Carries on business in Australia",
-      "Central management and control in Australia",
-      "Majority voting power controlled by Australian shareholders",
-      "All of the above",
-      "None of the above",
-    ];
-
-    const individualOptions = allOptions.filter(
-      (opt) => opt !== "All of the above" && opt !== "None of the above"
-    );
-
-    // Ensure `answers[key]` is treated as an array
     const prev = Array.isArray(answers[key]) ? answers[key] : [];
-
     let updated = [];
 
     if (value === "None of the above") {
@@ -359,30 +435,33 @@ export default function PublicComplianceNavigator() {
         : prev.filter((v) => v !== "None of the above");
     } else if (value === "All of the above") {
       updated = e.target.checked
-        ? [...individualOptions, "All of the above"]
+        ? [...INDIVIDUAL_OPTIONS, "All of the above"]
         : prev.filter(
-            (v) => !individualOptions.includes(v) && v !== "All of the above"
+            (v) => !INDIVIDUAL_OPTIONS.includes(v) && v !== "All of the above"
           );
     } else {
       if (e.target.checked) {
         updated = [...prev.filter((v) => v !== "None of the above"), value];
-        const allSelected = individualOptions.every((opt) =>
+        const allSelected = INDIVIDUAL_OPTIONS.every((opt) =>
           updated.includes(opt)
         );
-        if (allSelected) updated.push("All of the above");
+        if (allSelected && !updated.includes("All of the above")) {
+          updated.push("All of the above");
+        }
       } else {
         updated = prev.filter((v) => v !== value && v !== "All of the above");
       }
     }
 
-    // Update the state with the new checkbox values
-    setAnswers({ ...answers, [key]: updated });
+    if (JSON.stringify(prev) !== JSON.stringify(updated)) {
+      setAnswers({ ...answers, [key]: updated });
+    }
   };
 
   const handleKeyUp = (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      if (activeStep < steps.length - 1) {
+      if (activeStep < steps.length - 1 && isStepValid(activeStep)) {
         handleNext();
       }
       // On Contact Details, Enter is handled by react-hook-form's handleSubmit
@@ -447,32 +526,63 @@ export default function PublicComplianceNavigator() {
               <Box sx={{ mb: 2 }}>
                 {flowQuestions
                   .filter((q) => q.key !== "contactDetails")
-                  .map((q) => (
-                    <Box key={q.key} sx={{ mb: 1 }}>
-                      <Typography variant="subtitle2">{q.question}</Typography>
-                      <Box
-                        sx={{
-                          color: "text.secondary",
-                          fontSize: "body2.fontSize",
-                        }}
-                      >
-                        {Array.isArray(answers[q.key]) ? (
-                          answers[q.key].join(", ")
-                        ) : typeof answers[q.key] === "object" &&
-                          answers[q.key] !== null ? (
-                          <ul style={{ paddingLeft: "1rem", margin: 0 }}>
-                            {Object.entries(answers[q.key]).map(([k, v]) => (
+                  .map((q) => {
+                    const answer = answers[q.key];
+                    const isForm = q.type === "form";
+                    const isCheckbox = q.type === "checkbox";
+
+                    const formatABN = (abn) =>
+                      abn
+                        ? abn.replace(
+                            /(\d{2})(\d{3})(\d{3})(\d{3})/,
+                            "$1 $2 $3 $4"
+                          )
+                        : "—";
+
+                    const displayValue = isCheckbox
+                      ? answer?.join(", ") || "—"
+                      : isForm
+                        ? Object.entries(answer || {}).map(([k, v]) => {
+                            const label =
+                              q.fields.find((f) => f.name === k)?.label || k;
+                            const value =
+                              k === "entityABN"
+                                ? formatABN(v?.trim())
+                                : v || "—";
+                            return (
                               <li key={k}>
-                                <strong>{k}:</strong> {v || "—"}
+                                <strong>{label}:</strong> {value}
                               </li>
-                            ))}
-                          </ul>
-                        ) : (
-                          answers[q.key] || "No answer"
-                        )}
+                            );
+                          })
+                        : answer || "—";
+
+                    return (
+                      <Box key={q.key} sx={{ mb: 1 }}>
+                        <Typography variant="subtitle2">
+                          {q.question}
+                        </Typography>
+                        <Box
+                          sx={{
+                            color: "text.secondary",
+                            fontSize: "body2.fontSize",
+                          }}
+                        >
+                          {Array.isArray(displayValue) ? (
+                            <ul style={{ paddingLeft: "1rem", margin: 0 }}>
+                              {displayValue}
+                            </ul>
+                          ) : isForm ? (
+                            <ul style={{ paddingLeft: "1rem", margin: 0 }}>
+                              {displayValue}
+                            </ul>
+                          ) : (
+                            displayValue
+                          )}
+                        </Box>
                       </Box>
-                    </Box>
-                  ))}
+                    );
+                  })}
               </Box>
               <Box
                 sx={{ display: "flex", justifyContent: "space-between", mt: 3 }}
@@ -503,36 +613,11 @@ export default function PublicComplianceNavigator() {
                 autoComplete="off"
                 style={{ width: "100%" }}
               >
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 2,
-                    mb: 2,
-                  }}
-                >
-                  {flowQuestions
-                    .find((q) => q.key === "contactDetails")
-                    ?.fields.map((field) => (
-                      <Controller
-                        key={field.name}
-                        name={field.name}
-                        control={control}
-                        defaultValue={
-                          answers.contactDetails?.[field.name] || ""
-                        }
-                        render={({ field: controllerField }) => (
-                          <TextField
-                            {...controllerField}
-                            label={field.label}
-                            required={field.required}
-                            error={!!errors[field.name]}
-                            helperText={errors[field.name]?.message}
-                          />
-                        )}
-                      />
-                    ))}
-                </Box>
+                <ContactDetailsForm
+                  control={control}
+                  errors={errors}
+                  answers={answers.contactDetails}
+                />
                 <Box
                   sx={{
                     display: "flex",
@@ -567,47 +652,35 @@ export default function PublicComplianceNavigator() {
                 {current.help}
               </Typography>
               {current.type === "form" ? (
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 2,
-                    mb: 2,
-                  }}
-                >
-                  {activeStep === 0
-                    ? current.fields.map((field) => (
-                        <Controller
-                          key={field.name}
-                          name={field.name}
-                          control={entityControl}
-                          defaultValue={
-                            answers[current.key]?.[field.name] || ""
-                          }
-                          render={({ field: controllerField }) => (
-                            <TextField
-                              {...controllerField}
-                              label={field.label}
-                              required={field.required}
-                              error={!!entityErrors[field.name]}
-                              helperText={entityErrors[field.name]?.message}
-                            />
-                          )}
-                        />
-                      ))
-                    : current.fields.map((field) => (
-                        <TextField
-                          key={field.name}
-                          name={field.name}
-                          label={field.label}
-                          value={answers[current.key]?.[field.name] || ""}
-                          onChange={handleInputChange(current.key)}
-                          required={field.required}
-                          error={false}
-                          helperText=""
-                        />
-                      ))}
-                </Box>
+                activeStep === 0 ? (
+                  <EntityDetailsForm
+                    control={entityControl}
+                    errors={entityErrors}
+                    answers={answers.entityDetails}
+                  />
+                ) : (
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 2,
+                      mb: 2,
+                    }}
+                  >
+                    {current.fields.map((field) => (
+                      <TextField
+                        key={field.name}
+                        name={field.name}
+                        label={field.label}
+                        value={answers[current.key]?.[field.name] || ""}
+                        onChange={handleInputChange(current.key)}
+                        required={field.required}
+                        error={false}
+                        helperText=""
+                      />
+                    ))}
+                  </Box>
+                )
               ) : current.type === "checkbox" ? (
                 <FormGroup>
                   {current.subOptions.map((option, index) => {
