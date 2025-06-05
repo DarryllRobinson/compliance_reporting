@@ -382,7 +382,7 @@ export default function PublicComplianceNavigator() {
   const handleKeyUp = (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      if (activeStep < steps.length - 1) {
+      if (activeStep < steps.length - 1 && isStepValid(activeStep)) {
         handleNext();
       }
       // On Contact Details, Enter is handled by react-hook-form's handleSubmit
