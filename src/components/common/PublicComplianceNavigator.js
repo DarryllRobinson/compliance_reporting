@@ -31,6 +31,49 @@ import { useAlert } from "../../context/AlertContext";
 import { error as logError } from "../../utils/logger";
 import { isValidABN } from "../../lib/utils/abnChecksum";
 
+const EntityDetailsForm = ({ control, errors, answers, onChange }) => (
+  <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mb: 2 }}>
+    {entityDetailsStep.fields.map((field) => (
+      <Controller
+        key={field.name}
+        name={field.name}
+        control={control}
+        defaultValue={answers?.[field.name] || ""}
+        render={({ field: controllerField }) => (
+          <TextField
+            {...controllerField}
+            label={field.label}
+            required={field.required}
+            error={!!errors[field.name]}
+            helperText={errors[field.name]?.message}
+          />
+        )}
+      />
+    ))}
+  </Box>
+);
+
+const ContactDetailsForm = ({ control, errors, answers }) => (
+  <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mb: 2 }}>
+    {contactDetailsStep.fields.map((field) => (
+      <Controller
+        key={field.name}
+        name={field.name}
+        control={control}
+        defaultValue={answers?.[field.name] || ""}
+        render={({ field: controllerField }) => (
+          <TextField
+            {...controllerField}
+            label={field.label}
+            required={field.required}
+            error={!!errors[field.name]}
+            helperText={errors[field.name]?.message}
+          />
+        )}
+      />
+    ))}
+  </Box>
+);
 // Yup validation schema for Entity Details
 const entitySchema = yup.object().shape({
   entityName: yup
@@ -79,6 +122,20 @@ const contactSchema = yup.object().shape({
     .min(5, "Please provide at least five characters")
     .required("Your position is required"),
 });
+
+// Checkbox options for "Connection to Australia"
+const ALL_CHECKBOX_OPTIONS = [
+  "Incorporated in Australia",
+  "Carries on business in Australia",
+  "Central management and control in Australia",
+  "Majority voting power controlled by Australian shareholders",
+  "All of the above",
+  "None of the above",
+];
+
+const INDIVIDUAL_OPTIONS = ALL_CHECKBOX_OPTIONS.filter(
+  (opt) => opt !== "All of the above" && opt !== "None of the above"
+);
 
 // Memoize steps and flowQuestions for performance
 
@@ -183,20 +240,6 @@ const flowQuestionsData = [
   controlledStep,
   contactDetailsStep,
 ];
-
-// Checkbox options for "Connection to Australia"
-const ALL_CHECKBOX_OPTIONS = [
-  "Incorporated in Australia",
-  "Carries on business in Australia",
-  "Central management and control in Australia",
-  "Majority voting power controlled by Australian shareholders",
-  "All of the above",
-  "None of the above",
-];
-
-const INDIVIDUAL_OPTIONS = ALL_CHECKBOX_OPTIONS.filter(
-  (opt) => opt !== "All of the above" && opt !== "None of the above"
-);
 export default function PublicComplianceNavigator() {
   // Memoize steps and flowQuestions so they're not recreated on every render
   const steps = useMemo(() => stepsData, []);
@@ -483,32 +526,63 @@ export default function PublicComplianceNavigator() {
               <Box sx={{ mb: 2 }}>
                 {flowQuestions
                   .filter((q) => q.key !== "contactDetails")
-                  .map((q) => (
-                    <Box key={q.key} sx={{ mb: 1 }}>
-                      <Typography variant="subtitle2">{q.question}</Typography>
-                      <Box
-                        sx={{
-                          color: "text.secondary",
-                          fontSize: "body2.fontSize",
-                        }}
-                      >
-                        {Array.isArray(answers[q.key]) ? (
-                          answers[q.key].join(", ")
-                        ) : typeof answers[q.key] === "object" &&
-                          answers[q.key] !== null ? (
-                          <ul style={{ paddingLeft: "1rem", margin: 0 }}>
-                            {Object.entries(answers[q.key]).map(([k, v]) => (
+                  .map((q) => {
+                    const answer = answers[q.key];
+                    const isForm = q.type === "form";
+                    const isCheckbox = q.type === "checkbox";
+
+                    const formatABN = (abn) =>
+                      abn
+                        ? abn.replace(
+                            /(\d{2})(\d{3})(\d{3})(\d{3})/,
+                            "$1 $2 $3 $4"
+                          )
+                        : "—";
+
+                    const displayValue = isCheckbox
+                      ? answer?.join(", ") || "—"
+                      : isForm
+                        ? Object.entries(answer || {}).map(([k, v]) => {
+                            const label =
+                              q.fields.find((f) => f.name === k)?.label || k;
+                            const value =
+                              k === "entityABN"
+                                ? formatABN(v?.trim())
+                                : v || "—";
+                            return (
                               <li key={k}>
-                                <strong>{k}:</strong> {v || "—"}
+                                <strong>{label}:</strong> {value}
                               </li>
-                            ))}
-                          </ul>
-                        ) : (
-                          answers[q.key] || "No answer"
-                        )}
+                            );
+                          })
+                        : answer || "—";
+
+                    return (
+                      <Box key={q.key} sx={{ mb: 1 }}>
+                        <Typography variant="subtitle2">
+                          {q.question}
+                        </Typography>
+                        <Box
+                          sx={{
+                            color: "text.secondary",
+                            fontSize: "body2.fontSize",
+                          }}
+                        >
+                          {Array.isArray(displayValue) ? (
+                            <ul style={{ paddingLeft: "1rem", margin: 0 }}>
+                              {displayValue}
+                            </ul>
+                          ) : isForm ? (
+                            <ul style={{ paddingLeft: "1rem", margin: 0 }}>
+                              {displayValue}
+                            </ul>
+                          ) : (
+                            displayValue
+                          )}
+                        </Box>
                       </Box>
-                    </Box>
-                  ))}
+                    );
+                  })}
               </Box>
               <Box
                 sx={{ display: "flex", justifyContent: "space-between", mt: 3 }}
@@ -539,36 +613,11 @@ export default function PublicComplianceNavigator() {
                 autoComplete="off"
                 style={{ width: "100%" }}
               >
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 2,
-                    mb: 2,
-                  }}
-                >
-                  {flowQuestions
-                    .find((q) => q.key === "contactDetails")
-                    ?.fields.map((field) => (
-                      <Controller
-                        key={field.name}
-                        name={field.name}
-                        control={control}
-                        defaultValue={
-                          answers.contactDetails?.[field.name] || ""
-                        }
-                        render={({ field: controllerField }) => (
-                          <TextField
-                            {...controllerField}
-                            label={field.label}
-                            required={field.required}
-                            error={!!errors[field.name]}
-                            helperText={errors[field.name]?.message}
-                          />
-                        )}
-                      />
-                    ))}
-                </Box>
+                <ContactDetailsForm
+                  control={control}
+                  errors={errors}
+                  answers={answers.contactDetails}
+                />
                 <Box
                   sx={{
                     display: "flex",
@@ -603,47 +652,35 @@ export default function PublicComplianceNavigator() {
                 {current.help}
               </Typography>
               {current.type === "form" ? (
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 2,
-                    mb: 2,
-                  }}
-                >
-                  {activeStep === 0
-                    ? current.fields.map((field) => (
-                        <Controller
-                          key={field.name}
-                          name={field.name}
-                          control={entityControl}
-                          defaultValue={
-                            answers[current.key]?.[field.name] || ""
-                          }
-                          render={({ field: controllerField }) => (
-                            <TextField
-                              {...controllerField}
-                              label={field.label}
-                              required={field.required}
-                              error={!!entityErrors[field.name]}
-                              helperText={entityErrors[field.name]?.message}
-                            />
-                          )}
-                        />
-                      ))
-                    : current.fields.map((field) => (
-                        <TextField
-                          key={field.name}
-                          name={field.name}
-                          label={field.label}
-                          value={answers[current.key]?.[field.name] || ""}
-                          onChange={handleInputChange(current.key)}
-                          required={field.required}
-                          error={false}
-                          helperText=""
-                        />
-                      ))}
-                </Box>
+                activeStep === 0 ? (
+                  <EntityDetailsForm
+                    control={entityControl}
+                    errors={entityErrors}
+                    answers={answers.entityDetails}
+                  />
+                ) : (
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 2,
+                      mb: 2,
+                    }}
+                  >
+                    {current.fields.map((field) => (
+                      <TextField
+                        key={field.name}
+                        name={field.name}
+                        label={field.label}
+                        value={answers[current.key]?.[field.name] || ""}
+                        onChange={handleInputChange(current.key)}
+                        required={field.required}
+                        error={false}
+                        helperText=""
+                      />
+                    ))}
+                  </Box>
+                )
               ) : current.type === "checkbox" ? (
                 <FormGroup>
                   {current.subOptions.map((option, index) => {
