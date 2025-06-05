@@ -256,7 +256,6 @@ export default function PublicComplianceNavigator() {
     control,
     handleSubmit,
     formState: { errors },
-    reset: resetContactForm,
   } = useForm({
     resolver: yupResolver(contactSchema),
     defaultValues: {
