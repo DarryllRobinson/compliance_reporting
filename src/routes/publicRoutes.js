@@ -31,7 +31,9 @@ import VerifyEmail from "../features/users/VerifyEmail";
 import FirstUserRegister from "../features/users/FirstUserRegister";
 import ConnectExternalSystemsTest from "../features/reports/ptrs/ConnectExternalSystemsTest";
 
-export const publicRoutes = [
+const isPublicOnlyMode = process.env.REACT_APP_PUBLIC_ONLY === "true";
+
+const allPublicRoutes = [
   {
     path: "/clients/register",
     Component: ClientRegister,
@@ -117,3 +119,76 @@ export const publicRoutes = [
   },
   { path: "/user/reset-password", Component: ResetPassword },
 ];
+
+const launchPublicRoutes = [
+  {
+    path: "compliance-navigator",
+    Component: PublicComplianceNavigator,
+  },
+  {
+    path: "contact",
+    Component: Contact,
+  },
+  {
+    path: "blog/:slug",
+    Component: StaticPageViewer,
+  },
+  {
+    path: "blog",
+    Component: BlogIndex,
+  },
+  {
+    path: "thankyou-contact",
+    Component: ContactThankyou,
+  },
+  {
+    path: "ptr-solution",
+    Component: PTRSolution,
+  },
+  {
+    path: "getting-started",
+    Component: GettingStartedPage,
+  },
+  {
+    path: "faq",
+    Component: FAQ,
+  },
+  {
+    path: "booking",
+    Component: Booking,
+  },
+  {
+    path: "resources",
+    Component: ResourcePage,
+  },
+  {
+    path: "resources/submission-checklist",
+    Component: SubmissionChecklistViewer,
+  },
+  {
+    path: "thankyou-booking",
+    Component: BookingThankyou,
+  },
+  // Policy documents
+  {
+    path: "policy-documents/client-service-agreement",
+    Component: ClientServiceAgreement,
+  },
+  {
+    path: "policy-documents/privacy-policy",
+    Component: PrivacyPolicy,
+  },
+  {
+    path: "policy-documents/legal",
+    Component: LegalDisclaimer,
+  },
+  // Super secret routes for boss access
+  {
+    path: "/bossonlyaccess-i-mean-it",
+    Component: Login,
+  },
+];
+
+export const publicRoutes = isPublicOnlyMode
+  ? launchPublicRoutes
+  : allPublicRoutes;

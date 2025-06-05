@@ -8,6 +8,8 @@ import { protectedRoutes } from "../routes/routeConfig";
 import { publicRoutes } from "../routes/publicRoutes";
 import ProtectedRoute from "../components/navigation/ProtectedRoute";
 
+const isPublicOnlyMode = process.env.REACT_APP_PUBLIC_ONLY === "true";
+
 export default function AppRouter() {
   const router = createBrowserRouter([
     {
@@ -18,13 +20,13 @@ export default function AppRouter() {
       children: [
         { index: true, Component: LandingPage },
         ...publicRoutes,
-
-        // Unified /user, /admin, /boss protected routes
-        ...protectedRoutes.map(({ requiredRoles, path, children }) => ({
-          path,
-          Component: () => <ProtectedRoute requiredRoles={requiredRoles} />,
-          children,
-        })),
+        ...(isPublicOnlyMode
+          ? []
+          : protectedRoutes.map(({ requiredRoles, path, children }) => ({
+              path,
+              Component: () => <ProtectedRoute requiredRoles={requiredRoles} />,
+              children,
+            }))),
       ],
     },
   ]);

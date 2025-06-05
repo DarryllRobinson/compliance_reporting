@@ -207,6 +207,7 @@ export default function LandingPage() {
             </Typography>
             <Typography variant="body2">
               Download our CSV template to compile your payments data.
+              Integrations with Xero and JDE are coming soon.
             </Typography>
           </Grid>
           <Grid item xs={12} md={4}>
@@ -283,16 +284,17 @@ export default function LandingPage() {
           variant="contained"
           color="primary"
           size="large"
-          onClick={() => navigate("/clients/register")}
+          onClick={() => navigate("/contact")}
           sx={{ width: isSmallScreen ? "100%" : "auto" }}
         >
-          Register for Free
+          Join the Waitlist
         </Button>
         <Typography
           variant="body2"
           sx={{ mt: 1, color: theme.palette.text.secondary }}
         >
-          Pay only if you need to report. No upfront fees.
+          We are currently in beta. Join our waitlist to be notified when we
+          launch.
         </Typography>
       </Box>
     </Box>

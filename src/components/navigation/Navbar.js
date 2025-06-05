@@ -273,34 +273,24 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
             <MenuItem
               onClick={handleConnectClose}
               component={Link}
-              to="/booking"
+              to="/contact"
             >
-              <FolderIcon sx={{ fontSize: 20, mr: 1 }} />
-              Booking
+              <HourglassEmptyIcon sx={{ fontSize: 20, mr: 1 }} />
+              Join the Waitlist
             </MenuItem>
             <MenuItem
               onClick={handleConnectClose}
               component={Link}
-              to="/clients/register"
+              to="/booking"
             >
               <FolderIcon sx={{ fontSize: 20, mr: 1 }} />
-              Register
+              Booking
             </MenuItem>
             <MenuItem onClick={handleConnectClose} component={Link} to="/blog">
               <HelpOutlineIcon sx={{ fontSize: 20, mr: 1 }} />
               Blog
             </MenuItem>
           </Menu>
-          {!user && (
-            <Button
-              color="inherit"
-              component={Link}
-              to="/user/login"
-              sx={{ color: theme.palette.text.primary }}
-            >
-              Login
-            </Button>
-          )}
           {user && (
             <Box>
               <Button
@@ -422,18 +412,18 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
             <MenuItem
               onClick={handleMenuClose}
               component={Link}
-              to="/booking"
+              to="/contact"
               sx={{ color: theme.palette.text.primary }}
             >
-              Booking
+              Join the Waitlist
             </MenuItem>
             <MenuItem
               onClick={handleMenuClose}
               component={Link}
-              to="/clients/register"
+              to="/booking"
               sx={{ color: theme.palette.text.primary }}
             >
-              Register
+              Booking
             </MenuItem>
             <MenuItem
               onClick={handleMenuClose}

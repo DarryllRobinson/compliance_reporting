@@ -117,15 +117,16 @@ export default function Contact() {
           gutterBottom
           sx={{ color: theme.palette.text.primary }}
         >
-          Contact Us
+          Contact Us / Join the Waitlist
         </Typography>
         <Typography
           variant="body1"
           paragraph
           sx={{ color: theme.palette.text.secondary }}
         >
-          We'd love to hear from you! Please fill out the form below and we'll
-          get back to you as soon as possible.
+          We'd love to hear from you! Whether you're here to get in touch or
+          join the waitlist, fill out the form below and we'll get back to you
+          as soon as possible.
         </Typography>
         <Box
           component="form"
@@ -163,10 +164,11 @@ export default function Contact() {
           <TextField
             select
             label="Topic *"
-            defaultValue="General contact"
+            defaultValue="Join the waitlist"
             {...register("topic")}
             fullWidth
           >
+            <MenuItem value="Join the waitlist">Join the waitlist</MenuItem>
             <MenuItem value="General contact">General contact</MenuItem>
             <MenuItem value="Privacy complaint">Privacy complaint</MenuItem>
             <MenuItem value="Request for assistance">
