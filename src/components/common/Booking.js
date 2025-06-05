@@ -8,6 +8,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { bookingService, publicService } from "../../services";
+import { sanitiseInput } from "../../lib/utils/";
 import { useTheme } from "@mui/material/styles";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
@@ -170,15 +171,15 @@ const Booking = () => {
 
       const bookingData = {
         topic: "Booking",
-        name: data.name.trim(),
-        email: data.email.trim(),
+        name: sanitiseInput(data.name),
+        email: sanitiseInput(data.email),
         subject: "booking",
-        company: data.company.trim(),
+        company: sanitiseInput(data.company),
         date: data.date,
         time: data.time,
-        reason: data.reason.trim(),
+        reason: sanitiseInput(data.reason),
         from: "contact@monochrome-compliance.com",
-        to: data.email.trim(),
+        to: sanitiseInput(data.email),
       };
       // Send confirmation email to the user
       await publicService.sendSesEmail(bookingData);

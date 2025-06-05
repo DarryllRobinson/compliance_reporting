@@ -26,8 +26,10 @@ import {
 import { entityService } from "../../services";
 // Removed Alert import since alerts are handled via context
 import { handlePdf, sendSummaryByEmail } from "../../lib/utils";
+import { sanitiseInput } from "../../lib/utils/sanitiseInput";
 import { useAlert } from "../../context/AlertContext";
 import { error as logError } from "../../utils/logger";
+import { isValidABN } from "../../lib/utils/abnChecksum";
 
 // Yup validation schema for Entity Details
 const entitySchema = yup.object().shape({
@@ -38,12 +40,16 @@ const entitySchema = yup.object().shape({
     .required("Entity name is required"),
   entityABN: yup
     .string()
-    .matches(/^\d{11}$/, {
-      message: "ABN must be exactly 11 digits",
-      excludeEmptyString: true,
-    })
     .nullable()
-    .transform((value) => (value === "" ? null : value)),
+    .transform((value) => (value === "" ? null : value))
+    .test(
+      "is-valid-abn",
+      "ABN must be exactly 11 digits and pass the official checksum",
+      function (value) {
+        if (!value) return true; // Optional field
+        return /^\d{11}$/.test(value) && isValidABN(value);
+      }
+    ),
 });
 
 // Yup validation schema for Contact Details
@@ -218,11 +224,11 @@ export default function PublicComplianceNavigator() {
 
   // Submission handler for Contact Details with form validation
   const confirmSubmission = async (contactData) => {
-    // Defensive trim of contact input before processing
-    contactData.name = contactData.name.trim();
-    contactData.email = contactData.email.trim();
-    contactData.company = contactData.company.trim();
-    contactData.position = contactData.position.trim();
+    // Input sanitation to prevent HTML/script injection
+    contactData.name = sanitiseInput(contactData.name);
+    contactData.email = sanitiseInput(contactData.email);
+    contactData.company = sanitiseInput(contactData.company);
+    contactData.position = sanitiseInput(contactData.position);
     contactData.from = "contact@monochrome-compliance.com";
     setLoading(true);
     try {
@@ -316,7 +322,10 @@ export default function PublicComplianceNavigator() {
       return q.fields.every(
         (field) =>
           !field.required ||
-          (val && val[field.name] && val[field.name].trim() !== "")
+          (val &&
+            val[field.name] &&
+            val[field.name].trim() !== "" &&
+            (field.name !== "entityABN" || isValidABN(val[field.name].trim())))
       );
     }
     return val && (Array.isArray(val) ? val.length > 0 : true);

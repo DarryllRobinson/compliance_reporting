@@ -17,6 +17,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useAlert } from "../../context/AlertContext";
 import { error as logError } from "../../utils/logger";
+import { sanitiseInput } from "../../lib/utils/sanitiseInput";
 
 // Yup schema moved outside the component and updated to use yup.object({ ... }) directly
 const schema = yup.object({
@@ -59,17 +60,17 @@ export default function Contact() {
   });
 
   const sendContactEmail = async (data) => {
-    const topic = data.topic.trim();
+    const topic = sanitiseInput(data.topic);
     const contactEmail = {
-      name: data.name.trim(),
-      cc: data.cc.trim(),
-      email: data.email.trim(),
-      subject: topic,
-      topic,
-      company: data.company.trim(),
-      message: data.message.trim(),
-      to: data.email.trim(),
-      from: data.from.trim(),
+      name: sanitiseInput(data.name),
+      cc: sanitiseInput(data.cc),
+      email: sanitiseInput(data.email),
+      subject: sanitiseInput(topic),
+      topic: sanitiseInput(topic),
+      company: sanitiseInput(data.company),
+      message: sanitiseInput(data.message),
+      to: sanitiseInput(data.email),
+      from: sanitiseInput(data.from),
     };
 
     try {
