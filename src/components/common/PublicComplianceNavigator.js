@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useForm, Controller, useWatch } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -80,7 +80,9 @@ const contactSchema = yup.object().shape({
     .required("Your position is required"),
 });
 
-const steps = [
+// Memoize steps and flowQuestions for performance
+
+const stepsData = [
   "Entity Details",
   "Start at Highest-Level Entity",
   "Confirm Reporting Requirement",
@@ -90,10 +92,10 @@ const steps = [
   "Revenue Threshold",
   "Controlled by Reporting Entity",
   "Summary",
-  "Contact Details", // Added Contact Details as the final step
+  "Contact Details",
 ];
 
-const flowQuestions = [
+const flowQuestionsData = [
   {
     key: "entityDetails",
     question: "Please enter the entity details",
@@ -172,6 +174,9 @@ const flowQuestions = [
 ];
 
 export default function PublicComplianceNavigator() {
+  // Memoize steps and flowQuestions so they're not recreated on every render
+  const steps = useMemo(() => stepsData, []);
+  const flowQuestions = useMemo(() => flowQuestionsData, []);
   const theme = useTheme();
   const [activeStep, setActiveStep] = useState(0);
   const [answers, setAnswers] = useState({});
@@ -319,14 +324,24 @@ export default function PublicComplianceNavigator() {
     if (!q) return true; // Skip validation for steps like "Summary" that have no corresponding question
     const val = answers[q.key];
     if (q.type === "form") {
-      return q.fields.every(
-        (field) =>
-          !field.required ||
-          (val &&
-            val[field.name] &&
-            val[field.name].trim() !== "" &&
-            (field.name !== "entityABN" || isValidABN(val[field.name].trim())))
-      );
+      if (q.key === "entityDetails") {
+        return (
+          watchedEntityName.trim().length >= 5 &&
+          (!watchedEntityABN ||
+            (watchedEntityABN.trim().length === 11 &&
+              isValidABN(watchedEntityABN)))
+        );
+      } else if (q.key === "contactDetails") {
+        return (
+          answers.contactDetails &&
+          answers.contactDetails.name?.trim().length >= 5 &&
+          /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+            answers.contactDetails.email?.trim()
+          ) &&
+          answers.contactDetails.company?.trim().length >= 5 &&
+          answers.contactDetails.position?.trim().length >= 5
+        );
+      }
     }
     return val && (Array.isArray(val) ? val.length > 0 : true);
   };
