@@ -17,7 +17,7 @@ export async function sendSummaryByEmail({
     const contact = contactData || answers?.contactDetails || {};
     const to = contact.email || "";
     const name = contact.name || "";
-    const companyName = contact.companyName || "";
+    const company = contact.company || "";
     const position = contact.position || "";
 
     const formData = new FormData();
@@ -26,6 +26,7 @@ export async function sendSummaryByEmail({
     formData.append("from", from);
     formData.append("email", contactData.email);
     formData.append("subject", subject);
+    formData.append("company", company);
 
     // Prefer explicit html/message if provided, else fallback to default html
     if (html) {
@@ -37,7 +38,7 @@ export async function sendSummaryByEmail({
         "html",
         `<p>Hi ${name},</p>
         <p>Thank you for using the PTRS Compliance Navigator. Attached is your summary.</p>
-        <p><strong>Company:</strong> ${companyName}<br/><strong>Position:</strong> ${position}</p>
+        <p><strong>Company:</strong> ${company}<br/><strong>Position:</strong> ${position}</p>
         <p><strong>Reference:</strong> ${recordId}</p>`
       );
     }

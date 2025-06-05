@@ -41,7 +41,7 @@ export default function Contact() {
   const {
     register,
     handleSubmit,
-    formState: { errors, isValid },
+    formState: { errors },
     reset,
   } = useForm({
     resolver: yupResolver(schema),
@@ -77,16 +77,6 @@ export default function Contact() {
 
       // Send the contact email
       const response = await publicService.sendSesEmail(contactEmail);
-
-      // Send notification email to the contact team
-      // await publicService.sendEmail({
-      //   name: data.name.trim(),
-      //   email: data.email.trim(),
-      //   to: "contact@monochrome-compliance.com",
-      //   subject: `New contact: ${data.topic}`,
-      //   message: `New contact from ${data.name} (${data.email})`,
-      //   from: "contact@monochrome-compliance.com",
-      // });
       if (response?.status === 200) {
         reset();
         showAlert("Message sent successfully!", "success");
@@ -142,7 +132,7 @@ export default function Contact() {
           sx={{ mb: theme.spacing(2) }}
         >
           <TextField
-            label="Name"
+            label="Name *"
             type="text"
             {...register("name")}
             error={!!errors.name}
@@ -150,35 +140,31 @@ export default function Contact() {
             autoComplete="off"
             autoFocus
             fullWidth
-            required
           />
           <TextField
-            label="Company"
+            label="Company *"
             type="text"
             {...register("company")}
             error={!!errors.company}
             helperText={errors.company?.message}
             autoComplete="off"
             fullWidth
-            required
           />
           <TextField
-            label="Email"
+            label="Email *"
             type="email"
             {...register("email")}
             error={!!errors.email}
             helperText={errors.email?.message}
             autoComplete="off"
             fullWidth
-            required
           />
           <TextField
             select
-            label="Topic"
+            label="Topic *"
             defaultValue="General contact"
             {...register("topic")}
             fullWidth
-            required
           >
             <MenuItem value="General contact">General contact</MenuItem>
             <MenuItem value="Privacy complaint">Privacy complaint</MenuItem>
@@ -191,7 +177,7 @@ export default function Contact() {
             <MenuItem value="Technical issue">Technical issue</MenuItem>
           </TextField>
           <TextField
-            label="Message"
+            label="Message *"
             type="text"
             {...register("message")}
             error={!!errors.message}
@@ -200,14 +186,13 @@ export default function Contact() {
             fullWidth
             multiline
             rows={4}
-            required
           />
           <Button
             type="submit"
             variant="contained"
             color="primary"
             fullWidth
-            disabled={!isValid || loading}
+            disabled={loading}
             startIcon={loading ? <CircularProgress size={20} /> : null}
             sx={{
               padding: theme.spacing(1.5),

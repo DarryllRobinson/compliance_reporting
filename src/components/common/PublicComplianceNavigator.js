@@ -62,7 +62,7 @@ const contactSchema = yup.object().shape({
       "Please enter a valid email address"
     )
     .required("Email is required"),
-  companyName: yup
+  company: yup
     .string()
     .trim()
     .min(5, "Please provide at least five characters")
@@ -158,7 +158,7 @@ const flowQuestions = [
     fields: [
       { name: "name", label: "Your Name", required: true },
       { name: "email", label: "Your Email", required: true },
-      { name: "companyName", label: "Company Name", required: true },
+      { name: "company", label: "Company Name", required: true },
       { name: "position", label: "Your Position", required: true },
     ],
     help: "We'll use these details to send you a summary and follow up if needed.",
@@ -184,7 +184,7 @@ export default function PublicComplianceNavigator() {
     defaultValues: {
       name: "",
       email: "",
-      companyName: "",
+      company: "",
       position: "",
     },
   });
@@ -221,7 +221,7 @@ export default function PublicComplianceNavigator() {
     // Defensive trim of contact input before processing
     contactData.name = contactData.name.trim();
     contactData.email = contactData.email.trim();
-    contactData.companyName = contactData.companyName.trim();
+    contactData.company = contactData.company.trim();
     contactData.position = contactData.position.trim();
     contactData.from = "contact@monochrome-compliance.com";
     setLoading(true);
