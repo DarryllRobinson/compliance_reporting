@@ -73,3 +73,4 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/t
 # Dummy trigger
 # Clean trigger
 # Clean trigger
+# Clean trigger 2
