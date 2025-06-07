@@ -30,6 +30,7 @@ jobs:
         run: |
           mkdir -p eb-bundle
           cp -r build/* eb-bundle/
+          cp package.json eb-bundle/
           cp -r .ebextensions eb-bundle/ || true
           cd eb-bundle
           zip -r ../deployment.zip .
