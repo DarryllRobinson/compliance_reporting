@@ -20,13 +20,11 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
-        working-directory: compliance_reporting
 
       - name: Inject SIT env and build
         run: |
           echo "${{ secrets.ENV_SIT }}" > .env
           npm run build
-        working-directory: compliance_reporting
 
       - name: Zip EB deployment bundle
         run: |
@@ -34,7 +32,6 @@ jobs:
           cp -r build/. eb-bundle/
           cp -r .ebextensions eb-bundle/ || true
           zip -r deployment.zip eb-bundle
-        working-directory: compliance_reporting
 
       - name: Deploy to EB
         uses: einaregilsson/beanstalk-deploy@v21
@@ -45,4 +42,4 @@ jobs:
           environment_name: monochrome-frontend-sit
           version_label: v-${{ github.run_id }}
           region: ap-southeast-2
-          deployment_package: compliance_reporting/deployment.zip
+          deployment_package: deployment.zip
