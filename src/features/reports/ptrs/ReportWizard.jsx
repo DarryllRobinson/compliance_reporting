@@ -16,7 +16,7 @@ import Loading from "../../../components/Loading";
 import StepView from "./StepView";
 import Step3 from "./Step3";
 import Step6 from "./Step6";
-import Payment from "../../payment/Payment.js";
+import Payment from "../../payment/Payment";
 
 import { reportService, tcpService } from "../../../services";
 import { glossary, ptrsGuidance } from "../../../constants/";
