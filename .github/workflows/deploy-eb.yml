@@ -24,7 +24,7 @@ jobs:
       - name: Inject SIT env and build
         run: |
           echo "${{ secrets.ENV_SIT }}" > .env
-          npm run build
+          CI=false npm run build
 
       - name: Zip EB deployment bundle
         run: |
