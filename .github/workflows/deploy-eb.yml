@@ -23,7 +23,7 @@ jobs:
 
       - name: Inject SIT env and build
         run: |
-          echo "${{ secrets.ENV_SIT }}" > .env
+          echo "REACT_APP_API_BASE_URL=https://sit.monochrome-compliance.com/integration" > .env
           CI=false npm run build
 
       - name: Zip EB deployment bundle
