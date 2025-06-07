@@ -16,7 +16,7 @@ import Loading from "../../../components/Loading";
 import StepView from "./StepView";
 import Step3 from "./Step3";
 import Step6 from "./Step6";
-import Payment from "../../payment/Payment";
+// import Payment from "../../payment/Payment";
 
 import { reportService, tcpService } from "../../../services";
 import { glossary, ptrsGuidance } from "../../../constants/";
@@ -35,7 +35,7 @@ const steps = [
     label: "Step 4: Exclude parial payments and insert payment times",
     Component: StepView,
   },
-  { label: "Step 5: Process payment", Component: Payment },
+  // { label: "Step 5: Process payment", Component: Payment },
   { label: "Step 6: Summary & Submission", Component: Step6 },
 ];
 
