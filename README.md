@@ -83,3 +83,4 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/t
 # Clean trigger 9
 # Clean trigger 10
 # Clean trigger 11
+# Clean trigger 12

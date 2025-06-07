@@ -28,10 +28,11 @@ jobs:
 
       - name: Zip EB deployment bundle
         run: |
-          mkdir eb-bundle
-          cp -r build/. eb-bundle/
+          mkdir -p eb-bundle
+          cp -r build/* eb-bundle/
           cp -r .ebextensions eb-bundle/ || true
-          zip -r deployment.zip eb-bundle
+          cd eb-bundle
+          zip -r ../deployment.zip .
 
       - name: Deploy to EB
         uses: einaregilsson/beanstalk-deploy@v21
