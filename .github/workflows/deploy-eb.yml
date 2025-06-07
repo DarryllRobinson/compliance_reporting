@@ -1,0 +1,48 @@
+name: Deploy React Frontend to Elastic Beanstalk
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
+      - name: Use Node.js 22
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Inject SIT env and build
+        run: |
+          echo "${{ secrets.ENV_SIT }}" > .env
+          npm run build
+
+      - name: Zip EB deployment bundle
+        run: |
+          mkdir eb-bundle
+          cp -r build/. eb-bundle/
+          cp -r .ebextensions eb-bundle/ || true
+          zip -r deployment.zip eb-bundle
+
+      - name: Deploy to EB
+        uses: einaregilsson/beanstalk-deploy@v21
+        with:
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          application_name: monochrome-frontend
+          environment_name: monochrome-frontend-sit
+          version_label: v-${{ github.run_id }}
+          region: ap-southeast-2
+          deployment_package: deployment.zip
+# Trigger test
+# Trigger test
+# Trigger test
