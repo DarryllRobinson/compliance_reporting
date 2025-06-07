@@ -79,7 +79,6 @@ export default function ReportWizard() {
   const { reportId } = useParams();
   const [currentStep, setCurrentStep] = useState(0);
   const [records, setRecords] = useState([]);
-  const [report, setReport] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [alert, setAlert] = useState(null);
   const params = useParams();
@@ -160,7 +159,6 @@ export default function ReportWizard() {
         setRecords((prev) => updateRecordsWithFlags(prev));
 
         const report = await reportService.getById(params.reportId);
-        setReport(report || {});
         // console.log("Report loaded:", report);
         if (report?.currentStep) {
           setCurrentStep(report.currentStep);

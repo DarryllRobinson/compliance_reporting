@@ -78,3 +78,4 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/t
 # Clean trigger 4
 # Clean trigger 5
 # Clean trigger 6
+# Clean trigger 7
