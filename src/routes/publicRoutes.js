@@ -29,7 +29,6 @@ import BlogIndex from "../routes/BlogIndex";
 import LegalDisclaimer from "../components/policies/LegalDisclaimer";
 import VerifyEmail from "../features/users/VerifyEmail";
 import FirstUserRegister from "../features/users/FirstUserRegister";
-import ConnectExternalSystemsTest from "../features/reports/ptrs/ConnectExternalSystemsTest";
 
 const isPublicOnlyMode = process.env.REACT_APP_PUBLIC_ONLY === "true";
 
@@ -71,7 +70,6 @@ const allPublicRoutes = [
     path: "test-pdf-email",
     Component: TestPdfEmail,
   },
-  { path: "connect-xero", Component: ConnectExternalSystemsTest },
   {
     path: "getting-started",
     Component: GettingStartedPage,
@@ -184,8 +182,8 @@ const launchPublicRoutes = [
   },
   // Super secret routes for boss access
   {
-    path: "/bossonlyaccess-i-mean-it",
-    Component: Login,
+    path: "/bossmode",
+    children: [{ path: "login", Component: Login }],
   },
 ];
 

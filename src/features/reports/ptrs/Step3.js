@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Box, Typography, Button, Paper, Alert } from "@mui/material";
-import { useNavigate } from "react-router";
 import { tcpService } from "../../../services";
 import { Download, Upload, OpenInNew } from "@mui/icons-material";
 
@@ -12,14 +11,13 @@ export default function Step3({
   reportId,
   reportStatus,
 }) {
-  const navigate = useNavigate();
   const [alert, setAlert] = useState(null);
   // Use savedRecords or tcpDataset as appropriate for the dataset
   const dataset =
     tcpDataset && tcpDataset.length > 0 ? tcpDataset : savedRecords;
   const [uploadedFile, setUploadedFile] = useState(null);
   const [downloadedFile, setDownloadedFile] = useState(false);
-  const [isFileUploaded, setIsFileUploaded] = useState(false); // Track successful upload
+  const [setIsFileUploaded] = useState(false); // Track successful upload
 
   const isLocked = reportStatus === "Submitted";
 

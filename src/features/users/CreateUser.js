@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useLocation } from "react-router";
 import {
   Alert,
   Box,
@@ -14,13 +13,13 @@ import {
   Paper,
   Grid,
 } from "@mui/material";
-import { publicService, userService } from "../../services";
+import { userService } from "../../services";
 import { useForm } from "react-hook-form";
 
 export default function UserCreate() {
   const user = userService.userValue;
   const theme = useTheme();
-  const [error, setError] = useState(null);
+  // const [error, setError] = useState(null);
   const [alert, setAlert] = useState(null);
   const [selectedRole, setSelectedRole] = useState("User"); // Default role
   const [isLoading, setIsLoading] = useState(false);
@@ -93,11 +92,11 @@ export default function UserCreate() {
         <Typography variant="h4" gutterBottom align="center">
           Create a New User
         </Typography>
-        {error && (
+        {/* {error && (
           <Typography color="error" sx={{ mb: 2 }}>
             {error}
           </Typography>
-        )}
+        )} */}
         {alert && (
           <Alert severity={alert.type} sx={{ mb: 2 }}>
             {alert.message}

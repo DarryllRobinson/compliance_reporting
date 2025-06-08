@@ -5,14 +5,13 @@ import { ThemeProvider } from "@mui/material/styles";
 import Navbar from "../navigation/Navbar";
 import Footer from "../navigation/Footer";
 import ProcessFlow from "../../features/reports/ptrs/ProcessFlow";
-import { userService } from "../../services";
 import { Alert, Snackbar } from "@mui/material";
 import globalTheme from "../../theme/globalTheme"; // Ensure the import matches the export
 
 export default function Layout() {
   const [isDarkTheme, setIsDarkTheme] = useState(false);
   const location = useLocation();
-  const [isAuthorized, setIsAuthorized] = useState(true); // Track authorization status
+  const [isAuthorized] = useState(true); // Track authorization status
 
   const theme = useMemo(() => {
     const mode = isDarkTheme ? "dark" : "light"; // Determine the mode
@@ -41,8 +40,8 @@ export default function Layout() {
   );
 
   const [alertOpen, setAlertOpen] = useState(false);
-  const [alertMessage, setAlertMessage] = useState("");
-  const [alertSeverity, setAlertSeverity] = useState("info");
+  const [alertMessage] = useState("");
+  const [alertSeverity] = useState("info");
 
   if (!isAuthorized) {
     // Fallback UI for unauthorized users

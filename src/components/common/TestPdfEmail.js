@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Box,
   Button,
@@ -6,13 +6,16 @@ import {
   Paper,
   CircularProgress,
 } from "@mui/material";
-import { downloadFile, handlePdf, sendSummaryByEmail } from "../../lib/utils";
+import { handlePdf } from "../../lib/utils";
+// import { downloadFile, handlePdf, sendSummaryByEmail } from "../../lib/utils";
 
 export default function TestPdfEmail() {
   const [loading, setLoading] = useState(false);
-  const [downloadUrl, setDownloadUrl] = useState(null);
+  const [setDownloadUrl] = useState(null);
+  // const [downloadUrl, setDownloadUrl] = useState(null);
   const [error, setError] = useState("");
-  const [blob, setBlob] = useState(null);
+  const [setBlob] = useState(null);
+  // const [blob, setBlob] = useState(null);
 
   const answers = {
     charity: "No",
@@ -95,14 +98,14 @@ export default function TestPdfEmail() {
     }
   };
 
-  const handleDownload = async () => {
-    await downloadFile(downloadUrl, "test.pdf");
-    await sendSummaryByEmail({
-      pdfBlob: blob,
-      recordId: "TEST-12345",
-      contactData: answers.contactDetails,
-    });
-  };
+  // const handleDownload = async () => {
+  //   await downloadFile(downloadUrl, "test.pdf");
+  //   await sendSummaryByEmail({
+  //     pdfBlob: blob,
+  //     recordId: "TEST-12345",
+  //     contactData: answers.contactDetails,
+  //   });
+  // };
 
   return (
     <Box sx={{ maxWidth: 500, mx: "auto", mt: 4 }}>

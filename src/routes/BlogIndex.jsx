@@ -58,7 +58,7 @@ const BlogIndex = () => {
           const tags =
             typeof post.tags === "string"
               ? post.tags
-                  .replace(/[\[\]"]/g, "")
+                  .replace(/[\\[\]"]/g, "")
                   .split(",")
                   .map((t) => t.trim())
               : (post.tags || []).map((t) => t.trim());
@@ -102,7 +102,7 @@ const BlogIndex = () => {
                 const tags =
                   typeof post.tags === "string"
                     ? post.tags
-                        .replace(/[\[\]"]/g, "")
+                        .replace(/[\\[\]"]/g, "")
                         .split(",")
                         .map((t) => t.trim())
                     : (post.tags || []).map((t) => t.trim());

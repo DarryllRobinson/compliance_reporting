@@ -10,7 +10,6 @@ export default function CreateReport() {
   const navigate = useNavigate();
 
   const [alert, setAlert] = useState(null);
-  const [reportDetails, setReportDetails] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -35,8 +34,6 @@ export default function CreateReport() {
       }
 
       const updatedReportDetails = { ...newReportDetails, reportId: report.id };
-
-      setReportDetails(updatedReportDetails);
 
       setAlert({ type: "success", message: "Report created successfully" });
       navigate(`/reports/${code}/${report.id}/connect`, {

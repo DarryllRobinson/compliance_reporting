@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { redirect, useNavigate } from "react-router"; // Import useNavigate
+import { useNavigate } from "react-router"; // Import useNavigate
 import { userService } from "../../services";
 import {
   useTheme,
@@ -11,7 +11,7 @@ import {
   ListItemText,
   Button,
 } from "@mui/material";
-import ProtectedRoutes from "../../lib/utils/ProtectedRoutes";
+// import ProtectedRoutes from "../../lib/utils/ProtectedRoutes";
 
 export default function Users() {
   const [users, setUsers] = useState([]);
@@ -20,10 +20,10 @@ export default function Users() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!ProtectedRoutes("Admin")) {
-      navigate("/user/dashboard");
-      return;
-    }
+    // if (!ProtectedRoutes("Admin")) {
+    //   navigate("/user/dashboard");
+    //   return;
+    // }
 
     async function fetchUsers() {
       try {

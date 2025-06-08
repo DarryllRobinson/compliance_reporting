@@ -1,8 +1,7 @@
-import { useState, useCallback } from "react";
-import { userService, xeroService } from "../../../services";
+import { useState } from "react";
+import { xeroService } from "../../../services";
 import {
   Box,
-  TextField,
   Button,
   Typography,
   Alert,
@@ -10,13 +9,12 @@ import {
   Tooltip,
   Paper,
 } from "@mui/material";
-import { fieldMapping } from "./fieldMapping"; // Import the field mapping
 import { useLocation } from "react-router"; // Import useNavigate
 
 export default function ConnectExternalSystems() {
   const { state } = useLocation();
   const reportDetails = state?.reportDetails || {};
-  const [alert, setAlert] = useState(null);
+  const [alert] = useState(null);
   const [progressMessage, setProgressMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 

@@ -1,29 +1,29 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Box,
   Drawer,
-  AppBar,
+  // AppBar,
   Toolbar,
-  Typography,
+  // Typography,
   CssBaseline,
   List,
   ListItem,
   ListItemText,
-  IconButton,
+  // IconButton,
 } from "@mui/material";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import CloseIcon from "@mui/icons-material/Close";
+// import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+// import CloseIcon from "@mui/icons-material/Close";
 import { Outlet } from "react-router";
 import StepsOverview from "./ptrs/StepsOverview"; // Import StepsOverview
 
 const drawerWidth = 240;
 
 export default function ReportsLayout() {
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isDrawerOpen] = useState(false);
 
-  const toggleDrawer = () => {
-    setIsDrawerOpen((prev) => !prev);
-  };
+  // const toggleDrawer = () => {
+  //   setIsDrawerOpen((prev) => !prev);
+  // };
 
   return (
     <Box sx={{ display: "flex" }}>
