@@ -1,4 +1,4 @@
-name: Deploy React Frontend to Elastic Beanstalk
+name: Deploy to Elastic Beanstalk
 
 on:
   push:
@@ -10,10 +10,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout source code
-        uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-      - name: Use Node.js 22
+      - name: Use Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 22
@@ -21,28 +21,26 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Inject SIT env and build
-        run: |
-          echo "REACT_APP_API_BASE_URL=https://sit.monochrome-compliance.com/integration" > .env
-          export $(cat .env | xargs)
-          CI=false npm run build
+      - name: Build frontend
+        env:
+          CI: false
+        run: npm run build
 
-      - name: Zip EB deployment bundle
+      - name: Prepare deployment bundle
         run: |
           mkdir -p eb-bundle
           cp -r build/* eb-bundle/
+          cp -r .ebextensions eb-bundle/
           cp package.json eb-bundle/
-          cp -r .ebextensions eb-bundle/ || true
-          cd eb-bundle
-          zip -r ../deployment.zip .
+          zip -r eb-bundle/deployment.zip eb-bundle/*
 
-      - name: Deploy to EB
+      - name: Deploy to Elastic Beanstalk
         uses: einaregilsson/beanstalk-deploy@v21
         with:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          region: ap-southeast-2
           application_name: sit.monochrome-frontend
           environment_name: Sitmonochrome-frontend-env
-          version_label: v-${{ github.run_id }}
-          region: ap-southeast-2
-          deployment_package: deployment.zip
+          version_label: ${{ github.sha }}
+          deployment_package: eb-bundle/deployment.zip
