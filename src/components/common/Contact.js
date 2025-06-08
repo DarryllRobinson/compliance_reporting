@@ -60,6 +60,7 @@ export default function Contact() {
   });
 
   const sendContactEmail = async (data) => {
+    console.log("Form data:", data);
     const topic = sanitiseInput(data.topic);
     const contactEmail = {
       name: sanitiseInput(data.name),
@@ -78,6 +79,7 @@ export default function Contact() {
 
       // Send the contact email
       const response = await publicService.sendSesEmail(contactEmail);
+      console.log("Email response:", response);
       if (response?.status === 200) {
         reset();
         showAlert("Message sent successfully!", "success");
