@@ -71,7 +71,7 @@ const allPublicRoutes = [
     Component: TestPdfEmail,
   },
   {
-    path: "getting-started",
+    path: "overview",
     Component: GettingStartedPage,
   },
   {
@@ -144,7 +144,7 @@ const launchPublicRoutes = [
     Component: PTRSolution,
   },
   {
-    path: "getting-started",
+    path: "overview",
     Component: GettingStartedPage,
   },
   {

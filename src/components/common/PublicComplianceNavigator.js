@@ -496,6 +496,12 @@ export default function PublicComplianceNavigator() {
               <Tooltip title={tooltip} arrow>
                 <StepLabel
                   onClick={() => isEnabled && handleStepClick(index)}
+                  StepIconProps={{
+                    style: {
+                      color: isEnabled ? theme.palette.secondary.main : "#ccc",
+                      opacity: 1,
+                    },
+                  }}
                   style={{
                     cursor: isEnabled ? "pointer" : "not-allowed",
                     opacity: isEnabled ? 1 : 0.4, // Ensure inactive steps are visually distinct

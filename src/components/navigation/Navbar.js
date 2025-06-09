@@ -221,7 +221,7 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
             <MenuItem
               onClick={handleGettingStartedClose}
               component={Link}
-              to="/getting-started"
+              to="/overview"
             >
               <InfoIcon sx={{ fontSize: 20, mr: 1 }} />
               Overview
@@ -380,7 +380,7 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
             <MenuItem
               onClick={handleMenuClose}
               component={Link}
-              to="/getting-started"
+              to="/overview"
               sx={{ color: theme.palette.text.primary }}
             >
               Getting Started
