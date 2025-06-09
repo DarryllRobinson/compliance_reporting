@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import DownloadIcon from "@mui/icons-material/Download";
 import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty";
+import { Link } from "react-router";
 
 export default function ResourcePage() {
   const resources = [
@@ -24,7 +25,8 @@ export default function ResourcePage() {
       title: "Submission Checklist",
       description:
         "A step-by-step guide to double-check your data before submitting.",
-      available: false,
+      link: "/resources/submission-checklist",
+      available: true,
     },
     {
       title: "Sample Completed Report",
@@ -61,17 +63,28 @@ export default function ResourcePage() {
                 sx={{ justifyContent: "space-between", px: 2, pb: 2 }}
               >
                 {res.available ? (
-                  <Button
-                    size="small"
-                    variant="contained"
-                    href={res.link}
-                    target="_blank"
-                    rel="noopener"
-                    startIcon={<DownloadIcon />}
-                    download
-                  >
-                    Download
-                  </Button>
+                  res.link.endsWith(".csv") ? (
+                    <Button
+                      size="small"
+                      variant="contained"
+                      href={res.link}
+                      target="_blank"
+                      rel="noopener"
+                      startIcon={<DownloadIcon />}
+                      download
+                    >
+                      Download
+                    </Button>
+                  ) : (
+                    <Button
+                      size="small"
+                      variant="contained"
+                      component={Link}
+                      to={res.link}
+                    >
+                      View
+                    </Button>
+                  )
                 ) : (
                   <Chip
                     icon={<HourglassEmptyIcon />}
