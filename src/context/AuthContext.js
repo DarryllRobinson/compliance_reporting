@@ -23,6 +23,8 @@ export function AuthProvider({ children }) {
     clearTimeout(logoutTimer);
     clearTimeout(warningTimer);
 
+    if (!user) return;
+
     // Show warning at 14 min
     warningTimer = setTimeout(
       () => {
@@ -39,7 +41,7 @@ export function AuthProvider({ children }) {
       },
       15 * 60 * 1000
     );
-  }, []);
+  }, [user]);
 
   const handleContinueSession = () => {
     setShowWarningDialog(false);
@@ -85,7 +87,7 @@ export function AuthProvider({ children }) {
       clearTimeout(logoutTimer);
       clearTimeout(warningTimer);
     };
-  }, [resetInactivityTimer]);
+  }, [resetInactivityTimer, user]);
 
   if (isInitialising) return null;
 
