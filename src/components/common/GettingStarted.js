@@ -36,6 +36,10 @@ export default function GettingStartedPage() {
               underline="hover"
               target="_blank"
               rel="noopener"
+              sx={{
+                color: theme.palette.text.secondary,
+                textDecoration: "underline",
+              }}
             >
               Compliance Navigator
               <OpenInNewIcon sx={{ fontSize: 14, ml: 0.5 }} />
@@ -70,6 +74,10 @@ export default function GettingStartedPage() {
               target="_blank"
               rel="noopener"
               download
+              sx={{
+                color: theme.palette.text.secondary,
+                textDecoration: "underline",
+              }}
             >
               CSV template
               <OpenInNewIcon sx={{ fontSize: 14, ml: 0.5 }} />
@@ -93,6 +101,10 @@ export default function GettingStartedPage() {
               underline="hover"
               target="_blank"
               rel="noopener"
+              sx={{
+                color: theme.palette.text.secondary,
+                textDecoration: "underline",
+              }}
             >
               SBI tool
               <OpenInNewIcon sx={{ fontSize: 14, ml: 0.5 }} />
@@ -118,6 +130,10 @@ export default function GettingStartedPage() {
               underline="hover"
               target="_blank"
               rel="noopener"
+              sx={{
+                color: theme.palette.text.secondary,
+                textDecoration: "underline",
+              }}
             >
               data validation tips
               <OpenInNewIcon sx={{ fontSize: 14, ml: 0.5 }} />
@@ -141,6 +157,10 @@ export default function GettingStartedPage() {
               underline="hover"
               target="_blank"
               rel="noopener"
+              sx={{
+                color: theme.palette.text.secondary,
+                textDecoration: "underline",
+              }}
             >
               submission checklist
               <OpenInNewIcon sx={{ fontSize: 14, ml: 0.5 }} />
@@ -157,7 +177,16 @@ export default function GettingStartedPage() {
         <>
           Browse our{" "}
           <Tooltip title="Frequently Asked Questions">
-            <Link href="/faq" underline="hover" target="_blank" rel="noopener">
+            <Link
+              href="/faq"
+              underline="hover"
+              target="_blank"
+              rel="noopener"
+              sx={{
+                color: theme.palette.text.secondary,
+                textDecoration: "underline",
+              }}
+            >
               FAQs
               <OpenInNewIcon sx={{ fontSize: 14, ml: 0.5 }} />
             </Link>
@@ -171,6 +200,10 @@ export default function GettingStartedPage() {
               underline="hover"
               target="_blank"
               rel="noopener"
+              sx={{
+                color: theme.palette.text.secondary,
+                textDecoration: "underline",
+              }}
             >
               Book
               <OpenInNewIcon sx={{ fontSize: 14, ml: 0.5 }} />
