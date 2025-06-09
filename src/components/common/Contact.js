@@ -79,7 +79,6 @@ export default function Contact() {
 
       // Send the contact email
       const response = await publicService.sendSesEmail(contactEmail);
-      console.log("Email response:", response);
       if (response?.status === 200) {
         reset();
         showAlert("Message sent successfully!", "success");
@@ -144,6 +143,7 @@ export default function Contact() {
             autoComplete="off"
             autoFocus
             fullWidth
+            InputLabelProps={{ style: { color: theme.palette.text.primary } }}
           />
           <TextField
             label="Company *"
@@ -153,6 +153,7 @@ export default function Contact() {
             helperText={errors.company?.message}
             autoComplete="off"
             fullWidth
+            InputLabelProps={{ style: { color: theme.palette.text.primary } }}
           />
           <TextField
             label="Email *"
@@ -162,6 +163,7 @@ export default function Contact() {
             helperText={errors.email?.message}
             autoComplete="off"
             fullWidth
+            InputLabelProps={{ style: { color: theme.palette.text.primary } }}
           />
           <TextField
             select
@@ -169,6 +171,7 @@ export default function Contact() {
             defaultValue="Join the waitlist"
             {...register("topic")}
             fullWidth
+            InputLabelProps={{ style: { color: theme.palette.text.primary } }}
           >
             <MenuItem value="Join the waitlist">Join the waitlist</MenuItem>
             <MenuItem value="General contact">General contact</MenuItem>
@@ -191,6 +194,7 @@ export default function Contact() {
             fullWidth
             multiline
             rows={4}
+            InputLabelProps={{ style: { color: theme.palette.text.primary } }}
           />
           <Button
             type="submit"

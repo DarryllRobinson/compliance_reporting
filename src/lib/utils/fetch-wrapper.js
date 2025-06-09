@@ -1,7 +1,5 @@
 import { userService } from "../../services";
 
-console.log("API Base URL:", process.env.REACT_APP_API_URL);
-
 export const fetchWrapper = {
   get,
   getDocument,

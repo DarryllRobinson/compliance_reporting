@@ -33,7 +33,9 @@ const BlogIndex = () => {
       .getAll()
       .then((data) => {
         const blogs = data
-          .filter((post) => post.type === "blog")
+          .filter(
+            (post) => post.type === "blog" && post.slug !== "your-blog-slug"
+          )
           .map(({ slug, title, description, date, tags }) => {
             return {
               slug,

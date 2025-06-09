@@ -6,6 +6,8 @@ import {
   Typography,
   IconButton,
   CircularProgress,
+  Container,
+  Paper,
 } from "@mui/material";
 import { bookingService, publicService } from "../../services";
 import { sanitiseInput } from "../../lib/utils/";
@@ -196,217 +198,230 @@ const Booking = () => {
   };
 
   return (
-    <Box sx={{ maxWidth: 500, mx: "auto", mt: 4, px: 2 }}>
-      <Typography variant="h5" gutterBottom>
-        Book an Appointment
-      </Typography>
-      <Typography variant="h6" sx={{ mt: 2, mb: 1 }}>
-        Select a Time Slot
-      </Typography>
-      <Box
+    <Container
+      maxWidth="lg"
+      sx={{
+        mt: theme.spacing(4),
+        backgroundColor: theme.palette.background.default,
+        padding: theme.spacing(2),
+        borderRadius: theme.shape.borderRadius,
+      }}
+    >
+      <Paper
+        elevation={3}
         sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          pb: 2,
+          padding: theme.spacing(3),
+          backgroundColor: theme.palette.background.paper,
+          color: theme.palette.text.primary,
         }}
       >
-        <IconButton onClick={() => scroll("left")}>
-          <ArrowBackIosIcon />
-        </IconButton>
+        <Typography variant="h5" gutterBottom>
+          Book an Appointment
+        </Typography>
+        <Typography variant="h6" sx={{ mt: 2, mb: 1 }}>
+          Select a Time Slot
+        </Typography>
         <Box
-          ref={scrollRef}
           sx={{
             display: "flex",
-            gap: 2,
-            overflowX: "auto",
-            scrollBehavior: "smooth",
-            scrollbarWidth: "none",
-            msOverflowStyle: "none",
-            "&::-webkit-scrollbar": { display: "none" },
-            flexWrap: "nowrap",
-            minWidth: 800,
-            mx: "auto",
+            alignItems: "center",
+            justifyContent: "center",
+            pb: 2,
           }}
         >
-          {days.map((day) => {
-            const dateStr = format(day, "yyyy-MM-dd");
-            return (
-              <Box
-                key={dateStr}
-                data-today={dateStr === todayStr}
-                sx={{
-                  width: 160,
-                  flex: "0 0 auto",
-                  border:
-                    dateStr === todayStr
-                      ? `2px solid ${theme.palette.primary.main}`
-                      : undefined,
-                  borderRadius: 1,
-                }}
-              >
-                <Typography variant="subtitle2" sx={{ textAlign: "center" }}>
-                  {dateStr === todayStr ? "Today" : format(day, "EEE dd MMM")}
-                </Typography>
-                {timeslots.map((slot) => {
-                  const isPastSlot =
-                    dateStr === todayStr &&
-                    new Date(`${dateStr} ${slot}`) < new Date();
-                  if (isPastSlot) return null;
-                  const isUnavailable = booked[dateStr]?.includes(slot);
-                  const isSelected =
-                    dateStr === (watchDate || todayStr) &&
-                    slot === (watchTime || "");
-                  return (
-                    <Button
-                      key={slot}
-                      fullWidth
-                      variant={isSelected ? "contained" : "outlined"}
-                      disabled={isUnavailable}
-                      sx={{
-                        my: 0.5,
-                        ...(isUnavailable && {
-                          color: theme.palette.secondary.contrastText,
-                          backgroundColor: theme.palette.secondary.main,
-                        }),
-                      }}
-                      onClick={() => {
-                        setValue("date", dateStr);
-                        setValue("time", slot);
-                      }}
-                    >
-                      {slot}
-                    </Button>
-                  );
-                })}
-              </Box>
-            );
-          })}
-        </Box>
-        <IconButton onClick={() => scroll("right")}>
-          <ArrowForwardIosIcon />
-        </IconButton>
-      </Box>
-      <TextField
-        fullWidth
-        margin="normal"
-        label="Full Name"
-        name="name"
-        required
-        autoComplete="off"
-        {...register("name")}
-        error={!!errors.name}
-        helperText={errors.name?.message}
-        InputLabelProps={{ style: { color: theme.palette.text.primary } }}
-      />
-      <TextField
-        fullWidth
-        margin="normal"
-        label="Email"
-        name="email"
-        required
-        autoComplete="off"
-        {...register("email")}
-        error={!!errors.email}
-        helperText={errors.email?.message}
-        InputLabelProps={{ style: { color: theme.palette.text.primary } }}
-      />
-      <TextField
-        fullWidth
-        margin="normal"
-        label="Company"
-        name="company"
-        required
-        autoComplete="off"
-        {...register("company")}
-        error={!!errors.company}
-        helperText={errors.company?.message}
-        InputLabelProps={{ style: { color: theme.palette.text.primary } }}
-      />
-      {/* Selected Date & Time display with button and validation message */}
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 1, mt: 1 }}>
-        <Box sx={{ display: "flex", alignItems: "flex-start", gap: 2 }}>
-          <TextField
-            label="Selected Date & Time"
-            value={
-              watchDate && watchTime
-                ? `${watchDate} at ${watchTime}`
-                : "No slot selected"
-            }
-            disabled
-            fullWidth
-            sx={{ flex: 1 }}
-          />
-          <Box sx={{ display: "flex", alignItems: "center", pt: 1 }}>
-            <Tooltip title="Select the earliest available slot">
-              <span>
-                <Button
-                  variant="contained"
-                  color="secondary"
+          <IconButton onClick={() => scroll("left")}>
+            <ArrowBackIosIcon />
+          </IconButton>
+          <Box
+            ref={scrollRef}
+            sx={{
+              display: "flex",
+              gap: 2,
+              overflowX: "auto",
+              scrollBehavior: "smooth",
+              scrollbarWidth: "none",
+              msOverflowStyle: "none",
+              "&::-webkit-scrollbar": { display: "none" },
+              flexWrap: "nowrap",
+              minWidth: 800,
+              mx: "auto",
+            }}
+          >
+            {days.map((day) => {
+              const dateStr = format(day, "yyyy-MM-dd");
+              return (
+                <Box
+                  key={dateStr}
+                  data-today={dateStr === todayStr}
                   sx={{
-                    height: 48,
-                    minWidth: 110,
-                    fontWeight: "bold",
-                    boxShadow: 2,
-                    ml: 1,
-                  }}
-                  onClick={() => {
-                    // Find the first available slot from today onwards
-                    for (const day of days) {
-                      const dateStr = format(day, "yyyy-MM-dd");
-                      const bookedSlots = booked[dateStr] || [];
-                      const firstAvailable = timeslots.find(
-                        (slot) => !bookedSlots.includes(slot)
-                      );
-                      if (firstAvailable) {
-                        setValue("date", dateStr);
-                        setValue("time", firstAvailable);
-                        break;
-                      }
-                    }
+                    width: 160,
+                    flex: "0 0 auto",
+                    border:
+                      dateStr === todayStr
+                        ? `2px solid ${theme.palette.primary.main}`
+                        : undefined,
+                    borderRadius: 1,
                   }}
                 >
-                  Earliest
-                </Button>
-              </span>
-            </Tooltip>
+                  <Typography variant="subtitle2" sx={{ textAlign: "center" }}>
+                    {dateStr === todayStr ? "Today" : format(day, "EEE dd MMM")}
+                  </Typography>
+                  {timeslots.map((slot) => {
+                    const isPastSlot =
+                      dateStr === todayStr &&
+                      new Date(`${dateStr} ${slot}`) < new Date();
+                    if (isPastSlot) return null;
+                    const isUnavailable = booked[dateStr]?.includes(slot);
+                    const isSelected =
+                      dateStr === (watchDate || todayStr) &&
+                      slot === (watchTime || "");
+                    return (
+                      <Button
+                        key={slot}
+                        fullWidth
+                        variant={isSelected ? "contained" : "outlined"}
+                        disabled={isUnavailable}
+                        sx={{
+                          my: 0.5,
+                          ...(isUnavailable && {
+                            color: theme.palette.secondary.contrastText,
+                            backgroundColor: theme.palette.secondary.main,
+                          }),
+                        }}
+                        onClick={() => {
+                          setValue("date", dateStr);
+                          setValue("time", slot);
+                        }}
+                      >
+                        {slot}
+                      </Button>
+                    );
+                  })}
+                </Box>
+              );
+            })}
           </Box>
+          <IconButton onClick={() => scroll("right")}>
+            <ArrowForwardIosIcon />
+          </IconButton>
         </Box>
-        {(errors.date || errors.time) && (
-          <Typography
-            variant="caption"
-            color="error"
-            sx={{ pl: 1, mt: "-20px" }}
-          >
-            {errors.date?.message || errors.time?.message}
-          </Typography>
-        )}
-      </Box>
-      <TextField
-        fullWidth
-        required
-        margin="normal"
-        label="Reason"
-        name="reason"
-        multiline
-        rows={3}
-        autoComplete="off"
-        {...register("reason")}
-        error={!!errors.reason}
-        helperText={errors.reason?.message}
-        InputLabelProps={{ style: { color: theme.palette.text.primary } }}
-      />
-      <Button
-        fullWidth
-        variant="contained"
-        sx={{ mt: 2, mb: 2 }}
-        onClick={handleSubmit(onSubmit)}
-        disabled={loading}
-        startIcon={loading ? <CircularProgress size={20} /> : null}
-      >
-        {loading ? "Submitting..." : "Submit Booking"}
-      </Button>
-    </Box>
+        <TextField
+          fullWidth
+          margin="normal"
+          label="Full Name *"
+          name="name"
+          autoComplete="off"
+          {...register("name")}
+          error={!!errors.name}
+          helperText={errors.name?.message}
+          InputLabelProps={{ style: { color: theme.palette.text.primary } }}
+        />
+        <TextField
+          fullWidth
+          margin="normal"
+          label="Email *"
+          name="email"
+          autoComplete="off"
+          {...register("email")}
+          error={!!errors.email}
+          helperText={errors.email?.message}
+          InputLabelProps={{ style: { color: theme.palette.text.primary } }}
+        />
+        <TextField
+          fullWidth
+          margin="normal"
+          label="Company *"
+          name="company"
+          autoComplete="off"
+          {...register("company")}
+          error={!!errors.company}
+          helperText={errors.company?.message}
+          InputLabelProps={{ style: { color: theme.palette.text.primary } }}
+        />
+        {/* Selected Date & Time display with button and validation message */}
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 1, mt: 1 }}>
+          <Box sx={{ display: "flex", alignItems: "flex-start", gap: 2 }}>
+            <TextField
+              label="Selected Date & Time"
+              value={
+                watchDate && watchTime
+                  ? `${watchDate} at ${watchTime}`
+                  : "No slot selected"
+              }
+              disabled
+              fullWidth
+              sx={{ flex: 1 }}
+            />
+            <Box sx={{ display: "flex", alignItems: "center", pt: 1 }}>
+              <Tooltip title="Select the earliest available slot">
+                <span>
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    sx={{
+                      height: 48,
+                      minWidth: 110,
+                      fontWeight: "bold",
+                      boxShadow: 2,
+                      ml: 1,
+                    }}
+                    onClick={() => {
+                      // Find the first available slot from today onwards
+                      for (const day of days) {
+                        const dateStr = format(day, "yyyy-MM-dd");
+                        const bookedSlots = booked[dateStr] || [];
+                        const firstAvailable = timeslots.find(
+                          (slot) => !bookedSlots.includes(slot)
+                        );
+                        if (firstAvailable) {
+                          setValue("date", dateStr);
+                          setValue("time", firstAvailable);
+                          break;
+                        }
+                      }
+                    }}
+                  >
+                    Earliest
+                  </Button>
+                </span>
+              </Tooltip>
+            </Box>
+          </Box>
+          {(errors.date || errors.time) && (
+            <Typography
+              variant="caption"
+              color="error"
+              sx={{ pl: 1, mt: "-20px" }}
+            >
+              {errors.date?.message || errors.time?.message}
+            </Typography>
+          )}
+        </Box>
+        <TextField
+          fullWidth
+          margin="normal"
+          label="Reason *"
+          name="reason"
+          multiline
+          rows={3}
+          autoComplete="off"
+          {...register("reason")}
+          error={!!errors.reason}
+          helperText={errors.reason?.message}
+          InputLabelProps={{ style: { color: theme.palette.text.primary } }}
+        />
+        <Button
+          fullWidth
+          variant="contained"
+          sx={{ mt: 2, mb: 2 }}
+          onClick={handleSubmit(onSubmit)}
+          disabled={loading}
+          startIcon={loading ? <CircularProgress size={20} /> : null}
+        >
+          {loading ? "Submitting..." : "Submit Booking"}
+        </Button>
+      </Paper>
+    </Container>
   );
 };
 

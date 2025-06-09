@@ -31,7 +31,7 @@ import { useAlert } from "../../context/AlertContext";
 import { error as logError } from "../../utils/logger";
 import { isValidABN } from "../../lib/utils/abnChecksum";
 
-const EntityDetailsForm = ({ control, errors, answers, onChange }) => (
+const EntityDetailsForm = ({ control, errors, answers, onChange, theme }) => (
   <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mb: 2 }}>
     {entityDetailsStep.fields.map((field) => (
       <Controller
@@ -46,6 +46,7 @@ const EntityDetailsForm = ({ control, errors, answers, onChange }) => (
             required={field.required}
             error={!!errors[field.name]}
             helperText={errors[field.name]?.message}
+            InputLabelProps={{ style: { color: theme.palette.text.primary } }}
           />
         )}
       />
@@ -656,6 +657,7 @@ export default function PublicComplianceNavigator() {
                     control={entityControl}
                     errors={entityErrors}
                     answers={answers.entityDetails}
+                    theme={theme}
                   />
                 ) : (
                   <Box
