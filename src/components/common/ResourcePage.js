@@ -7,11 +7,10 @@ import {
   CardActions,
   Button,
   Chip,
+  Box,
 } from "@mui/material";
-import { Box } from "@mui/system";
 import DownloadIcon from "@mui/icons-material/Download";
 import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty";
-import { Link } from "react-router";
 
 export default function ResourcePage() {
   const resources = [
@@ -26,8 +25,7 @@ export default function ResourcePage() {
       title: "Submission Checklist",
       description:
         "A step-by-step guide to double-check your data before submitting.",
-      link: "/resources/submission-checklist",
-      available: true,
+      available: false,
     },
     {
       title: "Sample Completed Report",
@@ -50,18 +48,11 @@ export default function ResourcePage() {
       <Typography variant="body1" sx={{ mb: 4 }}>
         Tools and templates to help you complete your reporting with confidence.
       </Typography>
-      <Grid container spacing={4} alignItems="stretch">
+      <Grid container spacing={4}>
         {resources.map((res, index) => (
           <Grid item xs={12} md={6} key={index}>
             <Box height="100%">
-              <Card
-                variant="outlined"
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  height: "100%",
-                }}
-              >
+              <Card variant="outlined">
                 <CardContent>
                   <Typography variant="h6">{res.title}</Typography>
                   <Typography variant="body2" sx={{ mt: 1 }}>
@@ -69,36 +60,20 @@ export default function ResourcePage() {
                   </Typography>
                 </CardContent>
                 <CardActions
-                  sx={{
-                    justifyContent: "space-between",
-                    px: 2,
-                    pb: 2,
-                    mt: "auto",
-                  }}
+                  sx={{ justifyContent: "space-between", px: 2, pb: 2 }}
                 >
                   {res.available ? (
-                    res.link.endsWith(".csv") ? (
-                      <Button
-                        size="small"
-                        variant="contained"
-                        href={res.link}
-                        target="_blank"
-                        rel="noopener"
-                        startIcon={<DownloadIcon />}
-                        download
-                      >
-                        Download
-                      </Button>
-                    ) : (
-                      <Button
-                        size="small"
-                        variant="contained"
-                        component={Link}
-                        to={res.link}
-                      >
-                        View
-                      </Button>
-                    )
+                    <Button
+                      size="small"
+                      variant="contained"
+                      href={res.link}
+                      target="_blank"
+                      rel="noopener"
+                      startIcon={<DownloadIcon />}
+                      download
+                    >
+                      Download
+                    </Button>
                   ) : (
                     <Chip
                       icon={<HourglassEmptyIcon />}
