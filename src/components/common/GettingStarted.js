@@ -71,9 +71,7 @@ export default function GettingStartedPage() {
             <Link
               href="/templates/ptr_template.csv"
               underline="hover"
-              target="_blank"
-              rel="noopener"
-              download
+              download="ptr_template.csv"
               sx={{
                 color: theme.palette.text.secondary,
                 textDecoration: "underline",
