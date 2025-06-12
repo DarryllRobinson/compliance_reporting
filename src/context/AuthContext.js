@@ -12,6 +12,7 @@ const AuthContext = createContext();
 
 let logoutTimer;
 let warningTimer;
+let hasRefreshed = false;
 
 export function AuthProvider({ children }) {
   const [isSignedIn, setIsSignedIn] = useState(null); // null = loading
@@ -57,20 +58,23 @@ export function AuthProvider({ children }) {
       setIsSignedIn(!!x);
     });
 
-    userService
-      .refreshToken()
-      .then((refreshedUser) => {
-        if (refreshedUser) {
-          setUser(refreshedUser);
-          setIsSignedIn(true);
-        }
-      })
-      .catch(() => {
-        setIsSignedIn(false);
-      })
-      .finally(() => {
-        setIsInitialising(false);
-      });
+    if (!hasRefreshed) {
+      hasRefreshed = true;
+      userService
+        .refreshToken()
+        .then((refreshedUser) => {
+          if (refreshedUser) {
+            setUser(refreshedUser);
+            setIsSignedIn(true);
+          }
+        })
+        .catch(() => {
+          setIsSignedIn(false);
+        })
+        .finally(() => {
+          setIsInitialising(false);
+        });
+    }
 
     const activityEvents = ["mousemove", "keydown", "click", "scroll"];
     activityEvents.forEach((event) =>
@@ -87,7 +91,7 @@ export function AuthProvider({ children }) {
       clearTimeout(logoutTimer);
       clearTimeout(warningTimer);
     };
-  }, [resetInactivityTimer, user]);
+  }, [resetInactivityTimer]);
 
   if (isInitialising) return null;
 
