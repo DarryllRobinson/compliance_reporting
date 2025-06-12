@@ -69,7 +69,7 @@ export default function GettingStartedPage() {
           Download our{" "}
           <Tooltip title="Download CSV template">
             <Link
-              href="/templates/ptr_template.csv"
+              href={`${process.env.PUBLIC_URL}/templates/ptr_template.csv`}
               underline="hover"
               download="ptr_template.csv"
               sx={{

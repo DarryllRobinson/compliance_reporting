@@ -18,7 +18,7 @@ export default function ResourcePage() {
       title: "CSV Template",
       description:
         "Use this to format your payment data correctly before upload.",
-      link: "/templates/ptr_template.csv",
+      link: `${process.env.PUBLIC_URL}/templates/ptr_template.csv`,
       available: true,
     },
     {
