@@ -43,8 +43,14 @@ export async function sendSummaryByEmail({
       );
     }
 
+    // Append date string to fileName in yyyy-mm-dd format
+    const dateStr = new Date().toISOString().slice(0, 10);
+    const datedFileName = fileName.replace(/\.pdf$/, `-${dateStr}.pdf`);
+
     if (pdfBlob instanceof Blob) {
-      const file = new File([pdfBlob], fileName, { type: "application/pdf" });
+      const file = new File([pdfBlob], datedFileName, {
+        type: "application/pdf",
+      });
       formData.append("attachment", file);
     } else {
       console.error("Invalid or missing pdfBlob:", pdfBlob);

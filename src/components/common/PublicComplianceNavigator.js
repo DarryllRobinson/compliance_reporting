@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import { useForm, Controller, useWatch } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -31,7 +31,7 @@ import { useAlert } from "../../context/AlertContext";
 import { error as logError } from "../../utils/logger";
 import { isValidABN } from "../../lib/utils/abnChecksum";
 
-const EntityDetailsForm = ({ control, errors, answers, onChange, theme }) => (
+const EntityDetailsForm = ({ control, errors, answers, theme }) => (
   <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mb: 2 }}>
     {entityDetailsStep.fields.map((field) => (
       <Controller
@@ -571,7 +571,7 @@ export default function PublicComplianceNavigator() {
               </Box>
               <Box sx={{ mb: 2 }}>
                 {flowQuestions
-                  .filter((q) => q.key !== "contactDetails")
+                  .filter((q) => true)
                   .map((q) => {
                     const answer = answers[q.key];
                     const isForm = q.type === "form";
