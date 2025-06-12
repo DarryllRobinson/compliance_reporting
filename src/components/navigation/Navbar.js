@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   AppBar,
   Toolbar,
@@ -19,6 +19,7 @@ import Brightness7Icon from "@mui/icons-material/Brightness7";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty";
 import Tooltip from "@mui/material/Tooltip";
+import PriceCheckIcon from "@mui/icons-material/PriceCheck";
 import { Link, useNavigate } from "react-router";
 import { useTheme } from "@mui/material/styles";
 import { userService } from "../../services";
@@ -31,11 +32,14 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
   const [gettingStartedAnchor, setGettingStartedAnchor] = useState(null);
   const [connectAnchor, setConnectAnchor] = useState(null);
   const [solutionsAnchor, setSolutionsAnchor] = useState(null);
+  const [adminAnchor, setAdminAnchor] = useState(null);
   const handleSolutionsOpen = (event) =>
     setSolutionsAnchor(event.currentTarget);
   const handleSolutionsClose = () => setSolutionsAnchor(null);
   const handleConnectOpen = (event) => setConnectAnchor(event.currentTarget);
   const handleConnectClose = () => setConnectAnchor(null);
+  const handleAdminOpen = (event) => setAdminAnchor(event.currentTarget);
+  const handleAdminClose = () => setAdminAnchor(null);
   const navigate = useNavigate();
 
   const handleMenuOpen = (event) => {
@@ -129,6 +133,14 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
             >
               <InfoIcon sx={{ fontSize: 20, mr: 1 }} />
               PTR Solution
+            </MenuItem>
+            <MenuItem
+              onClick={handleSolutionsClose}
+              component={Link}
+              to="/pricing"
+            >
+              <PriceCheckIcon sx={{ fontSize: 20, mr: 1 }} />
+              Pricing Tier
             </MenuItem>
             <Divider />
             <Tooltip
@@ -293,55 +305,54 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
           </Menu>
           {user && (
             <Box>
-              <Button
-                color="inherit"
-                component={Link}
-                to="/user/dashboard"
-                sx={{ color: theme.palette.text.primary }}
-              >
-                Dashboard
-              </Button>
               {["Boss", "Admin", "Audit"].includes(user.role) && (
                 <>
                   <Button
                     color="inherit"
-                    component={Link}
-                    to="/clients"
+                    onClick={handleAdminOpen}
                     sx={{ color: theme.palette.text.primary }}
+                    endIcon={<ExpandMoreIcon />}
                   >
-                    Clients
+                    Admin
                   </Button>
-                  {["Admin", "Audit"].includes(user.role) && (
-                    <Button
-                      color="inherit"
+                  <Menu
+                    anchorEl={adminAnchor}
+                    open={Boolean(adminAnchor)}
+                    onClose={handleAdminClose}
+                  >
+                    <MenuItem
+                      onClick={handleAdminClose}
                       component={Link}
-                      to="/users"
-                      sx={{ color: theme.palette.text.primary }}
+                      to="/clients"
                     >
-                      Users
-                    </Button>
-                  )}
-                  {/* Admin routes for Boss, Admin, Audit */}
-                  {["Admin", "Audit"].includes(user.role) && (
-                    <>
-                      <Button
-                        color="inherit"
-                        component={Link}
-                        to="/admin"
-                        sx={{ color: theme.palette.text.primary }}
-                      >
-                        Admin Content
-                      </Button>
-                      <Button
-                        color="inherit"
-                        component={Link}
-                        to="/admin/reports"
-                        sx={{ color: theme.palette.text.primary }}
-                      >
-                        Admin Reports
-                      </Button>
-                    </>
-                  )}
+                      Clients
+                    </MenuItem>
+                    {["Admin", "Audit"].includes(user.role) && (
+                      <>
+                        <MenuItem
+                          onClick={handleAdminClose}
+                          component={Link}
+                          to="/users"
+                        >
+                          Users
+                        </MenuItem>
+                        <MenuItem
+                          onClick={handleAdminClose}
+                          component={Link}
+                          to="/admin"
+                        >
+                          Admin Content
+                        </MenuItem>
+                        <MenuItem
+                          onClick={handleAdminClose}
+                          component={Link}
+                          to="/admin/reports"
+                        >
+                          Admin Reports
+                        </MenuItem>
+                      </>
+                    )}
+                  </Menu>
                 </>
               )}
               <Button

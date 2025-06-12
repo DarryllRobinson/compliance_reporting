@@ -29,8 +29,9 @@ import BlogIndex from "../routes/BlogIndex";
 import LegalDisclaimer from "../components/policies/LegalDisclaimer";
 import VerifyEmail from "../features/users/VerifyEmail";
 import FirstUserRegister from "../features/users/FirstUserRegister";
+import PriceTier from "../components/common/PriceTier";
 
-const isPublicOnlyMode = process.env.REACT_APP_PUBLIC_ONLY === "true";
+const isPublicOnlyMode = process.env.REACT_APP_PUBLIC_ONLY === "false";
 
 const allPublicRoutes = [
   {
@@ -94,6 +95,7 @@ const allPublicRoutes = [
     path: "thankyou-booking",
     Component: BookingThankyou,
   },
+  { path: "pricing", Component: PriceTier },
   // Policy documents
   {
     path: "policy-documents/client-service-agreement",
@@ -167,6 +169,7 @@ const launchPublicRoutes = [
     path: "thankyou-booking",
     Component: BookingThankyou,
   },
+  { path: "pricing", Component: PriceTier },
   // Policy documents
   {
     path: "policy-documents/client-service-agreement",
