@@ -67,8 +67,6 @@ export default function ResourcePage() {
                       size="small"
                       variant="contained"
                       href={res.link}
-                      target="_blank"
-                      rel="noopener"
                       startIcon={<DownloadIcon />}
                       download
                     >
