@@ -37,7 +37,7 @@ export default function LandingPage() {
       description:
         "We break the PTR process down into simple steps so you’re never left wondering what’s next.",
       iconComponent: FormatListNumberedIcon,
-      buttonLink: "/getting-started",
+      buttonLink: "/overview",
     },
     {
       title: "Talk to real people if you get stuck",
@@ -203,7 +203,7 @@ export default function LandingPage() {
           <Grid item xs={12} md={4}>
             <FileDownloadIcon sx={{ fontSize: 40, mb: 1 }} />
             <Typography variant="h6" gutterBottom>
-              2. Prepare Your Data
+              2. Upload Your Data
             </Typography>
             <Typography variant="body2">
               Download our CSV template to compile your payments data.

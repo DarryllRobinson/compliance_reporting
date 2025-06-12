@@ -31,7 +31,7 @@ import { useAlert } from "../../context/AlertContext";
 import { error as logError } from "../../utils/logger";
 import { isValidABN } from "../../lib/utils/abnChecksum";
 
-const EntityDetailsForm = ({ control, errors, answers, onChange, theme }) => (
+const EntityDetailsForm = ({ control, errors, answers, theme }) => (
   <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mb: 2 }}>
     {entityDetailsStep.fields.map((field) => (
       <Controller
@@ -54,14 +54,23 @@ const EntityDetailsForm = ({ control, errors, answers, onChange, theme }) => (
   </Box>
 );
 
-const ContactDetailsForm = ({ control, errors, answers }) => (
+const ContactDetailsForm = ({
+  control,
+  errors,
+  answers,
+  watchedEntityName,
+}) => (
   <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mb: 2 }}>
     {contactDetailsStep.fields.map((field) => (
       <Controller
         key={field.name}
         name={field.name}
         control={control}
-        defaultValue={answers?.[field.name] || ""}
+        defaultValue={
+          field.name === "entityName"
+            ? watchedEntityName || ""
+            : answers?.[field.name] || ""
+        }
         render={({ field: controllerField }) => (
           <TextField
             {...controllerField}
@@ -112,11 +121,11 @@ const contactSchema = yup.object().shape({
       "Please enter a valid email address"
     )
     .required("Email is required"),
-  company: yup
+  entityName: yup
     .string()
     .trim()
     .min(5, "Please provide at least five characters")
-    .required("Company name is required"),
+    .required("Entity name is required"),
   position: yup
     .string()
     .trim()
@@ -211,7 +220,7 @@ const contactDetailsStep = {
   fields: [
     { name: "name", label: "Your Name", required: true },
     { name: "email", label: "Your Email", required: true },
-    { name: "company", label: "Company Name", required: true },
+    { name: "entityName", label: "Entity Name", required: true },
     { name: "position", label: "Your Position", required: true },
   ],
   help: "We'll use these details to send you a summary and follow up if needed.",
@@ -252,21 +261,6 @@ export default function PublicComplianceNavigator() {
   const navigate = useNavigate();
   const { showAlert } = useAlert();
 
-  // React-hook-form for Contact Details step
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({
-    resolver: yupResolver(contactSchema),
-    defaultValues: {
-      name: "",
-      email: "",
-      company: "",
-      position: "",
-    },
-  });
-
   // React-hook-form for Entity Details step
   const {
     control: entityControl,
@@ -292,6 +286,27 @@ export default function PublicComplianceNavigator() {
     defaultValue: "",
   });
 
+  // React-hook-form for Contact Details step
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+    // expose _reset for useEffect below
+    // eslint-disable-next-line
+    _reset,
+    // expose _defaultValues for useEffect below
+    // eslint-disable-next-line
+    _defaultValues,
+  } = useForm({
+    resolver: yupResolver(contactSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      entityName: watchedEntityName || "",
+      position: "",
+    },
+  });
+
   const current = flowQuestions[activeStep] || {}; // Safeguard to ensure current is always defined
 
   // Submission handler for Contact Details with form validation
@@ -299,15 +314,16 @@ export default function PublicComplianceNavigator() {
     // Input sanitation to prevent HTML/script injection
     contactData.name = sanitiseInput(contactData.name);
     contactData.email = sanitiseInput(contactData.email);
-    contactData.company = sanitiseInput(contactData.company);
+    contactData.company = sanitiseInput(contactData.entityName);
     contactData.position = sanitiseInput(contactData.position);
     contactData.from = "contact@monochrome-compliance.com";
     setLoading(true);
     try {
       // Structure the data for saving to the backend
       const dataToSave = {
-        entityName: answers.entityDetails?.entityName || "",
-        entityABN: answers.entityDetails?.entityABN || "",
+        entityName:
+          answers.entityDetails?.entityName || watchedEntityName || "",
+        entityABN: answers.entityDetails?.entityABN || watchedEntityABN || "",
         startEntity: answers.startEntity || "",
         section7: answers.section7 || "",
         cce: answers.cce || "",
@@ -405,7 +421,7 @@ export default function PublicComplianceNavigator() {
           /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
             answers.contactDetails.email?.trim()
           ) &&
-          answers.contactDetails.company?.trim().length >= 5 &&
+          answers.contactDetails.entityName?.trim().length >= 5 &&
           answers.contactDetails.position?.trim().length >= 5
         );
       }
@@ -529,9 +545,33 @@ export default function PublicComplianceNavigator() {
               <Typography variant="h6" gutterBottom>
                 Summary of Responses
               </Typography>
+              {/* Entity Details summary at the top */}
+              <Box sx={{ mb: 2 }}>
+                <Typography variant="subtitle2">Entity Details</Typography>
+                <ul
+                  style={{
+                    paddingLeft: "1rem",
+                    margin: 0,
+                    color: theme.palette.text.secondary,
+                  }}
+                >
+                  <li>
+                    <strong>Entity Name:</strong> {watchedEntityName || "—"}
+                  </li>
+                  <li>
+                    <strong>ABN:</strong>{" "}
+                    {watchedEntityABN
+                      ? watchedEntityABN.replace(
+                          /(\d{2})(\d{3})(\d{3})(\d{3})/,
+                          "$1 $2 $3 $4"
+                        )
+                      : "—"}
+                  </li>
+                </ul>
+              </Box>
               <Box sx={{ mb: 2 }}>
                 {flowQuestions
-                  .filter((q) => q.key !== "contactDetails")
+                  .filter((q) => true)
                   .map((q) => {
                     const answer = answers[q.key];
                     const isForm = q.type === "form";
@@ -610,7 +650,12 @@ export default function PublicComplianceNavigator() {
               <Typography variant="h6" gutterBottom>
                 {current.question || "Contact Details"}
               </Typography>
-              <Typography variant="body2" color="text.secondary" gutterBottom>
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                gutterBottom
+                sx={{ mb: 2 }}
+              >
                 {current.help || "Please provide your contact details."}
               </Typography>
               <form
@@ -623,6 +668,7 @@ export default function PublicComplianceNavigator() {
                   control={control}
                   errors={errors}
                   answers={answers.contactDetails}
+                  watchedEntityName={watchedEntityName}
                 />
                 <Box
                   sx={{

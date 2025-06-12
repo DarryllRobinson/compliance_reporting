@@ -60,7 +60,6 @@ export default function Contact() {
   });
 
   const sendContactEmail = async (data) => {
-    console.log("Form data:", data);
     const topic = sanitiseInput(data.topic);
     const contactEmail = {
       name: sanitiseInput(data.name),
