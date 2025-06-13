@@ -77,8 +77,10 @@ export function AuthProvider({ children }) {
     }
 
     const activityEvents = ["mousemove", "keydown", "click", "scroll"];
+    const handleActivity = resetInactivityTimer;
+
     activityEvents.forEach((event) =>
-      window.addEventListener(event, resetInactivityTimer)
+      window.addEventListener(event, handleActivity)
     );
 
     resetInactivityTimer();
@@ -86,7 +88,7 @@ export function AuthProvider({ children }) {
     return () => {
       subscription.unsubscribe();
       activityEvents.forEach((event) =>
-        window.removeEventListener(event, resetInactivityTimer)
+        window.removeEventListener(event, handleActivity)
       );
       clearTimeout(logoutTimer);
       clearTimeout(warningTimer);
