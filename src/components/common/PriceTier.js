@@ -9,7 +9,7 @@ import {
   Chip,
 } from "@mui/material";
 import StarIcon from "@mui/icons-material/Star";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 
 const tiers = [
   {
@@ -26,6 +26,7 @@ const tiers = [
     ],
     buttonText: "Get Started",
     buttonVariant: "contained",
+    buttonLink: "/signup",
   },
   {
     title: "Plus",
@@ -42,6 +43,7 @@ const tiers = [
     ],
     buttonText: "Upgrade to Plus",
     buttonVariant: "contained",
+    buttonLink: "/signup",
   },
   {
     title: "Premium",
@@ -52,11 +54,13 @@ const tiers = [
     ],
     buttonText: "Contact Us",
     buttonVariant: "contained",
+    buttonLink: "/signup",
   },
 ];
 
 export default function PriceTier() {
   const theme = useTheme();
+  const navigate = useNavigate();
 
   return (
     <Box
@@ -249,8 +253,9 @@ export default function PriceTier() {
                 <Button
                   fullWidth
                   variant={tier.buttonVariant}
-                  component={Link}
-                  to="/register"
+                  onClick={() =>
+                    navigate(tier.buttonLink, { state: { tier: tier.title } })
+                  }
                 >
                   {tier.buttonText}
                 </Button>

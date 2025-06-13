@@ -355,7 +355,7 @@ export default function PublicComplianceNavigator() {
       });
       showAlert("Email sent successfully! Please check your inbox.", "success");
       // Navigate to the solution page
-      navigate("/ptr-solution");
+      navigate("/thankyou-compliance-navigator");
     } catch (error) {
       logError("Failed to complete submission", error);
       showAlert("Failed to complete submission. Please try again.", "error");

@@ -30,8 +30,11 @@ import LegalDisclaimer from "../components/policies/LegalDisclaimer";
 import VerifyEmail from "../features/users/VerifyEmail";
 import FirstUserRegister from "../features/users/FirstUserRegister";
 import PriceTier from "../components/common/PriceTier";
+import SignUp from "../components/common/SignUp";
+import SignUpThankyou from "../components/common/SignUpThankyou";
+import CompNavThankyou from "../components/common/CompNavThankyou";
 
-const isPublicOnlyMode = process.env.REACT_APP_PUBLIC_ONLY === "false";
+const isPublicOnlyMode = process.env.REACT_APP_PUBLIC_ONLY === "true";
 
 const allPublicRoutes = [
   {
@@ -47,6 +50,7 @@ const allPublicRoutes = [
     path: "compliance-navigator",
     Component: PublicComplianceNavigator,
   },
+  { path: "thankyou-compliance-navigator", Component: CompNavThankyou },
   {
     path: "contact",
     Component: Contact,
@@ -96,6 +100,8 @@ const allPublicRoutes = [
     Component: BookingThankyou,
   },
   { path: "pricing", Component: PriceTier },
+  { path: "/signup", Component: SignUp },
+  { path: "thankyou-signup", Component: SignUpThankyou },
   // Policy documents
   {
     path: "policy-documents/client-service-agreement",
@@ -125,6 +131,7 @@ const launchPublicRoutes = [
     path: "compliance-navigator",
     Component: PublicComplianceNavigator,
   },
+  { path: "thankyou-compliance-navigator", Component: CompNavThankyou },
   {
     path: "contact",
     Component: Contact,
@@ -170,6 +177,8 @@ const launchPublicRoutes = [
     Component: BookingThankyou,
   },
   { path: "pricing", Component: PriceTier },
+  { path: "signup", Component: SignUp },
+  { path: "thankyou-signup", Component: SignUpThankyou },
   // Policy documents
   {
     path: "policy-documents/client-service-agreement",
