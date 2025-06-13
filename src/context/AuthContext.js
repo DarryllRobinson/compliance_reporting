@@ -12,6 +12,7 @@ const AuthContext = createContext();
 
 let logoutTimer;
 let warningTimer;
+let hasRefreshed = false;
 
 export function AuthProvider({ children }) {
   const [isSignedIn, setIsSignedIn] = useState(null); // null = loading
@@ -57,24 +58,29 @@ export function AuthProvider({ children }) {
       setIsSignedIn(!!x);
     });
 
-    userService
-      .refreshToken()
-      .then((refreshedUser) => {
-        if (refreshedUser) {
-          setUser(refreshedUser);
-          setIsSignedIn(true);
-        }
-      })
-      .catch(() => {
-        setIsSignedIn(false);
-      })
-      .finally(() => {
-        setIsInitialising(false);
-      });
+    if (!hasRefreshed) {
+      hasRefreshed = true;
+      userService
+        .refreshToken()
+        .then((refreshedUser) => {
+          if (refreshedUser) {
+            setUser(refreshedUser);
+            setIsSignedIn(true);
+          }
+        })
+        .catch(() => {
+          setIsSignedIn(false);
+        })
+        .finally(() => {
+          setIsInitialising(false);
+        });
+    }
 
     const activityEvents = ["mousemove", "keydown", "click", "scroll"];
+    const handleActivity = resetInactivityTimer;
+
     activityEvents.forEach((event) =>
-      window.addEventListener(event, resetInactivityTimer)
+      window.addEventListener(event, handleActivity)
     );
 
     resetInactivityTimer();
@@ -82,12 +88,12 @@ export function AuthProvider({ children }) {
     return () => {
       subscription.unsubscribe();
       activityEvents.forEach((event) =>
-        window.removeEventListener(event, resetInactivityTimer)
+        window.removeEventListener(event, handleActivity)
       );
       clearTimeout(logoutTimer);
       clearTimeout(warningTimer);
     };
-  }, [resetInactivityTimer, user]);
+  }, [resetInactivityTimer]);
 
   if (isInitialising) return null;
 

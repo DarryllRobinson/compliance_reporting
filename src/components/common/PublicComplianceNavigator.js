@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useForm, Controller, useWatch } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -59,6 +59,7 @@ const ContactDetailsForm = ({
   errors,
   answers,
   watchedEntityName,
+  theme,
 }) => (
   <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mb: 2 }}>
     {contactDetailsStep.fields.map((field) => (
@@ -78,6 +79,7 @@ const ContactDetailsForm = ({
             required={field.required}
             error={!!errors[field.name]}
             helperText={errors[field.name]?.message}
+            InputLabelProps={{ style: { color: theme.palette.text.primary } }}
           />
         )}
       />
@@ -291,21 +293,26 @@ export default function PublicComplianceNavigator() {
     control,
     handleSubmit,
     formState: { errors },
-    // expose _reset for useEffect below
-    // eslint-disable-next-line
-    _reset,
-    // expose _defaultValues for useEffect below
-    // eslint-disable-next-line
-    _defaultValues,
+    reset,
   } = useForm({
     resolver: yupResolver(contactSchema),
     defaultValues: {
       name: "",
       email: "",
-      entityName: watchedEntityName || "",
+      entityName: answers.entityDetails?.entityName || watchedEntityName || "",
       position: "",
     },
   });
+
+  // Sync the entityName into the contact form once it's known.
+  // RHF does not update defaultValues automatically after initial mount.
+  // This effect watches answers.entityDetails?.entityName and triggers a reset when it becomes available.
+  useEffect(() => {
+    const entityName = answers.entityDetails?.entityName;
+    if (entityName) {
+      reset((prev) => ({ ...prev, entityName }));
+    }
+  }, [answers.entityDetails?.entityName, reset]);
 
   const current = flowQuestions[activeStep] || {}; // Safeguard to ensure current is always defined
 
@@ -355,7 +362,7 @@ export default function PublicComplianceNavigator() {
       });
       showAlert("Email sent successfully! Please check your inbox.", "success");
       // Navigate to the solution page
-      navigate("/ptr-solution");
+      navigate("/thankyou-compliance-navigator");
     } catch (error) {
       logError("Failed to complete submission", error);
       showAlert("Failed to complete submission. Please try again.", "error");
@@ -571,7 +578,7 @@ export default function PublicComplianceNavigator() {
               </Box>
               <Box sx={{ mb: 2 }}>
                 {flowQuestions
-                  .filter((q) => true)
+                  .filter((q) => q.key !== "contactDetails")
                   .map((q) => {
                     const answer = answers[q.key];
                     const isForm = q.type === "form";
@@ -669,6 +676,7 @@ export default function PublicComplianceNavigator() {
                   errors={errors}
                   answers={answers.contactDetails}
                   watchedEntityName={watchedEntityName}
+                  theme={theme}
                 />
                 <Box
                   sx={{

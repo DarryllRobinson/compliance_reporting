@@ -5,6 +5,7 @@ import {
   TextField,
   useTheme,
   IconButton,
+  Paper,
 } from "@mui/material";
 import { userService } from "../../services";
 import { useForm } from "react-hook-form";
@@ -79,69 +80,87 @@ export default function Login() {
         alignItems: "center",
         justifyContent: "flex-start",
         height: "100vh",
-        paddingTop: theme.spacing(20),
+        margin: 2,
         backgroundColor: theme.palette.background.default,
       }}
     >
-      <Typography variant="h4" gutterBottom>
-        Login
-      </Typography>
-      <form
-        id="signin-form"
-        onSubmit={handleSubmit(onSubmit)}
-        style={{ width: "100%", maxWidth: 400 }}
+      <Paper
+        elevation={3}
+        sx={{
+          width: "100%",
+          maxWidth: 420,
+          px: 3,
+          py: 4,
+          mx: "auto",
+          my: { xs: 4, sm: 8 },
+          backgroundColor: theme.palette.background.paper,
+          color: theme.palette.text.primary,
+          boxShadow: 3,
+          borderRadius: 2,
+        }}
       >
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            gap: theme.spacing(2),
-          }}
+        <Typography variant="h4" gutterBottom>
+          Login
+        </Typography>
+        <form
+          id="signin-form"
+          onSubmit={handleSubmit(onSubmit)}
+          style={{ width: "100%", maxWidth: 400 }}
         >
-          <TextField
-            label="Email address *"
-            type="email"
-            autoComplete="email"
-            aria-label="Email"
-            fullWidth
-            defaultValue=""
-            {...register("email")}
-            error={!!errors.email}
-            helperText={errors.email?.message}
-          />
-          <TextField
-            label="Password *"
-            type={showPassword ? "text" : "password"}
-            autoComplete="current-password"
-            aria-label="Password"
-            fullWidth
-            defaultValue=""
-            {...register("password")}
-            error={!!errors.password}
-            helperText={errors.password?.message}
-            InputProps={{
-              endAdornment: (
-                <IconButton
-                  onClick={() => setShowPassword((prev) => !prev)}
-                  edge="end"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                >
-                  {showPassword ? <VisibilityOff /> : <Visibility />}
-                </IconButton>
-              ),
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: theme.spacing(2),
             }}
-          />
-          <Button
-            variant="contained"
-            color="primary"
-            type="submit"
-            fullWidth
-            disabled={loading}
           >
-            {loading ? "Logging in..." : "Login"}
-          </Button>
-        </Box>
-      </form>
+            <TextField
+              label="Email address *"
+              type="email"
+              autoComplete="email"
+              aria-label="Email"
+              fullWidth
+              defaultValue=""
+              {...register("email")}
+              error={!!errors.email}
+              helperText={errors.email?.message}
+            />
+            <TextField
+              label="Password *"
+              type={showPassword ? "text" : "password"}
+              autoComplete="current-password"
+              aria-label="Password"
+              fullWidth
+              defaultValue=""
+              {...register("password")}
+              error={!!errors.password}
+              helperText={errors.password?.message}
+              InputProps={{
+                endAdornment: (
+                  <IconButton
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    edge="end"
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                ),
+              }}
+            />
+            <Button
+              variant="contained"
+              color="primary"
+              type="submit"
+              fullWidth
+              disabled={loading}
+            >
+              {loading ? "Logging in..." : "Login"}
+            </Button>
+          </Box>
+        </form>
+      </Paper>
     </Box>
   );
 }

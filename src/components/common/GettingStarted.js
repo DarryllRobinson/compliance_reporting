@@ -78,7 +78,6 @@ export default function GettingStartedPage() {
               }}
             >
               CSV template
-              <OpenInNewIcon sx={{ fontSize: 14, ml: 0.5 }} />
             </Link>
           </Tooltip>{" "}
           to make sure your file is includes all mandatory fields.
