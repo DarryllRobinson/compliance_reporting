@@ -37,8 +37,8 @@ const tiers = [
       "Everything included in DIY",
       "We handle the preparation and submission of your PTR report",
       "You provide the data — we handle the rest",
-      "Review and approve before we lodge it on your behalf",
-      "Covers up to 5 reporting organisations",
+      "Review and approve before we submit on your behalf",
+      "Covers up to 5 organisations within the reporting entity",
     ],
     buttonText: "Upgrade to Plus",
     buttonVariant: "contained",
@@ -48,9 +48,7 @@ const tiers = [
     price: "Price on request",
     description: [
       "Everything included in Plus",
-      "Support for complex corporate structures and 6+ reporting entities",
-      "Tailored onboarding and walkthroughs",
-      "Extended pre-submission review time",
+      "Support for complex corporate structures and 6+ organisations within the reporting entity",
     ],
     buttonText: "Contact Us",
     buttonVariant: "contained",
@@ -82,7 +80,7 @@ export default function PriceTier() {
       >
         Choose the level of support that’s right for your business
       </Typography>
-      <Grid container spacing={1} justifyContent="center" sx={{ mt: 4 }}>
+      <Grid container spacing={5} justifyContent="center" sx={{ mt: 4 }}>
         {tiers.map((tier) => (
           <Grid
             item

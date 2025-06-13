@@ -1,5 +1,4 @@
 import React from "react";
-import { Helmet } from "react-helmet";
 import {
   Typography,
   Box,
@@ -66,9 +65,6 @@ const faqs = [
 export default function FAQ() {
   return (
     <>
-      <Helmet>
-        <title>Frequently Asked Questions | Monochrome Compliance</title>
-      </Helmet>
       <Box sx={{ maxWidth: 800, mx: "auto", my: 4 }}>
         <Typography variant="h4" gutterBottom>
           Frequently Asked Questions – Top 10 Issues
