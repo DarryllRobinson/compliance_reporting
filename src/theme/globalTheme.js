@@ -187,6 +187,25 @@ const globalTheme = (mode) => {
           },
         },
       },
+      MuiOutlinedInput: {
+        styleOverrides: {
+          root: {
+            "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+              borderColor:
+                mode === "light"
+                  ? lightPalette.text.primary
+                  : darkPalette.text.primary,
+              borderWidth: "1.5px",
+            },
+          },
+          notchedOutline: {
+            borderColor:
+              mode === "light"
+                ? lightPalette.text.secondary
+                : darkPalette.text.secondary,
+          },
+        },
+      },
       MuiAppBar: {
         styleOverrides: {
           root: {
