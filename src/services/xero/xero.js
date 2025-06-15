@@ -10,13 +10,13 @@ export const xeroService = {
 };
 
 function connect(params) {
-  console.log("Connecting to Xero with params:", params);
-  const { reportId } = params;
-  return fetchWrapper.get(`${baseUrl}/connect/${reportId}`);
+  // console.log("Connecting to Xero with params:", params);
+  const { reportId, createdBy } = params;
+  return fetchWrapper.get(`${baseUrl}/connect/${reportId}/${createdBy}`);
 }
 
 function fetchData(params) {
-  console.log("Fetching Xero data with updates...");
+  // console.log("Fetching Xero data with updates...");
   return fetchWrapper.get(`${baseUrl}/data`, params);
 }
 

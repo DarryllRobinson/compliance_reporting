@@ -108,6 +108,88 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
           />
         </Typography>
         <Box sx={{ display: { xs: "none", md: "flex" } }}>
+          {/* PTRS task-related items: Admin, Dashboard, Logout (for logged-in), Login (for guests) */}
+          {!user && (
+            <Button
+              color="inherit"
+              component={Link}
+              to="/user/login"
+              sx={{ color: theme.palette.text.primary }}
+            >
+              Login
+            </Button>
+          )}
+          {user && (
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              {["Boss", "Admin", "Audit"].includes(user.role) && (
+                <>
+                  <Button
+                    color="inherit"
+                    onClick={handleAdminOpen}
+                    sx={{ color: theme.palette.text.primary }}
+                    endIcon={<ExpandMoreIcon />}
+                  >
+                    Admin
+                  </Button>
+                  <Menu
+                    anchorEl={adminAnchor}
+                    open={Boolean(adminAnchor)}
+                    onClose={handleAdminClose}
+                  >
+                    <MenuItem
+                      onClick={handleAdminClose}
+                      component={Link}
+                      to="/clients"
+                    >
+                      Clients
+                    </MenuItem>
+                    {["Admin", "Audit"].includes(user.role) && (
+                      <>
+                        <MenuItem
+                          onClick={handleAdminClose}
+                          component={Link}
+                          to="/users"
+                        >
+                          Users
+                        </MenuItem>
+                        <MenuItem
+                          onClick={handleAdminClose}
+                          component={Link}
+                          to="/admin"
+                        >
+                          Admin Content
+                        </MenuItem>
+                        <MenuItem
+                          onClick={handleAdminClose}
+                          component={Link}
+                          to="/admin/reports"
+                        >
+                          Admin Reports
+                        </MenuItem>
+                      </>
+                    )}
+                  </Menu>
+                </>
+              )}
+              {/* Dashboard button for logged-in users */}
+              <Button
+                color="inherit"
+                component={Link}
+                to="/user/dashboard"
+                sx={{ color: theme.palette.text.primary }}
+              >
+                Dashboard
+              </Button>
+              <Button
+                color="inherit"
+                onClick={handleLogout}
+                sx={{ color: theme.palette.text.primary }}
+              >
+                Logout
+              </Button>
+            </Box>
+          )}
+          {/* Solutions, Getting Started, Connect - moved after user/admin/dashboard/logout/login */}
           <Button
             color="inherit"
             onClick={handleSolutionsOpen}
@@ -303,67 +385,6 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
               Blog
             </MenuItem>
           </Menu>
-          {user && (
-            <Box>
-              {["Boss", "Admin", "Audit"].includes(user.role) && (
-                <>
-                  <Button
-                    color="inherit"
-                    onClick={handleAdminOpen}
-                    sx={{ color: theme.palette.text.primary }}
-                    endIcon={<ExpandMoreIcon />}
-                  >
-                    Admin
-                  </Button>
-                  <Menu
-                    anchorEl={adminAnchor}
-                    open={Boolean(adminAnchor)}
-                    onClose={handleAdminClose}
-                  >
-                    <MenuItem
-                      onClick={handleAdminClose}
-                      component={Link}
-                      to="/clients"
-                    >
-                      Clients
-                    </MenuItem>
-                    {["Admin", "Audit"].includes(user.role) && (
-                      <>
-                        <MenuItem
-                          onClick={handleAdminClose}
-                          component={Link}
-                          to="/users"
-                        >
-                          Users
-                        </MenuItem>
-                        <MenuItem
-                          onClick={handleAdminClose}
-                          component={Link}
-                          to="/admin"
-                        >
-                          Admin Content
-                        </MenuItem>
-                        <MenuItem
-                          onClick={handleAdminClose}
-                          component={Link}
-                          to="/admin/reports"
-                        >
-                          Admin Reports
-                        </MenuItem>
-                      </>
-                    )}
-                  </Menu>
-                </>
-              )}
-              <Button
-                color="inherit"
-                onClick={handleLogout}
-                sx={{ color: theme.palette.text.primary }}
-              >
-                Logout
-              </Button>
-            </Box>
-          )}
         </Box>
         <Box sx={{ display: { xs: "flex", md: "none" } }}>
           <IconButton
@@ -387,6 +408,14 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
               sx={{ color: theme.palette.text.primary }}
             >
               PTR Solution
+            </MenuItem>
+            <MenuItem
+              onClick={handleMenuClose}
+              component={Link}
+              to="/pricing"
+              sx={{ color: theme.palette.text.primary }}
+            >
+              Pricing Tier
             </MenuItem>
             <MenuItem
               onClick={handleMenuClose}
@@ -444,6 +473,27 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
             >
               Blog
             </MenuItem>
+            {/* Dashboard menu item for logged-in users */}
+            {user && (
+              <MenuItem
+                onClick={handleMenuClose}
+                component={Link}
+                to="/user/dashboard"
+                sx={{ color: theme.palette.text.primary }}
+              >
+                Dashboard
+              </MenuItem>
+            )}
+            {!user && (
+              <MenuItem
+                onClick={handleMenuClose}
+                component={Link}
+                to="/user/login"
+                sx={{ color: theme.palette.text.primary }}
+              >
+                Login
+              </MenuItem>
+            )}
           </Menu>
         </Box>
         <IconButton

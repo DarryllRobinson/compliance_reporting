@@ -10,6 +10,7 @@ import {
   Paper,
 } from "@mui/material";
 import { useLocation } from "react-router"; // Import useNavigate
+import { userService } from "../../../services";
 
 export default function ConnectExternalSystems() {
   const { state } = useLocation();
@@ -24,6 +25,8 @@ export default function ConnectExternalSystems() {
     try {
       const data = await xeroService.connect({
         reportId: reportDetails.reportId,
+        createdBy: userService.userValue.id,
+        // clientId: userService.userValue.clientId,
       });
 
       const authUrl = data.authUrl;

@@ -34,7 +34,7 @@ import SignUp from "../components/common/SignUp";
 import SignUpThankyou from "../components/common/SignUpThankyou";
 import CompNavThankyou from "../components/common/CompNavThankyou";
 
-const isPublicOnlyMode = process.env.REACT_APP_PUBLIC_ONLY === "true";
+const isPublicOnlyMode = process.env.REACT_APP_PUBLIC_ONLY === "false";
 
 const allPublicRoutes = [
   {
