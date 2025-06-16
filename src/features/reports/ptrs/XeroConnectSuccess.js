@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router"; // react-router, not react-router-dom
+import { useNavigate, useParams } from "react-router"; // react-router, not react-router-dom
 import {
   Button,
   Typography,
@@ -15,6 +15,7 @@ import { xeroService } from "../../../services/xero/xero";
 export const XeroConnectSuccess = () => {
   const theme = useTheme();
   const navigate = useNavigate();
+  const { reportId } = useParams();
 
   const [progressMessage, setProgressMessage] = useState("");
   const [progressOpen, setProgressOpen] = useState(false);
@@ -39,6 +40,18 @@ export const XeroConnectSuccess = () => {
       ws.close();
     };
   }, []);
+
+  useEffect(() => {
+    if (
+      progressMessage === "Transformed TCP records saved successfully" &&
+      reportId
+    ) {
+      const timeout = setTimeout(() => {
+        navigate(`/reports/ptrs/${reportId}`);
+      }, 2000); // optional delay to allow user to see the success message
+      return () => clearTimeout(timeout);
+    }
+  }, [progressMessage, reportId, navigate]);
 
   const handleDashboardRedirect = () => {
     // Redirect user to their dashboard
