@@ -154,7 +154,8 @@ export default function ReportWizard() {
         }));
 
         // Send the bulk patch request
-        await tcpService.patchRecords(updatePayload);
+        if (updatePayload.length > 0)
+          await tcpService.patchRecords(updatePayload);
         setRecords(enhancedRecords || []);
         setRecords((prev) => updateRecordsWithFlags(prev));
 
@@ -408,7 +409,13 @@ export default function ReportWizard() {
         </Stepper>
 
         {renderGuidance()}
-        {records ? <Component stepId={currentStep + 1} /> : <Loading />}
+        <Box
+          sx={{
+            flexGrow: 1,
+          }}
+        >
+          {records ? <Component stepId={currentStep + 1} /> : <Loading />}
+        </Box>
 
         <Box sx={{ display: "flex", justifyContent: "space-between", mt: 4 }}>
           <Button

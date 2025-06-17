@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router"; // react-router, not react-router-dom
 import {
   Button,
@@ -20,13 +20,25 @@ export const XeroConnectSuccess = () => {
   const [progressMessage, setProgressMessage] = useState("");
   const [progressOpen, setProgressOpen] = useState(false);
   const [progressHistory, setProgressHistory] = useState([]);
+  const [missingInvoices, setMissingInvoices] = useState([]);
+
+  const progressRef = useRef(null);
 
   useEffect(() => {
     const ws = xeroService.subscribeToProgressUpdates(
       (data) => {
-        setProgressHistory((prev) => [...prev, data.message || ""]);
+        setProgressHistory((prev) => {
+          const newHistory = [...prev, data.message || ""];
+          return newHistory;
+        });
         setProgressMessage(data.message || "");
         setProgressOpen(true);
+        if (data.missingInvoices) {
+          setMissingInvoices(data.missingInvoices);
+        }
+        if (progressRef.current) {
+          progressRef.current.scrollTop = progressRef.current.scrollHeight;
+        }
       },
       () => {
         setProgressOpen(false);
@@ -70,7 +82,7 @@ export const XeroConnectSuccess = () => {
         textAlign: "center",
       }}
     >
-      <Typography variant="h4" gutterBottom>
+      {/* <Typography variant="h4" gutterBottom>
         {progressMessage || "Connecting to Xero..."}
       </Typography>
       <Typography variant="body1" paragraph>
@@ -91,22 +103,59 @@ export const XeroConnectSuccess = () => {
         <Box mt={4}>
           <CircularProgress />
         </Box>
+      )} */}
+      {missingInvoices.length > 0 && (
+        <Box
+          mt={4}
+          sx={{
+            fontFamily: "monospace",
+            backgroundColor: "#1e1e1e",
+            color: "#d4d4d4",
+            padding: 2,
+            borderRadius: 1,
+            whiteSpace: "pre-wrap",
+            overflowY: "auto",
+            maxHeight: "300px",
+            boxShadow: 2,
+            border: "1px solid #333",
+            textAlign: "left",
+          }}
+        >
+          {`⚠️  Some invoices could not be retrieved:\n\n${missingInvoices
+            .map((inv, i) => `  ${i + 1}. ID: ${inv.invoiceId} — ${inv.reason}`)
+            .join("\n")}`}
+        </Box>
       )}
       {progressHistory.length > 0 && (
-        <Box mt={4} sx={{ textAlign: "left" }}>
-          {[...progressHistory].reverse().map((msg, idx) => (
-            <Typography key={idx} variant="body2">
-              {msg}
-            </Typography>
+        <Box
+          ref={progressRef}
+          mt={4}
+          sx={{
+            backgroundColor: "#1e1e1e",
+            color: "#d4d4d4",
+            fontFamily: "monospace",
+            fontSize: "14px",
+            padding: "1rem",
+            borderRadius: "4px",
+            height: "300px",
+            overflowY: "auto",
+            whiteSpace: "pre-wrap",
+            display: "flex",
+            flexDirection: "column",
+            scrollBehavior: "smooth",
+          }}
+        >
+          {progressHistory.map((msg, idx) => (
+            <div key={idx}>{msg}</div>
           ))}
         </Box>
       )}
-      <Snackbar
+      {/* <Snackbar
         open={progressOpen}
         autoHideDuration={6000}
         onClose={handleSnackbarClose}
         message={progressMessage}
-      />
+      /> */}
     </Container>
   );
 };

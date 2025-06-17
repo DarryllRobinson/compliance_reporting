@@ -17,7 +17,7 @@ export default function Step3({
     tcpDataset && tcpDataset.length > 0 ? tcpDataset : savedRecords;
   const [uploadedFile, setUploadedFile] = useState(null);
   const [downloadedFile, setDownloadedFile] = useState(false);
-  const [setIsFileUploaded] = useState(false); // Track successful upload
+  const [isFileUploaded, setIsFileUploaded] = useState(false); // Track successful upload
 
   const isLocked = reportStatus === "Submitted";
 

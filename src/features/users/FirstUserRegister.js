@@ -55,6 +55,7 @@ export default function FirstUserRegister() {
     defaultValues: {
       firstName: "",
       lastName: "",
+      company: "",
       email: "",
       password: "",
       confirmPassword: "",
@@ -86,6 +87,7 @@ export default function FirstUserRegister() {
 
     setValue("firstName", clientDetails.firstName || "");
     setValue("lastName", clientDetails.lastName || "");
+    setValue("company", clientDetails.businessName || "");
     setValue("email", clientDetails.email || "");
     setValue("phone", clientDetails.phone || "");
     setValue("position", clientDetails.position || "");
@@ -116,8 +118,8 @@ export default function FirstUserRegister() {
         name: `${userDetails.firstName} ${userDetails.lastName}`,
         email: userDetails.email,
         subject: "Admin User Created",
-        company: client.businessName,
-        message: "",
+        company: client.company,
+        message: "Message left intentionally blank.",
         to: userDetails.email,
         from: "contact@monochrome-compliance.com",
       };

@@ -26,7 +26,8 @@ export default function ConnectExternalSystems() {
       const data = await xeroService.connect({
         reportId: reportDetails.reportId,
         createdBy: userService.userValue.id,
-        // clientId: userService.userValue.clientId,
+        startDate: reportDetails.ReportingPeriodStartDate,
+        endDate: reportDetails.ReportingPeriodEndDate,
       });
 
       const authUrl = data.authUrl;

@@ -216,6 +216,7 @@ export default function ClientRegister() {
           clientName: clientDetails.businessName,
           firstName: clientDetails.contactFirst,
           lastName: clientDetails.contactLast,
+          company: clientDetails.businessName,
           email: clientDetails.contactEmail,
           phone: clientDetails.contactPhone,
           position: clientDetails.contactPosition,

@@ -58,7 +58,7 @@ export const fieldMapping = [
   {
     name: "supplyDate",
     label: "Supply Date",
-    type: "date",
+    type: "text",
     requiredAtStep: [1, 2, 4],
     group: "payment",
   },
@@ -79,14 +79,14 @@ export const fieldMapping = [
   {
     name: "contractPoPaymentTerms",
     label: "Contract/PO Payment Terms",
-    type: "text",
+    type: "number",
     requiredAtStep: [1, 2, 4],
     group: "contract",
   },
   {
     name: "noticeForPaymentIssueDate",
     label: "Notice for Payment Issue Date",
-    type: "date",
+    type: "text",
     requiredAtStep: [1, 2, 4],
     group: "notice",
   },
@@ -114,7 +114,7 @@ export const fieldMapping = [
   {
     name: "invoiceReceiptDate",
     label: "Invoice Receipt Date",
-    type: "date",
+    type: "text",
     requiredAtStep: [1, 2, 4],
     group: "invoice",
   },

@@ -41,7 +41,7 @@ export default function CollapsibleTable({ editableFields, hiddenColumns }) {
   const theme = useTheme();
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(25);
   const [collapsedGroups, setCollapsedGroups] = useState({});
   const [sortConfig, setSortConfig] = useState(DEFAULT_SORT_CONFIG);
   const [upliftOpen, setUpliftOpen] = useState(false);
@@ -234,10 +234,9 @@ export default function CollapsibleTable({ editableFields, hiddenColumns }) {
       <TableContainer
         component={Paper}
         sx={{
-          maxHeight: "70vh", // Use a viewport-relative height for more rows
+          maxHeight: "90vh", // Increased height for more visible rows
           p: 0,
           backgroundColor: theme.palette.background.paper,
-          // overflow: 'auto', // Not needed, MUI sets this for maxHeight
         }}
       >
         <Table stickyHeader>
@@ -505,6 +504,12 @@ export default function CollapsibleTable({ editableFields, hiddenColumns }) {
                                   isEditable ? (
                                     <Checkbox
                                       checked={Boolean(record[field.name])}
+                                      sx={{
+                                        color: theme.palette.text.primary,
+                                        "&.Mui-checked": {
+                                          color: theme.palette.text.primary,
+                                        },
+                                      }}
                                       onChange={(e) =>
                                         handleRecordChange(
                                           record.id,
@@ -533,6 +538,14 @@ export default function CollapsibleTable({ editableFields, hiddenColumns }) {
                                         e.target.value
                                       )
                                     }
+                                    sx={{
+                                      minWidth: [
+                                        "tcpExclusionComment",
+                                        "creditCardNumber",
+                                      ].includes(field.name)
+                                        ? 240
+                                        : undefined,
+                                    }}
                                   />
                                 ) : (
                                   record[field.name] || "-"
