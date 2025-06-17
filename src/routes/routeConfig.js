@@ -17,6 +17,7 @@ import XeroConnectSuccess from "../features/reports/ptrs/XeroConnectSuccess";
 import StepsOverview from "../features/reports/ptrs/StepsOverview";
 import ReportErrorBoundary from "../components/navigation/ReportErrorBoundary";
 import Role from "../context/role";
+import XeroSelection from "../features/reports/ptrs/XeroSelection";
 
 export const protectedRoutes = [
   // User-level routes
@@ -86,6 +87,10 @@ export const protectedRoutes = [
           {
             path: ":code/:reportId/connect",
             Component: ConnectExternalSystems,
+          },
+          {
+            path: ":code/:reportId/selection",
+            Component: XeroSelection,
           },
           {
             path: ":code/:reportId/progress",

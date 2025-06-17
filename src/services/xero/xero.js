@@ -5,8 +5,8 @@ const wsBaseUrl = process.env.REACT_APP_WS_API_URL;
 
 export const xeroService = {
   connect,
-  fetchData,
   subscribeToProgressUpdates,
+  triggerExtraction,
 };
 
 function connect(params) {
@@ -15,11 +15,6 @@ function connect(params) {
   return fetchWrapper.get(
     `${baseUrl}/connect/${reportId}/${createdBy}/${startDate}/${endDate}`
   );
-}
-
-function fetchData(params) {
-  // console.log("Fetching Xero data with updates...");
-  return fetchWrapper.get(`${baseUrl}/data`, params);
 }
 
 function subscribeToProgressUpdates(onMessage, onError, onClose) {
@@ -48,4 +43,18 @@ function subscribeToProgressUpdates(onMessage, onError, onClose) {
   };
 
   return ws;
+}
+
+function triggerExtraction(payload) {
+  console.log("Triggering Xero extraction with payload:", payload);
+  return fetchWrapper
+    .post(`${baseUrl}/extract`, payload)
+    .then((res) => {
+      console.log("Xero extraction response:", res);
+      return res;
+    })
+    .catch((err) => {
+      console.error("Xero extraction error:", err);
+      throw err;
+    });
 }
