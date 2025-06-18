@@ -18,6 +18,7 @@ import {
   DialogContentText,
   DialogActions,
   Alert,
+  CircularProgress,
 } from "@mui/material";
 import { xeroService } from "../../../services/xero/xero";
 import { useAlert } from "../../../context";
@@ -42,24 +43,42 @@ export default function XeroSelection() {
   const [selected, setSelected] = useState(
     initialOrgs.map((org) => org.tenantId)
   );
+  const [callbackData, setCallbackData] = useState(null);
   const [callbackInfo, setCallbackInfo] = useState(null);
   const [orgToRemove, setOrgToRemove] = useState(null);
   const [isRemoving, setIsRemoving] = useState(false);
+  const [loadingTenantId, setLoadingTenantId] = useState(null);
   const navigate = useNavigate();
   const { reportId } = useParams();
-  const callbackData = location.state?.callbackData || null;
   const { showAlert } = useAlert();
+
+  useEffect(() => {
+    const stateData = location.state?.callbackData;
+    if (stateData) {
+      setCallbackData(stateData);
+      localStorage.setItem("callbackData", JSON.stringify(stateData));
+      console.log("Loaded callbackData from state:", stateData);
+    } else {
+      const saved = localStorage.getItem("callbackData");
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          setCallbackData(parsed);
+          // console.log("Loaded callbackData from localStorage:", parsed);
+        } catch (err) {
+          console.warn("Failed to parse callbackData from localStorage:", err);
+        }
+      } else {
+        console.warn("No callbackData available in state or localStorage");
+      }
+    }
+  }, [location.state]);
 
   useEffect(() => {
     if (callbackData) {
       setCallbackInfo(callbackData);
-      console.log("Callback Data:", callbackData);
     }
   }, [callbackData]);
-
-  useEffect(() => {
-    console.log("Organisations updated:", organisations);
-  }, [organisations]);
 
   const toggleSelection = (tenantId) => {
     setSelected((prev) =>
@@ -78,10 +97,28 @@ export default function XeroSelection() {
       showAlert("No new organisations selected for extraction.", "info");
       return;
     }
+    const startDate = callbackData?.startDate || new Date().toISOString();
+    const endDate = callbackData?.endDate || new Date().toISOString();
+    console.log("reportId:", reportId);
+    console.log("Unfetched Tenant IDs:", unfetchedTenantIds);
+    console.log(
+      "payload:",
+      // ...callbackData,
+      reportId,
+      unfetchedTenantIds,
+      startDate,
+      endDate
+    );
 
     try {
-      await xeroService.triggerExtraction(reportId, unfetchedTenantIds);
-      navigate(`/reports/ptrs/${reportId}/connect/progress`);
+      await xeroService.triggerExtraction({
+        ...callbackData,
+        reportId,
+        tenantIds: unfetchedTenantIds,
+        startDate,
+        endDate,
+      });
+      navigate(`/reports/ptrs/${reportId}/progress`);
     } catch (error) {
       console.error("Error starting extract:", error);
       showAlert("Error starting data extraction. Please try again.", "error");
@@ -95,14 +132,14 @@ export default function XeroSelection() {
           <Alert severity="error">{decodeURIComponent(error)}</Alert>
         </Box>
       )}
-      {callbackInfo && (
+      {/* {callbackInfo && (
         <Box sx={{ mb: 2, p: 2, bgcolor: "#f5f5f5", borderRadius: 1 }}>
           <Typography variant="subtitle1">Xero callback received:</Typography>
           <Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>
             {JSON.stringify(callbackInfo, null, 2)}
           </Typography>
         </Box>
-      )}
+      )} */}
       <Typography variant="h5" gutterBottom>
         Select Xero Organisations
       </Typography>
@@ -128,10 +165,19 @@ export default function XeroSelection() {
                 variant="outlined"
                 sx={{ ml: 2 }}
                 onClick={async () => {
+                  const startDate =
+                    callbackData?.startDate || new Date().toISOString();
+                  const endDate =
+                    callbackData?.endDate || new Date().toISOString();
+                  setLoadingTenantId(org.tenantId);
                   try {
-                    await xeroService.triggerExtraction(reportId, [
-                      org.tenantId,
-                    ]);
+                    await xeroService.triggerExtraction({
+                      ...callbackData,
+                      reportId,
+                      tenantIds: [org.tenantId],
+                      startDate,
+                      endDate,
+                    });
                     console.log("Triggered fetch for tenant:", org.tenantId);
                     setOrganisations((prev) =>
                       prev.map((o) =>
@@ -146,10 +192,17 @@ export default function XeroSelection() {
                       org.tenantId,
                       err
                     );
+                    showAlert("Failed to fetch data for this tenant.", "error");
+                  } finally {
+                    setLoadingTenantId(null);
                   }
                 }}
               >
-                Fetch
+                {loadingTenantId === org.tenantId ? (
+                  <CircularProgress size={18} />
+                ) : (
+                  "Fetch"
+                )}
               </Button>
             )}
             {!org.fetched && (

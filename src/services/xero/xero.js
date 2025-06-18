@@ -39,7 +39,7 @@ function subscribeToProgressUpdates(onMessage, onError, onClose) {
   };
 
   ws.onclose = () => {
-    console.log("WebSocket closed.");
+    // console.log("WebSocket closed.");
     if (onClose) onClose();
   };
 
@@ -51,7 +51,7 @@ function triggerExtraction(payload) {
   return fetchWrapper
     .post(`${baseUrl}/extract`, payload)
     .then((res) => {
-      console.log("Xero extraction response:", res);
+      // console.log("Xero extraction response:", res);
       return res;
     })
     .catch((err) => {

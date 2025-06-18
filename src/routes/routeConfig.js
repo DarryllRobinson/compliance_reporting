@@ -13,7 +13,7 @@ import ReportsLayout from "../features/reports/ReportsLayout";
 import CreateReport from "../features/reports/ptrs/CreateReport";
 import ReportWizard from "../features/reports/ptrs/ReportWizard";
 import ConnectExternalSystems from "../features/reports/ptrs/ConnectExternalSystems";
-import XeroConnectSuccess from "../features/reports/ptrs/XeroConnectSuccess";
+import XeroConnectProgress from "../features/reports/ptrs/XeroConnectProgress";
 import StepsOverview from "../features/reports/ptrs/StepsOverview";
 import ReportErrorBoundary from "../components/navigation/ReportErrorBoundary";
 import Role from "../context/role";
@@ -94,7 +94,7 @@ export const protectedRoutes = [
           },
           {
             path: ":code/:reportId/progress",
-            Component: XeroConnectSuccess,
+            Component: XeroConnectProgress,
           },
           { path: "steps", Component: StepsOverview },
         ],

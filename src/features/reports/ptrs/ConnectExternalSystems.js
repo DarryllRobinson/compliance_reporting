@@ -36,6 +36,17 @@ export default function ConnectExternalSystems() {
         throw new Error("Authorisation URL not provided by server");
       }
 
+      // Store callbackData before redirect
+      const callbackData = {
+        clientId: userService.userValue.clientId,
+        reportId: reportDetails.reportId,
+        createdBy: userService.userValue.id,
+        startDate: reportDetails.ReportingPeriodStartDate,
+        endDate: reportDetails.ReportingPeriodEndDate,
+      };
+
+      localStorage.setItem("callbackData", JSON.stringify(callbackData));
+
       window.location.href = authUrl;
     } catch (error) {
       console.error("Error connecting to Xero:", error);

@@ -1,14 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router"; // react-router, not react-router-dom
-import {
-  Button,
-  Typography,
-  Container,
-  Box,
-  Snackbar,
-  CircularProgress,
-  LinearProgress,
-} from "@mui/material";
+import { Typography, Container, Box, LinearProgress } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 
 import { xeroService } from "../../../services/xero/xero";
@@ -29,71 +21,52 @@ export const XeroConnectSuccess = () => {
   });
   const [retryCountdown, setRetryCountdown] = useState(null);
 
-  const progressRef = useRef(null);
-
   useEffect(() => {
-    // Simulate a websocket connection with intervals
-    const fakeWs = {
-      close: () => clearInterval(interval),
-    };
+    let unsubscribe = null;
+    try {
+      unsubscribe = xeroService.subscribeToProgressUpdates((data) => {
+        // console.log("Progress update received:", data);
+        const { message, current, total, eta, retryDelay, status } = data;
+        const isError = status === "error";
+        const isWarning = status === "warn";
 
-    let step = 0;
-    const steps = [
-      { message: "Fetching payments", current: 1, total: 3 },
-      { message: "Fetching invoices", current: 2, total: 3 },
-      {
-        message: "Retrying fetch for contact data",
-        current: 2,
-        total: 3,
-        retryDelay: 3,
-      },
-      {
-        message: "[ERROR] Failed to connect to Xero API",
-        current: 2,
-        total: 3,
-        isError: true,
-      },
-      { message: "Almost done", current: 3, total: 3, retryDelay: 5 },
-      {
-        message: "Transformed TCP records saved successfully",
-        current: 3,
-        total: 3,
-      },
-    ];
-
-    const interval = setInterval(() => {
-      if (step >= steps.length) {
-        clearInterval(interval);
-        return;
-      }
-      const data = steps[step++];
-      if (data.retryDelay) {
-        let seconds = data.retryDelay;
-        setRetryCountdown(seconds);
-        const countdownInterval = setInterval(() => {
-          seconds--;
+        if (retryDelay) {
+          let seconds = retryDelay;
           setRetryCountdown(seconds);
-          if (seconds <= 0) {
-            clearInterval(countdownInterval);
-            setRetryCountdown(null);
-          }
-        }, 1000);
-      }
-      setProgressHistory((prev) => [
-        ...prev,
-        data.isError ? `[ERROR] ${data.message}` : `[INFO] ${data.message}`,
-      ]);
-      setProgressMessage(data.message || "");
-      setProgressOpen(true);
-      setProgressData({
-        current: data.current || 0,
-        total: data.total || 0,
-        eta: data.eta || null,
+          const countdownInterval = setInterval(() => {
+            seconds--;
+            setRetryCountdown(seconds);
+            if (seconds <= 0) {
+              clearInterval(countdownInterval);
+              setRetryCountdown(null);
+            }
+          }, 1000);
+        }
+
+        setProgressHistory((prev) => [
+          ...prev,
+          isError
+            ? `[ERROR] ${message}`
+            : isWarning
+              ? `[WARN] ${message}`
+              : `[INFO] ${message}`,
+        ]);
+        setProgressMessage(message || "");
+        setProgressOpen(true);
+        setProgressData({
+          current: current || 0,
+          total: total || 0,
+          eta: eta || null,
+        });
       });
-    }, 2000);
+    } catch (err) {
+      console.error("Failed to subscribe to progress updates:", err);
+    }
 
     return () => {
-      clearInterval(interval);
+      if (typeof unsubscribe === "function") {
+        unsubscribe();
+      }
     };
   }, []);
 
@@ -103,20 +76,14 @@ export const XeroConnectSuccess = () => {
       reportId
     ) {
       const timeout = setTimeout(() => {
+        setProgressOpen(false);
+        setProgressMessage("");
+        setProgressHistory([]);
         // navigate(`/reports/ptrs/${reportId}`);
       }, 2000); // optional delay to allow user to see the success message
       return () => clearTimeout(timeout);
     }
   }, [progressMessage, reportId, navigate]);
-
-  const handleDashboardRedirect = () => {
-    // Redirect user to their dashboard
-    navigate("/user/dashboard");
-  };
-
-  const handleSnackbarClose = () => {
-    setProgressOpen(false);
-  };
 
   return (
     <Container
@@ -127,7 +94,7 @@ export const XeroConnectSuccess = () => {
         position: "relative",
       }}
     >
-      {progressOpen && progressData.total > 0 && (
+      {progressOpen && (
         <>
           <Typography
             variant="h6"
@@ -166,7 +133,7 @@ export const XeroConnectSuccess = () => {
                 }}
               />
             </Box>
-            {retryCountdown !== null && (
+            {retryCountdown !== null && !isNaN(retryCountdown) && (
               <Typography variant="body2" color="info.main" mt={1}>
                 Retrying in {retryCountdown}s...
               </Typography>
