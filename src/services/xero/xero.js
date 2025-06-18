@@ -7,6 +7,7 @@ export const xeroService = {
   connect,
   subscribeToProgressUpdates,
   triggerExtraction,
+  // removeTenant,
 };
 
 function connect(params) {
@@ -58,3 +59,7 @@ function triggerExtraction(payload) {
       throw err;
     });
 }
+
+// function removeTenant(tenantId) {
+//   return fetchWrapper.delete(`${baseUrl}/tenants/${tenantId}`);
+// }

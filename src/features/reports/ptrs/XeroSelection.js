@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   useNavigate,
   useParams,
@@ -12,11 +12,20 @@ import {
   FormControlLabel,
   Typography,
   Paper,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Alert,
 } from "@mui/material";
 import { xeroService } from "../../../services/xero/xero";
+import { useAlert } from "../../../context";
 
 export default function XeroSelection() {
   const location = useLocation();
+  const query = new URLSearchParams(location.search);
+  const error = query.get("error");
   const [searchParams] = useSearchParams();
   const initialOrgs = (() => {
     try {
@@ -34,9 +43,12 @@ export default function XeroSelection() {
     initialOrgs.map((org) => org.tenantId)
   );
   const [callbackInfo, setCallbackInfo] = useState(null);
+  const [orgToRemove, setOrgToRemove] = useState(null);
+  const [isRemoving, setIsRemoving] = useState(false);
   const navigate = useNavigate();
   const { reportId } = useParams();
   const callbackData = location.state?.callbackData || null;
+  const { showAlert } = useAlert();
 
   useEffect(() => {
     if (callbackData) {
@@ -44,6 +56,10 @@ export default function XeroSelection() {
       console.log("Callback Data:", callbackData);
     }
   }, [callbackData]);
+
+  useEffect(() => {
+    console.log("Organisations updated:", organisations);
+  }, [organisations]);
 
   const toggleSelection = (tenantId) => {
     setSelected((prev) =>
@@ -54,20 +70,31 @@ export default function XeroSelection() {
   };
 
   const handleContinue = async () => {
+    const unfetchedTenantIds = organisations
+      .filter((org) => selected.includes(org.tenantId) && !org.fetched)
+      .map((org) => org.tenantId);
+
+    if (unfetchedTenantIds.length === 0) {
+      showAlert("No new organisations selected for extraction.", "info");
+      return;
+    }
+
     try {
-      await fetch("/api/xero/start-extract/" + reportId, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tenantIds: selected }),
-      });
+      await xeroService.triggerExtraction(reportId, unfetchedTenantIds);
       navigate(`/reports/ptrs/${reportId}/connect/progress`);
     } catch (error) {
       console.error("Error starting extract:", error);
+      showAlert("Error starting data extraction. Please try again.", "error");
     }
   };
 
   return (
     <Box sx={{ p: 4 }}>
+      {error && (
+        <Box sx={{ mb: 2 }}>
+          <Alert severity="error">{decodeURIComponent(error)}</Alert>
+        </Box>
+      )}
       {callbackInfo && (
         <Box sx={{ mb: 2, p: 2, bgcolor: "#f5f5f5", borderRadius: 1 }}>
           <Typography variant="subtitle1">Xero callback received:</Typography>
@@ -125,13 +152,24 @@ export default function XeroSelection() {
                 Fetch
               </Button>
             )}
+            {!org.fetched && (
+              <Button
+                size="small"
+                color="error"
+                variant="text"
+                sx={{ ml: 1 }}
+                onClick={() => setOrgToRemove(org)}
+              >
+                Remove
+              </Button>
+            )}
           </Box>
         ))}
       </Paper>
       <Box display="flex" gap={2}>
         <Button
           variant="outlined"
-          onClick={() => (window.location.href = "/api/xero/auth")}
+          onClick={() => navigate(`/reports/ptrs/${reportId}/connect`)}
         >
           Connect Another Organisation
         </Button>
@@ -143,6 +181,62 @@ export default function XeroSelection() {
           Continue
         </Button>
       </Box>
+      <Dialog open={!!orgToRemove} onClose={() => setOrgToRemove(null)}>
+        <DialogTitle>Remove Organisation</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to remove{" "}
+            <strong>
+              {orgToRemove?.tenantName ||
+                orgToRemove?.orgName ||
+                orgToRemove?.tenantId}
+            </strong>
+            ?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => setOrgToRemove(null)}
+            variant="outlined"
+            color="inherit"
+            disabled={isRemoving}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={async () => {
+              setIsRemoving(true);
+              try {
+                await xeroService.removeTenant(orgToRemove.tenantId);
+                showAlert(
+                  `Removed ${orgToRemove.tenantName || orgToRemove.orgName || orgToRemove.tenantId}`,
+                  "success"
+                );
+                setOrganisations((prev) =>
+                  prev.filter((o) => o.tenantId !== orgToRemove.tenantId)
+                );
+                setSelected((prev) =>
+                  prev.filter((id) => id !== orgToRemove.tenantId)
+                );
+              } catch (err) {
+                console.error("Failed to remove org from backend:", err);
+                showAlert(
+                  "Failed to remove organisation. Please try again.",
+                  "error"
+                );
+              } finally {
+                setIsRemoving(false);
+                setOrgToRemove(null);
+              }
+            }}
+            color="error"
+            variant="contained"
+            disabled={isRemoving}
+          >
+            Remove
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

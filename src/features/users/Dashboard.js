@@ -46,6 +46,17 @@ export default function Dashboard() {
   const [reports, setReports] = useState([]);
   const [error, setError] = useState(null);
 
+  // Clear tags from Xero if needed
+  useEffect(() => {
+    if (window.location.hash === "#_=_") {
+      window.history.replaceState(
+        {},
+        document.title,
+        window.location.pathname + window.location.search
+      );
+    }
+  }, []);
+
   useEffect(() => {
     async function fetchReports() {
       const user = userService.userValue;
