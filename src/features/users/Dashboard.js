@@ -60,10 +60,10 @@ export default function Dashboard() {
   useEffect(() => {
     async function fetchReports() {
       const user = userService.userValue;
-      if (!ProtectedRoutes()) {
-        redirect("/user/login");
-        return;
-      }
+      // if (!ProtectedRoutes()) {
+      //   redirect("/user/login");
+      //   return;
+      // }
 
       try {
         const response = await reportService.getAll({
@@ -153,7 +153,7 @@ export default function Dashboard() {
         Welcome to Your Dashboard, {user?.firstName} {user?.lastName}
       </Typography>
       <Typography variant="body1" gutterBottom>
-        Here you can manage your reports and track their progress
+        Manage your data and generate PTRS reports below.
       </Typography>
 
       {error && (
@@ -162,72 +162,108 @@ export default function Dashboard() {
           contact support.
         </Typography>
       )}
-      <Grid container spacing={3} sx={{ marginTop: theme.spacing(2) }}>
-        {reportList.map((report, index) => {
-          // Ensure reports is an array before filtering
-          const relevantReports = Array.isArray(reports)
-            ? reports.filter((r) => r.code === report.code)
-            : [];
 
-          const hasCreatedReport = relevantReports.some(
-            (r) => r.reportStatus === "Created"
-          );
+      {/* Data Preparation Section */}
+      <Card sx={{ marginTop: theme.spacing(4) }}>
+        <CardContent>
+          <Typography variant="h5" gutterBottom>
+            Data Preparation
+          </Typography>
+          <Typography variant="body2" color="textSecondary" gutterBottom>
+            Upload and validate your payment data before creating a report.
+          </Typography>
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={() => navigate("/data/ptrs/console")}
+            sx={{ mt: 2 }}
+          >
+            Go to Data Import & Review
+          </Button>
+        </CardContent>
+      </Card>
 
-          return (
-            <Grid item xs={12} key={index}>
-              <Card>
-                <CardContent>
-                  <Typography variant="h6" gutterBottom>
-                    {report.name}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    color="textSecondary"
-                    gutterBottom
-                  >
-                    {report.description}
-                  </Typography>
-                  {relevantReports.length > 0 ? (
-                    <TableContainer component={Paper}>
-                      <Table size="small" aria-label="dense table of reports">
-                        <TableHead>
-                          <TableRow>
-                            <TableCell>Reporting Period Start Date</TableCell>
-                            <TableCell>Reporting Period End Date</TableCell>
-                            <TableCell>Report Status</TableCell>
-                            <TableCell>Action</TableCell>
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {relevantReports.map((row) => renderTable(row))}
-                        </TableBody>
-                      </Table>
-                    </TableContainer>
-                  ) : (
-                    <Typography
-                      variant="body2"
-                      color="textSecondary"
-                      gutterBottom
-                    >
-                      No records found for this report
-                    </Typography>
-                  )}
-                  {!hasCreatedReport && ( // Testing
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={() => createReport(report)}
-                      sx={{ marginTop: theme.spacing(2) }}
-                    >
-                      Create New Report
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
-            </Grid>
-          );
-        })}
-      </Grid>
+      {/* Report Management Section */}
+      <Card sx={{ marginTop: theme.spacing(6) }}>
+        <CardContent>
+          <Typography variant="h5" gutterBottom>
+            Report Management
+          </Typography>
+          <Typography variant="body2" color="textSecondary" gutterBottom>
+            Use prepared data to create or continue your compliance reports.
+          </Typography>
+          <Grid container spacing={3} sx={{ marginTop: theme.spacing(2) }}>
+            {reportList.map((report, index) => {
+              const relevantReports = Array.isArray(reports)
+                ? reports.filter((r) => r.code === report.code)
+                : [];
+
+              const hasCreatedReport = relevantReports.some(
+                (r) => r.reportStatus === "Created"
+              );
+
+              return (
+                <Grid item xs={12} key={index}>
+                  <Card>
+                    <CardContent>
+                      <Typography variant="h6" gutterBottom>
+                        {report.name}
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        color="textSecondary"
+                        gutterBottom
+                      >
+                        {report.description}
+                      </Typography>
+                      {relevantReports.length > 0 ? (
+                        <TableContainer component={Paper}>
+                          <Table
+                            size="small"
+                            aria-label="dense table of reports"
+                          >
+                            <TableHead>
+                              <TableRow>
+                                <TableCell>
+                                  Reporting Period Start Date
+                                </TableCell>
+                                <TableCell>Reporting Period End Date</TableCell>
+                                <TableCell>Report Status</TableCell>
+                                <TableCell>Action</TableCell>
+                              </TableRow>
+                            </TableHead>
+                            <TableBody>
+                              {relevantReports.map((row) => renderTable(row))}
+                            </TableBody>
+                          </Table>
+                        </TableContainer>
+                      ) : (
+                        <Typography
+                          variant="body2"
+                          color="textSecondary"
+                          gutterBottom
+                        >
+                          No records found for this report
+                        </Typography>
+                      )}
+                      {!hasCreatedReport && (
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          onClick={() => createReport(report)}
+                          sx={{ marginTop: theme.spacing(2) }}
+                        >
+                          Create New Report
+                        </Button>
+                      )}
+                    </CardContent>
+                  </Card>
+                </Grid>
+              );
+            })}
+          </Grid>
+        </CardContent>
+      </Card>
     </Box>
   );
 }
