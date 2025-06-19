@@ -33,7 +33,8 @@ import { useReportContext } from "../../../context";
 const DEFAULT_SORT_CONFIG = {
   key: null,
   direction: "asc",
-  filters: {},
+  filtersExact: {},
+  filtersFuzzy: {},
 };
 
 export default function CollapsibleTable({ editableFields, hiddenColumns }) {
@@ -83,23 +84,28 @@ export default function CollapsibleTable({ editableFields, hiddenColumns }) {
         .toLowerCase()
         .includes(searchTerm);
 
-      const passesColumnFilters = Object.entries(
-        sortConfig?.filters || {}
-      ).every(([key, value]) => {
-        if (key === "flagStatus") {
-          if (value === "issue") return record.hasIssue;
-          if (value === "exclusion") return record.hasExclusion;
-          if (value === "none") return !record.hasIssue && !record.hasExclusion;
-          return true;
+      const passesExact = Object.entries(sortConfig?.filtersExact || {}).every(
+        ([key, value]) => {
+          if (!value) return true;
+          return (
+            String(record[key] ?? "").toLowerCase() ===
+            String(value).toLowerCase()
+          );
         }
-        const recordValue = String(record[key] || "").toLowerCase();
-        if (value === "__empty__") return !record[key];
-        return recordValue.includes(value.toLowerCase());
-      });
+      );
 
-      return passesSearch && passesColumnFilters;
+      const passesFuzzy = Object.entries(sortConfig?.filtersFuzzy || {}).every(
+        ([key, value]) => {
+          if (!value) return true;
+          return String(record[key] ?? "")
+            .toLowerCase()
+            .includes(String(value).toLowerCase());
+        }
+      );
+
+      return passesSearch && passesExact && passesFuzzy;
     });
-  }, [records, searchTerm, sortConfig?.filters]);
+  }, [records, searchTerm, sortConfig?.filtersExact, sortConfig?.filtersFuzzy]);
 
   const sortedRecords = useMemo(() => {
     if (!sortConfig?.key) return filteredRecords;
@@ -293,7 +299,14 @@ export default function CollapsibleTable({ editableFields, hiddenColumns }) {
                 </TableCell>
               ))}
             </TableRow>
-            <TableRow>
+            <TableRow
+              sx={{
+                position: "sticky",
+                top: 46,
+                zIndex: 10,
+                backgroundColor: theme.palette.background.paper,
+              }}
+            >
               <TableCell
                 align="center"
                 sx={{
@@ -304,40 +317,46 @@ export default function CollapsibleTable({ editableFields, hiddenColumns }) {
                 }}
               >
                 ⚠️ 🧠
+                <TextField
+                  size="small"
+                  variant="standard"
+                  placeholder="Contains..."
+                  value={sortConfig?.filtersFuzzy?.["flagStatus"] ?? ""}
+                  onClick={(e) => e.stopPropagation()}
+                  onChange={(e) => {
+                    const { value } = e.target;
+                    setSortConfig((prev) => ({
+                      ...prev,
+                      filtersFuzzy: {
+                        ...(prev.filtersFuzzy || {}),
+                        flagStatus: value,
+                      },
+                    }));
+                  }}
+                  sx={{ mb: 0.5 }}
+                />
                 <Select
                   size="small"
                   variant="standard"
                   fullWidth
-                  value={sortConfig?.filters?.["flagStatus"] ?? ""}
+                  displayEmpty
+                  value={sortConfig?.filtersExact?.["flagStatus"] ?? ""}
                   onClick={(e) => e.stopPropagation()}
                   onChange={(e) => {
                     const { value } = e.target;
-                    setSortConfig((prev) => {
-                      const newFilters = {
-                        ...(prev.filters || {}),
+                    setSortConfig((prev) => ({
+                      ...prev,
+                      filtersExact: {
+                        ...(prev.filtersExact || {}),
                         flagStatus: value,
-                      };
-                      return { ...prev, filters: newFilters };
-                    });
-                  }}
-                  sx={{
-                    backgroundColor: theme.palette.background.paper,
-                    color: theme.palette.text.primary,
-                  }}
-                  MenuProps={{
-                    PaperProps: {
-                      sx: {
-                        backgroundColor: theme.palette.background.paper,
-                        color: theme.palette.text.primary,
                       },
-                    },
+                    }));
                   }}
+                  sx={{ backgroundColor: theme.palette.background.paper }}
                 >
                   <MenuItem value="">(All)</MenuItem>
-                  <MenuItem value="issue">⚠️ Issue</MenuItem>
-                  <MenuItem value="exclusion">
-                    🧠 Recommended Exclusion
-                  </MenuItem>
+                  <MenuItem value="issue">Issue</MenuItem>
+                  <MenuItem value="exclusion">Exclusion</MenuItem>
                   <MenuItem value="none">None</MenuItem>
                 </Select>
               </TableCell>
@@ -398,45 +417,63 @@ export default function CollapsibleTable({ editableFields, hiddenColumns }) {
                                 )}
                               </Box>
                             </Tooltip>
+                            <TextField
+                              size="small"
+                              variant="standard"
+                              placeholder="Contains..."
+                              value={
+                                sortConfig?.filtersFuzzy?.[field.name] ?? ""
+                              }
+                              onClick={(e) => e.stopPropagation()}
+                              onChange={(e) => {
+                                const { value } = e.target;
+                                setSortConfig((prev) => ({
+                                  ...prev,
+                                  filtersFuzzy: {
+                                    ...(prev.filtersFuzzy || {}),
+                                    [field.name]: value,
+                                  },
+                                }));
+                              }}
+                              sx={{ mb: 0.5 }}
+                            />
                             <Select
                               size="small"
                               variant="standard"
                               fullWidth
                               displayEmpty
-                              value={sortConfig?.filters?.[field.name] ?? ""}
+                              value={
+                                sortConfig?.filtersExact?.[field.name] ?? ""
+                              }
                               onClick={(e) => e.stopPropagation()}
                               onChange={(e) => {
                                 const { value } = e.target;
-                                setSortConfig((prev) => {
-                                  const newFilters = {
-                                    ...(prev.filters || {}),
+                                setSortConfig((prev) => ({
+                                  ...prev,
+                                  filtersExact: {
+                                    ...(prev.filtersExact || {}),
                                     [field.name]: value,
-                                  };
-                                  return { ...prev, filters: newFilters };
-                                });
+                                  },
+                                }));
                               }}
                               sx={{
                                 backgroundColor: theme.palette.background.paper,
-                                color: theme.palette.text.primary,
-                              }}
-                              MenuProps={{
-                                PaperProps: {
-                                  sx: {
-                                    backgroundColor:
-                                      theme.palette.background.paper,
-                                    color: theme.palette.text.primary,
-                                  },
-                                },
                               }}
                             >
                               <MenuItem value="">(All)</MenuItem>
-                              <MenuItem value="__empty__">(Empty)</MenuItem>
                               {[
                                 ...new Set(
                                   records.map((r) => r[field.name] || "")
                                 ),
                               ]
                                 .filter((v) => v)
+                                .sort((a, b) =>
+                                  String(a).localeCompare(
+                                    String(b),
+                                    undefined,
+                                    { numeric: true }
+                                  )
+                                )
                                 .map((option) => (
                                   <MenuItem key={option} value={option}>
                                     {String(option)}
@@ -499,7 +536,13 @@ export default function CollapsibleTable({ editableFields, hiddenColumns }) {
                                 {field.type === "amount" ? (
                                   formatCurrency(record[field.name])
                                 ) : field.type === "date" ? (
-                                  formatDateForMySQL(record[field.name])
+                                  record[field.name] ? (
+                                    formatDateForMySQL(
+                                      record[field.name]
+                                    ).split(" ")[0]
+                                  ) : (
+                                    "-"
+                                  )
                                 ) : field.type === "checkbox" ? (
                                   isEditable ? (
                                     <Checkbox

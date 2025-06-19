@@ -77,7 +77,7 @@ function getChangedFields(record, original) {
 
 export default function ReportWizard() {
   const { reportId } = useParams();
-  const [currentStep, setCurrentStep] = useState(0);
+  const [currentStep, setCurrentStep] = useState(3);
   const [records, setRecords] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [alert, setAlert] = useState(null);

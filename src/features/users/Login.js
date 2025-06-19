@@ -124,6 +124,7 @@ export default function Login() {
               {...register("email")}
               error={!!errors.email}
               helperText={errors.email?.message}
+              InputLabelProps={{ style: { color: theme.palette.text.primary } }}
             />
             <TextField
               label="Password *"
@@ -135,6 +136,7 @@ export default function Login() {
               {...register("password")}
               error={!!errors.password}
               helperText={errors.password?.message}
+              InputLabelProps={{ style: { color: theme.palette.text.primary } }}
               InputProps={{
                 endAdornment: (
                   <IconButton

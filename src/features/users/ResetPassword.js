@@ -126,6 +126,7 @@ export default function ResetPassword() {
               onChange={handlePassword}
               error={!!passwordError}
               helperText={passwordError}
+              InputLabelProps={{ style: { color: theme.palette.text.primary } }}
             />
           </Grid>
           <Grid item xs={6}>
@@ -138,6 +139,7 @@ export default function ResetPassword() {
               onChange={handleConfirmPassword}
               error={!!confirmPasswordError}
               helperText={confirmPasswordError}
+              InputLabelProps={{ style: { color: theme.palette.text.primary } }}
             />
           </Grid>
         </Grid>

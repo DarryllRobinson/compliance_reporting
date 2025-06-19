@@ -123,6 +123,9 @@ export default function UserCreate() {
                 })}
                 error={!!errors.firstName}
                 helperText={errors.firstName?.message}
+                InputLabelProps={{
+                  style: { color: theme.palette.text.primary },
+                }}
               />
             </Grid>
             <Grid item xs={6}>
@@ -136,6 +139,9 @@ export default function UserCreate() {
                 })}
                 error={!!errors.lastName}
                 helperText={errors.lastName?.message}
+                InputLabelProps={{
+                  style: { color: theme.palette.text.primary },
+                }}
               />
             </Grid>
             <Grid item xs={12}>
@@ -153,6 +159,9 @@ export default function UserCreate() {
                 })}
                 error={!!errors.email}
                 helperText={errors.email?.message}
+                InputLabelProps={{
+                  style: { color: theme.palette.text.primary },
+                }}
               />
             </Grid>
             <Grid item xs={6}>
@@ -164,6 +173,9 @@ export default function UserCreate() {
                 {...register("phone", { required: "Phone is required" })}
                 error={!!errors.phone}
                 helperText={errors.phone?.message}
+                InputLabelProps={{
+                  style: { color: theme.palette.text.primary },
+                }}
               />
             </Grid>
             <Grid item xs={6}>
@@ -177,6 +189,9 @@ export default function UserCreate() {
                 })}
                 error={!!errors.position}
                 helperText={errors.position?.message}
+                InputLabelProps={{
+                  style: { color: theme.palette.text.primary },
+                }}
               />
             </Grid>
             <Grid item xs={6}>

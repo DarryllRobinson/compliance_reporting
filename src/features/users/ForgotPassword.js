@@ -86,7 +86,7 @@ export default function ForgotPassword() {
                 autoComplete="off"
                 fullWidth
                 required
-                defaultValue="darryllrobinson@icloud.com"
+                defaultValue=""
               />
             </Grid>
           </Grid>

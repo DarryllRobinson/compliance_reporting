@@ -56,6 +56,13 @@ export const fieldMapping = [
     group: "payment",
   },
   {
+    name: "transactionType",
+    label: "Transaction Type",
+    type: "text",
+    requiredAtStep: [1, 2, 4],
+    group: "payment",
+  },
+  {
     name: "supplyDate",
     label: "Supply Date",
     type: "text",

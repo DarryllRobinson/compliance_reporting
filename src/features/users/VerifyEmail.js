@@ -177,6 +177,7 @@ export default function VerifyEmail() {
               onChange={handleChange}
               error={!!formErrors.password}
               helperText={formErrors.password}
+              InputLabelProps={{ style: { color: theme.palette.text.primary } }}
             />
           </Grid>
           <Grid item xs={6}>
@@ -190,6 +191,7 @@ export default function VerifyEmail() {
               onChange={handleChange}
               error={!!formErrors.confirmPassword}
               helperText={formErrors.confirmPassword}
+              InputLabelProps={{ style: { color: theme.palette.text.primary } }}
             />
           </Grid>
         </Grid>

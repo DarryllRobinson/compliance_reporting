@@ -10,6 +10,10 @@ export const XeroConnectSuccess = () => {
   const navigate = useNavigate();
   const { reportId } = useParams();
 
+  const timerRef = useRef(null);
+  const startedRef = useRef(false);
+  const scrollRef = useRef(null);
+
   const [progressMessage, setProgressMessage] = useState("");
   const [progressOpen, setProgressOpen] = useState(false);
   const [progressHistory, setProgressHistory] = useState([]);
@@ -20,6 +24,8 @@ export const XeroConnectSuccess = () => {
     eta: null,
   });
   const [retryCountdown, setRetryCountdown] = useState(null);
+  const [startTime, setStartTime] = useState(null);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
 
   useEffect(() => {
     let unsubscribe = null;
@@ -29,6 +35,18 @@ export const XeroConnectSuccess = () => {
         const { message, current, total, eta, retryDelay, status } = data;
         const isError = status === "error";
         const isWarning = status === "warn";
+
+        if (!startedRef.current) {
+          startedRef.current = true;
+          const now = Date.now();
+          setStartTime(now);
+          setElapsedSeconds(0);
+          timerRef.current = setInterval(() => {
+            setElapsedSeconds(Math.floor((Date.now() - now) / 1000));
+          }, 1000);
+          // Note: The cleanup for this timer should be handled in useEffect return, but here we can't return from inside callback
+          // So we store timer id in ref or ignore cleanup for simplicity
+        }
 
         if (retryDelay) {
           let seconds = retryDelay;
@@ -43,14 +61,21 @@ export const XeroConnectSuccess = () => {
           }, 1000);
         }
 
-        setProgressHistory((prev) => [
-          ...prev,
-          isError
-            ? `[ERROR] ${message}`
-            : isWarning
-              ? `[WARN] ${message}`
-              : `[INFO] ${message}`,
-        ]);
+        if (!/Xero API request/.test(message)) {
+          setProgressHistory((prev) => [
+            ...prev,
+            isError
+              ? `[ERROR] ${message}`
+              : isWarning
+                ? `[WARN] ${message}`
+                : `[INFO] ${message}`,
+          ]);
+        }
+
+        if (scrollRef.current) {
+          scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+        }
+
         setProgressMessage(message || "");
         setProgressOpen(true);
         setProgressData({
@@ -68,7 +93,7 @@ export const XeroConnectSuccess = () => {
         unsubscribe();
       }
     };
-  }, []);
+  }, [startTime]);
 
   useEffect(() => {
     if (
@@ -76,9 +101,14 @@ export const XeroConnectSuccess = () => {
       reportId
     ) {
       const timeout = setTimeout(() => {
-        setProgressOpen(false);
-        setProgressMessage("");
-        setProgressHistory([]);
+        if (timerRef.current) {
+          clearInterval(timerRef.current);
+          timerRef.current = null;
+        }
+        setProgressMessage(
+          "✅ Extraction complete. You can now return to the report."
+        );
+        setProgressOpen(true);
         // navigate(`/reports/ptrs/${reportId}`);
       }, 2000); // optional delay to allow user to see the success message
       return () => clearTimeout(timeout);
@@ -122,7 +152,11 @@ export const XeroConnectSuccess = () => {
             >
               <LinearProgress
                 variant="determinate"
-                value={(progressData.current / progressData.total) * 100}
+                value={
+                  progressData.total > 0
+                    ? (progressData.current / progressData.total) * 100
+                    : 0
+                }
                 sx={{
                   height: 10,
                   borderRadius: 1,
@@ -133,6 +167,29 @@ export const XeroConnectSuccess = () => {
                 }}
               />
             </Box>
+            {progressData.total > 0 && (
+              <Typography variant="body2" mt={1}>
+                {progressData.current} of {progressData.total}
+              </Typography>
+            )}
+
+            <Typography variant="body2" mt={1}>
+              Elapsed time: {elapsedSeconds}s
+            </Typography>
+
+            {progressData.total > 0 &&
+              elapsedSeconds > 0 &&
+              progressData.current > 0 && (
+                <Typography variant="body2" mt={1}>
+                  ETA: ~
+                  {Math.round(
+                    (progressData.total - progressData.current) /
+                      (progressData.current / elapsedSeconds)
+                  )}
+                  s
+                </Typography>
+              )}
+
             {retryCountdown !== null && !isNaN(retryCountdown) && (
               <Typography variant="body2" color="info.main" mt={1}>
                 Retrying in {retryCountdown}s...
@@ -154,6 +211,7 @@ export const XeroConnectSuccess = () => {
               border: "1px solid #444",
               textAlign: "left",
             }}
+            ref={scrollRef}
           >
             {progressHistory.join("\n")}
           </Box>

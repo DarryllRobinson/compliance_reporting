@@ -188,6 +188,9 @@ export default function FirstUserRegister() {
                   fullWidth
                   error={!!errors.firstName}
                   helperText={errors.firstName?.message}
+                  InputLabelProps={{
+                    style: { color: theme.palette.text.primary },
+                  }}
                 />
               </Grid>
               <Grid item xs={6}>
@@ -197,6 +200,9 @@ export default function FirstUserRegister() {
                   fullWidth
                   error={!!errors.lastName}
                   helperText={errors.lastName?.message}
+                  InputLabelProps={{
+                    style: { color: theme.palette.text.primary },
+                  }}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -207,6 +213,9 @@ export default function FirstUserRegister() {
                   fullWidth
                   error={!!errors.email}
                   helperText={errors.email?.message}
+                  InputLabelProps={{
+                    style: { color: theme.palette.text.primary },
+                  }}
                 />
               </Grid>
               <Grid item xs={6}>
@@ -217,6 +226,9 @@ export default function FirstUserRegister() {
                   fullWidth
                   error={!!errors.password}
                   helperText={errors.password?.message}
+                  InputLabelProps={{
+                    style: { color: theme.palette.text.primary },
+                  }}
                 />
               </Grid>
               <Grid item xs={6}>
@@ -227,6 +239,9 @@ export default function FirstUserRegister() {
                   fullWidth
                   error={!!errors.confirmPassword}
                   helperText={errors.confirmPassword?.message}
+                  InputLabelProps={{
+                    style: { color: theme.palette.text.primary },
+                  }}
                 />
               </Grid>
               <Grid item xs={6}>
@@ -236,6 +251,9 @@ export default function FirstUserRegister() {
                   fullWidth
                   error={!!errors.phone}
                   helperText={errors.phone?.message}
+                  InputLabelProps={{
+                    style: { color: theme.palette.text.primary },
+                  }}
                 />
               </Grid>
               <Grid item xs={6}>
@@ -245,6 +263,9 @@ export default function FirstUserRegister() {
                   fullWidth
                   error={!!errors.position}
                   helperText={errors.position?.message}
+                  InputLabelProps={{
+                    style: { color: theme.palette.text.primary },
+                  }}
                 />
               </Grid>
             </Grid>

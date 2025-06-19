@@ -129,6 +129,9 @@ export default function SignUp() {
                 autoFocus
                 defaultValue={formData.firstName}
                 onChange={handleInputChange}
+                InputLabelProps={{
+                  style: { color: theme.palette.text.primary },
+                }}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -141,6 +144,9 @@ export default function SignUp() {
                 autoComplete="family-name"
                 defaultValue={formData.lastName}
                 onChange={handleInputChange}
+                InputLabelProps={{
+                  style: { color: theme.palette.text.primary },
+                }}
               />
             </Grid>
             <Grid item xs={12}>
@@ -153,6 +159,9 @@ export default function SignUp() {
                 autoComplete="off"
                 defaultValue={formData.email}
                 onChange={handleInputChange}
+                InputLabelProps={{
+                  style: { color: theme.palette.text.primary },
+                }}
               />
             </Grid>
             <Grid item xs={12}>
@@ -166,6 +175,9 @@ export default function SignUp() {
                 autoComplete="new-password"
                 defaultValue={formData.password}
                 onChange={handleInputChange}
+                InputLabelProps={{
+                  style: { color: theme.palette.text.primary },
+                }}
               />
             </Grid>
             <Grid item xs={12}>
@@ -179,6 +191,9 @@ export default function SignUp() {
                 autoComplete="new-password"
                 defaultValue={formData.confirmPassword}
                 onChange={handleInputChange}
+                InputLabelProps={{
+                  style: { color: theme.palette.text.primary },
+                }}
               />
             </Grid>
             <Grid item xs={12}>
