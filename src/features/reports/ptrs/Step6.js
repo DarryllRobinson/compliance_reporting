@@ -120,7 +120,7 @@ export default function Step6() {
         },
         {
           label: "Receivable terms compared to most common payment term",
-          value: "Longer",
+          value: "???",
           comment:
             "All entities have a policy of issuing 45-day invoices. As 45 > 30, the correct value is 'Longer'.",
         },
@@ -164,50 +164,48 @@ export default function Step6() {
           label: "Average payment time",
           value: metrics.averagePaymentTime, // Use the calculated metric
           comment:
-            "WRONG Calculated using AVERAGE() on all values in the 'Payment Time' column of the Final SBTCP Dataset.",
+            "Calculated using AVERAGE() on all values in the 'Payment Time' column of the Final SBTCP Dataset.",
         },
         {
           label: "Median payment time",
           value: metrics.medianPaymentTime, // Use the calculated metric
           comment:
-            "WRONG Calculated using MEDIAN() on all values in the 'Payment Time' column.",
+            "Calculated using MEDIAN() on all values in the 'Payment Time' column.",
         },
         {
           label: "80th percentile payment time",
           value: metrics.percentile80, // Use the calculated metric
           comment:
-            "WRONG Calculated using PERCENTILE.INC() on the 'Payment Time' column with 0.8 input; result must be a real data point.",
+            "Calculated using PERCENTILE.INC() on the 'Payment Time' column with 0.8 input; result must be a real data point.",
         },
         {
           label: "95th percentile payment time",
           value: metrics.percentile95, // Use the calculated metric
           comment:
-            "WRONG Calculated using PERCENTILE.INC() on the 'Payment Time' column with 0.95 input; interpolation not permitted.",
+            "Calculated using PERCENTILE.INC() on the 'Payment Time' column with 0.95 input; interpolation not permitted.",
         },
         {
           label:
             "Percentage of small business trade credit arrangements paid within payment terms",
           value: metrics.paidWithinTermsPercent, // Use the calculated metric
           comment:
-            "WRONG Payments where Payment Time ≤ Payment Term ÷ Total Payments × 100.",
+            "Payments where Payment Time ≤ Payment Term ÷ Total Payments × 100.",
         },
         {
           label: "Invoices paid within 30 days (%)",
           value: metrics.paidWithin30DaysPercent, // Use the calculated metric
-          comment:
-            "WRONG Payments where Payment Time ≤ 30 ÷ Total Payments × 100.",
+          comment: "Payments where Payment Time ≤ 30 ÷ Total Payments × 100.",
         },
         {
           label: "Invoices paid in 31-60 days (%)",
           value: metrics.paid31To60DaysPercent, // Use the calculated metric
           comment:
-            "WRONG Payments where Payment Time is between 31 and 60 ÷ Total Payments × 100.",
+            "Payments where Payment Time is between 31 and 60 ÷ Total Payments × 100.",
         },
         {
           label: "Invoices paid over 60 days (%)",
           value: metrics.paidOver60DaysPercent, // Use the calculated metric
-          comment:
-            "WRONG Payments where Payment Time > 60 ÷ Total Payments × 100.",
+          comment: "Payments where Payment Time > 60 ÷ Total Payments × 100.",
         },
       ],
     },
