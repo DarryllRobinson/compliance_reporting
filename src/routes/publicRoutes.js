@@ -128,6 +128,15 @@ const allPublicRoutes = [
 
 const launchPublicRoutes = [
   {
+    path: "/clients/register",
+    Component: ClientRegister,
+  },
+  { path: "/clients/register-first-user", Component: FirstUserRegister },
+  {
+    path: "/user/login",
+    Component: Login,
+  },
+  {
     path: "compliance-navigator",
     Component: PublicComplianceNavigator,
   },

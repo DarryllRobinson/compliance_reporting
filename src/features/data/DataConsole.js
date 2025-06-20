@@ -3,11 +3,14 @@ import { Box, Typography, Divider, Button, Paper } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useNavigate } from "react-router";
 import CreateReport from "../reports/ptrs/CreateReport";
+import ConnectExternalSystems from "../reports/ptrs/ConnectExternalSystems";
+import DataUploadReview from "../reports/ptrs/DataUploadReview";
 
 export default function DataConsole() {
   const theme = useTheme();
   const navigate = useNavigate();
   const [reportDetails, setReportDetails] = useState(null);
+  const [uploadResults, setUploadResults] = useState(null);
   console.log("DataConsole rendered with reportDetails:", reportDetails);
 
   return (
@@ -52,32 +55,11 @@ export default function DataConsole() {
             Ingest, validate and enrich datasets linked to your created report.
           </Typography>
 
-          <Box sx={{ display: "flex", gap: 2, mt: 2, flexWrap: "wrap" }}>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() =>
-                navigate("/data/import", {
-                  state: { reportId: reportDetails.reportId },
-                })
-              }
-            >
-              Upload CSV
-            </Button>
-            <Button
-              variant="outlined"
-              color="primary"
-              onClick={() =>
-                navigate("/xero/connect", {
-                  state: { reportId: reportDetails.reportId },
-                })
-              }
-            >
-              Fetch from Xero
-            </Button>
-            <Button variant="outlined" color="secondary" disabled>
-              Run ABN Lookup (Coming Soon)
-            </Button>
+          <Box sx={{ mt: 2 }}>
+            <ConnectExternalSystems
+              reportDetails={reportDetails}
+              onUploadComplete={(results) => setUploadResults(results)}
+            />
           </Box>
 
           <Box sx={{ mt: 4 }}>
@@ -88,9 +70,19 @@ export default function DataConsole() {
               Below is a placeholder for datasets you’ve uploaded or fetched.
             </Typography>
             <Paper sx={{ mt: 2, padding: 2, textAlign: "center" }}>
-              <Typography variant="body2" color="textSecondary">
-                No datasets available yet.
-              </Typography>
+              {uploadResults ? (
+                <DataUploadReview
+                  errors={uploadResults.errors}
+                  validRecordsPreview={uploadResults.validRecordsPreview}
+                  onErrorsUpdated={(newErrors) =>
+                    setUploadResults((prev) => ({ ...prev, errors: newErrors }))
+                  }
+                />
+              ) : (
+                <Typography variant="body2" color="textSecondary">
+                  No datasets available yet.
+                </Typography>
+              )}
             </Paper>
           </Box>
         </Paper>
