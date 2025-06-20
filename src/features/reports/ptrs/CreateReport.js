@@ -1,15 +1,30 @@
-import { useState } from "react";
-import { Box, Paper, TextField, Button, Grid, useTheme } from "@mui/material";
-import { Alert } from "@mui/material";
-import { useNavigate, useParams } from "react-router";
+import {
+  Box,
+  TextField,
+  Button,
+  Grid,
+  useTheme,
+  Typography,
+} from "@mui/material";
+import { useParams } from "react-router";
 import { reportService, userService } from "../../../services";
+import { useAlert } from "../../../context/AlertContext";
+import { useState } from "react";
 
-export default function CreateReport() {
+export default function CreateReport({
+  onSuccess,
+  onDelete,
+  onUpdate,
+  reportDetails,
+}) {
   const theme = useTheme();
   const { code } = useParams();
-  const navigate = useNavigate();
+  const { showAlert } = useAlert();
 
-  const [alert, setAlert] = useState(null);
+  const [activeReport, setActiveReport] = useState(() => {
+    const storedReport = localStorage.getItem("activeReportDetails");
+    return storedReport ? JSON.parse(storedReport) : null;
+  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -29,51 +44,43 @@ export default function CreateReport() {
     try {
       const report = await reportService.create(newReportDetails);
       if (!report) {
-        setAlert({ type: "error", message: "Report not created" });
+        showAlert("Report not created", "error");
         return;
       }
 
-      const updatedReportDetails = { ...newReportDetails, reportId: report.id };
+      setActiveReport(report);
 
-      setAlert({ type: "success", message: "Report created successfully" });
-      navigate(`/reports/${code}/${report.id}/connect`, {
-        state: { reportDetails: updatedReportDetails },
-      });
+      showAlert("Report created successfully", "success");
+      if (onSuccess) onSuccess(report);
     } catch (error) {
-      setAlert({
-        type: "error",
-        message: error.message || "Error creating report",
-      });
+      showAlert(error.message || "Error creating report", "error");
       console.error("Error creating report:", error);
     }
   };
 
+  const handleDeleteReport = async (reportId) => {
+    try {
+      await reportService.delete(reportId);
+      setActiveReport(null);
+      showAlert("Report deleted successfully", "success");
+      if (onDelete) onDelete(); // This should trigger setReportDetails(null) in the parent
+    } catch (error) {
+      showAlert(error.message || "Error deleting report", "error");
+      console.error("Error deleting report:", error);
+    }
+  };
+
   return (
-    <Box
-      sx={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "flex-start",
-        minHeight: "100vh",
-        backgroundColor: theme.palette.background.default,
-        padding: 2,
-      }}
-    >
-      <Paper
-        elevation={3}
-        sx={{
-          padding: 4,
-          maxWidth: 800,
-          width: "100%",
-          backgroundColor: theme.palette.background.paper,
-        }}
-      >
-        {alert && (
-          <Alert severity={alert.type} sx={{ mb: 2 }}>
-            {alert.message}
-          </Alert>
-        )}
-        <form onSubmit={handleSubmit}>
+    <Grid container spacing={4}>
+      <Grid item xs={12} md={6} display="flex" alignItems="center">
+        <Box
+          component="form"
+          onSubmit={handleSubmit}
+          sx={{
+            width: "100%",
+            maxWidth: 400,
+          }}
+        >
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <TextField
@@ -87,7 +94,6 @@ export default function CreateReport() {
                   1 July 2024 - 31 December 2024
                 </option>
               </TextField>
-              {/* Hidden fields to still pass start and end dates */}
               <input
                 type="hidden"
                 name="ReportingPeriodStartDate"
@@ -100,13 +106,54 @@ export default function CreateReport() {
               />
             </Grid>
             <Grid item xs={12}>
-              <Button type="submit" variant="contained" color="primary">
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                fullWidth
+                disabled={!!activeReport}
+              >
                 Create Report
               </Button>
             </Grid>
           </Grid>
-        </form>
-      </Paper>
-    </Box>
+        </Box>
+      </Grid>
+
+      <Grid item xs={12} md={6} display="flex" alignItems="center">
+        {activeReport && (
+          <Box
+            sx={{
+              borderRadius: 2,
+              backgroundColor: theme.palette.background.paper,
+              padding: 3,
+              boxShadow: 3,
+              width: "100%",
+            }}
+          >
+            <Typography variant="h6" gutterBottom>
+              ✅ Report Created
+            </Typography>
+            <Typography variant="body2" sx={{ mb: 1 }}>
+              <strong>Report ID:</strong> {activeReport.id}
+            </Typography>
+            <Typography variant="body2" sx={{ mb: 1 }}>
+              <strong>Start Date:</strong>{" "}
+              {activeReport.ReportingPeriodStartDate}
+            </Typography>
+            <Typography variant="body2" sx={{ mb: 2 }}>
+              <strong>End Date:</strong> {activeReport.ReportingPeriodEndDate}
+            </Typography>
+            <Button
+              variant="contained"
+              color="error"
+              onClick={() => handleDeleteReport(activeReport.id)}
+            >
+              Delete Report
+            </Button>
+          </Box>
+        )}
+      </Grid>
+    </Grid>
   );
 }

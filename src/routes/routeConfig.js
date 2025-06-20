@@ -10,7 +10,7 @@ import BossDashboard from "../features/boss/BossDashboard";
 import Clients from "../features/clients/Clients";
 import ClientRegister from "../features/clients/ClientRegister";
 import ReportsLayout from "../features/reports/ReportsLayout";
-import CreateReport from "../features/reports/ptrs/CreateReport";
+// import CreateReport from "../features/reports/ptrs/CreateReport";
 import ReportWizard from "../features/reports/ptrs/ReportWizard";
 import ConnectExternalSystems from "../features/reports/ptrs/ConnectExternalSystems";
 import XeroConnectProgress from "../features/reports/ptrs/XeroConnectProgress";
@@ -18,6 +18,9 @@ import StepsOverview from "../features/reports/ptrs/StepsOverview";
 import ReportErrorBoundary from "../components/navigation/ReportErrorBoundary";
 import Role from "../context/role";
 import XeroSelection from "../features/reports/ptrs/XeroSelection";
+import DataLayout from "../features/data/DataLayout";
+import DataErrorBoundary from "../components/navigation/DataErrorBoundary";
+import DataConsole from "../features/data/DataConsole";
 
 export const protectedRoutes = [
   // User-level routes
@@ -82,7 +85,7 @@ export const protectedRoutes = [
         Component: ReportsLayout,
         ErrorBoundary: ReportErrorBoundary,
         children: [
-          { path: ":code/create", Component: CreateReport },
+          // { path: ":code/create", Component: CreateReport },
           { path: ":code/:reportId", Component: ReportWizard },
           {
             path: ":code/:reportId/connect",
@@ -98,6 +101,17 @@ export const protectedRoutes = [
           },
           { path: "steps", Component: StepsOverview },
         ],
+      },
+    ],
+  },
+  {
+    requiredRoles: [Role.User, Role.Admin, Role.Boss],
+    path: "/data",
+    children: [
+      {
+        Component: DataLayout,
+        ErrorBoundary: DataErrorBoundary,
+        children: [{ path: ":code/console", Component: DataConsole }],
       },
     ],
   },

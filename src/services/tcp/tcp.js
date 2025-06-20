@@ -17,6 +17,7 @@ export const tcpService = {
   getIncompleteSmallBusinessFlags,
   submitFinalReport,
   downloadSummaryReport,
+  upload,
 };
 
 async function getAll() {
@@ -73,4 +74,17 @@ async function submitFinalReport() {
 
 async function downloadSummaryReport() {
   return await fetchWrapper.get(`${baseUrl}/download-summary`, null, "blob");
+}
+
+function upload(formData, isFormData = false) {
+  return fetchWrapper
+    .postUpload(`${baseUrl}/upload`, formData, true)
+    .then((res) => {
+      // console.log("TCP upload response:", res);
+      return res;
+    })
+    .catch((err) => {
+      console.error("TCP upload error:", err);
+      throw err;
+    });
 }

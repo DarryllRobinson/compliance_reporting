@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { xeroService } from "../../../services";
+import { useState, useRef } from "react";
+import { tcpService, xeroService } from "../../../services";
 import {
   Box,
   Button,
@@ -9,15 +9,16 @@ import {
   Tooltip,
   Paper,
 } from "@mui/material";
-import { useLocation } from "react-router"; // Import useNavigate
+import { useReportContext } from "../../../context";
 import { userService } from "../../../services";
 
 export default function ConnectExternalSystems() {
-  const { state } = useLocation();
-  const reportDetails = state?.reportDetails || {};
+  const { reportDetails } = useReportContext();
   const [alert] = useState(null);
   const [progressMessage, setProgressMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const fileInputRef = useRef();
+  const [uploading, setUploading] = useState(false);
 
   const handleXeroConnect = async () => {
     setIsLoading(true);
@@ -55,6 +56,38 @@ export default function ConnectExternalSystems() {
     }
   };
 
+  const handleUploadClick = () => {
+    fileInputRef.current.click();
+  };
+
+  const handleFileChange = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    setUploading(true);
+    setProgressMessage("Uploading file...");
+
+    if (!(file instanceof File)) {
+      console.error("Invalid file instance:", file);
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file, file.name);
+    formData.append("reportId", reportDetails.id);
+
+    try {
+      await tcpService.upload(formData, true);
+      setProgressMessage("Upload successful.");
+    } catch (error) {
+      console.error("Upload failed:", error);
+      setProgressMessage("Upload failed.");
+    } finally {
+      setUploading(false);
+      event.target.value = ""; // Reset the file input
+    }
+  };
+
   return (
     <Box sx={{ padding: 2 }}>
       <Typography variant="h5" sx={{ marginBottom: 2 }}>
@@ -75,6 +108,20 @@ export default function ConnectExternalSystems() {
           >
             {isLoading ? "Processing..." : "Xero"}
           </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleUploadClick}
+            disabled={uploading}
+          >
+            {uploading ? "Uploading..." : "Upload data extract"}
+          </Button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            style={{ display: "none" }}
+            onChange={handleFileChange}
+          />
           <Tooltip title="Coming soon">
             <span>
               <Button variant="contained" color="secondary" disabled>
@@ -86,13 +133,6 @@ export default function ConnectExternalSystems() {
             <span>
               <Button variant="contained" color="secondary" disabled>
                 JDE
-              </Button>
-            </span>
-          </Tooltip>
-          <Tooltip title="Coming soon">
-            <span>
-              <Button variant="contained" color="secondary" disabled>
-                Upload data extract
               </Button>
             </span>
           </Tooltip>
