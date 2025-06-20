@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useReportContext } from "../../context";
+import { useState, useEffect } from "react";
 import { Box, Typography, Divider, Button, Paper } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useNavigate } from "react-router";
@@ -9,9 +10,18 @@ import DataUploadReview from "../reports/ptrs/DataUploadReview";
 export default function DataConsole() {
   const theme = useTheme();
   const navigate = useNavigate();
-  const [reportDetails, setReportDetails] = useState(null);
+  const { reports, reportDetails, setReportDetails, refreshReports } =
+    useReportContext();
   const [uploadResults, setUploadResults] = useState(null);
-  console.log("DataConsole rendered with reportDetails:", reportDetails);
+
+  useEffect(() => {
+    if (!reportDetails && reports.length > 0) {
+      const latestReport = reports.find((r) => r.reportStatus !== "Deleted");
+      if (latestReport) {
+        setReportDetails(latestReport);
+      }
+    }
+  }, [reports, reportDetails, setReportDetails]);
 
   return (
     <Box
@@ -40,9 +50,19 @@ export default function DataConsole() {
         </Typography>
         <CreateReport
           reportDetails={reportDetails}
-          onSuccess={(details) => setReportDetails(details)}
-          onUpdate={(details) => setReportDetails(details)}
-          onDelete={() => setReportDetails(null)}
+          onSuccess={(newReport) => {
+            refreshReports();
+            setReportDetails(newReport);
+          }}
+          onUpdate={(updatedReport) => {
+            refreshReports();
+            setReportDetails(updatedReport);
+          }}
+          onDelete={() => {
+            refreshReports();
+            setReportDetails(null);
+            localStorage.removeItem("activeReportDetails");
+          }}
         />
       </Paper>
 

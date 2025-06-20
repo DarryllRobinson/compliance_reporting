@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Box,
   Typography,
@@ -15,35 +14,16 @@ import {
   Paper,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { redirect, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { useEffect, useState } from "react";
-import { reportService, userService } from "../../services";
-import ProtectedRoutes from "../../lib/utils/ProtectedRoutes";
-
-export async function dashboardLoader() {
-  const user = userService.userValue; // Get the current user
-
-  // Redirect if the user is not authenticated
-  if (!ProtectedRoutes()) {
-    return redirect("/user/login");
-  }
-
-  try {
-    const reports = await reportService.getAll({
-      clientId: user.clientId,
-    });
-    return { reports };
-  } catch (error) {
-    console.error("Error fetching reports:", error);
-    return { reports: [], error: "Failed to fetch reports" }; // Return an empty array and error message
-  }
-}
+import { userService } from "../../services";
+import { useReportContext } from "../../context"; // Adjust the path if needed
 
 export default function Dashboard() {
   const user = userService.userValue; // Get the current user
   const navigate = useNavigate();
   const theme = useTheme(); // Access the theme
-  const [reports, setReports] = useState([]);
+  const { reports, refreshReports } = useReportContext();
   const [error, setError] = useState(null);
 
   // Clear tags from Xero if needed
@@ -58,26 +38,10 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
-    async function fetchReports() {
-      const user = userService.userValue;
-      // if (!ProtectedRoutes()) {
-      //   redirect("/user/login");
-      //   return;
-      // }
-
-      try {
-        const response = await reportService.getAll({
-          clientId: user.clientId,
-        });
-        setReports(response || []);
-      } catch (err) {
-        console.error("Error fetching reports:", err);
-        setError("Failed to fetch reports");
-        setReports([]);
-      }
-    }
-
-    fetchReports();
+    refreshReports().catch((err) => {
+      console.error("Error refreshing reports:", err);
+      setError("Failed to load reports");
+    });
   }, []);
 
   const reportList = [
