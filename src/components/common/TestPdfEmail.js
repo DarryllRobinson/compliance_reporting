@@ -6,16 +6,14 @@ import {
   Paper,
   CircularProgress,
 } from "@mui/material";
-import { handlePdf } from "../../lib/utils";
-// import { downloadFile, handlePdf, sendSummaryByEmail } from "../../lib/utils";
+// import { handlePdf } from "../../lib/utils";
+import { downloadFile, handlePdf, sendSummaryByEmail } from "../../lib/utils";
 
 export default function TestPdfEmail() {
   const [loading, setLoading] = useState(false);
-  const [setDownloadUrl] = useState(null);
-  // const [downloadUrl, setDownloadUrl] = useState(null);
+  const [downloadUrl, setDownloadUrl] = useState(null);
   const [error, setError] = useState("");
-  const [setBlob] = useState(null);
-  // const [blob, setBlob] = useState(null);
+  const [blob, setBlob] = useState(null);
 
   const answers = {
     charity: "No",
@@ -98,14 +96,14 @@ export default function TestPdfEmail() {
     }
   };
 
-  // const handleDownload = async () => {
-  //   await downloadFile(downloadUrl, "test.pdf");
-  //   await sendSummaryByEmail({
-  //     pdfBlob: blob,
-  //     recordId: "TEST-12345",
-  //     contactData: answers.contactDetails,
-  //   });
-  // };
+  const handleDownload = async () => {
+    await downloadFile(downloadUrl, "test.pdf");
+    await sendSummaryByEmail({
+      pdfBlob: blob,
+      recordId: "TEST-12345",
+      contactData: answers.contactDetails,
+    });
+  };
 
   return (
     <Box sx={{ maxWidth: 500, mx: "auto", mt: 4 }}>
@@ -124,7 +122,7 @@ export default function TestPdfEmail() {
         >
           {loading ? <CircularProgress size={24} /> : "Create PDF"}
         </Button>
-        {/* {downloadUrl && (
+        {downloadUrl && (
           <Box sx={{ mt: 2 }}>
             <Button
               variant="outlined"
@@ -134,7 +132,7 @@ export default function TestPdfEmail() {
               Download PDF
             </Button>
           </Box>
-        )} */}
+        )}
         {error && (
           <Typography color="error" sx={{ mt: 2 }}>
             {error}

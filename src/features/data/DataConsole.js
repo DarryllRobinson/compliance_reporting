@@ -6,6 +6,7 @@ import { useNavigate } from "react-router";
 import CreateReport from "../reports/ptrs/CreateReport";
 import ConnectExternalSystems from "../reports/ptrs/ConnectExternalSystems";
 import DataUploadReview from "../reports/ptrs/DataUploadReview";
+import { tcpService } from "../../services/";
 
 export default function DataConsole() {
   const theme = useTheme();
@@ -15,13 +16,29 @@ export default function DataConsole() {
   const [uploadResults, setUploadResults] = useState(null);
 
   useEffect(() => {
-    if (!reportDetails && reports.length > 0) {
-      const latestReport = reports.find((r) => r.reportStatus !== "Deleted");
-      if (latestReport) {
-        setReportDetails(latestReport);
+    if (!reportDetails) {
+      const storedReport = localStorage.getItem("activeReportDetails");
+      if (storedReport) {
+        try {
+          setReportDetails(JSON.parse(storedReport));
+        } catch (e) {
+          console.error("Failed to parse stored report details:", e);
+        }
+      } else {
+        refreshReports();
       }
     }
-  }, [reports, reportDetails, setReportDetails]);
+    if (reportDetails) {
+      tcpService
+        .getAllByReportId(reportDetails.id)
+        .then((data) => {
+          setUploadResults({ validRecordsPreview: data, errors: [] });
+        })
+        .catch((err) => {
+          console.error("Failed to load TCP datasets:", err);
+        });
+    }
+  }, [reportDetails, setReportDetails, refreshReports]);
 
   return (
     <Box

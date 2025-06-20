@@ -8,6 +8,7 @@ export const fetchWrapper = {
   put,
   patch,
   delete: _delete,
+  postUpload,
 };
 
 async function handleRequestWithRetry(
@@ -86,6 +87,20 @@ async function _post(url, body) {
   return handleResponse(response);
 }
 
+async function postUpload(url, formData) {
+  const headers = authHeader(url); // Don't set Content-Type explicitly for FormData
+
+  const requestOptions = {
+    method: "POST",
+    headers,
+    credentials: "include",
+    body: formData,
+  };
+
+  const response = await fetch(url, requestOptions);
+  return handleResponse(response);
+}
+
 async function postEmail(url, formData) {
   const headers = authHeader(url); // Don't set Content-Type explicitly for FormData
 
@@ -106,11 +121,6 @@ async function postEmail(url, formData) {
     credentials: "include",
     body: formData,
   };
-
-  // console.log("[fetch-wrapper] FormData entries:");
-  // for (let pair of formData.entries()) {
-  //   console.log(pair[0], pair[1]);
-  // }
 
   const response = await fetch(url, requestOptions);
   return handleResponse(response);

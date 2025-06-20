@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { xeroService } from "../../../services";
+import { tcpService, xeroService } from "../../../services";
 import {
   Box,
   Button,
@@ -9,12 +9,11 @@ import {
   Tooltip,
   Paper,
 } from "@mui/material";
-import { useLocation } from "react-router"; // Import useNavigate
+import { useReportContext } from "../../../context";
 import { userService } from "../../../services";
 
 export default function ConnectExternalSystems() {
-  const { state } = useLocation();
-  const reportDetails = state?.reportDetails || {};
+  const { reportDetails } = useReportContext();
   const [alert] = useState(null);
   const [progressMessage, setProgressMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -68,12 +67,17 @@ export default function ConnectExternalSystems() {
     setUploading(true);
     setProgressMessage("Uploading file...");
 
+    if (!(file instanceof File)) {
+      console.error("Invalid file instance:", file);
+      return;
+    }
+
     const formData = new FormData();
-    formData.append("file", file);
-    formData.append("reportId", reportDetails.reportId);
+    formData.append("file", file, file.name);
+    formData.append("reportId", reportDetails.id);
 
     try {
-      await xeroService.upload(formData);
+      await tcpService.upload(formData, true);
       setProgressMessage("Upload successful.");
     } catch (error) {
       console.error("Upload failed:", error);

@@ -138,7 +138,7 @@ export default function Dashboard() {
           </Typography>
           <Button
             variant="contained"
-            color="secondary"
+            color="primary"
             onClick={() => navigate("/data/ptrs/console")}
             sx={{ mt: 2 }}
           >

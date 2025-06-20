@@ -76,10 +76,9 @@ async function downloadSummaryReport() {
   return await fetchWrapper.get(`${baseUrl}/download-summary`, null, "blob");
 }
 
-function upload(formData) {
-  // console.log("Uploading file to TCP with formData:", formData);
+function upload(formData, isFormData = false) {
   return fetchWrapper
-    .post(`${baseUrl}/upload`, formData, true)
+    .postUpload(`${baseUrl}/upload`, formData, true)
     .then((res) => {
       // console.log("TCP upload response:", res);
       return res;
