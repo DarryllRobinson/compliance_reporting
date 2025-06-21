@@ -29,13 +29,18 @@ export default function DataConsole() {
       }
     }
     if (reportDetails) {
-      tcpService
-        .getAllByReportId(reportDetails.id)
-        .then((data) => {
-          setUploadResults({ validRecordsPreview: data, errors: [] });
+      Promise.all([
+        tcpService.getAllByReportId(reportDetails.id),
+        tcpService.getErrorsByReportId(reportDetails.id),
+      ])
+        .then(([validRecords, errorRecords]) => {
+          setUploadResults({
+            validRecordsPreview: validRecords || [],
+            errors: errorRecords || [],
+          });
         })
         .catch((err) => {
-          console.error("Failed to load TCP datasets:", err);
+          console.error("Failed to load TCP datasets or errors:", err);
         });
     }
   }, [reportDetails, setReportDetails, refreshReports]);

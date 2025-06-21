@@ -25,7 +25,7 @@ export default function ConnectExternalSystems() {
     setProgressMessage("Connecting to Xero...");
     try {
       const data = await xeroService.connect({
-        reportId: reportDetails.reportId,
+        reportId: reportDetails.id,
         createdBy: userService.userValue.id,
         startDate: reportDetails.ReportingPeriodStartDate,
         endDate: reportDetails.ReportingPeriodEndDate,

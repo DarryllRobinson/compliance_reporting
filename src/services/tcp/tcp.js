@@ -18,6 +18,7 @@ export const tcpService = {
   submitFinalReport,
   downloadSummaryReport,
   upload,
+  getErrorsByReportId,
 };
 
 async function getAll() {
@@ -76,7 +77,7 @@ async function downloadSummaryReport() {
   return await fetchWrapper.get(`${baseUrl}/download-summary`, null, "blob");
 }
 
-function upload(formData, isFormData = false) {
+async function upload(formData, isFormData = false) {
   return fetchWrapper
     .postUpload(`${baseUrl}/upload`, formData, true)
     .then((res) => {
@@ -88,3 +89,8 @@ function upload(formData, isFormData = false) {
       throw err;
     });
 }
+
+async function getErrorsByReportId(reportId) {
+  return await fetchWrapper.get(`${baseUrl}/errors/${reportId}`);
+}
+//   for (const dir of modelDirs) {
