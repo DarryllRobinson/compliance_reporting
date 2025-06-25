@@ -23,7 +23,7 @@ export default function Dashboard() {
   const user = userService.userValue; // Get the current user
   const navigate = useNavigate();
   const theme = useTheme(); // Access the theme
-  const { reports, refreshReports } = useReportContext();
+  const { reportDetails, refreshReports } = useReportContext();
   const [error, setError] = useState(null);
 
   // Clear tags from Xero if needed
@@ -42,7 +42,7 @@ export default function Dashboard() {
       console.error("Error refreshing reports:", err);
       setError("Failed to load reports");
     });
-  }, []);
+  }, [refreshReports]);
 
   const reportList = [
     {
@@ -158,8 +158,8 @@ export default function Dashboard() {
           </Typography>
           <Grid container spacing={3} sx={{ marginTop: theme.spacing(2) }}>
             {reportList.map((report, index) => {
-              const relevantReports = Array.isArray(reports)
-                ? reports.filter((r) => r.code === report.code)
+              const relevantReports = Array.isArray(reportDetails)
+                ? [reportDetails].filter((r) => r.code === report.code)
                 : [];
 
               const hasCreatedReport = relevantReports.some(

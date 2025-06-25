@@ -1,4 +1,10 @@
-import { createContext, useContext, useState, useCallback } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useEffect,
+} from "react";
 import { reportService, userService } from "../services";
 
 export const ReportContext = createContext(null);
@@ -12,106 +18,51 @@ export const useReportContext = () => {
 };
 
 export const ReportProvider = ({ children }) => {
-  const [records, setRecords] = useState([]);
-  const [changedRows, setChangedRows] = useState({});
+  const [reportDetails, setReportDetails] = useState([]);
 
-  const [reports, setReports] = useState([]);
-  const [activeReport, setActiveReport] = useState(null);
-  const [reportDetails, setReportDetails] = useState(null);
-
-  const refreshReports = async () => {
+  const fetchReports = useCallback(async () => {
     try {
       const user = userService.userValue;
       const result = await reportService.getAll({ clientId: user.clientId });
-      setReports(result || []);
-      if (result?.length > 0) {
-        localStorage.setItem("reportList", JSON.stringify(result));
-        const latest = result.find((r) => r.reportStatus === "Created");
-        if (latest) {
-          setActiveReport(latest.id);
-          setReportDetails(latest);
-          localStorage.setItem("activeReportDetails", JSON.stringify(latest));
-        } else {
-          setActiveReport(null);
-          setReportDetails(null);
-          localStorage.removeItem("activeReportDetails");
-        }
+      if (result && result.length > 0) {
+        setReportDetails(result[0]);
+        localStorage.setItem("reportDetails", JSON.stringify(result[0]));
       } else {
-        setActiveReport(null);
         setReportDetails(null);
-        localStorage.removeItem("activeReportDetails");
+        localStorage.removeItem("reportDetails");
       }
     } catch (err) {
-      console.error("Error fetching reports:", err);
-      setReports([]);
+      console.error("Error fetching reportDetails:", err);
+      localStorage.removeItem("reportDetails");
     }
-  };
+  }, []);
 
-  const updateRecord = useCallback(
-    (id, updatedValues) => {
-      setRecords((prev) =>
-        prev.map((rec) => (rec.id === id ? { ...rec, ...updatedValues } : rec))
-      );
+  // Load from localStorage once on mount
+  useEffect(() => {
+    const storedReports = localStorage.getItem("reportDetails");
 
-      setChangedRows((prev) => {
-        const original = records.find((rec) => rec.id === id);
-        const isChanged = Object.keys(updatedValues).some(
-          (key) => updatedValues[key] !== original?.[key]
-        );
-        const newState = { ...prev };
-        if (isChanged) {
-          newState[id] = "unsaved";
-        } else {
-          delete newState[id];
-        }
-        return newState;
-      });
-    },
-    [records]
-  );
+    if (storedReports) {
+      const parsed = JSON.parse(storedReports);
+      setReportDetails(parsed);
+    } else {
+      fetchReports();
+    }
+  }, [fetchReports]);
 
-  // Example place where a report might be deleted or cleared:
-  // Whenever setReportDetails(null) or setActiveReport(null) is called, also call:
-  // localStorage.removeItem("activeReportId");
-  // Since no such code is present here, ensure to add it where relevant in your app.
+  const refreshReports = useCallback(async () => {
+    try {
+      fetchReports();
+    } catch (err) {
+      console.error("Error refreshing reportDetails:", err);
+      localStorage.removeItem("reportDetails");
+    }
+  }, [fetchReports]);
 
   return (
     <ReportContext.Provider
       value={{
-        records,
-        setRecords,
-        changedRows,
-        setChangedRows,
-        updateRecord,
-        reports,
-        setReports,
-        activeReport,
-        setActiveReport: (newReportId) => {
-          setActiveReport(newReportId);
-          const newReport = reports.find((r) => r.id === newReportId);
-          if (newReport) {
-            setReportDetails(newReport);
-            localStorage.setItem(
-              "activeReportDetails",
-              JSON.stringify(newReport)
-            );
-          }
-        },
-        refreshReports, // ✅ ensure this is included in the provider value
         reportDetails,
-        setReportDetails: (details) => {
-          setReportDetails(details);
-          if (details === null) {
-            localStorage.removeItem("activeReportDetails");
-            localStorage.removeItem("reportList");
-            setActiveReport(null);
-          } else {
-            localStorage.setItem(
-              "activeReportDetails",
-              JSON.stringify(details)
-            );
-          }
-        },
+        refreshReports,
       }}
     >
       {children}

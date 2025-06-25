@@ -8,8 +8,7 @@ import {
 } from "@mui/material";
 import { useParams } from "react-router";
 import { reportService, userService } from "../../../services";
-import { useAlert } from "../../../context/AlertContext";
-import { useState } from "react";
+import { useAlert } from "../../../context/";
 
 export default function CreateReport({
   onSuccess,
@@ -20,11 +19,6 @@ export default function CreateReport({
   const theme = useTheme();
   const { code } = useParams();
   const { showAlert } = useAlert();
-
-  const [activeReport, setActiveReport] = useState(() => {
-    const storedReport = localStorage.getItem("activeReportDetails");
-    return storedReport ? JSON.parse(storedReport) : null;
-  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -48,8 +42,6 @@ export default function CreateReport({
         return;
       }
 
-      setActiveReport(report);
-
       showAlert("Report created successfully", "success");
       if (onSuccess) onSuccess(report);
     } catch (error) {
@@ -61,9 +53,8 @@ export default function CreateReport({
   const handleDeleteReport = async (reportId) => {
     try {
       await reportService.delete(reportId);
-      setActiveReport(null);
       showAlert("Report deleted successfully", "success");
-      if (onDelete) onDelete(); // This should trigger setReportDetails(null) in the parent
+      if (onDelete) onDelete(); // Triggers refreshReports in the parent
     } catch (error) {
       showAlert(error.message || "Error deleting report", "error");
       console.error("Error deleting report:", error);
@@ -111,7 +102,7 @@ export default function CreateReport({
                 variant="contained"
                 color="primary"
                 fullWidth
-                disabled={!!activeReport}
+                disabled={!!reportDetails}
               >
                 Create Report
               </Button>
@@ -121,7 +112,20 @@ export default function CreateReport({
       </Grid>
 
       <Grid item xs={12} md={6} display="flex" alignItems="center">
-        {activeReport && (
+        {!reportDetails && (
+          <Box
+            sx={{
+              borderRadius: 2,
+              backgroundColor: theme.palette.background.paper,
+              padding: 3,
+              boxShadow: 3,
+              width: "100%",
+            }}
+          >
+            Loading
+          </Box>
+        )}
+        {reportDetails && (
           <Box
             sx={{
               borderRadius: 2,
@@ -135,19 +139,19 @@ export default function CreateReport({
               ✅ Report Created
             </Typography>
             <Typography variant="body2" sx={{ mb: 1 }}>
-              <strong>Report ID:</strong> {activeReport.id}
+              <strong>Report ID:</strong> {reportDetails.id}
             </Typography>
             <Typography variant="body2" sx={{ mb: 1 }}>
               <strong>Start Date:</strong>{" "}
-              {activeReport.ReportingPeriodStartDate}
+              {reportDetails.ReportingPeriodStartDate}
             </Typography>
             <Typography variant="body2" sx={{ mb: 2 }}>
-              <strong>End Date:</strong> {activeReport.ReportingPeriodEndDate}
+              <strong>End Date:</strong> {reportDetails.ReportingPeriodEndDate}
             </Typography>
             <Button
               variant="contained"
               color="error"
-              onClick={() => handleDeleteReport(activeReport.id)}
+              onClick={() => handleDeleteReport(reportDetails.id)}
             >
               Delete Report
             </Button>

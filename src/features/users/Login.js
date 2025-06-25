@@ -15,7 +15,7 @@ import { useState } from "react";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useNavigate } from "react-router";
 import { useAlert } from "../../context/AlertContext";
-import { error as logError } from "../../utils/logger";
+import { error as logError } from "../../lib/utils/logger";
 
 export default function Login() {
   const theme = useTheme();

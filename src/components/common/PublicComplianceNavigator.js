@@ -28,7 +28,7 @@ import { entityService } from "../../services";
 import { handlePdf, sendSummaryByEmail } from "../../lib/utils";
 import { sanitiseInput } from "../../lib/utils/sanitiseInput";
 import { useAlert } from "../../context/AlertContext";
-import { error as logError } from "../../utils/logger";
+import { error as logError } from "../../lib/utils/logger";
 import { isValidABN } from "../../lib/utils/abnChecksum";
 
 const EntityDetailsForm = ({ control, errors, answers, theme }) => (

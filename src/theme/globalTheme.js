@@ -157,8 +157,8 @@ const globalTheme = (mode) => {
           outlined: {
             borderColor:
               mode === "light"
-                ? lightPalette.secondary.main
-                : darkPalette.secondary.main,
+                ? lightPalette.primary.main
+                : darkPalette.primary.main,
             color:
               mode === "light"
                 ? lightPalette.text.secondary

@@ -120,6 +120,7 @@ export default function ReportWizard() {
     async function loadRecords() {
       try {
         const records = await tcpService.getAllByReportId(reportId);
+        // console.log("Loaded records:", records);
         // Append wasChanged, wasSaved, and original object to each record
         const enhancedRecords = records.map((r) => {
           const { original, original_field, ...rest } = r; // Remove any original_ fields if exist
@@ -147,17 +148,21 @@ export default function ReportWizard() {
 
         // Update the backend with the paymentTime and paymentTerm
         // Create the payload to update paymentTerm and paymentTime in the DB
-        const updatePayload = enhancedRecords.map((rec) => ({
-          id: rec.id,
-          paymentTime: rec.paymentTime,
-          paymentTerm: rec.paymentTerm,
-        }));
+        // const updatePayload = enhancedRecords.map((rec) => ({
+        //   id: rec.id,
+        //   paymentTime: rec.paymentTime,
+        //   paymentTerm: rec.paymentTerm,
+        // }));
+        // console.log("Update payload:", updatePayload);
 
-        // Send the bulk patch request
-        if (updatePayload.length > 0)
-          await tcpService.patchRecords(updatePayload);
+        // // Send the bulk patch request
+        // if (updatePayload.length > 0)
+        //   await tcpService.patchRecords(updatePayload);
+        // setRecords(enhancedRecords || []);
+        // setRecords((prev) => updateRecordsWithFlags(prev));
+
+        // Until I can fix the bulk patch issue, we will just set the records
         setRecords(enhancedRecords || []);
-        setRecords((prev) => updateRecordsWithFlags(prev));
 
         const report = await reportService.getById(params.reportId);
         // console.log("Report loaded:", report);
@@ -379,7 +384,8 @@ export default function ReportWizard() {
           variant="subtitle1"
           sx={{ mb: 0.5, color: "text.secondary" }}
         >
-          Step {currentStep + 1} of {steps.length}
+          Step {currentStep + 1} of {steps.length} with {records.length}
+          {" records"}
         </Typography>
         <Stepper activeStep={currentStep} alternativeLabel sx={{ mb: 2.5 }}>
           {steps.map((step, index) => (

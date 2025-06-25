@@ -16,7 +16,7 @@ import { useState } from "react";
 import { publicService } from "../../services";
 import { useAlert } from "../../context";
 import { useLocation, useNavigate } from "react-router";
-import { error as logError } from "../../utils/logger";
+import { error as logError } from "../../lib/utils/logger";
 
 const schema = yup.object({
   contactName: yup

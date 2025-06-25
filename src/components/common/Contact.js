@@ -16,7 +16,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useAlert } from "../../context/AlertContext";
-import { error as logError } from "../../utils/logger";
+import { error as logError } from "../../lib/utils/logger";
 import { sanitiseInput } from "../../lib/utils/sanitiseInput";
 
 // Yup schema moved outside the component and updated to use yup.object({ ... }) directly

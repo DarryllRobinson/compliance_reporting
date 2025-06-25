@@ -19,7 +19,7 @@ import {
   Checkbox,
 } from "@mui/material";
 import { clientService, userService, trackingService } from "../../services";
-import GoogleAddressAutocomplete from "../../components/common/GoogleAddressAutocomplete";
+// import GoogleAddressAutocomplete from "../../components/common/GoogleAddressAutocomplete";
 import { useNavigate } from "react-router";
 
 export default function ClientRegister() {
@@ -300,7 +300,7 @@ export default function ClientRegister() {
                 />
               </Grid>
               <Grid item xs={12}>
-                <GoogleAddressAutocomplete />
+                {/* <GoogleAddressAutocomplete /> */}
               </Grid>
               <Grid item xs={12}>
                 <TextField

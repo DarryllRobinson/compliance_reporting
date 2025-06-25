@@ -20,7 +20,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import Tooltip from "@mui/material/Tooltip";
-import { error as logError } from "../../utils/logger";
+import { error as logError } from "../../lib/utils/logger";
 import { useAlert } from "../../context/AlertContext";
 
 const Booking = () => {
