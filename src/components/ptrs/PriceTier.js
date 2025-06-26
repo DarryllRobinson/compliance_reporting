@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import {
   Box,
   Card,
@@ -8,71 +7,60 @@ import {
   Grid,
   useTheme,
   Chip,
-  ToggleButtonGroup,
-  ToggleButton,
 } from "@mui/material";
 import StarIcon from "@mui/icons-material/Star";
 import { Link, useNavigate } from "react-router";
 
 const tiers = [
   {
-    title: "Compliance Essential",
-    monthlyPrice: 5500,
-    annualPrice: 5500 * 12 * 0.95,
+    title: "DIY",
+    price: "$4,990",
+    originalPrice: "$5,990",
+    discountPercentage: 17,
     description: [
-      "2x Payment Times Reports per year",
-      "1x Modern Slavery Statement (annual)",
-      "Supplier & Training templates",
-      "Quarterly Compliance Dashboard",
-      "Email support + 1x live review call per deliverable",
+      "Access the full reporting preparation portal — no restrictions",
+      "Automated compliance with the Payment Times Reporting rules",
+      "Audit-ready records and tracked user activity",
+      "Secure, long-term data retention for 7 years (regulatory requirement)",
+      "Responsive support via email",
     ],
-    buttonText: "Choose Essential",
-    buttonVariant: "outlined",
+    buttonText: "Get Started",
+    buttonVariant: "contained",
     buttonLink: "/signup",
   },
   {
-    title: "Compliance Standard",
-    monthlyPrice: 8500,
-    annualPrice: 8500 * 12 * 0.95,
+    title: "Plus",
+    price: "$9,990",
+    originalPrice: "$12,990",
+    discountPercentage: 23,
     mostPopular: true,
     description: [
-      "Everything in Essential, plus:",
-      "Quarterly supplier data hygiene & ABN updates",
-      "Annual policy review (Supplier Code, Whistleblower, Procurement)",
-      "Training register setup + audit support",
-      "High-risk supplier alerting",
-      "Up to 4 hours/quarter of compliance advisory support",
+      "Everything included in DIY",
+      "We handle the preparation and submission of your PTR report",
+      "You provide the data — we handle the rest",
+      "Review and approve before we submit on your behalf",
+      "Covers up to 5 organisations within the reporting entity",
     ],
-    buttonText: "Choose Standard",
+    buttonText: "Upgrade to Plus",
     buttonVariant: "contained",
     buttonLink: "/signup",
   },
   {
-    title: "Compliance Executive",
-    monthlyPrice: 12000,
-    annualPrice: 12000 * 12 * 0.95,
+    title: "Premium",
+    price: "Price on request",
     description: [
-      "Everything in Standard, plus:",
-      "Board-ready briefings (2x/year)",
-      "Supplier risk scorecards + remediation guidance",
-      "Custom modern slavery training modules",
-      "Quarterly compliance workshops with stakeholders",
-      "Submission handling + document archiving",
-      "“Fix it fast” SLA: response within 24h on urgent issues",
+      "Everything included in Plus",
+      "Support for complex corporate structures and 6+ organisations within the reporting entity",
     ],
-    buttonText: "Contact Sales",
+    buttonText: "Contact Us",
     buttonVariant: "contained",
-    buttonLink: "/contact",
+    buttonLink: "/signup",
   },
 ];
 
 export default function PriceTier() {
   const theme = useTheme();
   const navigate = useNavigate();
-  const [billing, setBilling] = useState("monthly");
-  const handleBillingChange = (_, newValue) => {
-    if (newValue) setBilling(newValue);
-  };
 
   return (
     <Box
@@ -96,18 +84,6 @@ export default function PriceTier() {
       >
         Choose the level of support that’s right for your business
       </Typography>
-      <Box textAlign="center" mt={2}>
-        <ToggleButtonGroup
-          value={billing}
-          exclusive
-          onChange={handleBillingChange}
-          size="medium"
-          color="primary"
-        >
-          <ToggleButton value="monthly">Monthly Billing</ToggleButton>
-          <ToggleButton value="annual">Annual Billing (5% off)</ToggleButton>
-        </ToggleButtonGroup>
-      </Box>
       <Grid container spacing={5} justifyContent="center" sx={{ mt: 4 }}>
         {tiers.map((tier) => (
           <Grid
@@ -269,37 +245,8 @@ export default function PriceTier() {
                     sx={{ mt: 1, mb: 1 }}
                   />
                 )}
-                {billing === "annual" && (
-                  <Chip
-                    label="Save 5%"
-                    color="success"
-                    size="small"
-                    sx={{ mb: 1 }}
-                  />
-                )}
-                <Typography
-                  variant="h4"
-                  align="center"
-                  sx={{
-                    fontWeight: "bold",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "flex-end",
-                    gap: 1,
-                  }}
-                >
-                  {billing === "monthly"
-                    ? `$${tier.monthlyPrice.toLocaleString()}`
-                    : `$${tier.annualPrice.toLocaleString(undefined, {
-                        maximumFractionDigits: 0,
-                      })}`}
-                  <Typography
-                    variant="body2"
-                    component="span"
-                    sx={{ opacity: 0.7, mb: 0.5 }}
-                  >
-                    {billing === "monthly" ? "/month" : "/year"}
-                  </Typography>
+                <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+                  {tier.price}
                 </Typography>
               </Box>
               <Box sx={{ py: 1, px: 2, textAlign: "center" }}>

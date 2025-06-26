@@ -13,24 +13,18 @@ import { createTheme } from "@mui/material/styles";
 // Darkest: #222323
 
 const lightPalette = {
-  primary: {
-    main: "#f1f0f0", // Lightest for primary color
-  },
-  secondary: {
-    main: "#eceff1", // Light for secondary color
-  },
+  primary: { main: "#d0d0d0" },
+  secondary: { main: "#cfd8dc" },
   background: {
-    default: "#eceff1", // Lightest for default background
-    paper: "#f1f0f0", // Light for paper background
-    navbar: "#eceff1", // Light for navbar background
+    default: "#f9f9f9",
+    paper: "#ffffff",
+    navbar: "#eceff1",
   },
   text: {
-    primary: "#4d4d4d", // Darkest for primary text
-    secondary: "#222323", // Dark for secondary text
+    primary: "#222323",
+    secondary: "#4d4d4d",
   },
-  action: {
-    hoverOpacity: 0.8, // Ensure hoverOpacity is defined
-  },
+  action: { hoverOpacity: 0.8 },
 };
 
 const darkPalette = {
@@ -48,48 +42,6 @@ const darkPalette = {
   text: {
     primary: "#eceff1", // Lightest for primary text
     secondary: "#f1f0f0", // Light for secondary text
-  },
-  action: {
-    hoverOpacity: 0.8, // Ensure hoverOpacity is defined
-  },
-};
-
-const _lightPalette = {
-  primary: {
-    main: "#ffffff", // Lightest for primary color
-  },
-  secondary: {
-    main: "#eceff1", // Light for secondary color
-  },
-  background: {
-    default: "#ffffff", // Lightest for default background
-    paper: "#eceff1", // Light for paper background
-    navbar: "#eceff1", // Light for navbar background
-  },
-  text: {
-    primary: "#141414", // Darkest for primary text
-    secondary: "#4d4d4d", // Dark for secondary text
-  },
-  action: {
-    hoverOpacity: 0.8, // Ensure hoverOpacity is defined
-  },
-};
-
-const _darkPalette = {
-  primary: {
-    main: "#141414", // Darkest for primary color
-  },
-  secondary: {
-    main: "#4d4d4d", // Dark for secondary color
-  },
-  background: {
-    default: "#141414", // Darkest for default background
-    paper: "#4d4d4d", // Dark for paper background
-    navbar: "#4d4d4d", // Dark for navbar background
-  },
-  text: {
-    primary: "#ffffff", // Lightest for primary text
-    secondary: "#eceff1", // Light for secondary text
   },
   action: {
     hoverOpacity: 0.8, // Ensure hoverOpacity is defined
@@ -123,6 +75,12 @@ const globalTheme = (mode) => {
           mode === "light"
             ? lightPalette.text.primary
             : darkPalette.text.primary, // Adjust text color for modes
+      },
+      allVariants: {
+        color:
+          mode === "light"
+            ? lightPalette.text.primary
+            : darkPalette.text.primary,
       },
     },
     components: {
@@ -214,6 +172,32 @@ const globalTheme = (mode) => {
                 ? lightPalette.background.navbar // Use navbar color for light mode
                 : darkPalette.background.navbar, // Use navbar color for dark mode
             backgroundImage: "none", // Remove the default gradient
+          },
+        },
+      },
+      MuiToggleButton: {
+        styleOverrides: {
+          root: {
+            color:
+              mode === "light"
+                ? lightPalette.text.primary
+                : darkPalette.text.primary,
+            "&.Mui-selected": {
+              backgroundColor:
+                mode === "light"
+                  ? lightPalette.primary.main
+                  : darkPalette.primary.main,
+              color:
+                mode === "light"
+                  ? lightPalette.text.primary
+                  : darkPalette.text.primary,
+              "&:hover": {
+                backgroundColor:
+                  mode === "light"
+                    ? "#c0c0c0"
+                    : darkPalette.primary.dark || "#333", // fallback if not defined
+              },
+            },
           },
         },
       },

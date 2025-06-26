@@ -35,9 +35,9 @@ export default function Layout() {
 
   const toggleTheme = () => setIsDarkTheme((prev) => !prev); // Toggle between light and dark modes
 
-  const showProcessFlow = ["/reports/ptr/"].some((path) =>
-    location.pathname.startsWith(path)
-  );
+  // const showProcessFlow = ["/reports/ptr/"].some((path) =>
+  //   location.pathname.startsWith(path)
+  // );
 
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage] = useState("");
@@ -96,17 +96,13 @@ export default function Layout() {
         }}
       >
         <Navbar isDarkTheme={isDarkTheme} onToggleTheme={toggleTheme} />
-        {showProcessFlow && <ProcessFlow />}
+        {/* {showProcessFlow && <ProcessFlow />} */}
         <Box sx={{ flex: 1 }}>
           <Outlet />
         </Box>
         <Box
           sx={{ display: "flex", justifyContent: "flex-start", mt: 2, px: 2 }}
-        >
-          <Button size="small" href="#">
-            ↑ Back to top
-          </Button>
-        </Box>
+        ></Box>
         <Footer />
       </Box>
     </ThemeProvider>

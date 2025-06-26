@@ -7,6 +7,9 @@ import LandingPage from "../components/common/LandingPage";
 import { protectedRoutes } from "../routes/routeConfig";
 import { publicRoutes } from "../routes/publicRoutes";
 import ProtectedRoute from "../components/navigation/ProtectedRoute";
+import Contact from "../components/common/Contact";
+import ContactThankyou from "../components/common/ContactThankyou";
+import FileUpload from "../components/common/FileUpload";
 
 const isPublicOnlyMode = process.env.REACT_APP_PUBLIC_ONLY === "false";
 
@@ -19,14 +22,17 @@ export default function AppRouter() {
       ErrorBoundary: RootErrorBoundary,
       children: [
         { index: true, Component: LandingPage },
-        ...publicRoutes,
-        ...(isPublicOnlyMode
-          ? []
-          : protectedRoutes.map(({ requiredRoles, path, children }) => ({
-              path,
-              Component: () => <ProtectedRoute requiredRoles={requiredRoles} />,
-              children,
-            }))),
+        { path: "/upload", Component: FileUpload },
+        { path: "/contact", Component: Contact },
+        { path: "/thankyou-contact", Component: ContactThankyou },
+        // ...publicRoutes,
+        // ...(isPublicOnlyMode
+        //   ? []
+        //   : protectedRoutes.map(({ requiredRoles, path, children }) => ({
+        //       path,
+        //       Component: () => <ProtectedRoute requiredRoles={requiredRoles} />,
+        //       children,
+        //     }))),
       ],
     },
   ]);
