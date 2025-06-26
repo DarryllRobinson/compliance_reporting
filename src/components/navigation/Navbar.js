@@ -137,6 +137,38 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
               <InfoIcon sx={{ fontSize: 20, mr: 1 }} />
               PTR Solution
             </MenuItem>
+            <MenuItem
+              onClick={handleSolutionsClose}
+              component={Link}
+              to="/modern-slavery"
+            >
+              <InfoIcon sx={{ fontSize: 20, mr: 1 }} />
+              Modern Slavery
+            </MenuItem>
+            <MenuItem
+              onClick={handleSolutionsClose}
+              component={Link}
+              to="/whistleblower-compliance"
+            >
+              <InfoIcon sx={{ fontSize: 20, mr: 1 }} />
+              Whistleblower Compliance
+            </MenuItem>
+            <MenuItem
+              onClick={handleSolutionsClose}
+              component={Link}
+              to="/director-obligations"
+            >
+              <InfoIcon sx={{ fontSize: 20, mr: 1 }} />
+              Director Obligations
+            </MenuItem>
+            <MenuItem
+              onClick={handleSolutionsClose}
+              component={Link}
+              to="/risk-register"
+            >
+              <InfoIcon sx={{ fontSize: 20, mr: 1 }} />
+              Risk Register
+            </MenuItem>
             <Divider />
             <Tooltip
               title="Coming soon"
