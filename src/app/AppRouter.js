@@ -7,12 +7,8 @@ import LandingPage from "../components/common/LandingPage";
 import { protectedRoutes } from "../routes/routeConfig";
 import { publicRoutes } from "../routes/publicRoutes";
 import ProtectedRoute from "../components/navigation/ProtectedRoute";
-import Contact from "../components/common/Contact";
-import ContactThankyou from "../components/common/ContactThankyou";
-import FileUpload from "../components/common/FileUpload";
-import FAQ from "../components/ptrs/FAQ";
 
-const isPublicOnlyMode = process.env.REACT_APP_PUBLIC_ONLY === "false";
+const isPublicOnlyMode = process.env.REACT_APP_PUBLIC_ONLY === "true";
 
 export default function AppRouter() {
   const router = createBrowserRouter([
@@ -23,16 +19,14 @@ export default function AppRouter() {
       ErrorBoundary: RootErrorBoundary,
       children: [
         { index: true, Component: LandingPage },
-        { path: "/faq", Component: FAQ },
-        { path: "/thankyou-contact", Component: ContactThankyou },
-        // ...publicRoutes,
-        // ...(isPublicOnlyMode
-        //   ? []
-        //   : protectedRoutes.map(({ requiredRoles, path, children }) => ({
-        //       path,
-        //       Component: () => <ProtectedRoute requiredRoles={requiredRoles} />,
-        //       children,
-        //     }))),
+        ...publicRoutes,
+        ...(isPublicOnlyMode
+          ? []
+          : protectedRoutes.map(({ requiredRoles, path, children }) => ({
+              path,
+              Component: () => <ProtectedRoute requiredRoles={requiredRoles} />,
+              children,
+            }))),
       ],
     },
   ]);
