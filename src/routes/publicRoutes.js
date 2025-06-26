@@ -2,10 +2,10 @@ import ClientRegister from "../features/clients/ClientRegister";
 
 // Publicly available
 import Contact from "../components/common/Contact";
-import PublicComplianceNavigator from "../components/common/PublicComplianceNavigator";
-import PTRSolution from "../components/common/PTRSolution";
-import ResourcePage from "../components/common/ResourcePage";
-import { SubmissionChecklistViewer } from "../components/common/SubmissionChecklistViewer";
+import PublicComplianceNavigator from "../components/ptrs/PublicComplianceNavigator";
+import PTRSolution from "../components/ptrs/PTRSolution";
+import ResourcePage from "../components/ptrs/ResourcePage";
+import { SubmissionChecklistViewer } from "../components/ptrs/SubmissionChecklistViewer";
 
 // Policy documents
 import ClientServiceAgreement from "../components/policies/ClientServiceAgreement";
@@ -14,14 +14,15 @@ import PrivacyPolicy from "../components/policies/PrivacyPolicy";
 // Static page viewer
 import StaticPageViewer from "../components/StaticPageViewer";
 
+// PTRS
 // Testing pdf email
-import TestPdfEmail from "../components/common/TestPdfEmail";
+import TestPdfEmail from "../components/ptrs/TestPdfEmail";
 
 import ForgotPassword from "../features/users/ForgotPassword";
 import ResetPassword from "../features/users/ResetPassword";
 import Login from "../features/users/Login";
-import GettingStartedPage from "../components/common/GettingStarted";
-import FAQ from "../components/common/FAQ";
+import GettingStartedPage from "../components/ptrs/GettingStarted";
+import FAQ from "../components/ptrs/FAQ";
 import Booking from "../components/common/Booking";
 import ContactThankyou from "../components/common/ContactThankyou";
 import BookingThankyou from "../components/common/BookingThankyou";
@@ -29,14 +30,20 @@ import BlogIndex from "../routes/BlogIndex";
 import LegalDisclaimer from "../components/policies/LegalDisclaimer";
 import VerifyEmail from "../features/users/VerifyEmail";
 import FirstUserRegister from "../features/users/FirstUserRegister";
-import PriceTier from "../components/common/PriceTier";
+// import PtrsPriceTier:PriceTier from "../components/ptrs/PriceTier";
 import SignUp from "../components/common/SignUp";
 import SignUpThankyou from "../components/common/SignUpThankyou";
 import CompNavThankyou from "../components/common/CompNavThankyou";
 
+// CaaS
+import LandingPage from "../components/common/LandingPage";
+import PriceTier from "../components/common/PriceTier";
+
 const isPublicOnlyMode = process.env.REACT_APP_PUBLIC_ONLY === "false";
 
 const allPublicRoutes = [
+  { path: "/", Component: LandingPage },
+  { path: "/pricing", Component: PriceTier },
   {
     path: "/clients/register",
     Component: ClientRegister,
