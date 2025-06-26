@@ -2,10 +2,10 @@ import ClientRegister from "../features/clients/ClientRegister";
 
 // Publicly available
 import Contact from "../components/common/Contact";
-import PublicComplianceNavigator from "../components/ptrs/PublicComplianceNavigator";
-import PTRSolution from "../components/ptrs/PTRSolution";
-import ResourcePage from "../components/ptrs/ResourcePage";
-import { SubmissionChecklistViewer } from "../components/ptrs/SubmissionChecklistViewer";
+import PublicComplianceNavigator from "../solutions/ptrs/PublicComplianceNavigator";
+import PTRSolution from "../solutions/ptrs/PTRSolution";
+import ResourcePage from "../solutions/ptrs/ResourcePage";
+import { SubmissionChecklistViewer } from "../solutions/ptrs/SubmissionChecklistViewer";
 
 // Policy documents
 import ClientServiceAgreement from "../components/policies/ClientServiceAgreement";
@@ -16,13 +16,13 @@ import StaticPageViewer from "../components/StaticPageViewer";
 
 // PTRS
 // Testing pdf email
-import TestPdfEmail from "../components/ptrs/TestPdfEmail";
+import TestPdfEmail from "../solutions/ptrs/TestPdfEmail";
 
 import ForgotPassword from "../features/users/ForgotPassword";
 import ResetPassword from "../features/users/ResetPassword";
 import Login from "../features/users/Login";
-import GettingStartedPage from "../components/ptrs/GettingStarted";
-import FAQ from "../components/ptrs/FAQ";
+import GettingStartedPage from "../solutions/ptrs/GettingStarted";
+import FAQ from "../solutions/ptrs/FAQ";
 import Booking from "../components/common/Booking";
 import ContactThankyou from "../components/common/ContactThankyou";
 import BookingThankyou from "../components/common/BookingThankyou";
@@ -39,10 +39,11 @@ import CompNavThankyou from "../components/common/CompNavThankyou";
 import LandingPage from "../components/common/LandingPage";
 import PriceTier from "../components/common/PriceTier";
 
-import ModernSlavery from "../components/ms/ModernSlavery";
-import WhistleBlower from "../components/wb/WhistleBlower";
-import DirectorObligations from "../components/do/DirectorObligations";
-import RiskRegister from "../components/rr/RiskRegister";
+import ModernSlavery from "../solutions/ms/ModernSlavery";
+import WhistleBlower from "../solutions/wb/WhistleBlower";
+import DirectorObligations from "../solutions/do/DirectorObligations";
+import RiskRegister from "../solutions/rr/RiskRegister";
+import WorkingCapitalAnalysis from "../solutions/wc/WorkingCapitalAnalysis";
 
 const isPublicOnlyMode = process.env.REACT_APP_PUBLIC_ONLY === "true";
 
@@ -140,6 +141,7 @@ const allPublicRoutes = [
   { path: "whistleblower-compliance", Component: WhistleBlower },
   { path: "director-obligations", Component: DirectorObligations },
   { path: "risk-register", Component: RiskRegister },
+  { path: "working-capital", Component: WorkingCapitalAnalysis },
 ];
 
 const launchPublicRoutes = [
@@ -210,6 +212,7 @@ const launchPublicRoutes = [
   { path: "whistleblower-compliance", Component: WhistleBlower },
   { path: "director-obligations", Component: DirectorObligations },
   { path: "risk-register", Component: RiskRegister },
+  { path: "working-capital", Component: WorkingCapitalAnalysis },
   // Super secret routes for boss access
   {
     path: "/bossmode",

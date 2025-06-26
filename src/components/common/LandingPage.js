@@ -1,56 +1,12 @@
-import {
-  Box,
-  Typography,
-  Button,
-  TextField,
-  Grid,
-  Paper,
-  Container,
-  useTheme,
-  Divider,
-} from "@mui/material";
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
-import { isValidABN } from "../../lib/utils/abnChecksum";
-import { useNavigate } from "react-router";
+import { Box, Typography, Grid, Paper, useTheme, Divider } from "@mui/material";
+import DomainVerificationIcon from "@mui/icons-material/DomainVerification";
+import DescriptionIcon from "@mui/icons-material/Description";
+import RocketLaunchIcon from "@mui/icons-material/RocketLaunch";
+import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
 import Contact from "./Contact";
 
-const schema = yup.object({
-  contactName: yup.string().trim().required("Name is required"),
-  email: yup.string().email("Invalid email").required("Email is required"),
-  contactPhone: yup.string().trim(),
-  businessName: yup.string().required("Business name is required"),
-  abn: yup
-    .string()
-    .nullable()
-    .transform((value) => (value === "" ? null : value))
-    .test(
-      "is-valid-abn",
-      "ABN must be exactly 11 digits and pass the official checksum",
-      function (value) {
-        if (!value) return true; // Optional field
-        return /^\d{11}$/.test(value) && isValidABN(value);
-      }
-    ),
-});
-
 export default function LandingPage() {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({
-    resolver: yupResolver(schema),
-    mode: "onChange",
-  });
   const theme = useTheme();
-  const navigate = useNavigate();
-
-  const onSubmit = (data) => {
-    localStorage.setItem("userDetails", JSON.stringify(data));
-    navigate("/upload", { state: data });
-  };
 
   return (
     <Box sx={{ mx: "auto", mt: 5, p: 4 }}>
@@ -61,6 +17,11 @@ export default function LandingPage() {
         <Grid container spacing={3} mt={2} justifyContent="space-between">
           <Grid item xs={12} md={3}>
             <Paper sx={{ p: 2, minHeight: 200 }}>
+              <Box sx={{ mb: 1 }}>
+                <DomainVerificationIcon
+                  sx={{ fontSize: 36, color: theme.palette.primary.main }}
+                />
+              </Box>
               <Typography variant="h6" gutterBottom>
                 ABN Matching & Enrichment
               </Typography>
@@ -72,6 +33,11 @@ export default function LandingPage() {
           </Grid>
           <Grid item xs={12} md={3}>
             <Paper sx={{ p: 2, minHeight: 200 }}>
+              <Box sx={{ mb: 1 }}>
+                <DescriptionIcon
+                  sx={{ fontSize: 36, color: theme.palette.primary.main }}
+                />
+              </Box>
               <Typography variant="h6" gutterBottom>
                 Expert Report Preparation
               </Typography>
@@ -83,6 +49,11 @@ export default function LandingPage() {
           </Grid>
           <Grid item xs={12} md={3}>
             <Paper sx={{ p: 2, minHeight: 200 }}>
+              <Box sx={{ mb: 1 }}>
+                <RocketLaunchIcon
+                  sx={{ fontSize: 36, color: theme.palette.primary.main }}
+                />
+              </Box>
               <Typography variant="h6" gutterBottom>
                 Complete Solution
               </Typography>
@@ -94,6 +65,11 @@ export default function LandingPage() {
           </Grid>
           <Grid item xs={12} md={3}>
             <Paper sx={{ p: 2, minHeight: 200 }}>
+              <Box sx={{ mb: 1 }}>
+                <VerifiedUserIcon
+                  sx={{ fontSize: 36, color: theme.palette.primary.main }}
+                />
+              </Box>
               <Typography variant="h6" gutterBottom>
                 Trusted by ASX Companies
               </Typography>

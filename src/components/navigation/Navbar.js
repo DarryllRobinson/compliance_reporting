@@ -169,6 +169,14 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
               <InfoIcon sx={{ fontSize: 20, mr: 1 }} />
               Risk Register
             </MenuItem>
+            <MenuItem
+              onClick={handleSolutionsClose}
+              component={Link}
+              to="/working-capital"
+            >
+              <InfoIcon sx={{ fontSize: 20, mr: 1 }} />
+              Working Capital Analysis
+            </MenuItem>
             <Divider />
             <Tooltip
               title="Coming soon"
