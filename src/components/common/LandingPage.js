@@ -1,91 +1,217 @@
-import { Box, Typography, Grid, Button, Paper } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Button,
+  TextField,
+  Grid,
+  Paper,
+  Container,
+  useTheme,
+  Divider,
+} from "@mui/material";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+import { isValidABN } from "../../lib/utils/abnChecksum";
+import { useNavigate } from "react-router";
 
-const features = [
-  {
-    title: "Payment Times Reporting (PTRS)",
-    description:
-      "Federally mandated, recurring, and built into our DNA. Automate and scale your PTRS obligations.",
-  },
-  {
-    title: "Modern Slavery Compliance",
-    description:
-      "Annual reporting, templated assessments, due diligence logs — no consultants required.",
-  },
-  {
-    title: "Director Obligations & Disclosures",
-    description:
-      "Recurring declarations, conflicts tracking, and board-ready summaries.",
-    comingSoon: true,
-  },
-  {
-    title: "Whistleblower Compliance",
-    description:
-      "Secure intake, triage and response tracking. ASIC-ready. White-labelled.",
-    comingSoon: true,
-  },
-  {
-    title: "Risk Register as a Service (RRAAS)",
-    description:
-      "From outdated spreadsheets to live risk reviews. Templated controls and frictionless workflows.",
-    comingSoon: true,
-  },
-];
+const schema = yup.object({
+  contactName: yup.string().trim().required("Name is required"),
+  email: yup.string().email("Invalid email").required("Email is required"),
+  contactPhone: yup.string().trim(),
+  businessName: yup.string().required("Business name is required"),
+  abn: yup
+    .string()
+    .nullable()
+    .transform((value) => (value === "" ? null : value))
+    .test(
+      "is-valid-abn",
+      "ABN must be exactly 11 digits and pass the official checksum",
+      function (value) {
+        if (!value) return true; // Optional field
+        return /^\d{11}$/.test(value) && isValidABN(value);
+      }
+    ),
+});
 
 export default function LandingPage() {
-  return (
-    <Box sx={{ p: 4 }}>
-      <Box textAlign="center" mb={6}>
-        <Typography variant="h3" gutterBottom>
-          Simplify your compliance obligations.
-        </Typography>
-        <Typography variant="h6" color="textSecondary">
-          A unified platform for managing regulatory compliance with efficiency
-          and clarity.
-        </Typography>
-        <Box mt={4}>
-          <Button variant="contained" color="primary" sx={{ mr: 2 }}>
-            Explore the Compliance Suite
-          </Button>
-          <Button variant="outlined" color="primary">
-            Book a Demo
-          </Button>
-        </Box>
-      </Box>
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(schema),
+    mode: "onChange",
+  });
+  const theme = useTheme();
+  const navigate = useNavigate();
 
-      <Grid container spacing={4}>
-        {features.map((feature, idx) => (
-          <Grid item xs={12} sm={6} md={4} key={idx}>
-            <Paper elevation={3} sx={{ p: 3, height: "100%" }}>
+  const onSubmit = (data) => {
+    localStorage.setItem("userDetails", JSON.stringify(data));
+    navigate("/upload", { state: data });
+  };
+
+  return (
+    <Box sx={{ mx: "auto", mt: 5, p: 4 }}>
+      <Box sx={{ mb: 6 }}>
+        <Typography variant="h3" gutterBottom textAlign="center">
+          We can help you meet your Payment Times Reporting deadline.
+        </Typography>
+        <Grid container spacing={3} mt={2} justifyContent="space-between">
+          <Grid item xs={12} md={3}>
+            <Paper sx={{ p: 2, minHeight: 200 }}>
               <Typography variant="h6" gutterBottom>
-                {feature.title}
+                ABN Matching & Enrichment
               </Typography>
-              {feature.comingSoon && (
-                <Typography
-                  variant="caption"
-                  color="primary"
-                  display="block"
-                  gutterBottom
-                >
-                  Coming Soon
-                </Typography>
-              )}
-              <Typography variant="body2" color="textSecondary">
-                {feature.description}
+              <Typography variant="body2">
+                We clean and complete your supplier list using trusted ABN
+                sources — no gaps, no guesswork.
               </Typography>
             </Paper>
           </Grid>
-        ))}
-      </Grid>
-
-      <Box mt={8} textAlign="center">
-        <Typography variant="h5" gutterBottom>
-          Regulations are evolving. Your compliance tools should too.
-        </Typography>
-        <Typography variant="body1" color="textSecondary">
-          Monochrome provides a consistent, scalable approach to managing
-          obligations across your organization.
-        </Typography>
+          <Grid item xs={12} md={3}>
+            <Paper sx={{ p: 2, minHeight: 200 }}>
+              <Typography variant="h6" gutterBottom>
+                Expert Report Preparation
+              </Typography>
+              <Typography variant="body2">
+                We prepare your report to meet regulator expectations, ensuring
+                completeness and submission readiness.
+              </Typography>
+            </Paper>
+          </Grid>
+          <Grid item xs={12} md={3}>
+            <Paper sx={{ p: 2, minHeight: 200 }}>
+              <Typography variant="h6" gutterBottom>
+                Complete Solution
+              </Typography>
+              <Typography variant="body2">
+                Our battle-tested processes ensure a speedy and reliable
+                outcome.
+              </Typography>
+            </Paper>
+          </Grid>
+          <Grid item xs={12} md={3}>
+            <Paper sx={{ p: 2, minHeight: 200 }}>
+              <Typography variant="h6" gutterBottom>
+                Trusted by ASX Companies
+              </Typography>
+              <Typography variant="body2">
+                Our team supports some of Australia's largest listed entities
+                with their regulatory compliance obligations.
+              </Typography>
+            </Paper>
+          </Grid>
+        </Grid>
       </Box>
+      <Typography variant="h4" gutterBottom textAlign="center">
+        Still haven’t submitted your Payment Times Report?
+      </Typography>
+      <Typography variant="body1" gutterBottom textAlign="center" color="error">
+        Deadline: 30 June. Late submissions are subject to significant fines of
+        upwards of $99,000 per day.
+      </Typography>
+      <Typography variant="body1" gutterBottom textAlign="center">
+        Upload your payment files → We generate your report → You submit it on
+        time.
+      </Typography>
+      <Typography variant="body2" textAlign="center" sx={{ mb: 4 }}>
+        ✅ ABN lookup ✅ TCP logic ✅ Submission-ready report
+      </Typography>
+
+      <Typography variant="h6" textAlign="center" sx={{ mb: 3 }}>
+        Prices start $795 + GST (depending on requirements)
+      </Typography>
+      <Divider sx={{ my: 4 }} />
+
+      <Typography textAlign="center" sx={{ mt: 6 }}>
+        After submitting your contact details, you'll be redirected to upload
+        your source files.
+      </Typography>
+      <Container
+        maxWidth="sm"
+        sx={{
+          backgroundColor: theme.palette.background.default,
+          padding: theme.spacing(2),
+          borderRadius: theme.shape.borderRadius,
+        }}
+      >
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <TextField
+            {...register("contactName")}
+            label="Your Name *"
+            fullWidth
+            margin="normal"
+            error={!!errors.contactName}
+            helperText={errors.contactName?.message}
+            InputLabelProps={{
+              style: { color: theme.palette.text.primary },
+            }}
+            InputProps={{
+              style: { color: theme.palette.text.primary },
+            }}
+          />
+          <TextField
+            {...register("email")}
+            label="Contact Email *"
+            fullWidth
+            margin="normal"
+            error={!!errors.email}
+            helperText={errors.email?.message}
+            InputLabelProps={{
+              style: { color: theme.palette.text.primary },
+            }}
+            InputProps={{
+              style: { color: theme.palette.text.primary },
+            }}
+          />
+          <TextField
+            {...register("contactPhone")}
+            label="Phone Number"
+            fullWidth
+            margin="normal"
+            error={!!errors.contactPhone}
+            helperText={errors.contactPhone?.message}
+            InputLabelProps={{
+              style: { color: theme.palette.text.primary },
+            }}
+            InputProps={{
+              style: { color: theme.palette.text.primary },
+            }}
+          />
+          <TextField
+            {...register("businessName")}
+            label="Business Name *"
+            fullWidth
+            margin="normal"
+            error={!!errors.businessName}
+            helperText={errors.businessName?.message}
+            InputLabelProps={{
+              style: { color: theme.palette.text.primary },
+            }}
+            InputProps={{
+              style: { color: theme.palette.text.primary },
+            }}
+          />
+          <TextField
+            {...register("abn")}
+            label="ABN *"
+            fullWidth
+            margin="normal"
+            error={!!errors.abn}
+            helperText={errors.abn?.message}
+            InputLabelProps={{
+              style: { color: theme.palette.text.primary },
+            }}
+            InputProps={{
+              style: { color: theme.palette.text.primary },
+            }}
+          />
+          <Button type="submit" variant="contained" color="primary" fullWidth>
+            Next Step: Upload your files
+          </Button>
+        </form>
+      </Container>
     </Box>
   );
 }

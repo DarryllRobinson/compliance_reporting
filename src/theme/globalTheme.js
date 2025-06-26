@@ -182,21 +182,21 @@ const globalTheme = (mode) => {
               mode === "light"
                 ? lightPalette.text.primary
                 : darkPalette.text.primary,
-          },
-          selected: {
-            backgroundColor:
-              mode === "light"
-                ? lightPalette.primary.main
-                : darkPalette.primary.main,
-            color:
-              mode === "light"
-                ? lightPalette.text.primary
-                : darkPalette.text.primary,
-            "&:hover": {
+            "&.Mui-selected": {
               backgroundColor:
                 mode === "light"
-                  ? "#c0c0c0"
-                  : darkPalette.primary.dark || "#333", // fallback if not defined
+                  ? lightPalette.primary.main
+                  : darkPalette.primary.main,
+              color:
+                mode === "light"
+                  ? lightPalette.text.primary
+                  : darkPalette.text.primary,
+              "&:hover": {
+                backgroundColor:
+                  mode === "light"
+                    ? "#c0c0c0"
+                    : darkPalette.primary.dark || "#333", // fallback if not defined
+              },
             },
           },
         },
