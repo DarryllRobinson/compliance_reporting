@@ -10,6 +10,7 @@ import ProtectedRoute from "../components/navigation/ProtectedRoute";
 import Contact from "../components/common/Contact";
 import ContactThankyou from "../components/common/ContactThankyou";
 import FileUpload from "../components/common/FileUpload";
+import FAQ from "../components/ptrs/FAQ";
 
 const isPublicOnlyMode = process.env.REACT_APP_PUBLIC_ONLY === "false";
 
@@ -22,8 +23,7 @@ export default function AppRouter() {
       ErrorBoundary: RootErrorBoundary,
       children: [
         { index: true, Component: LandingPage },
-        { path: "/upload", Component: FileUpload },
-        { path: "/contact", Component: Contact },
+        { path: "/faq", Component: FAQ },
         { path: "/thankyou-contact", Component: ContactThankyou },
         // ...publicRoutes,
         // ...(isPublicOnlyMode

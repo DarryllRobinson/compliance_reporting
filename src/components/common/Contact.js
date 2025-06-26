@@ -55,6 +55,7 @@ export default function Contact() {
       to: "contact@monochrome-compliance.com",
       cc: "contact@monochrome-compliance.com",
       from: "contact@monochrome-compliance.com",
+      topic: "Request for assistance",
     },
     mode: "onChange",
   });
@@ -113,19 +114,12 @@ export default function Contact() {
         }}
       >
         <Typography
-          variant="h4"
-          gutterBottom
-          sx={{ color: theme.palette.text.primary }}
-        >
-          Contact Us
-        </Typography>
-        <Typography
           variant="body1"
           paragraph
           sx={{ color: theme.palette.text.secondary }}
         >
-          We'd love to hear from you! Fill out the form below and we'll get back
-          to you as soon as possible.
+          Fill out the form below and we'll get back to you as soon as possible
+          to see how we can help.
         </Typography>
         <Box
           component="form"
@@ -163,24 +157,6 @@ export default function Contact() {
             fullWidth
             InputLabelProps={{ style: { color: theme.palette.text.primary } }}
           />
-          <TextField
-            select
-            label="Topic *"
-            defaultValue="Request for assistance"
-            {...register("topic")}
-            fullWidth
-            InputLabelProps={{ style: { color: theme.palette.text.primary } }}
-          >
-            <MenuItem value="General contact">General contact</MenuItem>
-            <MenuItem value="Privacy complaint">Privacy complaint</MenuItem>
-            <MenuItem value="Request for assistance">
-              Request for assistance
-            </MenuItem>
-            <MenuItem value="Suggestion for improvement">
-              Suggestion for improvement
-            </MenuItem>
-            <MenuItem value="Technical issue">Technical issue</MenuItem>
-          </TextField>
           <TextField
             label="Message *"
             type="text"
