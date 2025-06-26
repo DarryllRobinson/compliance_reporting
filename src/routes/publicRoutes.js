@@ -39,7 +39,7 @@ import CompNavThankyou from "../components/common/CompNavThankyou";
 import LandingPage from "../components/common/LandingPage";
 import PriceTier from "../components/common/PriceTier";
 
-const isPublicOnlyMode = process.env.REACT_APP_PUBLIC_ONLY === "false";
+const isPublicOnlyMode = process.env.REACT_APP_PUBLIC_ONLY === "true";
 
 const allPublicRoutes = [
   { path: "/", Component: LandingPage },
@@ -135,15 +135,6 @@ const allPublicRoutes = [
 
 const launchPublicRoutes = [
   {
-    path: "/clients/register",
-    Component: ClientRegister,
-  },
-  { path: "/clients/register-first-user", Component: FirstUserRegister },
-  {
-    path: "/user/login",
-    Component: Login,
-  },
-  {
     path: "compliance-navigator",
     Component: PublicComplianceNavigator,
   },
@@ -192,8 +183,6 @@ const launchPublicRoutes = [
     path: "thankyou-booking",
     Component: BookingThankyou,
   },
-  { path: "pricing", Component: PriceTier },
-  { path: "signup", Component: SignUp },
   { path: "thankyou-signup", Component: SignUpThankyou },
   // Policy documents
   {
