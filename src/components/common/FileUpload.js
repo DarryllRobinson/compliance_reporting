@@ -126,6 +126,11 @@ const FileUpload = ({ onFilesSelected }) => {
             }
             try {
               for (const [key, file] of Object.entries(selectedFiles)) {
+                if (!file) {
+                  console.warn(`Skipping ${key} — no file provided`);
+                  continue;
+                }
+
                 const formData = new FormData();
                 formData.append("file", file);
                 formData.append("fileType", key);
@@ -133,6 +138,7 @@ const FileUpload = ({ onFilesSelected }) => {
                 Object.entries(userDetails || {}).forEach(([field, value]) => {
                   formData.append(field, value);
                 });
+                console.log(`Uploading ${key} file:`, file.name);
 
                 const res = await fetch(`${baseUrl}/unprocessed-submission`, {
                   method: "POST",
