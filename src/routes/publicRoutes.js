@@ -39,6 +39,11 @@ import CompNavThankyou from "../components/common/CompNavThankyou";
 import LandingPage from "../components/common/LandingPage";
 import PriceTier from "../components/common/PriceTier";
 
+import ModernSlavery from "../components/ms/ModernSlavery";
+import WhistleBlower from "../components/wb/WhistleBlower";
+import DirectorObligations from "../components/do/DirectorObligations";
+import RiskRegister from "../components/rr/RiskRegister";
+
 const isPublicOnlyMode = process.env.REACT_APP_PUBLIC_ONLY === "true";
 
 const allPublicRoutes = [
@@ -131,6 +136,10 @@ const allPublicRoutes = [
     Component: ForgotPassword,
   },
   { path: "/user/reset-password", Component: ResetPassword },
+  { path: "modern-slavery", Component: ModernSlavery },
+  { path: "whistleblower-compliance", Component: WhistleBlower },
+  { path: "director-obligations", Component: DirectorObligations },
+  { path: "risk-register", Component: RiskRegister },
 ];
 
 const launchPublicRoutes = [
@@ -156,7 +165,7 @@ const launchPublicRoutes = [
     Component: ContactThankyou,
   },
   {
-    path: "ptr-solution",
+    path: "payment-times-reporting",
     Component: PTRSolution,
   },
   {
@@ -197,6 +206,10 @@ const launchPublicRoutes = [
     path: "policy-documents/legal",
     Component: LegalDisclaimer,
   },
+  { path: "modern-slavery", Component: ModernSlavery },
+  { path: "whistleblower-compliance", Component: WhistleBlower },
+  { path: "director-obligations", Component: DirectorObligations },
+  { path: "risk-register", Component: RiskRegister },
   // Super secret routes for boss access
   {
     path: "/bossmode",

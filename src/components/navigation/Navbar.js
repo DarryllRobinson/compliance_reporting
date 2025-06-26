@@ -132,7 +132,7 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
             <MenuItem
               onClick={handleSolutionsClose}
               component={Link}
-              to="/ptr-solution"
+              to="/payment-times-reporting"
             >
               <InfoIcon sx={{ fontSize: 20, mr: 1 }} />
               PTR Solution
@@ -317,7 +317,7 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
             <MenuItem
               onClick={handleMenuClose}
               component={Link}
-              to="/ptr-solution"
+              to="/payment-times-reporting"
               sx={{ color: theme.palette.text.primary }}
             >
               PTR Solution

@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Core site pages -->
   <url><loc>https://monochrome-compliance.com/</loc></url>
   <url><loc>https://monochrome-compliance.com/blog</loc></url>
+
+  <!-- Blog content -->
   <url><loc>https://monochrome-compliance.com/blog/how-to-submit-ptr-report</loc></url>
   <url><loc>https://monochrome-compliance.com/blog/improve-data-quality</loc></url>
   <url><loc>https://monochrome-compliance.com/blog/ptr-legislation-2025</loc></url>
@@ -9,6 +12,8 @@
   <url><loc>https://monochrome-compliance.com/blog/ptr-submission-mistakes</loc></url>
   <url><loc>https://monochrome-compliance.com/blog/using-sbi-tool-for-ptr</loc></url>
   <url><loc>https://monochrome-compliance.com/blog/who-needs-to-report-ptr</loc></url>
+
+  <!-- Compliance offering placeholders -->
   <url><loc>https://monochrome-compliance.com/payment-times-reporting</loc></url>
   <url><loc>https://monochrome-compliance.com/modern-slavery</loc></url>
   <url><loc>https://monochrome-compliance.com/director-obligations</loc></url>
