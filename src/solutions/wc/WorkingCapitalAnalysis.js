@@ -69,7 +69,7 @@ export default function WorkingCapitalAnalysis() {
         {
           title: "Data Controls",
           description:
-            "Access is role-based, audit-logged, and fully segregated by clientId.",
+            "Access is role-based, audit-logged, and fully segregated by client.",
           iconComponent: VerifiedUserIcon,
         },
       ],
