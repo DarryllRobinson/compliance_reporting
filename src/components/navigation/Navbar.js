@@ -110,10 +110,10 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
         <Button
           color="inherit"
           component={Link}
-          to="/contact"
+          to="/faq"
           sx={{ color: theme.palette.text.primary }}
         >
-          Contact Us
+          FAQ
         </Button>
         <IconButton
           sx={{ ml: 1, color: theme.palette.text.primary }}

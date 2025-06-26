@@ -14,6 +14,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { isValidABN } from "../../lib/utils/abnChecksum";
 import { useNavigate } from "react-router";
+import Contact from "./Contact";
 
 const schema = yup.object({
   contactName: yup.string().trim().required("Name is required"),
@@ -107,13 +108,19 @@ export default function LandingPage() {
       <Typography variant="h4" gutterBottom textAlign="center">
         Still haven’t submitted your Payment Times Report?
       </Typography>
-      <Typography variant="body1" gutterBottom textAlign="center" color="error">
+      <Typography
+        variant="body1"
+        gutterBottom
+        textAlign="center"
+        color="error"
+        sx={{ fontWeight: "bold" }}
+      >
         Deadline: 30 June. Late submissions are subject to significant fines of
         upwards of $99,000 per day.
       </Typography>
       <Typography variant="body1" gutterBottom textAlign="center">
-        Upload your payment files → We generate your report → You submit it on
-        time.
+        Quick call to walk you through the requirements → We generate your
+        report → You submit it on time.
       </Typography>
       <Typography variant="body2" textAlign="center" sx={{ mb: 4 }}>
         ✅ ABN lookup ✅ TCP logic ✅ Submission-ready report
@@ -123,95 +130,7 @@ export default function LandingPage() {
         Prices start $795 + GST (depending on requirements)
       </Typography>
       <Divider sx={{ my: 4 }} />
-
-      <Typography textAlign="center" sx={{ mt: 6 }}>
-        After submitting your contact details, you'll be redirected to upload
-        your source files.
-      </Typography>
-      <Container
-        maxWidth="sm"
-        sx={{
-          backgroundColor: theme.palette.background.default,
-          padding: theme.spacing(2),
-          borderRadius: theme.shape.borderRadius,
-        }}
-      >
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <TextField
-            {...register("contactName")}
-            label="Your Name *"
-            fullWidth
-            margin="normal"
-            error={!!errors.contactName}
-            helperText={errors.contactName?.message}
-            InputLabelProps={{
-              style: { color: theme.palette.text.primary },
-            }}
-            InputProps={{
-              style: { color: theme.palette.text.primary },
-            }}
-          />
-          <TextField
-            {...register("email")}
-            label="Contact Email *"
-            fullWidth
-            margin="normal"
-            error={!!errors.email}
-            helperText={errors.email?.message}
-            InputLabelProps={{
-              style: { color: theme.palette.text.primary },
-            }}
-            InputProps={{
-              style: { color: theme.palette.text.primary },
-            }}
-          />
-          <TextField
-            {...register("contactPhone")}
-            label="Phone Number"
-            fullWidth
-            margin="normal"
-            error={!!errors.contactPhone}
-            helperText={errors.contactPhone?.message}
-            InputLabelProps={{
-              style: { color: theme.palette.text.primary },
-            }}
-            InputProps={{
-              style: { color: theme.palette.text.primary },
-            }}
-          />
-          <TextField
-            {...register("businessName")}
-            label="Business Name *"
-            fullWidth
-            margin="normal"
-            error={!!errors.businessName}
-            helperText={errors.businessName?.message}
-            InputLabelProps={{
-              style: { color: theme.palette.text.primary },
-            }}
-            InputProps={{
-              style: { color: theme.palette.text.primary },
-            }}
-          />
-          <TextField
-            {...register("abn")}
-            label="ABN *"
-            fullWidth
-            margin="normal"
-            error={!!errors.abn}
-            helperText={errors.abn?.message}
-            InputLabelProps={{
-              style: { color: theme.palette.text.primary },
-            }}
-            InputProps={{
-              style: { color: theme.palette.text.primary },
-            }}
-          />
-          <Button type="submit" variant="contained" color="primary" fullWidth>
-            Next Step: Upload your files
-          </Button>
-        </form>
-      </Container>
+      <Contact />
     </Box>
   );
 }
