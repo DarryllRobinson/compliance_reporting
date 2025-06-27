@@ -44,6 +44,13 @@ const SOLUTIONS = [
     description:
       "Uncover insights from payment terms and supplier cash flow behaviour using structured analysis and exportable metrics.",
   },
+  {
+    id: "esg",
+    title: "ESG Reporting",
+    path: "/esg-reporting",
+    description:
+      "Track and publish ESG metrics, structure annual reports, and align with frameworks like TCFD and SASB.",
+  },
 ];
 
 export default function RelatedSolutions({ exclude }) {

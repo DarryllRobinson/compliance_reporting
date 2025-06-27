@@ -8,69 +8,43 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import { useNavigate } from "react-router";
-import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
-import ChecklistIcon from "@mui/icons-material/Checklist";
+import AssessmentIcon from "@mui/icons-material/Assessment";
 import TimelineIcon from "@mui/icons-material/Timeline";
-import AssignmentIcon from "@mui/icons-material/Assignment";
-import GavelIcon from "@mui/icons-material/Gavel";
-import LockIcon from "@mui/icons-material/Lock";
-import RelatedSolutions from "../RelatedSolutions";
+import ChecklistIcon from "@mui/icons-material/Checklist";
 import PageMeta from "../../components/ui/PageMeta";
+import RelatedSolutions from "../RelatedSolutions";
 
-export default function RiskRegister() {
+export default function ESGReporting() {
   const navigate = useNavigate();
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
   const groupedFeatures = [
     {
-      title: "Register & Categorise",
+      title: "Capture & Track",
       items: [
         {
-          title: "Template-Based Register",
+          title: "Centralised Metrics",
           description:
-            "Start with a prebuilt risk register covering key operational, strategic, and compliance risks.",
-          iconComponent: LibraryBooksIcon,
+            "Track carbon emissions, diversity stats, modern slavery inputs, and other ESG indicators from a unified dashboard.",
+          iconComponent: AssessmentIcon,
         },
         {
-          title: "Risk Classification",
+          title: "Guided Workflows",
           description:
-            "Categorise risks by type, impact, likelihood, and control effectiveness.",
+            "Prompt contributors for input, track status by ESG domain, and export a consistent, governance-ready report.",
           iconComponent: ChecklistIcon,
         },
       ],
     },
     {
-      title: "Review & Respond",
+      title: "Report & Align",
       items: [
         {
-          title: "Review Workflows",
+          title: "Annual & Periodic Reporting",
           description:
-            "Assign owners and deadlines for periodic risk reviews, with automatic tracking and reminders.",
-          iconComponent: AssignmentIcon,
-        },
-        {
-          title: "Risk Trends & History",
-          description:
-            "See how risk ratings have changed over time and identify emerging issues before they escalate.",
+            "Generate reporting outputs aligned with TCFD, SASB, or local ESG disclosure frameworks. Review history with audit-ready logs.",
           iconComponent: TimelineIcon,
-        },
-      ],
-    },
-    {
-      title: "Retain & Protect",
-      items: [
-        {
-          title: "Secure Storage",
-          description:
-            "All register data is stored in a secure, access-controlled environment with full audit logs.",
-          iconComponent: LockIcon,
-        },
-        {
-          title: "Long-Term Record Keeping",
-          description:
-            "Ensure compliance with corporate record-keeping requirements via long-term storage and export options.",
-          iconComponent: GavelIcon,
         },
       ],
     },
@@ -79,8 +53,8 @@ export default function RiskRegister() {
   return (
     <>
       <PageMeta
-        title="Risk Register"
-        description="Ditch the spreadsheet and manage risk with a structured register, review workflows and audit-ready controls from Monochrome Compliance."
+        title="ESG Reporting"
+        description="Streamline Environmental, Social, and Governance (ESG) reporting with practical workflows and template-driven outputs from Monochrome Compliance."
       />
       <Box
         sx={{
@@ -94,7 +68,7 @@ export default function RiskRegister() {
           gutterBottom
           color={theme.palette.text.primary}
         >
-          Risk Register as a Service
+          Practical ESG reporting — without reinventing your workflow
         </Typography>
 
         <Typography
@@ -102,8 +76,9 @@ export default function RiskRegister() {
           color={theme.palette.text.secondary}
           sx={{ mb: theme.spacing(4) }}
         >
-          Move your risk register out of Excel and into a system built for
-          visibility, ownership, and ongoing review. No integrations required.
+          ESG obligations are evolving quickly, but your process doesn't have
+          to. Monochrome Compliance helps you collect, structure and publish ESG
+          data with clarity and consistency.
         </Typography>
 
         {groupedFeatures.map((group, i) => (
@@ -162,7 +137,7 @@ export default function RiskRegister() {
             gutterBottom
             color={theme.palette.text.primary}
           >
-            Want a register your board will actually use?
+            Ready to streamline ESG reporting?
           </Typography>
           <Box
             sx={{
@@ -183,7 +158,7 @@ export default function RiskRegister() {
             </Button>
           </Box>
         </Box>
-        <RelatedSolutions exclude="rr" />
+        <RelatedSolutions exclude="esg" />
       </Box>
     </>
   );
