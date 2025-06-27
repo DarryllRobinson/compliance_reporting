@@ -7,7 +7,6 @@ import {
   useTheme,
   useMediaQuery,
 } from "@mui/material";
-import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router";
 import LockIcon from "@mui/icons-material/Lock";
 import GavelIcon from "@mui/icons-material/Gavel";
@@ -16,6 +15,7 @@ import ChecklistIcon from "@mui/icons-material/Checklist";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import ArticleIcon from "@mui/icons-material/Article";
 import RelatedSolutions from "../RelatedSolutions";
+import PageMeta from "../../components/ui/PageMeta";
 
 export default function ModernSlavery() {
   const navigate = useNavigate();
@@ -78,39 +78,10 @@ export default function ModernSlavery() {
 
   return (
     <>
-      <Helmet>
-        <title>Modern Slavery Compliance | Monochrome Compliance</title>
-        <meta
-          name="description"
-          content="Streamline your Modern Slavery Statement preparation with Monochrome Compliance's risk assessment, due diligence tracking, and templated reporting."
-        />
-        <link
-          rel="canonical"
-          href="https://www.monochrome-compliance.com/modern-slavery"
-        />
-        <meta
-          property="og:title"
-          content="Modern Slavery Compliance | Monochrome Compliance"
-        />
-        <meta
-          property="og:description"
-          content="Streamline your Modern Slavery Statement preparation with Monochrome Compliance's risk assessment, due diligence tracking, and templated reporting."
-        />
-        <meta property="og:type" content="website" />
-        <meta
-          property="og:url"
-          content="https://www.monochrome-compliance.com/modern-slavery"
-        />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta
-          name="twitter:title"
-          content="Modern Slavery Compliance | Monochrome Compliance"
-        />
-        <meta
-          name="twitter:description"
-          content="Streamline your Modern Slavery Statement preparation with Monochrome Compliance."
-        />
-      </Helmet>
+      <PageMeta
+        title="Modern Slavery Compliance"
+        description="Streamline your Modern Slavery Statement preparation with Monochrome Compliance’s risk assessment, due diligence tracking, and templated reporting."
+      />
       <Box
         sx={{
           px: { xs: theme.spacing(3), md: theme.spacing(8) },

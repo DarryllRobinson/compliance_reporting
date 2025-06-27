@@ -87,8 +87,9 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
             component="img"
             src={
               isDarkTheme
-                ? "/images/logos/logo-dark-thin.png"
-                : "/images/logos/logo-light-thin.png"
+                ? // ? "/images/logos/logo-dark-thin.png"
+                  "https://monochrome-assets.s3.ap-southeast-2.amazonaws.com/logo-dark-no-background.png"
+                : "https://monochrome-assets.s3.ap-southeast-2.amazonaws.com/logo-light-no-background.png"
             }
             alt="Monochrome Compliance Logo"
             sx={{
@@ -337,6 +338,10 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
               <HelpOutlineIcon sx={{ fontSize: 20, mr: 1 }} />
               Blog
             </MenuItem>
+            <MenuItem onClick={handleConnectClose} component={Link} to="/about">
+              <InfoIcon sx={{ fontSize: 20, mr: 1 }} />
+              About
+            </MenuItem>
           </Menu>
         </Box>
         <Box sx={{ display: { xs: "flex", md: "none" } }}>
@@ -418,9 +423,29 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
             >
               Blog
             </MenuItem>
+            <MenuItem
+              onClick={handleMenuClose}
+              component={Link}
+              to="/about"
+              sx={{ color: theme.palette.text.primary }}
+            >
+              About
+            </MenuItem>
             {/* Dashboard menu item for logged-in users */}
           </Menu>
         </Box>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => navigate("/booking")}
+          sx={{
+            ml: 2,
+            fontWeight: 600,
+            display: { xs: "none", md: "inline-flex" },
+          }}
+        >
+          Book a Demo
+        </Button>
         <IconButton
           sx={{ ml: 1, color: theme.palette.text.primary }}
           onClick={onToggleTheme}

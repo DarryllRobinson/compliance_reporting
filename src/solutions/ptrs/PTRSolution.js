@@ -7,7 +7,7 @@ import {
   useTheme,
   useMediaQuery,
 } from "@mui/material";
-import { Helmet } from "react-helmet-async";
+import PageMeta from "../../components/ui/PageMeta";
 import { useNavigate } from "react-router";
 import LockIcon from "@mui/icons-material/Lock";
 import HistoryIcon from "@mui/icons-material/History";
@@ -78,40 +78,10 @@ export default function PTRSolution() {
 
   return (
     <>
-      <Helmet>
-        <title>PTRS Compliance | Monochrome Compliance</title>
-        <meta
-          name="description"
-          content="Automate your Payment Times Reporting with Monochrome Compliance’s guided navigator, ABN enrichment, and secure reporting workflows."
-        />
-        <link
-          rel="canonical"
-          href="https://www.monochrome-compliance.com/payment-times-reporting"
-        />
-        <meta
-          property="og:title"
-          content="PTRS Compliance | Monochrome Compliance"
-        />
-        <meta
-          property="og:description"
-          content="Prepare, validate and submit PTR reports with ease using Monochrome Compliance’s guided workflow and secure infrastructure."
-        />
-        <meta property="og:type" content="website" />
-        <meta
-          property="og:url"
-          content="https://www.monochrome-compliance.com/payment-times-reporting"
-        />
-
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta
-          name="twitter:title"
-          content="PTRS Compliance | Monochrome Compliance"
-        />
-        <meta
-          name="twitter:description"
-          content="Prepare, validate and submit PTR reports with ease using Monochrome Compliance."
-        />
-      </Helmet>
+      <PageMeta
+        title="PTRS Compliance"
+        description="Automate your Payment Times Reporting with Monochrome Compliance’s guided navigator, ABN enrichment, and secure reporting workflows."
+      />
       <Box
         sx={{
           px: { xs: theme.spacing(3), md: theme.spacing(8) },

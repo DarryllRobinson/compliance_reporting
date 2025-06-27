@@ -7,7 +7,6 @@ import {
   useTheme,
   useMediaQuery,
 } from "@mui/material";
-import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router";
 import LockIcon from "@mui/icons-material/Lock";
 import SupportAgentIcon from "@mui/icons-material/SupportAgent";
@@ -16,6 +15,7 @@ import ShieldIcon from "@mui/icons-material/Shield";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import PolicyIcon from "@mui/icons-material/Policy";
 import RelatedSolutions from "../RelatedSolutions";
+import PageMeta from "../../components/ui/PageMeta";
 
 export default function WhistleBlower() {
   const navigate = useNavigate();
@@ -78,39 +78,10 @@ export default function WhistleBlower() {
 
   return (
     <>
-      <Helmet>
-        <title>Whistleblower Compliance | Monochrome Compliance</title>
-        <meta
-          name="description"
-          content="Launch a secure, policy-aligned whistleblower intake and case tracking system with Monochrome Compliance."
-        />
-        <link
-          rel="canonical"
-          href="https://www.monochrome-compliance.com/whistleblower-compliance"
-        />
-        <meta
-          property="og:title"
-          content="Whistleblower Compliance | Monochrome Compliance"
-        />
-        <meta
-          property="og:description"
-          content="Launch a secure, policy-aligned whistleblower intake and case tracking system with Monochrome Compliance."
-        />
-        <meta property="og:type" content="website" />
-        <meta
-          property="og:url"
-          content="https://www.monochrome-compliance.com/whistleblower-compliance"
-        />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta
-          name="twitter:title"
-          content="Whistleblower Compliance | Monochrome Compliance"
-        />
-        <meta
-          name="twitter:description"
-          content="Launch a secure, policy-aligned whistleblower intake and case tracking system with Monochrome Compliance."
-        />
-      </Helmet>
+      <PageMeta
+        title="Whistleblower Compliance"
+        description="Launch a secure, policy-aligned whistleblower intake and case tracking system with Monochrome Compliance."
+      />
       <Box
         sx={{
           px: { xs: theme.spacing(3), md: theme.spacing(8) },

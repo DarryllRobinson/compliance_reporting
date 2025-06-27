@@ -7,7 +7,6 @@ import {
   useTheme,
   useMediaQuery,
 } from "@mui/material";
-import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router";
 import InsightsIcon from "@mui/icons-material/Insights";
 import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
@@ -16,6 +15,7 @@ import LockIcon from "@mui/icons-material/Lock";
 import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
 import TimelineIcon from "@mui/icons-material/Timeline";
 import RelatedSolutions from "../RelatedSolutions";
+import PageMeta from "../../components/ui/PageMeta";
 
 export default function WorkingCapitalAnalysis() {
   const navigate = useNavigate();
@@ -78,39 +78,10 @@ export default function WorkingCapitalAnalysis() {
 
   return (
     <>
-      <Helmet>
-        <title>Working Capital Analysis | Monochrome Compliance</title>
-        <meta
-          name="description"
-          content="Uncover insights from payment terms and cash flow behaviour across your supplier data with Monochrome Compliance."
-        />
-        <link
-          rel="canonical"
-          href="https://www.monochrome-compliance.com/working-capital"
-        />
-        <meta
-          property="og:title"
-          content="Working Capital Analysis | Monochrome Compliance"
-        />
-        <meta
-          property="og:description"
-          content="Uncover insights from payment terms and cash flow behaviour across your supplier data with Monochrome Compliance."
-        />
-        <meta property="og:type" content="website" />
-        <meta
-          property="og:url"
-          content="https://www.monochrome-compliance.com/working-capital"
-        />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta
-          name="twitter:title"
-          content="Working Capital Analysis | Monochrome Compliance"
-        />
-        <meta
-          name="twitter:description"
-          content="Uncover insights from payment terms and cash flow behaviour across your supplier data with Monochrome Compliance."
-        />
-      </Helmet>
+      <PageMeta
+        title="Working Capital Analysis"
+        description="Uncover insights from payment terms and cash flow behaviour across your supplier data with Monochrome Compliance."
+      />
 
       <Box
         sx={{
