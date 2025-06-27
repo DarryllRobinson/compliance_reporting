@@ -15,7 +15,7 @@ import AssignmentIcon from "@mui/icons-material/Assignment";
 import GavelIcon from "@mui/icons-material/Gavel";
 import LockIcon from "@mui/icons-material/Lock";
 import RelatedSolutions from "../RelatedSolutions";
-import { Helmet } from "react-helmet-async";
+import PageMeta from "../../components/ui/PageMeta";
 
 export default function RiskRegister() {
   const navigate = useNavigate();
@@ -78,39 +78,10 @@ export default function RiskRegister() {
 
   return (
     <>
-      <Helmet>
-        <title>Risk Register | Monochrome Compliance</title>
-        <meta
-          name="description"
-          content="Ditch the spreadsheet and manage risk with a structured register, review workflows and audit-ready controls from Monochrome Compliance."
-        />
-        <link
-          rel="canonical"
-          href="https://www.monochrome-compliance.com/risk-register"
-        />
-        <meta
-          property="og:title"
-          content="Risk Register | Monochrome Compliance"
-        />
-        <meta
-          property="og:description"
-          content="Ditch the spreadsheet and manage risk with a structured register, review workflows and audit-ready controls from Monochrome Compliance."
-        />
-        <meta property="og:type" content="website" />
-        <meta
-          property="og:url"
-          content="https://www.monochrome-compliance.com/risk-register"
-        />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta
-          name="twitter:title"
-          content="Risk Register | Monochrome Compliance"
-        />
-        <meta
-          name="twitter:description"
-          content="Ditch the spreadsheet and manage risk with a structured register, review workflows and audit-ready controls from Monochrome Compliance."
-        />
-      </Helmet>
+      <PageMeta
+        title="Risk Register"
+        description="Ditch the spreadsheet and manage risk with a structured register, review workflows and audit-ready controls from Monochrome Compliance."
+      />
       <Box
         sx={{
           px: { xs: theme.spacing(3), md: theme.spacing(8) },

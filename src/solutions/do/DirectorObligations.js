@@ -7,7 +7,6 @@ import {
   useTheme,
   useMediaQuery,
 } from "@mui/material";
-import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router";
 import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
 import GavelIcon from "@mui/icons-material/Gavel";
@@ -16,6 +15,7 @@ import LockIcon from "@mui/icons-material/Lock";
 import DescriptionIcon from "@mui/icons-material/Description";
 import ChecklistIcon from "@mui/icons-material/Checklist";
 import RelatedSolutions from "../RelatedSolutions";
+import PageMeta from "../../components/ui/PageMeta";
 
 export default function DirectorObligations() {
   const navigate = useNavigate();
@@ -78,39 +78,10 @@ export default function DirectorObligations() {
 
   return (
     <>
-      <Helmet>
-        <title>Director Obligations | Monochrome Compliance</title>
-        <meta
-          name="description"
-          content="Manage director disclosures, conflict declarations and recurring attestations using Monochrome Compliance’s board-friendly workflows."
-        />
-        <link
-          rel="canonical"
-          href="https://www.monochrome-compliance.com/director-obligations"
-        />
-        <meta
-          property="og:title"
-          content="Director Obligations | Monochrome Compliance"
-        />
-        <meta
-          property="og:description"
-          content="Manage director disclosures, conflict declarations and recurring attestations using Monochrome Compliance’s board-friendly workflows."
-        />
-        <meta property="og:type" content="website" />
-        <meta
-          property="og:url"
-          content="https://www.monochrome-compliance.com/director-obligations"
-        />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta
-          name="twitter:title"
-          content="Director Obligations | Monochrome Compliance"
-        />
-        <meta
-          name="twitter:description"
-          content="Manage director disclosures, conflict declarations and recurring attestations using Monochrome Compliance’s board-friendly workflows."
-        />
-      </Helmet>
+      <PageMeta
+        title="Director Obligations"
+        description="Manage director disclosures, conflict declarations and recurring attestations using Monochrome Compliance’s board-friendly workflows."
+      />
       <Box
         sx={{
           px: { xs: theme.spacing(3), md: theme.spacing(8) },

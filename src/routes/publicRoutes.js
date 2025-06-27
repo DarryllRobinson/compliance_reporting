@@ -45,6 +45,8 @@ import DirectorObligations from "../solutions/do/DirectorObligations";
 import RiskRegister from "../solutions/rr/RiskRegister";
 import WorkingCapitalAnalysis from "../solutions/wc/WorkingCapitalAnalysis";
 
+import About from "../components/common/About";
+
 const isPublicOnlyMode = process.env.REACT_APP_PUBLIC_ONLY === "true";
 
 const allPublicRoutes = [
@@ -115,6 +117,7 @@ const allPublicRoutes = [
   { path: "pricing", Component: PriceTier },
   { path: "/signup", Component: SignUp },
   { path: "thankyou-signup", Component: SignUpThankyou },
+  { path: "about", Component: About },
   // Policy documents
   {
     path: "policy-documents/client-service-agreement",
@@ -195,6 +198,7 @@ const launchPublicRoutes = [
     Component: BookingThankyou,
   },
   { path: "thankyou-signup", Component: SignUpThankyou },
+  { path: "about", Component: About },
   // Policy documents
   {
     path: "policy-documents/client-service-agreement",
