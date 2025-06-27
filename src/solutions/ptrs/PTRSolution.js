@@ -6,6 +6,9 @@ import {
   Button,
   useTheme,
   useMediaQuery,
+  CardMedia,
+  CardContent,
+  CardHeader,
 } from "@mui/material";
 import PageMeta from "../../components/ui/PageMeta";
 import { useNavigate } from "react-router";
@@ -63,14 +66,18 @@ export default function PTRSolution() {
         {
           title: "Audit Trail",
           description:
-            "We take care of fullfiling your legislated requirements, including a complete audit trail and secure storage of your data and preparation for seven years.",
-          iconComponent: HistoryIcon,
+            "We take care of fulfilling your legislated requirements, including a complete audit trail and secure storage of your data and preparation for seven years.",
+          iconComponent: () => (
+            <HistoryIcon sx={{ color: theme.palette.text.primary }} />
+          ),
         },
         {
           title: "Secure Multi-Tenant Architecture",
           description:
             "Data is isolated and secured at the database level, ensuring your records are never exposed to other users.",
-          iconComponent: LockIcon,
+          iconComponent: () => (
+            <LockIcon sx={{ color: theme.palette.text.primary }} />
+          ),
         },
       ],
     },
@@ -122,34 +129,33 @@ export default function PTRSolution() {
                   <Card
                     elevation={2}
                     sx={{
-                      display: "flex",
-                      alignItems: "flex-start",
-                      padding: 2,
                       height: "100%",
+                      display: "flex",
+                      flexDirection: "column",
                     }}
                   >
-                    <item.iconComponent
-                      sx={{
-                        fontSize: 40,
-                        color: theme.palette.primary.secondary,
-                        mr: 2,
+                    <CardMedia
+                      component="img"
+                      height="140"
+                      image={`/images/ptrs-card-${i}-${j}.png`}
+                      alt={`${item.title} preview`}
+                    />
+                    <CardHeader
+                      avatar={<item.iconComponent />}
+                      title={item.title}
+                      titleTypographyProps={{
+                        variant: "subtitle1",
+                        fontWeight: "bold",
                       }}
                     />
-                    <Box>
-                      <Typography
-                        variant="subtitle1"
-                        fontWeight="bold"
-                        gutterBottom
-                      >
-                        {item.title}
-                      </Typography>
+                    <CardContent sx={{ flexGrow: 1 }}>
                       <Typography
                         variant="body2"
                         color={theme.palette.text.secondary}
                       >
                         {item.description}
                       </Typography>
-                    </Box>
+                    </CardContent>
                   </Card>
                 </Grid>
               ))}

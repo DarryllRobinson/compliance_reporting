@@ -132,7 +132,7 @@ export default function WorkingCapitalAnalysis() {
                     <item.iconComponent
                       sx={{
                         fontSize: 40,
-                        color: theme.palette.primary.secondary,
+                        color: theme.palette.primary.main,
                         mr: 2,
                       }}
                     />

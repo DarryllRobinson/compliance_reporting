@@ -44,10 +44,13 @@ import WhistleBlower from "../solutions/wb/WhistleBlower";
 import DirectorObligations from "../solutions/do/DirectorObligations";
 import RiskRegister from "../solutions/rr/RiskRegister";
 import WorkingCapitalAnalysis from "../solutions/wc/WorkingCapitalAnalysis";
+import ESGReporting from "../solutions/esg/ESGReporting";
 
+// TODO: add Testimonials component
+// import Testimonials from "../components/common/Testimonials";
 import About from "../components/common/About";
 
-const isPublicOnlyMode = process.env.REACT_APP_PUBLIC_ONLY === "true";
+const isPublicOnlyMode = process.env.REACT_APP_PUBLIC_ONLY === "false";
 
 const allPublicRoutes = [
   { path: "/", Component: LandingPage },
@@ -140,11 +143,13 @@ const allPublicRoutes = [
     Component: ForgotPassword,
   },
   { path: "/user/reset-password", Component: ResetPassword },
+  { path: "payment-times-reporting", Component: PTRSolution },
   { path: "modern-slavery", Component: ModernSlavery },
   { path: "whistleblower-compliance", Component: WhistleBlower },
   { path: "director-obligations", Component: DirectorObligations },
   { path: "risk-register", Component: RiskRegister },
   { path: "working-capital", Component: WorkingCapitalAnalysis },
+  { path: "esg-reporting", Component: ESGReporting },
 ];
 
 const launchPublicRoutes = [
@@ -217,6 +222,7 @@ const launchPublicRoutes = [
   { path: "director-obligations", Component: DirectorObligations },
   { path: "risk-register", Component: RiskRegister },
   { path: "working-capital", Component: WorkingCapitalAnalysis },
+  { path: "esg-reporting", Component: ESGReporting },
   // Super secret routes for boss access
   {
     path: "/bossmode",

@@ -178,75 +178,14 @@ export default function Navbar({ isDarkTheme, onToggleTheme }) {
               <InfoIcon sx={{ fontSize: 20, mr: 1 }} />
               Working Capital Analysis
             </MenuItem>
-            <Divider />
-            <Tooltip
-              title="Coming soon"
-              placement="bottom"
-              arrow
-              enterDelay={300}
-              leaveDelay={100}
-              PopperProps={{
-                modifiers: [
-                  {
-                    name: "offset",
-                    options: {
-                      offset: [0, -20],
-                    },
-                  },
-                ],
-              }}
+            <MenuItem
+              onClick={handleSolutionsClose}
+              component={Link}
+              to="/esg-reporting"
             >
-              <Box
-                component="li"
-                sx={{
-                  listStyle: "none",
-                  display: "flex",
-                  alignItems: "center",
-                  px: 2,
-                  py: 1.5,
-                  opacity: 0.5,
-                  cursor: "default",
-                  pointerEvents: "auto",
-                }}
-              >
-                <HourglassEmptyIcon sx={{ fontSize: 20, mr: 1 }} />
-                <Typography variant="body2">Data Cleanser</Typography>
-              </Box>
-            </Tooltip>
-            <Tooltip
-              title="Coming soon"
-              placement="bottom"
-              arrow
-              enterDelay={300}
-              leaveDelay={10}
-              PopperProps={{
-                modifiers: [
-                  {
-                    name: "offset",
-                    options: {
-                      offset: [0, -20],
-                    },
-                  },
-                ],
-              }}
-            >
-              <Box
-                component="li"
-                sx={{
-                  listStyle: "none",
-                  display: "flex",
-                  alignItems: "center",
-                  px: 2,
-                  py: 1.5,
-                  opacity: 0.5,
-                  cursor: "default",
-                  pointerEvents: "auto",
-                }}
-              >
-                <HourglassEmptyIcon sx={{ fontSize: 20, mr: 1 }} />
-                <Typography variant="body2">Sustainability Report</Typography>
-              </Box>
-            </Tooltip>
+              <InfoIcon sx={{ fontSize: 20, mr: 1 }} />
+              ESG Reporting
+            </MenuItem>
           </Menu>
           <Button
             color="inherit"
