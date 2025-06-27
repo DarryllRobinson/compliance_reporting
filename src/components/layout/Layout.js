@@ -18,15 +18,15 @@ export default function Layout() {
     return globalTheme(mode); // Use the globalTheme function
   }, [isDarkTheme]);
 
-  useEffect(() => {
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    setIsDarkTheme(mediaQuery.matches); // Set initial theme based on system preference
-
-    const handleChange = (event) => setIsDarkTheme(event.matches);
-    mediaQuery.addEventListener("change", handleChange); // Listen for system theme changes
-
-    return () => mediaQuery.removeEventListener("change", handleChange);
-  }, []);
+  // useEffect(() => {
+  //   const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+  //   setIsDarkTheme(mediaQuery.matches); // Set initial theme based on system preference
+  //
+  //   const handleChange = (event) => setIsDarkTheme(event.matches);
+  //   mediaQuery.addEventListener("change", handleChange); // Listen for system theme changes
+  //
+  //   return () => mediaQuery.removeEventListener("change", handleChange);
+  // }, []);
 
   // Scroll to the top of the screen when the pathname changes
   useEffect(() => {
